@@ -1,0 +1,10 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="textBubblePadding">16dp</dimen>
+    <dimen name="textBubbleHalfPadding">8dp</dimen>
+    <dimen name="bubbleMargin">12dp</dimen>
+    <dimen name="avatarPadding">10dp</dimen>
+    <integer name="animLength">200</integer>
+</resources>

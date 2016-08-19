@@ -1,0 +1,55 @@
+apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
+android {
+    compileSdkVersion 24
+    buildToolsVersion '24'
+    dataBinding.enabled = true
+
+    defaultConfig {
+        applicationId "com.bakkenbaeck.toshi"
+        minSdkVersion 16
+        targetSdkVersion 24
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile(
+            // Support
+            'com.android.support:appcompat-v7:24.0.0',
+            'com.android.support:recyclerview-v7:24.0.0',
+            'com.android.support:gridlayout-v7:24.0.0',
+            'com.android.support:design:24.0.0',
+            'com.google.android.gms:play-services-ads:9.4.0',
+            // Networking
+            'com.squareup.retrofit2:retrofit:2.1.0',
+            'com.squareup.retrofit2:converter-moshi:2.1.0',
+            'com.squareup.retrofit2:adapter-rxjava:2.1.0',
+            'com.squareup.okhttp3:logging-interceptor:3.3.1',
+            // Reactive
+            'io.reactivex:rxandroid:1.2.0',
+            // Images
+            'de.hdodenhof:circleimageview:2.1.0',
+            // Animations
+            'jp.wasabeef:recyclerview-animators:2.2.3',
+            'com.robinhood.ticker:ticker:1.1.0',
+            // Reading barcodes
+            'com.journeyapps:zxing-android-embedded:3.3.0',
+            // I/O
+            'com.scottyab:secure-preferences-lib:0.1.4'
+    )
+    testCompile 'junit:junit:4.12'
+    compile fileTree(include: '*.jar', dir: 'libs')
+
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {
+        transitive = true;
+    }
+}

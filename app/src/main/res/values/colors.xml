@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#4E525D</color>
+    <color name="colorPrimaryDark">#4E525D</color>
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="colorAccent">#00DAA9</color>
+    <color name="generalBg">#F6F6FA</color>
+    <color name="mainText">#4C4848</color>
+    <color name="mainTextHint">#B2B4B8</color>
+
+    <color name="black">#000000</color>
+
+    <color name="bubbleBgLocal">#5AD3ED</color>
+    <color name="bubbleTextLocal">#EEEEF3</color>
+    <color name="bubbleBgRemote">#F6F6FA</color>
+    <color name="bubbleBorderRemote">#E5E5E5</color>
+
+    <color name="balanceBg">#575B65</color>
+
+</resources>

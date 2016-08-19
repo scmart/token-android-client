@@ -1,0 +1,50 @@
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColor">@color/mainText</item>
+        <item name="android:colorBackground">@color/generalBg</item>
+        <item name="android:textColorHint">@color/mainTextHint</item>
+        <item name="editTextStyle">@style/AppEditTextStyle</item>
+        <item name="android:editTextStyle">@style/AppEditTextStyle</item>
+        <item name="android:autoCompleteTextViewStyle">@style/AppAutoCompleteTextStyle</item>
+        <item name="android:buttonStyle">@style/Button</item>
+    </style>
+
+    <style name="AppEditTextStyle" parent="@android:style/Widget.EditText">
+        <item name="android:textColor">@color/mainText</item>
+    </style>
+
+    <style name="AppAutoCompleteTextStyle" parent="@android:style/Widget.AutoCompleteTextView">
+        <item name="android:textColor">@color/mainText</item>
+    </style>
+
+    <style name="Button" parent="@android:style/Widget.Button">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:background">@drawable/background_message_remote</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingLeft">30dp</item>
+        <item name="android:paddingRight">30dp</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="ToolbarTheme" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="actionMenuTextColor">@color/colorAccent</item>
+        <item name="selectableItemBackground">?android:selectableItemBackground</item>
+        <item name="selectableItemBackgroundBorderless">?android:selectableItemBackground</item>
+    </style>
+
+    <style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="ScannerTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:homeAsUpIndicator">@drawable/ic_close</item>
+    </style>
+
+</resources>
