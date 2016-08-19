@@ -10,5 +10,4 @@ Getting Started
 1. Clone this code to your machine
 2. Download and fully install [Android Studio](https://developer.android.com/studio/index.html)
 3. Open this code in Android Studio (Choosing the containing directory in Android Studio `Open` dialog works)
-4. You'll get an error about a string with id `basic_auth` being missing - see below for fixing this issue.
-5. Click the `Play` button (`[Ctrl]` + `[Alt]` + `R`)
+4. Click the `Play` button (`[Ctrl]` + `[Alt]` + `R`)
