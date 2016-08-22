@@ -113,17 +113,17 @@
 
         </LinearLayout>
 
-        <android.support.design.widget.FloatingActionButton
+        <Button
             android:id="@+id/send_button"
-            android:visibility="invisible"
-            tools:visibility="visible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/activity_horizontal_margin"
-            android:background="?attr/selectableItemBackground"
-            android:elevation="1dp"
-            android:src="@drawable/ic_action_done" />
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="30dp"
+            tools:visibility="visible"
+            android:visibility="invisible"
+            android:alpha="0"
+            tools:alpha="255"
+            android:text="@string/withdraw__button"/>
     </FrameLayout>
 
 </layout>

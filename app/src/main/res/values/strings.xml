@@ -18,4 +18,5 @@
     <string name="withdraw__amount">AMOUNT</string>
     <string name="withdraw__amount_error">Enter a valid amount for withdrawal</string>
     <string name="eth_symbol">Ξ</string>
+    <string name="withdraw__button">Withdraw</string>
 </resources>

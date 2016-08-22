@@ -1,5 +1,7 @@
 package com.bakkenbaeck.toshi.presenter;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -68,9 +70,21 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             public void onTextChanged(final CharSequence charSequence, final int i, final int i1, final int i2) {
                 final boolean showFab = charSequence.length() > 0;
                 if (showFab) {
-                    activity.getBinding().sendButton.show();
+                    activity.getBinding().sendButton.animate().alpha(1.0f).setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationStart(final Animator animation) {
+                            super.onAnimationStart(animation);
+                            activity.getBinding().sendButton.setVisibility(View.VISIBLE);
+                        }
+                    });
                 } else {
-                    activity.getBinding().sendButton.hide();
+                    activity.getBinding().sendButton.animate().alpha(0.0f).setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(final Animator animation) {
+                            super.onAnimationEnd(animation);
+                            activity.getBinding().sendButton.setVisibility(View.INVISIBLE);
+                        }
+                    });
                 }
             }
 
