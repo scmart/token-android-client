@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
@@ -12,19 +13,17 @@
         android:src="@mipmap/ic_chat_bot_avatar"
         android:layout_margin="@dimen/avatarPadding"/>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="120dp"
+    <TextView
+        android:id="@+id/single_message_item__message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/bubbleMargin"
-        android:background="@drawable/background_video"
         android:layout_marginBottom="@dimen/bubbleMargin"
-        android:layout_marginRight="60dp">
-
-        <ImageView
-            android:id="@+id/video_state"
-            android:src="@drawable/ic_av_play_circle_outline"
-            android:layout_gravity="center"
-            android:layout_width="55dp"
-            android:layout_height="55dp"/>
-    </FrameLayout>
+        android:layout_marginRight="@dimen/bubbleMargin"
+        android:padding="@dimen/textBubblePadding"
+        android:minWidth="50dp"
+        android:gravity="center_vertical"
+        android:background="@drawable/background_message_remote"
+        android:text="@string/chat__withdraw_instructions"
+        android:drawableBottom="@drawable/ic_action_withdraw_black"/>
 </LinearLayout>

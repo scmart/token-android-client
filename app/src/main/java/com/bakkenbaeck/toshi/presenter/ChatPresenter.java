@@ -12,6 +12,7 @@ import com.bakkenbaeck.toshi.model.Message;
 import com.bakkenbaeck.toshi.model.OfflineBalance;
 import com.bakkenbaeck.toshi.model.RemoteTextMessage;
 import com.bakkenbaeck.toshi.model.RemoteVideoMessage;
+import com.bakkenbaeck.toshi.model.RemoteWithdrawMessage;
 import com.bakkenbaeck.toshi.view.activity.ChatActivity;
 import com.bakkenbaeck.toshi.view.activity.VideoActivity;
 import com.bakkenbaeck.toshi.view.activity.WithdrawActivity;
@@ -61,7 +62,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     }
 
     private void showInitialMessage() {
-        final RemoteTextMessage response = new RemoteTextMessage().setTitle(this.activity.getResources().getString(R.string.chat__welcome_message));
+        final RemoteTextMessage response = new RemoteTextMessage().setText(this.activity.getResources().getString(R.string.chat__welcome_message));
         displayMessage(response);
         showAVideo();
     }
@@ -79,9 +80,18 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     private void rewardCurrency() {
         final double reward = offlineBalance.addRandomAmount();
         final String message = String.format(this.activity.getResources().getString(R.string.chat__currency_earned), reward);
-        final RemoteTextMessage response = new RemoteTextMessage().setTitle(message);
+        final RemoteTextMessage response = new RemoteTextMessage().setText(message);
         displayMessage(response, 500);
+
+        if (!offlineBalance.hasWithdraw() && offlineBalance.getNumberOfRewards() == 2) {
+            showWithdrawMessage();
+        }
         showBalance();
+    }
+
+    private void showWithdrawMessage() {
+        final RemoteWithdrawMessage message = new RemoteWithdrawMessage();
+        displayMessage(message, 1000);
     }
 
     private void displayMessage(final Message message, final int delay) {
@@ -109,7 +119,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
     private void withdrawAmountFromAddress(final double amount, final String walletAddress) {
         final String message = String.format(this.activity.getResources().getString(R.string.chat__withdraw_to_address), amount, walletAddress);
-        final RemoteTextMessage response = new RemoteTextMessage().setTitle(message);
+        final RemoteTextMessage response = new RemoteTextMessage().setText(message);
         displayMessage(response, 500);
         offlineBalance.subtract(amount);
         showBalance();

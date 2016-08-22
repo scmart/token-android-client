@@ -19,4 +19,5 @@
     <string name="withdraw__amount_error">Enter a valid amount for withdrawal</string>
     <string name="eth_symbol">Ξ</string>
     <string name="withdraw__button">Withdraw</string>
+    <string name="chat__withdraw_instructions">Good job earning ethereum! When you\'re ready you should try withdrawing your balance. To get started click: </string>
 </resources>

@@ -11,6 +11,7 @@ import com.bakkenbaeck.toshi.model.RemoteVideoMessage;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.LocalTextViewHolder;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteTextViewHolder;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteVideoViewHolder;
+import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteWithdrawViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ import rx.subjects.PublishSubject;
 import static com.bakkenbaeck.toshi.model.Message.TYPE_LOCAL_TEXT;
 import static com.bakkenbaeck.toshi.model.Message.TYPE_REMOTE_TEXT;
 import static com.bakkenbaeck.toshi.model.Message.TYPE_REMOTE_VIDEO;
+import static com.bakkenbaeck.toshi.model.Message.TYPE_REMOTE_WITHDRAW;
 
 public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<Message> messages;
@@ -51,6 +53,10 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
             case TYPE_REMOTE_VIDEO: {
                 final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__remote_video_message, parent, false);
                 return new RemoteVideoViewHolder(v);
+            }
+            case TYPE_REMOTE_WITHDRAW: {
+                final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__remote_withdraw_message, parent, false);
+                return new RemoteWithdrawViewHolder(v);
             }
             case TYPE_LOCAL_TEXT:
             default: {
@@ -85,6 +91,9 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
                     vh.videoState.setImageResource(R.drawable.ic_action_watched);
                 }
 
+                break;
+            }
+            case TYPE_REMOTE_WITHDRAW: {
                 break;
             }
             case TYPE_LOCAL_TEXT:

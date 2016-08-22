@@ -8,9 +8,12 @@ import java.util.Random;
 public class OfflineBalance {
 
     private double amount;
+    private boolean hasWithdrawn = false;
+    private int numberOfRewards = 0;
 
     public double addAmount(final double amount) {
         this.amount += amount;
+        this.numberOfRewards++;
         return this.amount;
     }
 
@@ -36,11 +39,16 @@ public class OfflineBalance {
         return bd.doubleValue();
     }
 
-    public void reset() {
-        amount = 0;
-    }
-
     public void subtract(final double amount) {
         this.amount -= amount;
+        this.hasWithdrawn = true;
+    }
+
+    public boolean hasWithdraw() {
+        return this.hasWithdrawn;
+    }
+
+    public int getNumberOfRewards() {
+        return this.numberOfRewards;
     }
 }

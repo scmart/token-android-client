@@ -5,18 +5,18 @@ import android.os.Parcelable;
 
 public final class RemoteTextMessage extends Message implements Parcelable {
 
-    private String title;
+    private String text;
 
     public RemoteTextMessage() {}
 
-    public RemoteTextMessage setTitle(final String title) {
-        this.title = title;
+    public RemoteTextMessage setText(final String text) {
+        this.text = text;
         return this;
     }
 
     @Override
     public String getTextContents() {
-        return this.title;
+        return this.text;
     }
 
     @Override
@@ -33,7 +33,7 @@ public final class RemoteTextMessage extends Message implements Parcelable {
 
     @Override
     public void writeToParcel(final Parcel out, final int flags) {
-        out.writeString(title);
+        out.writeString(text);
     }
 
     public static final Parcelable.Creator<RemoteTextMessage> CREATOR = new Parcelable.Creator<RemoteTextMessage>() {
@@ -47,6 +47,6 @@ public final class RemoteTextMessage extends Message implements Parcelable {
     };
 
     private RemoteTextMessage(final Parcel in) {
-        title = in.readString();
+        text = in.readString();
     }
 }

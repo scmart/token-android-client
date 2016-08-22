@@ -7,12 +7,14 @@ public abstract class Message {
     @IntDef({
             TYPE_LOCAL_TEXT,
             TYPE_REMOTE_TEXT,
-            TYPE_REMOTE_VIDEO
+            TYPE_REMOTE_VIDEO,
+            TYPE_REMOTE_WITHDRAW
     })
     public @interface Type {}
     public static final int TYPE_LOCAL_TEXT = 0;
     public static final int TYPE_REMOTE_TEXT = 1;
     public static final int TYPE_REMOTE_VIDEO = 2;
+    public static final int TYPE_REMOTE_WITHDRAW = 3;
 
     public abstract String getTextContents();
     @Type
