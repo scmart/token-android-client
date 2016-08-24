@@ -19,3 +19,9 @@
 -keep public class com.google.android.gms.ads.** {
    public *;
 }
+
+-keep class com.vungle.** { public *; }
+-keep class javax.inject.*
+-keepattributes *Annotation*
+-keepattributes Signature
+-keep class dagger.*
