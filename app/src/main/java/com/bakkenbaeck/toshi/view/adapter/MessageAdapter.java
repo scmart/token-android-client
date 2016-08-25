@@ -6,8 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.toshi.R;
-import com.bakkenbaeck.toshi.model.Message;
-import com.bakkenbaeck.toshi.model.RemoteVideoMessage;
+import com.bakkenbaeck.toshi.model.ChatMessage;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.LocalTextViewHolder;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteTextViewHolder;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteVideoViewHolder;
@@ -19,28 +18,61 @@ import java.util.List;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
-import static com.bakkenbaeck.toshi.model.Message.TYPE_LOCAL_TEXT;
-import static com.bakkenbaeck.toshi.model.Message.TYPE_REMOTE_TEXT;
-import static com.bakkenbaeck.toshi.model.Message.TYPE_REMOTE_VIDEO;
-import static com.bakkenbaeck.toshi.model.Message.TYPE_REMOTE_WITHDRAW;
+import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_LOCAL_TEXT;
+import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_REMOTE_TEXT;
+import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_REMOTE_VIDEO;
+import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_REMOTE_WITHDRAW;
 
-public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private List<Message> messages;
-    private final PublishSubject<Integer> onClickSubject = PublishSubject.create();
+public final class MessageAdapter extends DatabaseBackedAdapter<ChatMessage, RecyclerView.ViewHolder> {
 
-    public MessageAdapter() {
-        this.messages = new ArrayList<>();
+    public interface AdapterListener {
+        void onNoStoredMessages();
+        void onMessagesLoaded(boolean hasUnwatchedVideo);
     }
 
-    public final void addMessage(final Message message) {
-        this.messages.add(message);
-        notifyItemInserted(this.messages.size() - 1);
+    private List<ChatMessage> chatMessages;
+    private AdapterListener listener;
+    private boolean hasUnwatchedVideo = false;
+    private final PublishSubject<Integer> onClickSubject = PublishSubject.create();
+
+    public MessageAdapter(final AdapterListener listener) {
+        this.listener = listener;
+        this.chatMessages = new ArrayList<>();
+        getStoredObjects(ChatMessage.class);
+    }
+
+    @Override
+    void onObjectLoaded(final ChatMessage chatMessage) {
+        this.chatMessages.add(chatMessage);
+        if (chatMessage.getType() == TYPE_REMOTE_VIDEO && !chatMessage.hasBeenWatched()) {
+            hasUnwatchedVideo = true;
+        }
+    }
+
+    @Override
+    void onFinishedLoadingAllObjects() {
+        if (this.listener != null) {
+            this.listener.onMessagesLoaded(this.hasUnwatchedVideo);
+        }
+    }
+
+    @Override
+    void onEmptySet() {
+        if (this.listener != null) {
+            this.listener.onNoStoredMessages();
+        }
+    }
+
+    public final void addMessage(final ChatMessage chatMessage) {
+        final ChatMessage storedMessage = saveObjectToDatabase(chatMessage);
+        this.chatMessages.add(storedMessage);
+        notifyItemInserted(this.chatMessages.size() - 1);
     }
 
     @Override
     public int getItemViewType(final int position) {
-        final Message message = this.messages.get(position);
-        return message.getType();
+        final ChatMessage chatMessage = this.chatMessages.get(position);
+        return chatMessage.getType();
     }
 
     @Override
@@ -68,17 +100,16 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public final void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
-        final Message message = this.messages.get(position);
+        final ChatMessage chatMessage = this.chatMessages.get(position);
         switch (holder.getItemViewType()) {
             case TYPE_REMOTE_TEXT: {
                 final RemoteTextViewHolder vh = (RemoteTextViewHolder) holder;
-                vh.messageText.setText(message.getTextContents());
+                vh.messageText.setText(chatMessage.getText());
                 break;
             }
             case TYPE_REMOTE_VIDEO: {
-                final RemoteVideoMessage rvm = (RemoteVideoMessage) message;
                 final RemoteVideoViewHolder vh = (RemoteVideoViewHolder) holder;
-                if (!rvm.hasBeenViewed()) {
+                if (!chatMessage.hasBeenWatched()) {
                     vh.videoState.setImageResource(R.drawable.ic_av_play_circle_outline);
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -99,7 +130,7 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
             case TYPE_LOCAL_TEXT:
             default: {
                 final LocalTextViewHolder vh = (LocalTextViewHolder) holder;
-                vh.messageText.setText(message.getTextContents());
+                vh.messageText.setText(chatMessage.getText());
                 break;
             }
         }
@@ -107,14 +138,14 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public final int getItemCount() {
-        return messages.size();
+        return chatMessages.size();
     }
 
     public Observable<Integer> getPositionClicks(){
         return onClickSubject.asObservable();
     }
 
-    public Message getItemAt(final int clickedPosition) {
-        return this.messages.get(clickedPosition);
+    public ChatMessage getItemAt(final int clickedPosition) {
+        return this.chatMessages.get(clickedPosition);
     }
 }
