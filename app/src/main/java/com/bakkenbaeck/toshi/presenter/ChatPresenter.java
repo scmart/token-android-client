@@ -47,7 +47,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
         initToolbar();
         showBalance();
-        scrollToBottom();
+        scrollToBottom(false);
     }
 
     private void initToolbar() {
@@ -110,7 +110,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
             @Override
             public void run() {
                 messageAdapter.addMessage(chatMessage);
-                scrollToBottom();
+                scrollToBottom(true);
             }
         }, delay);
 
@@ -135,9 +135,13 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         showBalance();
     }
 
-    private void scrollToBottom() {
+    private void scrollToBottom(final boolean animate) {
         if (this.activity != null && this.messageAdapter.getItemCount() > 0) {
-            this.activity.getBinding().messagesList.smoothScrollToPosition(this.messageAdapter.getItemCount() -1);
+            if (animate) {
+                this.activity.getBinding().messagesList.smoothScrollToPosition(this.messageAdapter.getItemCount() - 1);
+            } else {
+                this.activity.getBinding().messagesList.scrollToPosition(this.messageAdapter.getItemCount() - 1);
+            }
         }
     }
 
