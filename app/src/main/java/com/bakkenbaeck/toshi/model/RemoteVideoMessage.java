@@ -3,30 +3,51 @@ package com.bakkenbaeck.toshi.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public final class RemoteVideoMessage extends Message implements Parcelable {
+import io.realm.RealmObject;
+
+public class RemoteVideoMessage extends RealmObject implements ChatMessage, Parcelable {
 
     private boolean hasBeenViewed;
+    private long creationTime;
 
-    public RemoteVideoMessage() {}
+    public RemoteVideoMessage() {
+        this.creationTime = System.currentTimeMillis();
+    }
 
     @Override
-    public String getTextContents() {
+    public final String getTextContents() {
         return "";
     }
 
     @Override
-    public @Type int getType() {
+    public final @Type int getType() {
         return TYPE_REMOTE_VIDEO;
     }
 
-    public boolean hasBeenViewed() {
+    public final boolean hasBeenViewed() {
         return hasBeenViewed;
+    }
+
+    public final void markAsWatched() {
+        this.hasBeenViewed = true;
     }
 
     // Parcelable implementation
 
-    protected RemoteVideoMessage(Parcel in) {
+    private RemoteVideoMessage(Parcel in) {
         hasBeenViewed = in.readByte() != 0;
+        creationTime = in.readLong();
+    }
+
+    @Override
+    public final void writeToParcel(Parcel dest, int flags) {
+        dest.writeByte((byte) (hasBeenViewed ? 1 : 0));
+        dest.writeLong(creationTime);
+    }
+
+    @Override
+    public final int describeContents() {
+        return 0;
     }
 
     public static final Creator<RemoteVideoMessage> CREATOR = new Creator<RemoteVideoMessage>() {
@@ -41,17 +62,5 @@ public final class RemoteVideoMessage extends Message implements Parcelable {
         }
     };
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
-    @Override
-    public void writeToParcel(final Parcel parcel, final int i) {
-        parcel.writeByte((byte) (hasBeenViewed ? 1 : 0));
-    }
-
-    public void markAsWatched() {
-        this.hasBeenViewed = true;
-    }
 }

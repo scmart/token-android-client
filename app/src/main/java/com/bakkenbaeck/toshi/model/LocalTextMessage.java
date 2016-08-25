@@ -2,8 +2,17 @@ package com.bakkenbaeck.toshi.model;
 
 import android.support.annotation.NonNull;
 
-public final class LocalTextMessage extends Message {
+import io.realm.RealmObject;
+
+public class LocalTextMessage extends RealmObject implements ChatMessage {
+
     private String message;
+    @SuppressWarnings("FieldCanBeLocal")
+    private long creationTime;
+
+    public LocalTextMessage() {
+        this.creationTime = System.currentTimeMillis();
+    }
 
     public final LocalTextMessage setMessage(@NonNull final String message) {
         this.message = message;
@@ -11,12 +20,12 @@ public final class LocalTextMessage extends Message {
     }
 
     @Override
-    public String getTextContents() {
+    public final String getTextContents() {
         return this.message;
     }
 
     @Override
-    public int getType() {
+    public final int getType() {
         return TYPE_LOCAL_TEXT;
     }
 }

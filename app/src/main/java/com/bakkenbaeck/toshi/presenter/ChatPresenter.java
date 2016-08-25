@@ -8,7 +8,7 @@ import android.view.View;
 import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.ActivityResultHolder;
 import com.bakkenbaeck.toshi.model.LocalTextMessage;
-import com.bakkenbaeck.toshi.model.Message;
+import com.bakkenbaeck.toshi.model.ChatMessage;
 import com.bakkenbaeck.toshi.model.OfflineBalance;
 import com.bakkenbaeck.toshi.model.RemoteTextMessage;
 import com.bakkenbaeck.toshi.model.RemoteVideoMessage;
@@ -94,20 +94,20 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         displayMessage(message, 1000);
     }
 
-    private void displayMessage(final Message message, final int delay) {
+    private void displayMessage(final ChatMessage chatMessage, final int delay) {
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                messageAdapter.addMessage(message);
+                messageAdapter.addMessage(chatMessage);
                 scrollToBottom();
             }
         }, delay);
 
     }
 
-    private void displayMessage(final Message message) {
-        displayMessage(message, 200);
+    private void displayMessage(final ChatMessage chatMessage) {
+        displayMessage(chatMessage, 200);
     }
 
     private void showBalance() {

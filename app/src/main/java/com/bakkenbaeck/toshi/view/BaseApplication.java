@@ -5,6 +5,9 @@ import android.app.Application;
 
 import com.bakkenbaeck.toshi.manager.UserManager;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+
 public class BaseApplication extends Application {
 
     private static BaseApplication instance;
@@ -17,10 +20,16 @@ public class BaseApplication extends Application {
         super.onCreate();
         instance = this;
         initUserManager();
+        initRealm();
     }
 
     private void initUserManager() {
         this.userManager = new UserManager().init();
+    }
+
+    private void initRealm() {
+        final RealmConfiguration config = new RealmConfiguration.Builder(this).build();
+        Realm.setDefaultConfiguration(config);
     }
 
     public UserManager getUserManager() {

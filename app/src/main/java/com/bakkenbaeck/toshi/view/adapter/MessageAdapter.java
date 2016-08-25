@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.toshi.R;
-import com.bakkenbaeck.toshi.model.Message;
+import com.bakkenbaeck.toshi.model.ChatMessage;
 import com.bakkenbaeck.toshi.model.RemoteVideoMessage;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.LocalTextViewHolder;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteTextViewHolder;
@@ -19,28 +19,28 @@ import java.util.List;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
-import static com.bakkenbaeck.toshi.model.Message.TYPE_LOCAL_TEXT;
-import static com.bakkenbaeck.toshi.model.Message.TYPE_REMOTE_TEXT;
-import static com.bakkenbaeck.toshi.model.Message.TYPE_REMOTE_VIDEO;
-import static com.bakkenbaeck.toshi.model.Message.TYPE_REMOTE_WITHDRAW;
+import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_LOCAL_TEXT;
+import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_REMOTE_TEXT;
+import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_REMOTE_VIDEO;
+import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_REMOTE_WITHDRAW;
 
-public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private List<Message> messages;
+public final class MessageAdapter extends DatabaseBackedAdapter<RecyclerView.ViewHolder> {
+    private List<ChatMessage> chatMessages;
     private final PublishSubject<Integer> onClickSubject = PublishSubject.create();
 
     public MessageAdapter() {
-        this.messages = new ArrayList<>();
+        this.chatMessages = new ArrayList<>();
     }
 
-    public final void addMessage(final Message message) {
-        this.messages.add(message);
-        notifyItemInserted(this.messages.size() - 1);
+    public final void addMessage(final ChatMessage chatMessage) {
+        this.chatMessages.add(chatMessage);
+        notifyItemInserted(this.chatMessages.size() - 1);
     }
 
     @Override
     public int getItemViewType(final int position) {
-        final Message message = this.messages.get(position);
-        return message.getType();
+        final ChatMessage chatMessage = this.chatMessages.get(position);
+        return chatMessage.getType();
     }
 
     @Override
@@ -68,15 +68,15 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public final void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
-        final Message message = this.messages.get(position);
+        final ChatMessage chatMessage = this.chatMessages.get(position);
         switch (holder.getItemViewType()) {
             case TYPE_REMOTE_TEXT: {
                 final RemoteTextViewHolder vh = (RemoteTextViewHolder) holder;
-                vh.messageText.setText(message.getTextContents());
+                vh.messageText.setText(chatMessage.getTextContents());
                 break;
             }
             case TYPE_REMOTE_VIDEO: {
-                final RemoteVideoMessage rvm = (RemoteVideoMessage) message;
+                final RemoteVideoMessage rvm = (RemoteVideoMessage) chatMessage;
                 final RemoteVideoViewHolder vh = (RemoteVideoViewHolder) holder;
                 if (!rvm.hasBeenViewed()) {
                     vh.videoState.setImageResource(R.drawable.ic_av_play_circle_outline);
@@ -99,7 +99,7 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
             case TYPE_LOCAL_TEXT:
             default: {
                 final LocalTextViewHolder vh = (LocalTextViewHolder) holder;
-                vh.messageText.setText(message.getTextContents());
+                vh.messageText.setText(chatMessage.getTextContents());
                 break;
             }
         }
@@ -107,14 +107,14 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public final int getItemCount() {
-        return messages.size();
+        return chatMessages.size();
     }
 
     public Observable<Integer> getPositionClicks(){
         return onClickSubject.asObservable();
     }
 
-    public Message getItemAt(final int clickedPosition) {
-        return this.messages.get(clickedPosition);
+    public ChatMessage getItemAt(final int clickedPosition) {
+        return this.chatMessages.get(clickedPosition);
     }
 }
