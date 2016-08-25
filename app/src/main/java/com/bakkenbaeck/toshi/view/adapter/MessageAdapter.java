@@ -27,10 +27,12 @@ public final class MessageAdapter extends DatabaseBackedAdapter<ChatMessage, Rec
 
     public interface AdapterListener {
         void onNoStoredMessages();
+        void onMessagesLoaded(boolean hasUnwatchedVideo);
     }
 
     private List<ChatMessage> chatMessages;
     private AdapterListener listener;
+    private boolean hasUnwatchedVideo = false;
     private final PublishSubject<Integer> onClickSubject = PublishSubject.create();
 
     public MessageAdapter(final AdapterListener listener) {
@@ -42,6 +44,16 @@ public final class MessageAdapter extends DatabaseBackedAdapter<ChatMessage, Rec
     @Override
     void onObjectLoaded(final ChatMessage chatMessage) {
         this.chatMessages.add(chatMessage);
+        if (chatMessage.getType() == TYPE_REMOTE_VIDEO && !chatMessage.hasBeenWatched()) {
+            hasUnwatchedVideo = true;
+        }
+    }
+
+    @Override
+    void onFinishedLoadingAllObjects() {
+        if (this.listener != null) {
+            this.listener.onMessagesLoaded(this.hasUnwatchedVideo);
+        }
     }
 
     @Override

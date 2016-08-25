@@ -32,8 +32,11 @@ public abstract class DatabaseBackedAdapter<RO extends RealmObject, VH extends R
         for (final RO object : storedObjects) {
             onObjectLoaded(object);
         }
+
+        onFinishedLoadingAllObjects();
     }
 
     abstract void onObjectLoaded(RO clazz);
     abstract void onEmptySet();
+    abstract void onFinishedLoadingAllObjects();
 }

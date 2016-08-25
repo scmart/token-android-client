@@ -62,6 +62,13 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         public void onNoStoredMessages() {
             showWelcomeMessage();
         }
+
+        @Override
+        public void onMessagesLoaded(final boolean hasUnwatchedVideo) {
+            if (!hasUnwatchedVideo) {
+                promptNewVideo();
+            }
+        }
     };
 
     private void showWelcomeMessage() {
