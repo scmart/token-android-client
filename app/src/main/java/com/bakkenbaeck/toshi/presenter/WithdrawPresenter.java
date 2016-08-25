@@ -168,7 +168,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         }
         final Intent intent = new Intent();
         intent.putExtra(INTENT_WALLET_ADDRESS, this.activity.getBinding().walletAddress.getText().toString());
-        intent.putExtra(INTENT_WITHDRAW_AMOUNT, Double.valueOf(this.activity.getBinding().amount.getText().toString()));
+        intent.putExtra(INTENT_WITHDRAW_AMOUNT, Long.valueOf(this.activity.getBinding().amount.getText().toString()));
         this.activity.setResult(RESULT_OK, intent);
         this.activity.finish();
         this.activity.overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right);

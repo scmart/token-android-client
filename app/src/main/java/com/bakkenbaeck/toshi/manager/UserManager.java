@@ -49,44 +49,21 @@ public class UserManager {
             return false;
         }
 
-        this.currentUser = new User().setId(userId);
-        emitUser();
-        getUserInformation(userId);
+        getExistingUser(userId);
         return true;
     }
 
     private void requestNewUser() {
         final Observable<User> call = ToshiService.getApi().requestUserId();
-        call.subscribe(this.newUserSubscriber);
+        call.subscribe(this.userSubscriber);
     }
 
-    private final Subscriber<User> newUserSubscriber = new Subscriber<User>() {
-        @Override
-        public void onCompleted() {}
-
-        @Override
-        public void onError(final Throwable e) {
-            LogUtil.e(getClass(), e.toString());
-        }
-
-        @Override
-        public void onNext(final User userResponse) {
-            if (currentUser == null) {
-                currentUser = userResponse;
-                prefs.edit().putString(USER_ID, currentUser.getId()).apply();
-                emitUser();
-            }
-            newUserSubscriber.unsubscribe();
-        }
-    };
-
-
-    private void getUserInformation(final String userId) {
+    private void getExistingUser(final String userId) {
         final Observable<User> call = ToshiService.getApi().getUser(userId);
-        call.subscribe(this.existingUserSubscriber);
+        call.subscribe(this.userSubscriber);
     }
 
-    private final Subscriber<User> existingUserSubscriber = new Subscriber<User>() {
+    private final Subscriber<User> userSubscriber = new Subscriber<User>() {
         @Override
         public void onCompleted() {}
 
@@ -97,9 +74,16 @@ public class UserManager {
 
         @Override
         public void onNext(final User userResponse) {
-            LogUtil.e(getClass(), "e");
+            storeAndEmitReturnedUser(userResponse);
+            userSubscriber.unsubscribe();
         }
     };
+
+    private void storeAndEmitReturnedUser(final User userResponse) {
+        currentUser = userResponse;
+        prefs.edit().putString(USER_ID, currentUser.getId()).apply();
+        emitUser();
+    }
 
     private void emitUser() {
         this.subject.onNext(this.currentUser);

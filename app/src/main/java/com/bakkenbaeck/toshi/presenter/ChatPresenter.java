@@ -9,6 +9,8 @@ import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.ActivityResultHolder;
 import com.bakkenbaeck.toshi.model.ChatMessage;
 import com.bakkenbaeck.toshi.model.OfflineBalance;
+import com.bakkenbaeck.toshi.model.User;
+import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.ChatActivity;
 import com.bakkenbaeck.toshi.view.activity.VideoActivity;
 import com.bakkenbaeck.toshi.view.activity.WithdrawActivity;
@@ -33,20 +35,21 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     @Override
     public void onViewAttached(final ChatActivity activity) {
         this.activity = activity;
+        initToolbar();
 
         if (firstViewAttachment) {
             firstViewAttachment = false;
             this.offlineBalance = new OfflineBalance();
+            showBalance();
             this.messageAdapter = new MessageAdapter(this.adapterListener);
             registerObservable();
             this.activity.getBinding().messagesList.setItemAnimator(new FadeInLeftAnimator());
+            BaseApplication.get().getUserManager().getObservable().subscribe(this.currentUserSubscriber);
         }
 
         this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
         this.messageAdapter.notifyDataSetChanged();
 
-        initToolbar();
-        showBalance();
         scrollToBottom(false);
     }
 
@@ -87,6 +90,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         displayMessage(message);
     }
 
+    /*
     private void rewardCurrency() {
         final double reward = offlineBalance.addRandomAmount();
         final String message = String.format(this.activity.getResources().getString(R.string.chat__currency_earned), reward);
@@ -99,11 +103,12 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         showBalance();
     }
 
+
     private void showWithdrawMessage() {
         final ChatMessage message = new ChatMessage().makeRemoteWithdrawMessage();
         displayMessage(message, 1000);
     }
-
+*/
     private void displayMessage(final ChatMessage chatMessage, final int delay) {
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -121,13 +126,28 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     }
 
     private void showBalance() {
-        final String balance = String.format(this.activity.getResources().getString(R.string.balance__current_balance), offlineBalance.getBalance());
+        final String balance = offlineBalance.toString();
         if (this.activity != null) {
             this.activity.getBinding().balanceBar.setBalance(balance);
         }
     }
 
-    private void withdrawAmountFromAddress(final double amount, final String walletAddress) {
+    private final Subscriber<User> currentUserSubscriber = new Subscriber<User>() {
+        @Override
+        public void onCompleted() {}
+
+        @Override
+        public void onError(final Throwable e) {}
+
+        @Override
+        public void onNext(final User user) {
+            this.unsubscribe();
+            offlineBalance.setBalance(user.getBalance());
+            showBalance();
+        }
+    };
+
+    private void withdrawAmountFromAddress(final long amount, final String walletAddress) {
         final String message = String.format(this.activity.getResources().getString(R.string.chat__withdraw_to_address), amount, walletAddress);
         final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message);
         displayMessage(response, 500);
@@ -210,14 +230,14 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
         if (activityResultHolder.getRequestCode() == WITHDRAW_REQUEST_CODE) {
             final String address = activityResultHolder.getIntent().getStringExtra(WithdrawPresenter.INTENT_WALLET_ADDRESS);
-            final double amount = activityResultHolder.getIntent().getDoubleExtra(WithdrawPresenter.INTENT_WITHDRAW_AMOUNT, 0);
+            final long amount = activityResultHolder.getIntent().getLongExtra(WithdrawPresenter.INTENT_WITHDRAW_AMOUNT, 0);
             withdrawAmountFromAddress(amount, address);
         }
     }
 
     private void handleVideoCompleted(final ActivityResultHolder activityResultHolder) {
         markVideoAsWatched(activityResultHolder);
-        rewardCurrency();
+        //rewardCurrency();
         promptNewVideo();
     }
 
