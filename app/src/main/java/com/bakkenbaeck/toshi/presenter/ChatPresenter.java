@@ -7,17 +7,14 @@ import android.view.View;
 
 import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.ActivityResultHolder;
-import com.bakkenbaeck.toshi.model.LocalTextMessage;
 import com.bakkenbaeck.toshi.model.ChatMessage;
 import com.bakkenbaeck.toshi.model.OfflineBalance;
-import com.bakkenbaeck.toshi.model.RemoteTextMessage;
-import com.bakkenbaeck.toshi.model.RemoteVideoMessage;
-import com.bakkenbaeck.toshi.model.RemoteWithdrawMessage;
 import com.bakkenbaeck.toshi.view.activity.ChatActivity;
 import com.bakkenbaeck.toshi.view.activity.VideoActivity;
 import com.bakkenbaeck.toshi.view.activity.WithdrawActivity;
 import com.bakkenbaeck.toshi.view.adapter.MessageAdapter;
 
+import io.realm.Realm;
 import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 import rx.Subscriber;
 
@@ -40,8 +37,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         if (firstViewAttachment) {
             firstViewAttachment = false;
             this.offlineBalance = new OfflineBalance();
-            this.messageAdapter = new MessageAdapter();
-            showInitialMessage();
+            this.messageAdapter = new MessageAdapter(this.adapterListener);
             registerObservable();
             this.activity.getBinding().messagesList.setItemAnimator(new FadeInLeftAnimator());
         }
@@ -61,26 +57,33 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         this.activity.getSupportActionBar().setTitle(title);
     }
 
-    private void showInitialMessage() {
-        final RemoteTextMessage response = new RemoteTextMessage().setText(this.activity.getResources().getString(R.string.chat__welcome_message));
+    private final MessageAdapter.AdapterListener adapterListener = new MessageAdapter.AdapterListener() {
+        @Override
+        public void onNoStoredMessages() {
+            showWelcomeMessage();
+        }
+    };
+
+    private void showWelcomeMessage() {
+        final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(this.activity.getResources().getString(R.string.chat__welcome_message));
         displayMessage(response);
         showAVideo();
     }
 
     private void showAVideo() {
-        final RemoteVideoMessage video = new RemoteVideoMessage();
+        final ChatMessage video = new ChatMessage().makeRemoteVideoMessage();
         displayMessage(video, 700);
     }
 
     private void showVideoRequestMessage() {
-        final LocalTextMessage message = new LocalTextMessage().setMessage(this.activity.getResources().getString(R.string.chat__request_video_message));
+        final ChatMessage message = new ChatMessage().makeLocalMessageWithText(this.activity.getResources().getString(R.string.chat__request_video_message));
         displayMessage(message);
     }
 
     private void rewardCurrency() {
         final double reward = offlineBalance.addRandomAmount();
         final String message = String.format(this.activity.getResources().getString(R.string.chat__currency_earned), reward);
-        final RemoteTextMessage response = new RemoteTextMessage().setText(message);
+        final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message);
         displayMessage(response, 500);
 
         if (!offlineBalance.hasWithdraw() && offlineBalance.getNumberOfRewards() == 2) {
@@ -90,7 +93,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     }
 
     private void showWithdrawMessage() {
-        final RemoteWithdrawMessage message = new RemoteWithdrawMessage();
+        final ChatMessage message = new ChatMessage().makeRemoteWithdrawMessage();
         displayMessage(message, 1000);
     }
 
@@ -119,7 +122,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
     private void withdrawAmountFromAddress(final double amount, final String walletAddress) {
         final String message = String.format(this.activity.getResources().getString(R.string.chat__withdraw_to_address), amount, walletAddress);
-        final RemoteTextMessage response = new RemoteTextMessage().setText(message);
+        final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message);
         displayMessage(response, 500);
         offlineBalance.subtract(amount);
         showBalance();
@@ -209,8 +212,10 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
     private void markVideoAsWatched(final ActivityResultHolder activityResultHolder) {
         final int clickedPosition = activityResultHolder.getIntent().getIntExtra(VideoPresenter.INTENT_CLICKED_POSITION, 0);
-        final RemoteVideoMessage clickedMessage = (RemoteVideoMessage) this.messageAdapter.getItemAt(clickedPosition);
+        final ChatMessage clickedMessage = this.messageAdapter.getItemAt(clickedPosition);
+        Realm.getDefaultInstance().beginTransaction();
         clickedMessage.markAsWatched();
+        Realm.getDefaultInstance().commitTransaction();
         this.messageAdapter.notifyItemChanged(clickedPosition);
     }
 

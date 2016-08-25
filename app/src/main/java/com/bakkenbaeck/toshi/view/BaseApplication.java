@@ -28,7 +28,10 @@ public class BaseApplication extends Application {
     }
 
     private void initRealm() {
-        final RealmConfiguration config = new RealmConfiguration.Builder(this).build();
+        final RealmConfiguration config = new RealmConfiguration
+                .Builder(this)
+                .deleteRealmIfMigrationNeeded()
+                .build();
         Realm.setDefaultConfiguration(config);
     }
 

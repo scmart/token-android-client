@@ -5,8 +5,9 @@ import android.support.v7.widget.RecyclerView;
 
 import io.realm.Realm;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
 
-public abstract class DatabaseBackedAdapter<VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
+public abstract class DatabaseBackedAdapter<RO extends RealmObject, VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
 
     private final Realm realm;
 
@@ -14,9 +15,25 @@ public abstract class DatabaseBackedAdapter<VH extends RecyclerView.ViewHolder> 
         this.realm = Realm.getDefaultInstance();
     }
 
-    public void saveObjectToDatabase(final RealmObject object) {
+    public RO saveObjectToDatabase(final RO object) {
         this.realm.beginTransaction();
-        realm.copyToRealm(object);
+        final RO storedObject = realm.copyToRealm(object);
         this.realm.commitTransaction();
+        return storedObject;
     }
+
+    public void getStoredObjects(Class<RO> clazz) {
+        final RealmResults<RO> storedObjects = realm.where(clazz).findAll();
+        if (storedObjects.size() == 0) {
+            onEmptySet();
+            return;
+        }
+
+        for (final RO object : storedObjects) {
+            onObjectLoaded(object);
+        }
+    }
+
+    abstract void onObjectLoaded(RO clazz);
+    abstract void onEmptySet();
 }
