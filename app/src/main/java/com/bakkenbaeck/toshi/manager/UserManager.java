@@ -51,15 +51,16 @@ public class UserManager {
 
         this.currentUser = new User().setId(userId);
         emitUser();
+        getUserInformation(userId);
         return true;
     }
 
     private void requestNewUser() {
         final Observable<User> call = ToshiService.getApi().requestUserId();
-        call.subscribe(this.userSubscriber);
+        call.subscribe(this.newUserSubscriber);
     }
 
-    private final Subscriber<User> userSubscriber = new Subscriber<User>() {
+    private final Subscriber<User> newUserSubscriber = new Subscriber<User>() {
         @Override
         public void onCompleted() {}
 
@@ -75,7 +76,28 @@ public class UserManager {
                 prefs.edit().putString(USER_ID, currentUser.getId()).apply();
                 emitUser();
             }
-            userSubscriber.unsubscribe();
+            newUserSubscriber.unsubscribe();
+        }
+    };
+
+
+    private void getUserInformation(final String userId) {
+        final Observable<User> call = ToshiService.getApi().getUser(userId);
+        call.subscribe(this.existingUserSubscriber);
+    }
+
+    private final Subscriber<User> existingUserSubscriber = new Subscriber<User>() {
+        @Override
+        public void onCompleted() {}
+
+        @Override
+        public void onError(final Throwable e) {
+            LogUtil.e(getClass(), e.toString());
+        }
+
+        @Override
+        public void onNext(final User userResponse) {
+            LogUtil.e(getClass(), "e");
         }
     };
 
