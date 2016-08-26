@@ -47,7 +47,7 @@ public class OfflineBalance {
     @Override
     public String toString() {
         if (this.amountInWei == null) {
-            return "0.00000";
+            return "0";
         } else {
             return this.amountInWei.toString();
         }
