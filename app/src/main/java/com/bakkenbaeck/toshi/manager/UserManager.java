@@ -26,11 +26,21 @@ public class UserManager {
     }
 
     public UserManager init() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                initUser();
+            }
+        }).start();
+
+        return this;
+    }
+
+    private void initUser() {
         this.prefs = new SecurePreferences(BaseApplication.get());
         if (!userExistsInPrefs()) {
             requestNewUser();
         }
-        return this;
     }
 
     private boolean userExistsInPrefs() {
