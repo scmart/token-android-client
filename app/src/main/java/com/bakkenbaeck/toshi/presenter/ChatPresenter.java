@@ -16,6 +16,8 @@ import com.bakkenbaeck.toshi.view.activity.VideoActivity;
 import com.bakkenbaeck.toshi.view.activity.WithdrawActivity;
 import com.bakkenbaeck.toshi.view.adapter.MessageAdapter;
 
+import java.math.BigInteger;
+
 import io.realm.Realm;
 import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 import rx.Subscriber;
@@ -147,8 +149,8 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         }
     };
 
-    private void withdrawAmountFromAddress(final long amount, final String walletAddress) {
-        final String message = String.format(this.activity.getResources().getString(R.string.chat__withdraw_to_address), amount, walletAddress);
+    private void withdrawAmountFromAddress(final BigInteger amount, final String walletAddress) {
+        final String message = String.format(this.activity.getResources().getString(R.string.chat__withdraw_to_address), amount.toString(), walletAddress);
         final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message);
         displayMessage(response, 500);
         offlineBalance.subtract(amount);
@@ -230,7 +232,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
         if (activityResultHolder.getRequestCode() == WITHDRAW_REQUEST_CODE) {
             final String address = activityResultHolder.getIntent().getStringExtra(WithdrawPresenter.INTENT_WALLET_ADDRESS);
-            final long amount = activityResultHolder.getIntent().getLongExtra(WithdrawPresenter.INTENT_WITHDRAW_AMOUNT, 0);
+            final BigInteger amount = (BigInteger) activityResultHolder.getIntent().getSerializableExtra(WithdrawPresenter.INTENT_WITHDRAW_AMOUNT);
             withdrawAmountFromAddress(amount, address);
         }
     }

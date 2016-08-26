@@ -27,11 +27,7 @@ public class OfflineBalance {
         this.amountInWei = balance;
     }
 
-    public void subtract(final long amount) {
-        this.subtract(BigInteger.valueOf(amount));
-    }
-
-    private void subtract(final BigInteger amount) {
+    public void subtract(final BigInteger amount) {
         this.amountInWei = this.amountInWei.subtract(amount);
         this.hasWithdrawn = true;
     }

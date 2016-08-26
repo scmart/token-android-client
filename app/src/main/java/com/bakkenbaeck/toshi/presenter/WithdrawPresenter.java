@@ -17,6 +17,8 @@ import com.bakkenbaeck.toshi.view.adapter.WalletAddressesAdapter;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import java.math.BigInteger;
+
 import rx.Subscriber;
 
 import static android.app.Activity.RESULT_OK;
@@ -106,8 +108,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     }
 
     private void showBalance() {
-        final double passedInBalance = getPassedInBalance();
-        final String balance = String.format(this.activity.getResources().getString(R.string.balance__current_balance), passedInBalance);
+        final String balance = getPassedInBalance().toString();
         if (this.activity != null) {
             this.activity.getBinding().balanceBar.setBalance(balance);
         }
@@ -118,8 +119,8 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         this.activity.getBinding().amount.setSelection(this.activity.getBinding().amount.getText().length());
     }
 
-    private double getPassedInBalance() {
-        return this.activity.getIntent().getDoubleExtra(INTENT_BALANCE, 0);
+    private BigInteger getPassedInBalance() {
+        return (BigInteger) this.activity.getIntent().getSerializableExtra(INTENT_BALANCE);
     }
 
     @Override
@@ -168,7 +169,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         }
         final Intent intent = new Intent();
         intent.putExtra(INTENT_WALLET_ADDRESS, this.activity.getBinding().walletAddress.getText().toString());
-        intent.putExtra(INTENT_WITHDRAW_AMOUNT, Long.valueOf(this.activity.getBinding().amount.getText().toString()));
+        intent.putExtra(INTENT_WITHDRAW_AMOUNT, new BigInteger(this.activity.getBinding().amount.getText().toString()));
         this.activity.setResult(RESULT_OK, intent);
         this.activity.finish();
         this.activity.overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right);
@@ -176,10 +177,10 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
     private boolean validate() {
         try {
-            final double maxAvailableToWithdraw = getPassedInBalance();
-            final double amountRequested = Double.valueOf(this.activity.getBinding().amount.getText().toString());
+            final BigInteger maxAvailableToWithdraw = getPassedInBalance();
+            final BigInteger amountRequested = new BigInteger(this.activity.getBinding().amount.getText().toString());
 
-            if (amountRequested > 0 && amountRequested <= maxAvailableToWithdraw) {
+            if (amountRequested.compareTo(BigInteger.ZERO) > 0 && amountRequested.compareTo(maxAvailableToWithdraw) <= 0) {
                 return true;
             }
         } catch (final NumberFormatException ex) {
