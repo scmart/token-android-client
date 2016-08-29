@@ -19,11 +19,7 @@ public class OfflineBalance {
         return this.amountInWei;
     }
 
-    public void setBalance(final long balance) {
-        this.setBalance(BigInteger.valueOf(balance));
-    }
-
-    private void setBalance(final BigInteger balance) {
+    public void setBalance(final BigInteger balance) {
         this.amountInWei = balance;
     }
 

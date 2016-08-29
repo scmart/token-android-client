@@ -42,7 +42,6 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         if (firstViewAttachment) {
             firstViewAttachment = false;
             this.offlineBalance = new OfflineBalance();
-            showBalance();
             this.messageAdapter = new MessageAdapter(this.adapterListener);
             registerObservable();
             this.activity.getBinding().messagesList.setItemAnimator(new FadeInLeftAnimator());
@@ -51,7 +50,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
         this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
         this.messageAdapter.notifyDataSetChanged();
-
+        showBalance();
         scrollToBottom(false);
     }
 

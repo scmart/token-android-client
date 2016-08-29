@@ -1,7 +1,9 @@
 package com.bakkenbaeck.toshi.http;
 
 
+import com.bakkenbaeck.toshi.model.jsonadapter.BigIntegerAdapter;
 import com.bakkenbaeck.toshi.util.LogUtil;
+import com.squareup.moshi.Moshi;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -42,9 +44,13 @@ public class ToshiService {
 
         addLogging();
 
+        final Moshi moshi = new Moshi.Builder()
+                                    .add(new BigIntegerAdapter())
+                                    .build();
+
         final Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
-                .addConverterFactory(MoshiConverterFactory.create())
+                .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .addCallAdapterFactory(rxAdapter)
                 .client(client.build())
                 .build();

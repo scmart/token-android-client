@@ -1,9 +1,11 @@
 package com.bakkenbaeck.toshi.model;
 
 
+import java.math.BigInteger;
+
 public class User {
     private String id;
-    private int balance;
+    private BigInteger balance;
 
     public String getId() {
         return id;
@@ -14,7 +16,7 @@ public class User {
         return this;
     }
 
-    public int getBalance() {
+    public BigInteger getBalance() {
         return this.balance;
     }
 }
