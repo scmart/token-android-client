@@ -11,12 +11,12 @@ import com.securepreferences.SecurePreferences;
 
 import rx.Observable;
 import rx.Subscriber;
-import rx.subjects.ReplaySubject;
+import rx.subjects.BehaviorSubject;
 
 public class UserManager {
 
     private final String USER_ID = "user_id";
-    private final ReplaySubject<User> subject = ReplaySubject.create();
+    private final BehaviorSubject<User> subject = BehaviorSubject.create();
 
     private User currentUser;
     private SharedPreferences prefs;

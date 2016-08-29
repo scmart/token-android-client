@@ -25,9 +25,10 @@ public class BaseApplication extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-        this.websocketManager = new WebsocketManager();
+
         initUserManager();
         initWalletManager();
+        initWebsocketManager();
         initRealm();
     }
 
@@ -38,6 +39,10 @@ public class BaseApplication extends Application {
 
     private void initWalletManager() {
         this.walletManager = new WalletManager().init();
+    }
+
+    private void initWebsocketManager() {
+        this.websocketManager = new WebsocketManager();
     }
 
     private void initRealm() {
