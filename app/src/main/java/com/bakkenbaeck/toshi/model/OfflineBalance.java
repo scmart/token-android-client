@@ -1,46 +1,30 @@
 package com.bakkenbaeck.toshi.model;
 
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Random;
+import java.math.BigInteger;
 
 public class OfflineBalance {
 
-    private double amount;
+    private BigInteger amountInWei;
     private boolean hasWithdrawn = false;
     private int numberOfRewards = 0;
 
-    public double addAmount(final double amount) {
-        this.amount += amount;
+    public BigInteger addAmount(final BigInteger amount) {
+        this.amountInWei = this.amountInWei.add(amount);
         this.numberOfRewards++;
-        return this.amount;
+        return this.amountInWei;
     }
 
-    public double getBalance() {
-        return this.amount;
+    public BigInteger getBalance() {
+        return this.amountInWei;
     }
 
-    public double addRandomAmount() {
-        final Random r = new Random();
-        final double High = 0.0275;
-        final double Low = 0.00825;
-        final double rawAmount = Low + (High - Low) * r.nextDouble();
-        final double roundedAmount = round(rawAmount, 5);
-        addAmount(roundedAmount);
-        return roundedAmount;
+    public void setBalance(final BigInteger balance) {
+        this.amountInWei = balance;
     }
 
-    private double round(final double value, final int places) {
-        if (places < 0) throw new IllegalArgumentException();
-
-        BigDecimal bd = new BigDecimal(value);
-        bd = bd.setScale(places, RoundingMode.HALF_UP);
-        return bd.doubleValue();
-    }
-
-    public void subtract(final double amount) {
-        this.amount -= amount;
+    public void subtract(final BigInteger amount) {
+        this.amountInWei = this.amountInWei.subtract(amount);
         this.hasWithdrawn = true;
     }
 
@@ -50,5 +34,14 @@ public class OfflineBalance {
 
     public int getNumberOfRewards() {
         return this.numberOfRewards;
+    }
+
+    @Override
+    public String toString() {
+        if (this.amountInWei == null) {
+            return "0";
+        } else {
+            return this.amountInWei.toString();
+        }
     }
 }

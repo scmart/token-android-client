@@ -2,7 +2,6 @@ package com.bakkenbaeck.toshi.view.custom;
 
 
 import android.content.Context;
-import android.os.Handler;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 
@@ -28,12 +27,11 @@ public class BalanceBar extends LinearLayout {
     }
 
     public void setBalance(final String balance) {
-        new Handler().postDelayed(new Runnable() {
+        this.postDelayed(new Runnable() {
             @Override
             public void run() {
-                ((TickerView)findViewById(R.id.balance)).setText(balance);
+                ((TickerView) findViewById(R.id.balance)).setText(balance);
             }
         }, 200);
-
     }
 }

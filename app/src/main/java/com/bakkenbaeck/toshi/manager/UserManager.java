@@ -49,13 +49,17 @@ public class UserManager {
             return false;
         }
 
-        this.currentUser = new User().setId(userId);
-        emitUser();
+        getExistingUser(userId);
         return true;
     }
 
     private void requestNewUser() {
         final Observable<User> call = ToshiService.getApi().requestUserId();
+        call.subscribe(this.userSubscriber);
+    }
+
+    private void getExistingUser(final String userId) {
+        final Observable<User> call = ToshiService.getApi().getUser(userId);
         call.subscribe(this.userSubscriber);
     }
 
@@ -70,14 +74,16 @@ public class UserManager {
 
         @Override
         public void onNext(final User userResponse) {
-            if (currentUser == null) {
-                currentUser = userResponse;
-                prefs.edit().putString(USER_ID, currentUser.getId()).apply();
-                emitUser();
-            }
+            storeAndEmitReturnedUser(userResponse);
             userSubscriber.unsubscribe();
         }
     };
+
+    private void storeAndEmitReturnedUser(final User userResponse) {
+        currentUser = userResponse;
+        prefs.edit().putString(USER_ID, currentUser.getId()).apply();
+        emitUser();
+    }
 
     private void emitUser() {
         this.subject.onNext(this.currentUser);
