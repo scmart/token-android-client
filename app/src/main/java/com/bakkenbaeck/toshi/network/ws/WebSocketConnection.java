@@ -1,4 +1,4 @@
-package com.bakkenbaeck.toshi.manager;
+package com.bakkenbaeck.toshi.network.ws;
 
 
 import android.os.Handler;
@@ -14,17 +14,23 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class WebsocketManager {
+/* package */ class WebSocketConnection {
+
+    /* package */ interface Listener {
+        void onJsonMessage(final String json);
+    }
 
     private final WebSocketFactory wsFactory;
     private final Handler reconnectHandler;
+    private final Listener listener;
 
     private WebSocket webSocket;
 
 
-    public WebsocketManager() {
+    public WebSocketConnection(final Listener listener) {
         this.wsFactory = new WebSocketFactory();
         this.reconnectHandler = new Handler();
+        this.listener = listener;
     }
 
     public void init(final String userId) {
@@ -50,8 +56,8 @@ public class WebsocketManager {
                 }
 
                 @Override
-                public void onTextMessage(final WebSocket websocket, final String text) throws Exception {
-                    LogUtil.w(getClass(), text);
+                public void onTextMessage(final WebSocket websocket, final String message) throws Exception {
+                    listener.onJsonMessage(message);
                 }
             });
             this.webSocket.connectAsynchronously();

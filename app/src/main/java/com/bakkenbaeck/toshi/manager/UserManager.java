@@ -3,7 +3,7 @@ package com.bakkenbaeck.toshi.manager;
 
 import android.content.SharedPreferences;
 
-import com.bakkenbaeck.toshi.http.ToshiService;
+import com.bakkenbaeck.toshi.network.rest.ToshiService;
 import com.bakkenbaeck.toshi.model.User;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.view.BaseApplication;

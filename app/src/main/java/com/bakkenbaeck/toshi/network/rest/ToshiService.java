@@ -1,4 +1,4 @@
-package com.bakkenbaeck.toshi.http;
+package com.bakkenbaeck.toshi.network.rest;
 
 
 import com.bakkenbaeck.toshi.model.jsonadapter.BigIntegerAdapter;

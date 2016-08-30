@@ -5,7 +5,7 @@ import android.app.Application;
 
 import com.bakkenbaeck.toshi.manager.UserManager;
 import com.bakkenbaeck.toshi.manager.WalletManager;
-import com.bakkenbaeck.toshi.manager.WebsocketManager;
+import com.bakkenbaeck.toshi.network.ws.WebSocketManager;
 import com.bakkenbaeck.toshi.model.User;
 
 import io.realm.Realm;
@@ -19,7 +19,7 @@ public class BaseApplication extends Application {
 
     private UserManager userManager;
     private WalletManager walletManager;
-    private WebsocketManager websocketManager;
+    private WebSocketManager webSocketManager;
 
     @Override
     public void onCreate() {
@@ -42,7 +42,7 @@ public class BaseApplication extends Application {
     }
 
     private void initWebsocketManager() {
-        this.websocketManager = new WebsocketManager();
+        this.webSocketManager = new WebSocketManager();
     }
 
     private void initRealm() {
@@ -67,7 +67,7 @@ public class BaseApplication extends Application {
         @Override
         public void onNext(final User user) {
             this.unsubscribe();
-            websocketManager.init(user.getId());
+            webSocketManager.init(user.getId());
         }
     };
 }
