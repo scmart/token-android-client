@@ -5,6 +5,7 @@ import android.app.Application;
 
 import com.bakkenbaeck.toshi.manager.UserManager;
 import com.bakkenbaeck.toshi.manager.WalletManager;
+import com.bakkenbaeck.toshi.network.ws.SocketObservables;
 import com.bakkenbaeck.toshi.network.ws.WebSocketManager;
 import com.bakkenbaeck.toshi.model.User;
 
@@ -55,6 +56,10 @@ public class BaseApplication extends Application {
 
     public UserManager getUserManager() {
         return this.userManager;
+    }
+
+    public SocketObservables getSocketObservables() {
+        return this.webSocketManager.getSocketObservables();
     }
 
     private final Subscriber<User> currentUserSubscriber = new Subscriber<User>() {

@@ -4,11 +4,11 @@ package com.bakkenbaeck.toshi.network.ws;
 import com.bakkenbaeck.toshi.network.ws.model.Payment;
 
 import rx.Observable;
-import rx.subjects.PublishSubject;
+import rx.subjects.BehaviorSubject;
 
 public class SocketObservables {
 
-    private final PublishSubject<Payment> paymentSubject = PublishSubject.create();
+    private final BehaviorSubject<Payment> paymentSubject = BehaviorSubject.create();
 
     public Observable<Payment> getPaymentObservable() {
         return this.paymentSubject.asObservable();

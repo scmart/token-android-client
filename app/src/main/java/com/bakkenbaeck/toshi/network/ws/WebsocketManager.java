@@ -26,4 +26,8 @@ public class WebSocketManager {
             socketToPojo.handleNewMessage(json);
         }
     };
+
+    public final SocketObservables getSocketObservables() {
+        return this.socketObservables;
+    }
 }
