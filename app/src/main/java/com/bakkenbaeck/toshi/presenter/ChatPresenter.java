@@ -10,6 +10,8 @@ import com.bakkenbaeck.toshi.model.ActivityResultHolder;
 import com.bakkenbaeck.toshi.model.ChatMessage;
 import com.bakkenbaeck.toshi.model.OfflineBalance;
 import com.bakkenbaeck.toshi.model.User;
+import com.bakkenbaeck.toshi.network.ws.model.Payment;
+import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.ChatActivity;
 import com.bakkenbaeck.toshi.view.activity.VideoActivity;
@@ -33,6 +35,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     private OfflineBalance offlineBalance;
     private MessageAdapter messageAdapter;
     private boolean firstViewAttachment = true;
+    private Subscriber<Payment> newPaymentSubscriber;
 
     @Override
     public void onViewAttached(final ChatActivity activity) {
@@ -48,6 +51,8 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
             BaseApplication.get().getUserManager().getObservable().subscribe(this.currentUserSubscriber);
         }
 
+        this.newPaymentSubscriber = generateNewPaymentSubscriber();
+        BaseApplication.get().getSocketObservables().getPaymentObservable().subscribe(this.newPaymentSubscriber);
         this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
         this.messageAdapter.notifyDataSetChanged();
         showBalance();
@@ -91,25 +96,6 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         displayMessage(message);
     }
 
-    /*
-    private void rewardCurrency() {
-        final double reward = offlineBalance.addRandomAmount();
-        final String message = String.format(this.activity.getResources().getString(R.string.chat__currency_earned), reward);
-        final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message);
-        displayMessage(response, 500);
-
-        if (!offlineBalance.hasWithdraw() && offlineBalance.getNumberOfRewards() == 2) {
-            showWithdrawMessage();
-        }
-        showBalance();
-    }
-
-
-    private void showWithdrawMessage() {
-        final ChatMessage message = new ChatMessage().makeRemoteWithdrawMessage();
-        displayMessage(message, 1000);
-    }
-*/
     private void displayMessage(final ChatMessage chatMessage, final int delay) {
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -136,10 +122,8 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     private final Subscriber<User> currentUserSubscriber = new Subscriber<User>() {
         @Override
         public void onCompleted() {}
-
         @Override
         public void onError(final Throwable e) {}
-
         @Override
         public void onNext(final User user) {
             this.unsubscribe();
@@ -147,6 +131,46 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
             showBalance();
         }
     };
+
+    private Subscriber<Payment> generateNewPaymentSubscriber() {
+        return new Subscriber<Payment>() {
+            @Override
+            public void onCompleted() {
+            }
+
+            @Override
+            public void onError(final Throwable e) {
+                LogUtil.e(getClass(), e.toString());
+            }
+
+            @Override
+            public void onNext(final Payment payment) {
+                handleNewPayment(payment);
+            }
+        };
+    }
+
+    private void handleNewPayment(final Payment payment) {
+        final String amount = payment.getAmount().toString();
+        final String message = String.format(this.activity.getResources().getString(R.string.chat__currency_earned), amount);
+        final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message);
+        displayMessage(response, 500);
+
+        offlineBalance.setBalance(payment.getNewBalance());
+
+        if (!offlineBalance.hasWithdraw() && offlineBalance.getNumberOfRewards() == 2) {
+            showWithdrawMessage();
+        }
+        showBalance();
+    }
+
+
+    private void showWithdrawMessage() {
+        final ChatMessage message = new ChatMessage().makeRemoteWithdrawMessage();
+        displayMessage(message, 1000);
+    }
+
+
 
     private void withdrawAmountFromAddress(final BigInteger amount, final String walletAddress) {
         final String message = String.format(this.activity.getResources().getString(R.string.chat__withdraw_to_address), amount.toString(), walletAddress);
@@ -180,6 +204,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
     @Override
     public void onViewDetached() {
+        this.newPaymentSubscriber.unsubscribe();
         this.activity = null;
     }
 
