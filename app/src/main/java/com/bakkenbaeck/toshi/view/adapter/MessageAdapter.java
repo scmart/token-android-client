@@ -23,49 +23,17 @@ import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_REMOTE_TEXT;
 import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_REMOTE_VIDEO;
 import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_REMOTE_WITHDRAW;
 
-public final class MessageAdapter extends DatabaseBackedAdapter<ChatMessage, RecyclerView.ViewHolder> {
-
-    public interface AdapterListener {
-        void onNoStoredMessages();
-        void onMessagesLoaded(boolean hasUnwatchedVideo);
-    }
+public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<ChatMessage> chatMessages;
-    private AdapterListener listener;
-    private boolean hasUnwatchedVideo = false;
     private final PublishSubject<Integer> onClickSubject = PublishSubject.create();
 
-    public MessageAdapter(final AdapterListener listener) {
-        this.listener = listener;
+    public MessageAdapter() {
         this.chatMessages = new ArrayList<>();
-        getStoredObjects(ChatMessage.class);
-    }
-
-    @Override
-    void onObjectLoaded(final ChatMessage chatMessage) {
-        this.chatMessages.add(chatMessage);
-        if (chatMessage.getType() == TYPE_REMOTE_VIDEO && !chatMessage.hasBeenWatched()) {
-            hasUnwatchedVideo = true;
-        }
-    }
-
-    @Override
-    void onFinishedLoadingAllObjects() {
-        if (this.listener != null) {
-            this.listener.onMessagesLoaded(this.hasUnwatchedVideo);
-        }
-    }
-
-    @Override
-    void onEmptySet() {
-        if (this.listener != null) {
-            this.listener.onNoStoredMessages();
-        }
     }
 
     public final void addMessage(final ChatMessage chatMessage) {
-        final ChatMessage storedMessage = saveObjectToDatabase(chatMessage);
-        this.chatMessages.add(storedMessage);
+        this.chatMessages.add(chatMessage);
         notifyItemInserted(this.chatMessages.size() - 1);
     }
 

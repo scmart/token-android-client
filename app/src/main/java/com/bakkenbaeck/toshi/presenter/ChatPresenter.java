@@ -11,7 +11,9 @@ import com.bakkenbaeck.toshi.model.ChatMessage;
 import com.bakkenbaeck.toshi.model.OfflineBalance;
 import com.bakkenbaeck.toshi.model.User;
 import com.bakkenbaeck.toshi.network.ws.model.Payment;
+import com.bakkenbaeck.toshi.presenter.store.ChatStore;
 import com.bakkenbaeck.toshi.util.LogUtil;
+import com.bakkenbaeck.toshi.util.OnCompletedObserver;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.ChatActivity;
 import com.bakkenbaeck.toshi.view.activity.VideoActivity;
@@ -36,6 +38,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     private MessageAdapter messageAdapter;
     private boolean firstViewAttachment = true;
     private Subscriber<Payment> newPaymentSubscriber;
+    private ChatStore chatStore;
 
     @Override
     public void onViewAttached(final ChatActivity activity) {
@@ -44,19 +47,36 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
         if (firstViewAttachment) {
             firstViewAttachment = false;
-            this.offlineBalance = new OfflineBalance();
-            this.messageAdapter = new MessageAdapter(this.adapterListener);
-            registerObservable();
-            this.activity.getBinding().messagesList.setItemAnimator(new FadeInLeftAnimator());
-            BaseApplication.get().getUserManager().getObservable().subscribe(this.currentUserSubscriber);
+            initLongLivingObjects();
         }
+        initShortLivingObjects();
 
-        this.newPaymentSubscriber = generateNewPaymentSubscriber();
-        BaseApplication.get().getSocketObservables().getPaymentObservable().subscribe(this.newPaymentSubscriber);
-        this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
+        // Refrresh state
         this.messageAdapter.notifyDataSetChanged();
         showBalance();
         scrollToBottom(false);
+    }
+
+    private void initLongLivingObjects() {
+        this.offlineBalance = new OfflineBalance();
+
+        this.chatStore = new ChatStore();
+        this.chatStore.getEmptySetObservable().subscribe(this.noStoredChatMessages);
+        this.chatStore.getNewMessageObservable().subscribe(this.newChatMessage);
+
+        this.messageAdapter = new MessageAdapter();
+        registerMessageClickedObservable();
+
+        this.activity.getBinding().messagesList.setItemAnimator(new FadeInLeftAnimator());
+        BaseApplication.get().getUserManager().getObservable().subscribe(this.currentUserSubscriber);
+
+        this.chatStore.load();
+    }
+
+    private void initShortLivingObjects() {
+        this.newPaymentSubscriber = generateNewPaymentSubscriber();
+        BaseApplication.get().getSocketObservables().getPaymentObservable().subscribe(this.newPaymentSubscriber);
+        this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
     }
 
     private void initToolbar() {
@@ -66,17 +86,21 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         this.activity.getSupportActionBar().setTitle(title);
     }
 
-    private final MessageAdapter.AdapterListener adapterListener = new MessageAdapter.AdapterListener() {
+    private final OnCompletedObserver<Void> noStoredChatMessages = new OnCompletedObserver<Void>() {
         @Override
-        public void onNoStoredMessages() {
+        public void onCompleted() {
             showWelcomeMessage();
         }
+    };
 
+    private final Subscriber<ChatMessage> newChatMessage = new Subscriber<ChatMessage>() {
         @Override
-        public void onMessagesLoaded(final boolean hasUnwatchedVideo) {
-            if (!hasUnwatchedVideo) {
-                promptNewVideo();
-            }
+        public void onCompleted() {}
+        @Override
+        public void onError(final Throwable e) {}
+        @Override
+        public void onNext(final ChatMessage chatMessage) {
+            messageAdapter.addMessage(chatMessage);
         }
     };
 
@@ -101,7 +125,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                messageAdapter.addMessage(chatMessage);
+                chatStore.save(chatMessage);
                 scrollToBottom(true);
             }
         }, delay);
@@ -208,11 +232,11 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         this.activity = null;
     }
 
-    private void registerObservable() {
+    private void registerMessageClickedObservable() {
         this.messageAdapter.getPositionClicks().subscribe(this.clicksSubscriber);
     }
 
-    private void unregisterObservable() {
+    private void unregisterMessageClickedObservable() {
         if (this.clicksSubscriber.isUnsubscribed()) {
             return;
         }
@@ -241,7 +265,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     @Override
     public void onViewDestroyed() {
         this.activity = null;
-        unregisterObservable();
+        unregisterMessageClickedObservable();
     }
 
     public void handleActivityResult(final ActivityResultHolder activityResultHolder) {
