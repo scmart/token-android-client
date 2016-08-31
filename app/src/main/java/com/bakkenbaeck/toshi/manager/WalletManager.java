@@ -48,16 +48,15 @@ public class WalletManager {
     }
 
     private boolean walletExistsInPrefs() {
-        final String seedWords = this.prefs.getString(SEED_WORDS, null);
-        final long seedBirthday = this.prefs.getLong(SEED_BIRTHDAY, 0);
-        if (seedWords == null || seedBirthday == 0) {
-            return false;
-        }
-
         try {
+            final String seedWords = this.prefs.getString(SEED_WORDS, null);
+            final long seedBirthday = this.prefs.getLong(SEED_BIRTHDAY, 0);
+            if (seedWords == null || seedBirthday == 0) {
+                return false;
+            }
             final DeterministicSeed seed = new DeterministicSeed(seedWords, null, "", seedBirthday);
             this.wallet = Wallet.fromSeed(MainNetParams.get(), seed);
-        } catch (final UnreadableWalletException e) {
+        } catch (final UnreadableWalletException | ClassCastException e) {
             LogUtil.e(getClass(), e.toString());
             return false;
         }
