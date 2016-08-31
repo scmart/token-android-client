@@ -38,6 +38,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     private OfflineBalance offlineBalance;
     private MessageAdapter messageAdapter;
     private boolean firstViewAttachment = true;
+    private boolean isShowingAnotherOneButton;
     private Subscriber<Payment> newPaymentSubscriber;
     private ChatMessageStore chatMessageStore;
 
@@ -52,9 +53,10 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         }
         initShortLivingObjects();
 
-        // Refrresh state
+        // Refresh state
         this.messageAdapter.notifyDataSetChanged();
         showBalance();
+        refreshAnotherOneButtonState();
         scrollToBottom(false);
     }
 
@@ -221,16 +223,29 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         }
     }
 
+    private void refreshAnotherOneButtonState() {
+        this.activity.getBinding().buttonAnotherVideo.setVisibility(
+                this.isShowingAnotherOneButton
+                        ? View.VISIBLE
+                        : View.INVISIBLE
+        );
+
+        if (this.isShowingAnotherOneButton) {
+            this.activity.getBinding().buttonAnotherVideo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(final View view) {
+                    isShowingAnotherOneButton = false;
+                    refreshAnotherOneButtonState();
+                    showVideoRequestMessage();
+                    showAVideo();
+                }
+            });
+        }
+    }
+
     private void promptNewVideo() {
-        this.activity.getBinding().buttonAnotherVideo.setVisibility(View.VISIBLE);
-        this.activity.getBinding().buttonAnotherVideo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-                activity.getBinding().buttonAnotherVideo.setVisibility(View.INVISIBLE);
-                showVideoRequestMessage();
-                showAVideo();
-            }
-        });
+        this.isShowingAnotherOneButton = true;
+        refreshAnotherOneButtonState();
     }
 
     @Override
