@@ -11,7 +11,10 @@ import com.bakkenbaeck.toshi.model.ChatMessage;
 import com.bakkenbaeck.toshi.model.OfflineBalance;
 import com.bakkenbaeck.toshi.model.User;
 import com.bakkenbaeck.toshi.network.ws.model.Payment;
+import com.bakkenbaeck.toshi.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.toshi.util.LogUtil;
+import com.bakkenbaeck.toshi.util.OnCompletedObserver;
+import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.ChatActivity;
 import com.bakkenbaeck.toshi.view.activity.VideoActivity;
@@ -35,7 +38,9 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     private OfflineBalance offlineBalance;
     private MessageAdapter messageAdapter;
     private boolean firstViewAttachment = true;
+    private boolean isShowingAnotherOneButton;
     private Subscriber<Payment> newPaymentSubscriber;
+    private ChatMessageStore chatMessageStore;
 
     @Override
     public void onViewAttached(final ChatActivity activity) {
@@ -44,19 +49,38 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
         if (firstViewAttachment) {
             firstViewAttachment = false;
-            this.offlineBalance = new OfflineBalance();
-            this.messageAdapter = new MessageAdapter(this.adapterListener);
-            registerObservable();
-            this.activity.getBinding().messagesList.setItemAnimator(new FadeInLeftAnimator());
-            BaseApplication.get().getUserManager().getObservable().subscribe(this.currentUserSubscriber);
+            initLongLivingObjects();
         }
+        initShortLivingObjects();
 
+        // Refresh state
+        this.messageAdapter.notifyDataSetChanged();
+        showBalance();
+        refreshAnotherOneButtonState();
+        scrollToBottom(false);
+    }
+
+    private void initLongLivingObjects() {
+        this.offlineBalance = new OfflineBalance();
+
+        this.chatMessageStore = new ChatMessageStore();
+        this.chatMessageStore.getEmptySetObservable().subscribe(this.noStoredChatMessages);
+        this.chatMessageStore.getNewMessageObservable().subscribe(this.newChatMessage);
+        this.chatMessageStore.getUnwatchedVideoObservable().subscribe(this.unwatchedVideo);
+
+        this.messageAdapter = new MessageAdapter();
+        registerMessageClickedObservable();
+
+        this.activity.getBinding().messagesList.setItemAnimator(new FadeInLeftAnimator());
+        BaseApplication.get().getUserManager().getObservable().subscribe(this.currentUserSubscriber);
+
+        this.chatMessageStore.load();
+    }
+
+    private void initShortLivingObjects() {
         this.newPaymentSubscriber = generateNewPaymentSubscriber();
         BaseApplication.get().getSocketObservables().getPaymentObservable().subscribe(this.newPaymentSubscriber);
         this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
-        this.messageAdapter.notifyDataSetChanged();
-        showBalance();
-        scrollToBottom(false);
     }
 
     private void initToolbar() {
@@ -66,14 +90,23 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         this.activity.getSupportActionBar().setTitle(title);
     }
 
-    private final MessageAdapter.AdapterListener adapterListener = new MessageAdapter.AdapterListener() {
+    private final OnCompletedObserver<Void> noStoredChatMessages = new OnCompletedObserver<Void>() {
         @Override
-        public void onNoStoredMessages() {
+        public void onCompleted() {
             showWelcomeMessage();
         }
+    };
 
+    private final OnNextObserver<ChatMessage> newChatMessage = new OnNextObserver<ChatMessage>() {
         @Override
-        public void onMessagesLoaded(final boolean hasUnwatchedVideo) {
+        public void onNext(final ChatMessage chatMessage) {
+            messageAdapter.addMessage(chatMessage);
+        }
+    };
+
+    private final OnNextObserver<Boolean> unwatchedVideo = new OnNextObserver<Boolean>() {
+        @Override
+        public void onNext(final Boolean hasUnwatchedVideo) {
             if (!hasUnwatchedVideo) {
                 promptNewVideo();
             }
@@ -101,7 +134,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                messageAdapter.addMessage(chatMessage);
+                chatMessageStore.save(chatMessage);
                 scrollToBottom(true);
             }
         }, delay);
@@ -190,16 +223,29 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         }
     }
 
+    private void refreshAnotherOneButtonState() {
+        this.activity.getBinding().buttonAnotherVideo.setVisibility(
+                this.isShowingAnotherOneButton
+                        ? View.VISIBLE
+                        : View.INVISIBLE
+        );
+
+        if (this.isShowingAnotherOneButton) {
+            this.activity.getBinding().buttonAnotherVideo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(final View view) {
+                    isShowingAnotherOneButton = false;
+                    refreshAnotherOneButtonState();
+                    showVideoRequestMessage();
+                    showAVideo();
+                }
+            });
+        }
+    }
+
     private void promptNewVideo() {
-        this.activity.getBinding().buttonAnotherVideo.setVisibility(View.VISIBLE);
-        this.activity.getBinding().buttonAnotherVideo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-                activity.getBinding().buttonAnotherVideo.setVisibility(View.INVISIBLE);
-                showVideoRequestMessage();
-                showAVideo();
-            }
-        });
+        this.isShowingAnotherOneButton = true;
+        refreshAnotherOneButtonState();
     }
 
     @Override
@@ -208,11 +254,11 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         this.activity = null;
     }
 
-    private void registerObservable() {
+    private void registerMessageClickedObservable() {
         this.messageAdapter.getPositionClicks().subscribe(this.clicksSubscriber);
     }
 
-    private void unregisterObservable() {
+    private void unregisterMessageClickedObservable() {
         if (this.clicksSubscriber.isUnsubscribed()) {
             return;
         }
@@ -241,7 +287,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     @Override
     public void onViewDestroyed() {
         this.activity = null;
-        unregisterObservable();
+        unregisterMessageClickedObservable();
     }
 
     public void handleActivityResult(final ActivityResultHolder activityResultHolder) {
