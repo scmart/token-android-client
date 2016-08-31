@@ -14,6 +14,7 @@ import com.bakkenbaeck.toshi.network.ws.model.Payment;
 import com.bakkenbaeck.toshi.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.util.OnCompletedObserver;
+import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.ChatActivity;
 import com.bakkenbaeck.toshi.view.activity.VideoActivity;
@@ -63,6 +64,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         this.chatMessageStore = new ChatMessageStore();
         this.chatMessageStore.getEmptySetObservable().subscribe(this.noStoredChatMessages);
         this.chatMessageStore.getNewMessageObservable().subscribe(this.newChatMessage);
+        this.chatMessageStore.getUnwatchedVideoObservable().subscribe(this.unwatchedVideo);
 
         this.messageAdapter = new MessageAdapter();
         registerMessageClickedObservable();
@@ -93,14 +95,19 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         }
     };
 
-    private final Subscriber<ChatMessage> newChatMessage = new Subscriber<ChatMessage>() {
-        @Override
-        public void onCompleted() {}
-        @Override
-        public void onError(final Throwable e) {}
+    private final OnNextObserver<ChatMessage> newChatMessage = new OnNextObserver<ChatMessage>() {
         @Override
         public void onNext(final ChatMessage chatMessage) {
             messageAdapter.addMessage(chatMessage);
+        }
+    };
+
+    private final OnNextObserver<Boolean> unwatchedVideo = new OnNextObserver<Boolean>() {
+        @Override
+        public void onNext(final Boolean hasUnwatchedVideo) {
+            if (!hasUnwatchedVideo) {
+                promptNewVideo();
+            }
         }
     };
 
