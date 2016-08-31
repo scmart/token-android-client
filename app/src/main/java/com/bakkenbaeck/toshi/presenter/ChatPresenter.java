@@ -11,7 +11,7 @@ import com.bakkenbaeck.toshi.model.ChatMessage;
 import com.bakkenbaeck.toshi.model.OfflineBalance;
 import com.bakkenbaeck.toshi.model.User;
 import com.bakkenbaeck.toshi.network.ws.model.Payment;
-import com.bakkenbaeck.toshi.presenter.store.ChatStore;
+import com.bakkenbaeck.toshi.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.util.OnCompletedObserver;
 import com.bakkenbaeck.toshi.view.BaseApplication;
@@ -38,7 +38,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     private MessageAdapter messageAdapter;
     private boolean firstViewAttachment = true;
     private Subscriber<Payment> newPaymentSubscriber;
-    private ChatStore chatStore;
+    private ChatMessageStore chatMessageStore;
 
     @Override
     public void onViewAttached(final ChatActivity activity) {
@@ -60,9 +60,9 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     private void initLongLivingObjects() {
         this.offlineBalance = new OfflineBalance();
 
-        this.chatStore = new ChatStore();
-        this.chatStore.getEmptySetObservable().subscribe(this.noStoredChatMessages);
-        this.chatStore.getNewMessageObservable().subscribe(this.newChatMessage);
+        this.chatMessageStore = new ChatMessageStore();
+        this.chatMessageStore.getEmptySetObservable().subscribe(this.noStoredChatMessages);
+        this.chatMessageStore.getNewMessageObservable().subscribe(this.newChatMessage);
 
         this.messageAdapter = new MessageAdapter();
         registerMessageClickedObservable();
@@ -70,7 +70,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         this.activity.getBinding().messagesList.setItemAnimator(new FadeInLeftAnimator());
         BaseApplication.get().getUserManager().getObservable().subscribe(this.currentUserSubscriber);
 
-        this.chatStore.load();
+        this.chatMessageStore.load();
     }
 
     private void initShortLivingObjects() {
@@ -125,7 +125,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                chatStore.save(chatMessage);
+                chatMessageStore.save(chatMessage);
                 scrollToBottom(true);
             }
         }, delay);

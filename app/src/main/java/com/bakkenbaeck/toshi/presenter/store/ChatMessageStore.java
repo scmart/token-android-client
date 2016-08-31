@@ -5,7 +5,7 @@ import com.bakkenbaeck.toshi.model.ChatMessage;
 
 import rx.subjects.PublishSubject;
 
-public class ChatStore extends RealmStore<ChatMessage> {
+public class ChatMessageStore extends RealmStore<ChatMessage> {
 
     private final PublishSubject<Void> emptySetObservable = PublishSubject.create();
     private final PublishSubject<ChatMessage> newMessageObservable = PublishSubject.create();
