@@ -6,6 +6,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColor">@color/mainText</item>
         <item name="android:colorBackground">@color/generalBg</item>
+        <item name="android:windowBackground">@color/generalBg</item>
         <item name="android:textColorHint">@color/mainTextHint</item>
         <item name="editTextStyle">@style/AppEditTextStyle</item>
         <item name="android:editTextStyle">@style/AppEditTextStyle</item>
