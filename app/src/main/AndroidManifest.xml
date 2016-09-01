@@ -19,13 +19,17 @@
         <meta-data android:name="com.google.android.gms.version"
                    android:value="@integer/google_play_services_version" />
 
-        <activity android:name="com.bakkenbaeck.toshi.view.activity.ChatActivity">
+        <activity
+            android:name="com.bakkenbaeck.toshi.view.activity.SplashActivity"
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name="com.bakkenbaeck.toshi.view.activity.ChatActivity" />
         <activity android:name="com.bakkenbaeck.toshi.view.activity.VideoActivity" />
 
         <activity android:name="com.bakkenbaeck.toshi.view.activity.WithdrawActivity"
@@ -52,10 +56,6 @@
             android:configChanges="orientation|screenSize"
             android:hardwareAccelerated="true"
             android:theme="@android:style/Theme.Translucent" />
-        <activity
-            android:name="com.vungle.publisher.FullScreenAdActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="d6f421ea196993dc3048f7ba96ef27a75a55b2a2" />
