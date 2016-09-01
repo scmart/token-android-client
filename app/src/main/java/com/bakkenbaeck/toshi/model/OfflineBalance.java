@@ -9,10 +9,8 @@ public class OfflineBalance {
     private boolean hasWithdrawn = false;
     private int numberOfRewards = 0;
 
-    public BigInteger addAmount(final BigInteger amount) {
-        this.amountInWei = this.amountInWei.add(amount);
-        this.numberOfRewards++;
-        return this.amountInWei;
+    public OfflineBalance() {
+        this.amountInWei = BigInteger.ZERO;
     }
 
     public BigInteger getBalance() {
