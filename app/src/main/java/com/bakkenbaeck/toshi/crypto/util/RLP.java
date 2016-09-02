@@ -1,5 +1,7 @@
-package com.bakkenbaeck.toshi.crypto;
+package com.bakkenbaeck.toshi.crypto.util;
 
+
+import com.bakkenbaeck.toshi.crypto.db.ByteArrayWrapper;
 
 import org.spongycastle.util.encoders.Hex;
 
@@ -12,10 +14,10 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import static com.bakkenbaeck.toshi.crypto.ByteUtil.byteArrayToInt;
-import static com.bakkenbaeck.toshi.crypto.ByteUtil.intToBytesNoLeadZeroes;
-import static com.bakkenbaeck.toshi.crypto.ByteUtil.isNullOrZeroArray;
-import static com.bakkenbaeck.toshi.crypto.ByteUtil.isSingleZero;
+import static com.bakkenbaeck.toshi.crypto.util.ByteUtil.byteArrayToInt;
+import static com.bakkenbaeck.toshi.crypto.util.ByteUtil.intToBytesNoLeadZeroes;
+import static com.bakkenbaeck.toshi.crypto.util.ByteUtil.isNullOrZeroArray;
+import static com.bakkenbaeck.toshi.crypto.util.ByteUtil.isSingleZero;
 import static java.util.Arrays.copyOfRange;
 import static org.spongycastle.util.Arrays.concatenate;
 import static org.spongycastle.util.BigIntegers.asUnsignedByteArray;

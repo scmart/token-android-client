@@ -6,7 +6,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 
-import static com.bakkenbaeck.toshi.crypto.HashUtil.sha3;
+import static com.bakkenbaeck.toshi.crypto.util.HashUtil.sha3;
 
 public class Wallet {
 

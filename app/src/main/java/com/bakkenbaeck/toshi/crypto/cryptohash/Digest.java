@@ -1,4 +1,4 @@
-package com.bakkenbaeck.toshi.crypto;
+package com.bakkenbaeck.toshi.crypto.cryptohash;
 
 /**
  * <p>This interface documents the API for a hash function. This

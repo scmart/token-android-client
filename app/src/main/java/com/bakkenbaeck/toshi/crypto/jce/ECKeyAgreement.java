@@ -1,4 +1,4 @@
-package com.bakkenbaeck.toshi.crypto;
+package com.bakkenbaeck.toshi.crypto.jce;
 
 
 import java.security.NoSuchAlgorithmException;

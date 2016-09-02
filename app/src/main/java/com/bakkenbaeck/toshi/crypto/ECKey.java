@@ -3,6 +3,15 @@ package com.bakkenbaeck.toshi.crypto;
 
 import android.support.annotation.Nullable;
 
+import com.bakkenbaeck.toshi.crypto.jce.ECKeyAgreement;
+import com.bakkenbaeck.toshi.crypto.jce.ECKeyFactory;
+import com.bakkenbaeck.toshi.crypto.jce.ECKeyPairGenerator;
+import com.bakkenbaeck.toshi.crypto.jce.ECSignatureFactory;
+import com.bakkenbaeck.toshi.crypto.jce.SpongyCastleProvider;
+import com.bakkenbaeck.toshi.crypto.util.ByteUtil;
+import com.bakkenbaeck.toshi.crypto.util.HashUtil;
+import com.bakkenbaeck.toshi.crypto.util.TypeConverter;
+
 import org.spongycastle.asn1.ASN1InputStream;
 import org.spongycastle.asn1.ASN1Integer;
 import org.spongycastle.asn1.DLSequence;
@@ -52,7 +61,7 @@ import java.util.Arrays;
 
 import javax.crypto.KeyAgreement;
 
-import static com.bakkenbaeck.toshi.crypto.ByteUtil.bigIntegerToBytes;
+import static com.bakkenbaeck.toshi.crypto.util.ByteUtil.bigIntegerToBytes;
 
 public class ECKey implements Serializable {
     /**

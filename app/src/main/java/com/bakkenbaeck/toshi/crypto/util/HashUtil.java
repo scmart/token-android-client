@@ -1,5 +1,7 @@
-package com.bakkenbaeck.toshi.crypto;
+package com.bakkenbaeck.toshi.crypto.util;
 
+
+import com.bakkenbaeck.toshi.crypto.cryptohash.Keccak256;
 
 import org.spongycastle.util.Arrays;
 

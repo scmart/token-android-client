@@ -1,5 +1,7 @@
-package com.bakkenbaeck.toshi.crypto;
+package com.bakkenbaeck.toshi.crypto.util;
 
+
+import com.bakkenbaeck.toshi.crypto.db.ByteArrayWrapper;
 
 import org.spongycastle.util.encoders.Hex;
 

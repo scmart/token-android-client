@@ -1,6 +1,4 @@
-package com.bakkenbaeck.toshi.crypto;
-
-import com.bakkenbaeck.toshi.util.LogUtil;
+package com.bakkenbaeck.toshi.crypto.util;
 
 import org.spongycastle.util.encoders.Hex;
 

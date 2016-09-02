@@ -1,4 +1,4 @@
-package com.bakkenbaeck.toshi.crypto;
+package com.bakkenbaeck.toshi.crypto.cryptohash;
 
 /**
  * This class implements the core operations for the Keccak digest
