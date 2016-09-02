@@ -50,9 +50,10 @@ dependencies {
             'com.journeyapps:zxing-android-embedded:3.3.0',
             // I/O
             'com.scottyab:secure-preferences-lib:0.1.4',
-            // Bitcoin
+            // Crypto
             'com.madgag.spongycastle:core:1.54.0.0',
-            'com.madgag.spongycastle:prov:1.54.0.0'
+            'com.madgag.spongycastle:prov:1.54.0.0',
+            'org.mindrot:jbcrypt:0.3m'
     )
     testCompile 'junit:junit:4.12'
     compile fileTree(include: '*.jar', dir: 'libs')
