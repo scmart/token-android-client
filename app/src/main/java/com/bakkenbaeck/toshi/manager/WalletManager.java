@@ -3,22 +3,23 @@ package com.bakkenbaeck.toshi.manager;
 
 import android.content.SharedPreferences;
 
+import com.bakkenbaeck.toshi.crypto.Wallet;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.view.BaseApplication;
-import com.google.common.base.Joiner;
 import com.securepreferences.SecurePreferences;
 
-import org.bitcoinj.params.MainNetParams;
-import org.bitcoinj.wallet.DeterministicSeed;
-import org.bitcoinj.wallet.UnreadableWalletException;
-import org.bitcoinj.wallet.Wallet;
+import java.security.Security;
 
 public class WalletManager {
 
-    private static final String SEED_WORDS = "seed_words";
-    private static final String SEED_BIRTHDAY = "seed_birthday";
+    // Ignore the values - they re for obfuscation purposes
+    private static final String PRIVATE_KEY = "encoded_timestamp";
     private SharedPreferences prefs;
     private Wallet wallet;
+
+    static {
+        Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
+    }
 
     public WalletManager init() {
         new Thread(new Runnable() {
@@ -35,32 +36,23 @@ public class WalletManager {
         if (!walletExistsInPrefs()) {
             generateNewWallet();
         }
-    }
-
-    private void generateNewWallet() {
-        this.wallet = new Wallet(MainNetParams.get());
-
-        final DeterministicSeed seed = wallet.getKeyChainSeed();
-        this.prefs.edit()
-                .putString(SEED_WORDS, Joiner.on(" ").join(seed.getMnemonicCode()))
-                .putLong(SEED_BIRTHDAY, seed.getCreationTimeSeconds())
-                .apply();
+        LogUtil.print(getClass(), this.wallet.toString());
     }
 
     private boolean walletExistsInPrefs() {
-        try {
-            final String seedWords = this.prefs.getString(SEED_WORDS, null);
-            final long seedBirthday = this.prefs.getLong(SEED_BIRTHDAY, 0);
-            if (seedWords == null || seedBirthday == 0) {
-                return false;
-            }
-            final DeterministicSeed seed = new DeterministicSeed(seedWords, null, "", seedBirthday);
-            this.wallet = Wallet.fromSeed(MainNetParams.get(), seed);
-        } catch (final UnreadableWalletException | ClassCastException e) {
-            LogUtil.e(getClass(), e.toString());
+        final String privateKey = this.prefs.getString(PRIVATE_KEY, null);
+        if (privateKey == null) {
             return false;
         }
-
+        this.wallet = new Wallet().initFromPrivateKey(privateKey);
         return true;
+    }
+
+
+    private void generateNewWallet() {
+        this.wallet = new Wallet().init();
+        this.prefs.edit()
+                .putString(PRIVATE_KEY, this.wallet.getPrivateKey())
+                .apply();
     }
 }
