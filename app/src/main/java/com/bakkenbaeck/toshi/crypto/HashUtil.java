@@ -10,7 +10,7 @@ public class HashUtil {
         return Arrays.copyOfRange(hash, 12, hash.length);
     }
 
-    private static byte[] sha3(byte[] input) {
+    public static byte[] sha3(byte[] input) {
         Keccak256 digest = new Keccak256();
         digest.update(input);
         return digest.digest();
