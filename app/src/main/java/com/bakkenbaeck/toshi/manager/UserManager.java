@@ -3,8 +3,8 @@ package com.bakkenbaeck.toshi.manager;
 
 import android.content.SharedPreferences;
 
-import com.bakkenbaeck.toshi.network.rest.ToshiService;
 import com.bakkenbaeck.toshi.model.User;
+import com.bakkenbaeck.toshi.network.rest.ToshiService;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.securepreferences.SecurePreferences;
@@ -15,7 +15,10 @@ import rx.subjects.BehaviorSubject;
 
 public class UserManager {
 
-    private final String USER_ID = "user_id";
+    private final String USER_ID = "u";
+    private final String BCRYPT_SALT = "b";
+    private final String AUTH_TOKEN = "t";
+
     private final BehaviorSubject<User> subject = BehaviorSubject.create();
 
     private User currentUser;
@@ -81,7 +84,16 @@ public class UserManager {
 
     private void storeAndEmitReturnedUser(final User userResponse) {
         currentUser = userResponse;
-        prefs.edit().putString(USER_ID, currentUser.getId()).apply();
+
+        // If this response contains an auth token then we are creating a new user
+        // In which case save everything to preferences for later use.
+        if (userResponse.getAuthToken() != null) {
+            prefs.edit()
+                    .putString(USER_ID, currentUser.getId())
+                    .putString(AUTH_TOKEN, userResponse.getAuthToken())
+                    .putString(BCRYPT_SALT, userResponse.getBcryptSalt())
+                    .apply();
+        }
         emitUser();
     }
 
