@@ -32,7 +32,35 @@ public class Aes
         this.preferences = preferences;
     }
 
-    public void initWithPassword(final String password) {
+    public String encrypt(final String plainText, final String password) {
+        if (this.cipher == null) {
+            initWithPassword(password);
+        }
+        try {
+            cipher.init(Cipher.ENCRYPT_MODE, key, spec);
+            byte[] encrypted = cipher.doFinal(plainText.getBytes("UTF-8"));
+            return new String(Base64.encode(encrypted, Base64.DEFAULT), "UTF-8");
+        } catch (InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException | UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String decrypt(final String cryptedText, final String password) {
+        if (this.cipher == null) {
+            initWithPassword(password);
+        }
+
+        try {
+            cipher.init(Cipher.DECRYPT_MODE, key, spec);
+            final byte[] bytes = Base64.decode(cryptedText, Base64.DEFAULT);
+            final byte[] decrypted = cipher.doFinal(bytes);
+            return new String(decrypted, "UTF-8");
+        } catch (InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException | UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void initWithPassword(final String password) {
         try {
             final MessageDigest digest = MessageDigest.getInstance("SHA-256");
             digest.update(password.getBytes("UTF-8"));
@@ -50,34 +78,6 @@ public class Aes
     private AlgorithmParameterSpec getIV() {
         final byte[] iv = readIvFromFileOrGenerateNew();
         return new IvParameterSpec(iv);
-    }
-
-    public String encrypt(final String plainText) {
-        if (this.cipher == null) {
-            throw new RuntimeException("Need to init with password");
-        }
-        try {
-            cipher.init(Cipher.ENCRYPT_MODE, key, spec);
-            byte[] encrypted = cipher.doFinal(plainText.getBytes("UTF-8"));
-            return new String(Base64.encode(encrypted, Base64.DEFAULT), "UTF-8");
-        } catch (InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException | UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public String decrypt(final String cryptedText) {
-        if (this.cipher == null) {
-            throw new RuntimeException("Need to init with password");
-        }
-
-        try {
-            cipher.init(Cipher.DECRYPT_MODE, key, spec);
-            final byte[] bytes = Base64.decode(cryptedText, Base64.DEFAULT);
-            final byte[] decrypted = cipher.doFinal(bytes);
-            return new String(decrypted, "UTF-8");
-        } catch (InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException | UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private byte[] readIvFromFileOrGenerateNew() {
