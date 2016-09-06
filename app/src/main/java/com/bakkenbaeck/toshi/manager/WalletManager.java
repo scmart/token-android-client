@@ -2,14 +2,13 @@ package com.bakkenbaeck.toshi.manager;
 
 
 import android.content.SharedPreferences;
-import android.util.Base64;
 
 import com.bakkenbaeck.toshi.crypto.Aes;
 import com.bakkenbaeck.toshi.crypto.Wallet;
-import com.bakkenbaeck.toshi.model.WalletCredentials;
-import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.securepreferences.SecurePreferences;
+
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.security.Security;
 
@@ -17,7 +16,6 @@ public class WalletManager {
 
     // Ignore the values - they're for obfuscation purposes
     private static final String PRIVATE_KEY = "i";
-    private static final String SALT = "1";
     private static final String PASSWORD = "l";
     private SharedPreferences prefs;
     private Wallet wallet;
@@ -55,7 +53,6 @@ public class WalletManager {
             return false;
         }
         this.wallet = new Wallet().initFromPrivateKey(privateKey);
-        LogUtil.print(getClass(), this.wallet.toString());
         return true;
     }
 
@@ -65,24 +62,35 @@ public class WalletManager {
             return null;
         }
 
-        final byte[] encryptedPkBytes = Base64.decode(encryptedPrivateKey, Base64.NO_WRAP);
-        return new String(aes.decrypt(encryptedPkBytes));
+        final String password = getStoredPassword();
+        if(password == null) {
+            throw new RuntimeException("Not implemented yet");
+        }
+        this.aes.initWithPassword(password);
+        return aes.decrypt(encryptedPrivateKey);
     }
 
     private void generateNewWallet() {
-        final WalletCredentials credentials = new WalletCredentials();
         this.wallet = new Wallet().init();
-        LogUtil.print(getClass(), this.wallet.toString());
+        final String passwordGeneratedForUser = BCrypt.gensalt(16);
+        this.aes.initWithPassword(passwordGeneratedForUser);
+
         final String encryptedPrivateKey = getEncryptedPrivateKey(this.wallet.getPrivateKey());
         this.prefs.edit()
                 .putString(PRIVATE_KEY, encryptedPrivateKey)
-                .putString(SALT, credentials.getSalt())
-                .putString(PASSWORD, credentials.getPassword())
+                .putString(PASSWORD, passwordGeneratedForUser)
                 .apply();
     }
 
     private String getEncryptedPrivateKey(final String privateKey) {
-        final byte[] encryptedBytes = this.aes.encrypt(privateKey.getBytes());
-        return Base64.encodeToString(encryptedBytes, Base64.NO_WRAP);
+        return this.aes.encrypt(privateKey);
+    }
+
+    private String getStoredPassword() {
+        return this.prefs.getString(PASSWORD, null);
+    }
+
+    public boolean shouldAskUserForPassword() {
+        return getStoredPassword() == null;
     }
 }
