@@ -7,8 +7,8 @@ public abstract class OnNextObserver<T> implements Observer<T> {
 
     @Override
     public void onCompleted() {
-        final String programmerFriendlyMessage = "Unhandled onCompleted. This is probably a programming error.";
-        LogUtil.e(getClass(), programmerFriendlyMessage);
+        final String programmerFriendlyMessage = "Unhandled onCompleted. This is potentially a programming error.";
+        LogUtil.w(getClass(), programmerFriendlyMessage);
     }
 
     @Override

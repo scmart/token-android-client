@@ -4,10 +4,9 @@ package com.bakkenbaeck.toshi.view;
 import android.app.Application;
 
 import com.bakkenbaeck.toshi.manager.UserManager;
-import com.bakkenbaeck.toshi.manager.WalletManager;
+import com.bakkenbaeck.toshi.model.User;
 import com.bakkenbaeck.toshi.network.ws.SocketObservables;
 import com.bakkenbaeck.toshi.network.ws.WebSocketManager;
-import com.bakkenbaeck.toshi.model.User;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -19,7 +18,6 @@ public class BaseApplication extends Application {
     public static BaseApplication get() { return instance; }
 
     private UserManager userManager;
-    private WalletManager walletManager;
     private WebSocketManager webSocketManager;
 
     @Override
@@ -28,7 +26,6 @@ public class BaseApplication extends Application {
         instance = this;
 
         initUserManager();
-        initWalletManager();
         initWebsocketManager();
         initRealm();
     }
@@ -36,10 +33,6 @@ public class BaseApplication extends Application {
     private void initUserManager() {
         this.userManager = new UserManager().init();
         this.userManager.getObservable().subscribe(this.currentUserSubscriber);
-    }
-
-    private void initWalletManager() {
-        this.walletManager = new WalletManager().init();
     }
 
     private void initWebsocketManager() {
