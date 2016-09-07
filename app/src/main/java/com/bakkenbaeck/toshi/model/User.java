@@ -29,4 +29,17 @@ public class User {
     public String getBcryptSalt() {
         return bcrypt_salt;
     }
+
+    public void setAuthToken(final String auth_token) {
+        this.auth_token = auth_token;
+    }
+
+    public void setBcryptSalt(final String bcrypt_salt) {
+        this.bcrypt_salt = bcrypt_salt;
+    }
+
+    public boolean isNewUser() {
+        // Auth token is only returned when we first create a user.
+        return auth_token != null;
+    }
 }

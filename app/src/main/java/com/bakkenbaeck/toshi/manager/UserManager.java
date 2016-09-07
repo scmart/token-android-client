@@ -83,8 +83,14 @@ public class UserManager {
 
         @Override
         public void onNext(final User userResponse) {
-            storeAndEmitReturnedUser(userResponse);
+            currentUser = userResponse;
+            if (currentUser.isNewUser()) {
+                storeReturnedUser(userResponse);
+            } else {
+                loadUserDetailsFromStorage();
+            }
             initUserWallet();
+            emitUser();
             userSubscriber.unsubscribe();
         }
     };
@@ -98,21 +104,20 @@ public class UserManager {
         this.userWallet.initWallet(walletPassword);
     }
 
-    private void storeAndEmitReturnedUser(final User userResponse) {
-        currentUser = userResponse;
+    private void storeReturnedUser(final User userResponse) {
+        prefs.edit()
+                .putString(USER_ID, currentUser.getId())
+                .putString(AUTH_TOKEN, userResponse.getAuthToken())
+                .putString(BCRYPT_SALT, userResponse.getBcryptSalt())
+                .putString(WALLET_PASSWORD, BCrypt.gensalt(16))
+                .apply();
+    }
 
-        // If this response contains an auth token then we are creating a new user
-        // In which case save everything to preferences for later use.
-        // This includes a password for the new wallet that will need to be created
-        if (userResponse.getAuthToken() != null) {
-            prefs.edit()
-                    .putString(USER_ID, currentUser.getId())
-                    .putString(AUTH_TOKEN, userResponse.getAuthToken())
-                    .putString(BCRYPT_SALT, userResponse.getBcryptSalt())
-                    .putString(WALLET_PASSWORD, BCrypt.gensalt(16))
-                    .apply();
-        }
-        emitUser();
+    private void loadUserDetailsFromStorage() {
+        final String authToken = this.prefs.getString(AUTH_TOKEN, null);
+        final String bCryptSalt = this.prefs.getString(BCRYPT_SALT, null);
+        this.currentUser.setAuthToken(authToken);
+        this.currentUser.setBcryptSalt(bCryptSalt);
     }
 
     private void emitUser() {
