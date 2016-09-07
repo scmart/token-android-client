@@ -23,11 +23,11 @@ public class User {
     }
 
     public String getAuthToken() {
-        return auth_token;
+        return this.auth_token;
     }
 
     public String getBcryptSalt() {
-        return bcrypt_salt;
+        return this.bcrypt_salt;
     }
 
     public void setAuthToken(final String auth_token) {
@@ -40,6 +40,6 @@ public class User {
 
     public boolean isNewUser() {
         // Auth token is only returned when we first create a user.
-        return auth_token != null;
+        return this.auth_token != null;
     }
 }

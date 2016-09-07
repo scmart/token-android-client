@@ -4,24 +4,27 @@ package com.bakkenbaeck.toshi.manager;
 import android.content.SharedPreferences;
 
 import com.bakkenbaeck.toshi.crypto.Wallet;
+import com.bakkenbaeck.toshi.model.CryptoDetails;
 import com.bakkenbaeck.toshi.model.User;
 import com.bakkenbaeck.toshi.network.rest.ToshiService;
-import com.bakkenbaeck.toshi.util.LogUtil;
+import com.bakkenbaeck.toshi.util.OnCompletedObserver;
+import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.securepreferences.SecurePreferences;
 
 import org.mindrot.jbcrypt.BCrypt;
 
 import rx.Observable;
-import rx.Subscriber;
+import rx.Observer;
 import rx.subjects.BehaviorSubject;
 
 public class UserManager {
 
-    private final String USER_ID = "u";
-    private final String BCRYPT_SALT = "b";
-    private final String AUTH_TOKEN = "t";
-    private final String WALLET_PASSWORD = "w";
+    public final static String BCRYPT_SALT = "b";
+    private final static String USER_ID = "u";
+    private final static String AUTH_TOKEN = "t";
+    private final static String WALLET_PASSWORD = "w";
+    private final static String HAVE_REGISTERED = "r";
 
     private final BehaviorSubject<User> subject = BehaviorSubject.create();
 
@@ -64,60 +67,86 @@ public class UserManager {
 
     private void requestNewUser() {
         final Observable<User> call = ToshiService.getApi().requestUserId();
-        call.subscribe(this.userSubscriber);
+        call.subscribe(this.newUserSubscriber);
     }
 
     private void getExistingUser(final String userId) {
         final Observable<User> call = ToshiService.getApi().getUser(userId);
-        call.subscribe(this.userSubscriber);
+        call.subscribe(this.existingUserSubscriber);
     }
 
-    private final Subscriber<User> userSubscriber = new Subscriber<User>() {
-        @Override
-        public void onCompleted() {}
-
-        @Override
-        public void onError(final Throwable e) {
-            LogUtil.e(getClass(), e.toString());
-        }
+    private final OnNextObserver<User> newUserSubscriber = new OnNextObserver<User>() {
 
         @Override
         public void onNext(final User userResponse) {
             currentUser = userResponse;
-            if (currentUser.isNewUser()) {
-                storeReturnedUser(userResponse);
-            } else {
-                loadUserDetailsFromStorage();
-            }
-            initUserWallet();
+            storeReturnedUser(userResponse);
+            initUserWallet().subscribe(walletCreatedSubscriber);
             emitUser();
-            userSubscriber.unsubscribe();
+        }
+
+        private void storeReturnedUser(final User userResponse) {
+            prefs.edit()
+                    .putString(USER_ID, currentUser.getId())
+                    .putString(AUTH_TOKEN, userResponse.getAuthToken())
+                    .putString(BCRYPT_SALT, userResponse.getBcryptSalt())
+                    .putString(WALLET_PASSWORD, BCrypt.gensalt(16))
+                    .apply();
         }
     };
 
-    private void initUserWallet() {
+    private final OnNextObserver<User> existingUserSubscriber = new OnNextObserver<User>() {
+        @Override
+        public void onNext(final User userResponse) {
+            currentUser = userResponse;
+            loadUserDetailsFromStorage();
+            initUserWallet().subscribe(walletCreatedSubscriber);
+            emitUser();
+        }
+
+        private void loadUserDetailsFromStorage() {
+            final String authToken = prefs.getString(AUTH_TOKEN, null);
+            final String bCryptSalt = prefs.getString(BCRYPT_SALT, null);
+            currentUser.setAuthToken(authToken);
+            currentUser.setBcryptSalt(bCryptSalt);
+        }
+    };
+
+    private Observer<Wallet> walletCreatedSubscriber = new OnNextObserver<Wallet>() {
+        @Override
+        public void onNext(final Wallet wallet) {
+            final boolean hasRegisteredWithBackend = prefs.getBoolean(HAVE_REGISTERED, false);
+            if (hasRegisteredWithBackend) {
+                return;
+            }
+
+            final CryptoDetails cryptoDetails = new CryptoDetails()
+                    .setAesEncodedPrivateKey(wallet.getEncryptedPrivateKey())
+                    .setBCryptedPassword(wallet.getBCryptedPassword())
+                    .setEthAddress(wallet.getAddress());
+            ToshiService.getApi().putUserCryptoDetails(
+                        currentUser.getAuthToken(),
+                        currentUser.getId(),
+                        cryptoDetails)
+                    .retry(5)
+                    .subscribe(storedCryptoSubscriber);
+        }
+    };
+
+    private OnCompletedObserver storedCryptoSubscriber = new OnCompletedObserver() {
+        @Override
+        public void onCompleted() {
+            prefs.edit().putBoolean(HAVE_REGISTERED, true).apply();
+        }
+    };
+
+    private Observable<Wallet> initUserWallet() {
         final String walletPassword = this.prefs.getString(WALLET_PASSWORD, null);
         if (walletPassword == null) {
             throw new RuntimeException("Not yet implemented user inputted password");
         }
 
-        this.userWallet.initWallet(walletPassword);
-    }
-
-    private void storeReturnedUser(final User userResponse) {
-        prefs.edit()
-                .putString(USER_ID, currentUser.getId())
-                .putString(AUTH_TOKEN, userResponse.getAuthToken())
-                .putString(BCRYPT_SALT, userResponse.getBcryptSalt())
-                .putString(WALLET_PASSWORD, BCrypt.gensalt(16))
-                .apply();
-    }
-
-    private void loadUserDetailsFromStorage() {
-        final String authToken = this.prefs.getString(AUTH_TOKEN, null);
-        final String bCryptSalt = this.prefs.getString(BCRYPT_SALT, null);
-        this.currentUser.setAuthToken(authToken);
-        this.currentUser.setBcryptSalt(bCryptSalt);
+        return this.userWallet.initWallet(walletPassword);
     }
 
     private void emitUser() {

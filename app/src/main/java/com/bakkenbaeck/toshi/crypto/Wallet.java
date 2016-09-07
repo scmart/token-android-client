@@ -2,14 +2,20 @@ package com.bakkenbaeck.toshi.crypto;
 
 import android.content.SharedPreferences;
 
+import com.bakkenbaeck.toshi.manager.UserManager;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.view.BaseApplication;
+import com.google.android.gms.tasks.RuntimeExecutionException;
 import com.securepreferences.SecurePreferences;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.security.Security;
+
+import rx.Observable;
+import rx.Subscriber;
 
 import static com.bakkenbaeck.toshi.crypto.util.HashUtil.sha3;
 
@@ -23,6 +29,9 @@ public class Wallet {
     private SharedPreferences prefs;
     private Aes aes;
     private ECKey ecKey;
+    private String encryptedPrivateKey;
+    private String bCryptedPassword;
+
 
     public Wallet() {
         new Thread(new Runnable() {
@@ -33,13 +42,24 @@ public class Wallet {
         }).start();
     }
 
-    public Wallet initWallet(final String password) {
-        final String encryptedPrivateKey = getEncryptedPrivateKey();
-        if (encryptedPrivateKey == null) {
+    public Observable<Wallet> initWallet(final String password) {
+        return Observable.create(new Observable.OnSubscribe<Wallet>() {
+            @Override
+            public void call(final Subscriber<? super Wallet> subscriber) {
+                subscriber.onNext(initWalletSync(password));
+                subscriber.onCompleted();
+            }
+        });
+    }
+
+    private Wallet initWalletSync(final String password) {
+        this.bCryptedPassword = bCryptPassword(password);
+        this.encryptedPrivateKey = readEncryptedPrivateKeyFromStorage();
+        if (this.encryptedPrivateKey == null) {
             return generateNewWallet(password);
         }
 
-        final String privateKey = decryptPrivateKey(encryptedPrivateKey, password);
+        final String privateKey = decryptPrivateKey(this.encryptedPrivateKey, password);
         return initFromPrivateKey(privateKey);
     }
 
@@ -59,7 +79,10 @@ public class Wallet {
         return null;
     }
 
-    public String getPrivateKey() {
+    public String getEncryptedPrivateKey() {
+        return this.encryptedPrivateKey;
+    }
+    private String getPrivateKey() {
         return Hex.toHexString(this.ecKey.getPrivKeyBytes());
     }
 
@@ -67,7 +90,7 @@ public class Wallet {
         return Hex.toHexString(this.ecKey.getPubKey());
     }
 
-    private String getAddress() {
+    public String getAddress() {
         return Hex.toHexString(this.ecKey.getAddress());
     }
 
@@ -78,7 +101,7 @@ public class Wallet {
 
     private Wallet generateNewWallet(final String password) {
         this.ecKey = new ECKey();
-        final String encryptedPrivateKey = encryptPrivateKey(getPrivateKey(), password);
+        this.encryptedPrivateKey = encryptPrivateKey(getPrivateKey(), password);
         this.prefs.edit()
                 .putString(PRIVATE_KEY, encryptedPrivateKey)
                 .apply();
@@ -92,7 +115,7 @@ public class Wallet {
     }
 
 
-    private String getEncryptedPrivateKey() {
+    private String readEncryptedPrivateKeyFromStorage() {
         final String encryptedPrivateKey = this.prefs.getString(PRIVATE_KEY, null);
         if (encryptedPrivateKey == null) {
             return null;
@@ -106,5 +129,18 @@ public class Wallet {
 
     private String encryptPrivateKey(final String privateKey, final String password) {
         return this.aes.encrypt(privateKey, password);
+    }
+
+    private String bCryptPassword(final String password) {
+        final String newSalt = BCrypt.gensalt();
+        final String salt = this.prefs.getString(UserManager.BCRYPT_SALT, null);
+        if (salt == null) {
+            throw new RuntimeExecutionException(new IllegalStateException("No salt found in preferences"));
+        }
+        return BCrypt.hashpw(password, salt);
+    }
+
+    public String getBCryptedPassword() {
+        return this.bCryptedPassword;
     }
 }
