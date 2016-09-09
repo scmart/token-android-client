@@ -132,7 +132,6 @@ public class Wallet {
     }
 
     private String bCryptPassword(final String password) {
-        final String newSalt = BCrypt.gensalt();
         final String salt = this.prefs.getString(UserManager.BCRYPT_SALT, null);
         if (salt == null) {
             throw new RuntimeExecutionException(new IllegalStateException("No salt found in preferences"));
