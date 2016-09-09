@@ -2,6 +2,7 @@ package com.bakkenbaeck.toshi.crypto;
 
 import android.content.SharedPreferences;
 
+import com.bakkenbaeck.toshi.crypto.util.TypeConverter;
 import com.bakkenbaeck.toshi.manager.UserManager;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.view.BaseApplication;
@@ -68,9 +69,9 @@ public class Wallet {
         this.aes = new Aes(this.prefs);
     }
 
-    public String sign(final String message) {
+    public String sign(final String hexString) {
         try {
-            final byte[] msgHash= sha3(message.getBytes());
+            final byte[] msgHash = sha3(TypeConverter.StringHexToByteArray(hexString));
             final ECKey.ECDSASignature signature = this.ecKey.sign(msgHash);
             return signature.toHex();
         } catch (final Exception e) {

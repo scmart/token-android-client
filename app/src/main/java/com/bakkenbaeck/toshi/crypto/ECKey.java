@@ -647,12 +647,12 @@ public class ECKey implements Serializable {
         }
 
         public String toHex() {
-            final byte fixedV = this.v < 27
-                    ? (byte) (this.v + 27)
-                    : this.v;
+            final byte fixedV = this.v >= 27
+                    ? (byte) (this.v - 27)
+                    :this.v;
 
-            final String hexR = ByteUtil.toHexString(BigIntegers.asUnsignedByteArray(this.r));
-            final String hexS = ByteUtil.toHexString(BigIntegers.asUnsignedByteArray(this.s));
+            final String hexR = ByteUtil.toHexString(ByteUtil.bigIntegerToBytes(this.r));
+            final String hexS = ByteUtil.toHexString(ByteUtil.bigIntegerToBytes(this.s));
             final String hexV = ByteUtil.toHexString(new byte[]{fixedV});
 
             return TypeConverter.toJsonHex(hexR + hexS + hexV);
