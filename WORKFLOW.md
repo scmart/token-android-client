@@ -21,15 +21,14 @@ The first time the app is opened after a fresh install the client needs to regis
  - The password† and encrypted private key are saved to SharedPreferences
  - The wallet address, encrypted private key and bcrypted password are sent to the server: `PUT /user/:clientid`. The client ID was obtained in the previous step. The auth token from the previous step is also passed as a header.
 
+## Existing pre-onboarded user opening the app
 
- ## Existing pre-onboarded user opening the app
+If a user is opening the app but has already gone through the user creation process then things are a little easier. These steps apply to pre-onboarded users -- which means they still have a randomly generated password protecting their private key.
 
- If a user is opening the app but has already gone through the user creation process then things are a little easier. These steps apply to pre-onboarded users -- which means they still have a randomly generated password protecting their private key.
-
- ### Recreating the wallet
-   - The encrypted private key is read from SharedPreferences
-   - The randomly generated password is read from SharedPreferences
-   - The private key is decrypted using the password and the wallet is recreated from the wallet.
+### Recreating the wallet
+ - The encrypted private key is read from SharedPreferences
+ - The randomly generated password is read from SharedPreferences
+ - The private key is decrypted using the password and the wallet is recreated from the wallet.
 
 ## Onboarding users
 
