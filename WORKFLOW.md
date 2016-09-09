@@ -38,6 +38,15 @@ If a user is opening the app but has already gone through the user creation proc
 
 `TODO`
 
+## Signing transactions
+
+When the client wishes to tranfer funds out of the wallet on their device to a different wallet, the client will need to sign the transaction.
+
+  - Client requests a transaction to an address with an amount by (TODO)
+  - Server responds with the transaction as a hex string (TODO)
+  - Client signs the transaction with the on-device wallet. The signed transaction normalises the ECDSA Signature value `v` to be either 0 or 1.
+  - Client returns the unsigned transaction and the signed transaction to the server (TODO)
+
 
 
  (*) The implementation of SharedPreferences is actually SecurePreferences which is an encrypted SharedPreferences where they key is stored on the client. It offers some protection for a user but doesn't give much protection against a malicious user. It can essentially be considered plain text.
