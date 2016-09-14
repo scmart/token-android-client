@@ -92,7 +92,7 @@ public class Wallet {
     }
 
     public String getAddress() {
-        return Hex.toHexString(this.ecKey.getAddress());
+        return TypeConverter.toJsonHex(this.ecKey.getAddress());
     }
 
     @Override

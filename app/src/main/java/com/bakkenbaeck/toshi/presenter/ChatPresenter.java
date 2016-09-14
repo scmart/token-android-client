@@ -2,17 +2,15 @@ package com.bakkenbaeck.toshi.presenter;
 
 import android.content.Intent;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.ActivityResultHolder;
 import com.bakkenbaeck.toshi.model.ChatMessage;
-import com.bakkenbaeck.toshi.model.OfflineBalance;
-import com.bakkenbaeck.toshi.model.User;
 import com.bakkenbaeck.toshi.network.ws.model.Payment;
 import com.bakkenbaeck.toshi.presenter.store.ChatMessageStore;
-import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.util.OnCompletedObserver;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.view.BaseApplication;
@@ -35,11 +33,9 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     private final int WITHDRAW_REQUEST_CODE = 2;
 
     private ChatActivity activity;
-    private OfflineBalance offlineBalance;
     private MessageAdapter messageAdapter;
     private boolean firstViewAttachment = true;
     private boolean isShowingAnotherOneButton;
-    private Subscriber<Payment> newPaymentSubscriber;
     private ChatMessageStore chatMessageStore;
 
     @Override
@@ -55,31 +51,27 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
         // Refresh state
         this.messageAdapter.notifyDataSetChanged();
-        showBalance();
         refreshAnotherOneButtonState();
         scrollToBottom(false);
     }
 
     private void initLongLivingObjects() {
-        this.offlineBalance = new OfflineBalance();
-
         this.chatMessageStore = new ChatMessageStore();
         this.chatMessageStore.getEmptySetObservable().subscribe(this.noStoredChatMessages);
         this.chatMessageStore.getNewMessageObservable().subscribe(this.newChatMessage);
         this.chatMessageStore.getUnwatchedVideoObservable().subscribe(this.unwatchedVideo);
+        BaseApplication.get().getOfflineBalance().getObservable().subscribe(this.newBalanceSubscriber);
+        BaseApplication.get().getSocketObservables().getPaymentObservable().subscribe(this.newPaymentSubscriber);
 
         this.messageAdapter = new MessageAdapter();
         registerMessageClickedObservable();
 
         this.activity.getBinding().messagesList.setItemAnimator(new FadeInLeftAnimator());
-        BaseApplication.get().getUserManager().getObservable().subscribe(this.currentUserSubscriber);
 
         this.chatMessageStore.load();
     }
 
     private void initShortLivingObjects() {
-        this.newPaymentSubscriber = generateNewPaymentSubscriber();
-        BaseApplication.get().getSocketObservables().getPaymentObservable().subscribe(this.newPaymentSubscriber);
         this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
     }
 
@@ -130,7 +122,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     }
 
     private void displayMessage(final ChatMessage chatMessage, final int delay) {
-        final Handler handler = new Handler();
+        final Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -145,56 +137,33 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         displayMessage(chatMessage, 200);
     }
 
-    private void showBalance() {
-        final String balance = offlineBalance.toString();
-        if (this.activity != null) {
-            this.activity.getBinding().balanceBar.setBalance(balance);
-        }
-    }
-
-    private final Subscriber<User> currentUserSubscriber = new Subscriber<User>() {
+    private final OnNextObserver<BigInteger> newBalanceSubscriber = new OnNextObserver<BigInteger>() {
         @Override
-        public void onCompleted() {}
-        @Override
-        public void onError(final Throwable e) {}
-        @Override
-        public void onNext(final User user) {
-            this.unsubscribe();
-            offlineBalance.setBalance(user.getBalance());
-            showBalance();
+        public void onNext(final BigInteger newBalance) {
+            if (activity != null && newBalance != null) {
+                activity.getBinding().balanceBar.setBalance(newBalance.toString());
+            }
         }
     };
 
-    private Subscriber<Payment> generateNewPaymentSubscriber() {
-        return new Subscriber<Payment>() {
-            @Override
-            public void onCompleted() {
-            }
-
-            @Override
-            public void onError(final Throwable e) {
-                LogUtil.e(getClass(), e.toString());
-            }
-
-            @Override
-            public void onNext(final Payment payment) {
-                handleNewPayment(payment);
-            }
-        };
-    }
+    private final OnNextObserver<Payment> newPaymentSubscriber = new OnNextObserver<Payment>() {
+        @Override
+        public void onNext(final Payment payment) {
+            handleNewPayment(payment);
+        }
+    };
 
     private void handleNewPayment(final Payment payment) {
         final String amount = payment.getAmount().toString();
-        final String message = String.format(this.activity.getResources().getString(R.string.chat__currency_earned), amount);
+        final String message = String.format(BaseApplication.get().getResources().getString(R.string.chat__currency_earned), amount);
         final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message);
         displayMessage(response, 500);
 
-        offlineBalance.setBalance(payment.getNewBalance());
-
+        /*
+        TODO
         if (!offlineBalance.hasWithdraw() && offlineBalance.getNumberOfRewards() == 2) {
             showWithdrawMessage();
-        }
-        showBalance();
+        }*/
     }
 
 
@@ -209,8 +178,8 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         final String message = String.format(this.activity.getResources().getString(R.string.chat__withdraw_to_address), amount.toString(), walletAddress);
         final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message);
         displayMessage(response, 500);
-        offlineBalance.subtract(amount);
-        showBalance();
+        // TODO
+        // offlineBalance.subtract(amount);
     }
 
     private void scrollToBottom(final boolean animate) {
@@ -250,7 +219,6 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
     @Override
     public void onViewDetached() {
-        this.newPaymentSubscriber.unsubscribe();
         this.activity = null;
     }
 
@@ -324,7 +292,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
     public void handleWithdrawClicked() {
         final Intent intent = new Intent(this.activity, WithdrawActivity.class);
-        intent.putExtra(WithdrawPresenter.INTENT_BALANCE, offlineBalance.getBalance());
+        //intent.putExtra(WithdrawPresenter.INTENT_BALANCE, offlineBalance.getObservable());
         this.activity.startActivityForResult(intent, WITHDRAW_REQUEST_CODE);
         this.activity.overridePendingTransition(R.anim.enter_from_right, R.anim.exit_to_left);
     }

@@ -18,7 +18,8 @@ public interface ToshiInterface {
     Observable<User> requestUserId();
 
     @GET("/user/{id}")
-    Observable<User> getUser(@Path("id") String userId);
+    Observable<User> getUser(@Header("TOSHIAPP-AUTH-TOKEN") String userAuthToken,
+                             @Path("id") String userId);
 
     @PUT("/user/{id}")
     Observable<Void> putUserCryptoDetails(@Header("TOSHIAPP-AUTH-TOKEN") String userAuthToken,

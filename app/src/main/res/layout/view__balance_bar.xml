@@ -34,14 +34,28 @@
         android:textColor="@color/textColorPrimary"
         android:text="@string/eth_symbol"/>
 
-    <com.robinhood.ticker.TickerView
-        android:id="@+id/balance"
+    <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="6dp"
-        android:textSize="16sp"
-        android:textColor="@color/textColorPrimary"
-        android:gravity="center_vertical"
-        app:ticker_animationDuration="1500"/>
+        android:padding="6dp">
+
+        <com.bhargavms.dotloader.DotLoader
+            android:id="@+id/dot_loader"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            app:color_array="@array/dot_colors"
+            app:dot_radius="3dp"
+            app:number_of_dots="3"/>
+
+        <com.robinhood.ticker.TickerView
+            android:id="@+id/balance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@color/textColorPrimary"
+            android:gravity="center_vertical"
+            app:ticker_animationDuration="1500"/>
+    </FrameLayout>
 
 </LinearLayout>

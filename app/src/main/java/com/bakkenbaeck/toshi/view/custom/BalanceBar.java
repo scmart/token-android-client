@@ -30,6 +30,7 @@ public class BalanceBar extends LinearLayout {
         this.postDelayed(new Runnable() {
             @Override
             public void run() {
+                findViewById(R.id.dot_loader).setVisibility(INVISIBLE);
                 ((TickerView) findViewById(R.id.balance)).setText(balance);
             }
         }, 200);

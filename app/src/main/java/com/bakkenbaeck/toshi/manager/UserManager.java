@@ -57,11 +57,12 @@ public class UserManager {
 
     private boolean userExistsInPrefs() {
         final String userId = this.prefs.getString(USER_ID, null);
-        if (userId == null) {
+        final String authToken = this.prefs.getString(AUTH_TOKEN, null);
+        if (userId == null || authToken == null) {
             return false;
         }
 
-        getExistingUser(userId);
+        getExistingUser(authToken, userId);
         return true;
     }
 
@@ -70,8 +71,8 @@ public class UserManager {
         call.subscribe(this.newUserSubscriber);
     }
 
-    private void getExistingUser(final String userId) {
-        final Observable<User> call = ToshiService.getApi().getUser(userId);
+    private void getExistingUser(final String authToken, final String userId) {
+        final Observable<User> call = ToshiService.getApi().getUser(authToken, userId);
         call.subscribe(this.existingUserSubscriber);
     }
 
