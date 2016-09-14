@@ -277,7 +277,6 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
     private void handleVideoCompleted(final ActivityResultHolder activityResultHolder) {
         markVideoAsWatched(activityResultHolder);
-        //rewardCurrency();
         promptNewVideo();
     }
 
@@ -292,7 +291,6 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
     public void handleWithdrawClicked() {
         final Intent intent = new Intent(this.activity, WithdrawActivity.class);
-        //intent.putExtra(WithdrawPresenter.INTENT_BALANCE, offlineBalance.getObservable());
         this.activity.startActivityForResult(intent, WITHDRAW_REQUEST_CODE);
         this.activity.overridePendingTransition(R.anim.enter_from_right, R.anim.exit_to_left);
     }

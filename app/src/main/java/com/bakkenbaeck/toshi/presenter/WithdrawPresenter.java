@@ -11,6 +11,8 @@ import android.view.View;
 import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.ActivityResultHolder;
 import com.bakkenbaeck.toshi.util.LogUtil;
+import com.bakkenbaeck.toshi.util.OnNextObserver;
+import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.BarcodeScannerActivity;
 import com.bakkenbaeck.toshi.view.activity.WithdrawActivity;
 import com.bakkenbaeck.toshi.view.adapter.WalletAddressesAdapter;
@@ -25,12 +27,12 @@ import static android.app.Activity.RESULT_OK;
 
 public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
-    static final String INTENT_BALANCE = "balance";
     static final String INTENT_WALLET_ADDRESS = "wallet_address";
     static final String INTENT_WITHDRAW_AMOUNT = "withdraw_amount";
 
     private WithdrawActivity activity;
     private boolean firstTimeAttaching = true;
+    private BigInteger currentBalance = BigInteger.ZERO;
 
     private final WalletAddressesAdapter previousAddressesAdapter = new WalletAddressesAdapter();
 
@@ -40,12 +42,10 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         initButtons();
         initToolbar();
         initPreviousAddresses();
-        showBalance();
 
         if (firstTimeAttaching) {
             firstTimeAttaching = false;
-            prepopulateAmountField();
-            registerObservable();
+            registerObservables();
         }
     }
 
@@ -107,20 +107,27 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         this.activity.getBinding().previousWallets.setAdapter(this.previousAddressesAdapter);
     }
 
-    private void showBalance() {
-        final String balance = getPassedInBalance().toString();
-        if (this.activity != null) {
-            this.activity.getBinding().balanceBar.setBalance(balance);
+    private final OnNextObserver<BigInteger> newBalanceSubscriber = new OnNextObserver<BigInteger>() {
+        @Override
+        public void onNext(final BigInteger newBalance) {
+            if (activity != null && newBalance != null) {
+                activity.getBinding().balanceBar.setBalance(newBalance.toString());
+                tryPopulateAmountField(currentBalance, newBalance);
+                currentBalance = newBalance;
+            }
         }
-    }
+    };
 
-    private void prepopulateAmountField() {
-        this.activity.getBinding().amount.setText(String.valueOf(getPassedInBalance()));
-        this.activity.getBinding().amount.setSelection(this.activity.getBinding().amount.getText().length());
-    }
+    private void tryPopulateAmountField(final BigInteger previousBalance, final BigInteger newBalance) {
+        try {
+            if (new BigInteger(this.activity.getBinding().amount.getText().toString()).equals(previousBalance)) {
+                this.activity.getBinding().amount.setText(newBalance.toString());
+                this.activity.getBinding().amount.setSelection(this.activity.getBinding().amount.getText().length());
+            }
+        } catch (final Exception ex) {
+            // Do nothing -- user is editing the field
+        }
 
-    private BigInteger getPassedInBalance() {
-        return (BigInteger) this.activity.getIntent().getSerializableExtra(INTENT_BALANCE);
     }
 
     @Override
@@ -177,10 +184,9 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
     private boolean validate() {
         try {
-            final BigInteger maxAvailableToWithdraw = getPassedInBalance();
             final BigInteger amountRequested = new BigInteger(this.activity.getBinding().amount.getText().toString());
 
-            if (amountRequested.compareTo(BigInteger.ZERO) > 0 && amountRequested.compareTo(maxAvailableToWithdraw) <= 0) {
+            if (amountRequested.compareTo(BigInteger.ZERO) > 0 && amountRequested.compareTo(this.currentBalance) <= 0) {
                 return true;
             }
         } catch (final NumberFormatException ex) {
@@ -191,8 +197,9 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         return false;
     }
 
-    private void registerObservable() {
+    private void registerObservables() {
         this.previousAddressesAdapter.getPositionClicks().subscribe(this.clicksSubscriber);
+        BaseApplication.get().getOfflineBalance().getObservable().subscribe(this.newBalanceSubscriber);
     }
 
     private void unregisterObservable() {
