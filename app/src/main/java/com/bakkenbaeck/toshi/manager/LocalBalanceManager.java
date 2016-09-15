@@ -7,8 +7,6 @@ import com.bakkenbaeck.toshi.network.ws.model.Payment;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 
-import java.math.BigInteger;
-
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
@@ -20,7 +18,7 @@ public class LocalBalanceManager {
 
     private LocalBalance localBalance;
     private boolean hasWithdrawn = false;
-    private int numberOfRewards = -1;
+    private int numberOfRewards = 0;
 
     public LocalBalanceManager() {
         this.localBalance = new LocalBalance();
@@ -35,14 +33,14 @@ public class LocalBalanceManager {
     private final OnNextObserver<User> currentUserSubscriber = new OnNextObserver<User>() {
         @Override
         public void onNext(final User user) {
-            setUnconfirmedBalance(user.getBalance());
+            setBalance(user);
         }
     };
 
     private final OnNextObserver<Payment> newPaymentSubscriber = new OnNextObserver<Payment>() {
         @Override
         public void onNext(final Payment payment) {
-            setUnconfirmedBalance(payment.getNewBalance());
+            setBalance(payment);
         }
     };
 
@@ -54,9 +52,16 @@ public class LocalBalanceManager {
         return this.upsellSubject.asObservable();
     }
 
-    private void setUnconfirmedBalance(final BigInteger balance) {
+    private void setBalance(final Payment payment) {
         ++numberOfRewards;
-        this.localBalance.setUnconfirmedBalance(balance);
+        this.localBalance.setUnconfirmedBalance(payment.getUnconfirmedBalance());
+        this.localBalance.setConfirmedBalance(payment.getConfirmedBalance());
+        emitNewBalance();
+    }
+
+    private void setBalance(final User user) {
+        this.localBalance.setUnconfirmedBalance(user.getUnconfirmedBalance());
+        this.localBalance.setConfirmedBalance(user.getConfirmedBalance());
         emitNewBalance();
     }
     

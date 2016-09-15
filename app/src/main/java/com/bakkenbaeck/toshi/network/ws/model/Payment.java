@@ -11,12 +11,18 @@ public class Payment {
         return new BigInteger(this.payload.amount);
     }
 
-    public BigInteger getNewBalance() {
+    public BigInteger getUnconfirmedBalance() {
         return new BigInteger(this.payload.new_balance);
     }
 
+    public BigInteger getConfirmedBalance() {
+        return new BigInteger(this.payload.confirmed_balance);
+    }
+
     private static class PaymentInternals {
+
         private String new_balance;
+        private String confirmed_balance;
         private String amount;
     }
 }

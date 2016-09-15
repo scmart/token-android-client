@@ -195,7 +195,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
             }
         }, 500);
     }
-    
+
     private void refreshAnotherOneButtonState() {
         this.activity.getBinding().buttonAnotherVideo.setVisibility(
                 this.isShowingAnotherOneButton

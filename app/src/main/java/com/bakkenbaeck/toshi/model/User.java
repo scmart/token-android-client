@@ -6,6 +6,7 @@ import java.math.BigInteger;
 public class User {
     private String id;
     private BigInteger balance;
+    private BigInteger confirmed_balance;
     private String auth_token;
     private String bcrypt_salt;
 
@@ -18,8 +19,12 @@ public class User {
         return this;
     }
 
-    public BigInteger getBalance() {
+    public BigInteger getUnconfirmedBalance() {
         return this.balance;
+    }
+
+    public BigInteger getConfirmedBalance() {
+        return this.confirmed_balance;
     }
 
     public String getAuthToken() {
