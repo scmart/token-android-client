@@ -4,6 +4,7 @@ package com.bakkenbaeck.toshi.manager;
 import com.bakkenbaeck.toshi.model.LocalBalance;
 import com.bakkenbaeck.toshi.model.User;
 import com.bakkenbaeck.toshi.network.ws.model.Payment;
+import com.bakkenbaeck.toshi.network.ws.model.TransactionConfirmation;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 
@@ -28,6 +29,7 @@ public class LocalBalanceManager {
     private void initBalanceListeners() {
         BaseApplication.get().getUserManager().getObservable().subscribe(this.currentUserSubscriber);
         BaseApplication.get().getSocketObservables().getPaymentObservable().subscribe(this.newPaymentSubscriber);
+        BaseApplication.get().getSocketObservables().getTransactionConfirmationObservable().subscribe(this.newTransactionConfirmationSubscriber);
     }
 
     private final OnNextObserver<User> currentUserSubscriber = new OnNextObserver<User>() {
@@ -41,6 +43,13 @@ public class LocalBalanceManager {
         @Override
         public void onNext(final Payment payment) {
             setBalance(payment);
+        }
+    };
+
+    private final OnNextObserver<TransactionConfirmation> newTransactionConfirmationSubscriber = new OnNextObserver<TransactionConfirmation>() {
+        @Override
+        public void onNext(final TransactionConfirmation confirmation) {
+            setBalance(confirmation);
         }
     };
 
@@ -62,6 +71,13 @@ public class LocalBalanceManager {
     private void setBalance(final User user) {
         this.localBalance.setUnconfirmedBalance(user.getUnconfirmedBalance());
         this.localBalance.setConfirmedBalance(user.getConfirmedBalance());
+        emitNewBalance();
+    }
+
+    private void setBalance(final TransactionConfirmation confirmation) {
+        ++numberOfRewards;
+        this.localBalance.setUnconfirmedBalance(confirmation.getUnconfirmedBalance());
+        this.localBalance.setConfirmedBalance(confirmation.getConfirmedBalance());
         emitNewBalance();
     }
     
