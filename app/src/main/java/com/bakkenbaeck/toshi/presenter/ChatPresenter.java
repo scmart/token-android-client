@@ -50,6 +50,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         initShortLivingObjects();
 
         // Refresh state
+        unpauseMessageAdapter();
         this.messageAdapter.notifyDataSetChanged();
         refreshAnotherOneButtonState();
         scrollToBottom(false);
@@ -185,6 +186,16 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         }
     }
 
+    private void unpauseMessageAdapter() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                messageAdapter.unPauseRendering();
+                scrollToBottom(true);
+            }
+        }, 500);
+    }
+    
     private void refreshAnotherOneButtonState() {
         this.activity.getBinding().buttonAnotherVideo.setVisibility(
                 this.isShowingAnotherOneButton
@@ -212,6 +223,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
     @Override
     public void onViewDetached() {
+        this.messageAdapter.pauseRendering();
         this.activity = null;
     }
 

@@ -26,13 +26,26 @@ import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_REMOTE_WITHDRAW;
 public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<ChatMessage> chatMessages;
+    private List<ChatMessage> chatMessagesWhilstPaused;
+
     private final PublishSubject<Integer> onClickSubject = PublishSubject.create();
+
+    private boolean isRenderingPaused;
 
     public MessageAdapter() {
         this.chatMessages = new ArrayList<>();
+        this.chatMessagesWhilstPaused = new ArrayList<>();
     }
 
     public final void addMessage(final ChatMessage chatMessage) {
+        if (isRenderingPaused) {
+            this.chatMessagesWhilstPaused.add(chatMessage);
+        } else {
+            addAndRenderMessage(chatMessage);
+        }
+    }
+
+    private void addAndRenderMessage(final ChatMessage chatMessage) {
         this.chatMessages.add(chatMessage);
         notifyItemInserted(this.chatMessages.size() - 1);
     }
@@ -106,14 +119,26 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public final int getItemCount() {
-        return chatMessages.size();
+        return this.chatMessages.size();
     }
 
     public Observable<Integer> getPositionClicks(){
-        return onClickSubject.asObservable();
+        return this.onClickSubject.asObservable();
     }
 
     public ChatMessage getItemAt(final int clickedPosition) {
         return this.chatMessages.get(clickedPosition);
+    }
+
+    public void pauseRendering() {
+        this.isRenderingPaused = true;
+    }
+
+    public void unPauseRendering() {
+        this.isRenderingPaused = false;
+        for (final ChatMessage chatMessage : this.chatMessagesWhilstPaused) {
+            addAndRenderMessage(chatMessage);
+        }
+        this.chatMessagesWhilstPaused.clear();
     }
 }
