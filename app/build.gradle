@@ -53,7 +53,6 @@ dependencies {
             // Images
             'de.hdodenhof:circleimageview:2.1.0',
             // Animations
-            'jp.wasabeef:recyclerview-animators:2.2.3',
             'com.robinhood.ticker:ticker:1.1.0',
             'com.github.bhargavms:DotLoader:1.0.0',
             // Reading barcodes

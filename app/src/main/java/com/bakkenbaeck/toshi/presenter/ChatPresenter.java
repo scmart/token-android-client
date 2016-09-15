@@ -22,7 +22,6 @@ import com.bakkenbaeck.toshi.view.adapter.MessageAdapter;
 import java.math.BigInteger;
 
 import io.realm.Realm;
-import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 import rx.Subscriber;
 
 import static android.app.Activity.RESULT_OK;
@@ -65,8 +64,6 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
         this.messageAdapter = new MessageAdapter();
         registerMessageClickedObservable();
-
-        this.activity.getBinding().messagesList.setItemAnimator(new FadeInLeftAnimator());
 
         this.chatMessageStore.load();
     }
