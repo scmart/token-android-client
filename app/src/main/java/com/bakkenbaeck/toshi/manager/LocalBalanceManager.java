@@ -1,6 +1,8 @@
-package com.bakkenbaeck.toshi.model;
+package com.bakkenbaeck.toshi.manager;
 
 
+import com.bakkenbaeck.toshi.model.LocalBalance;
+import com.bakkenbaeck.toshi.model.User;
 import com.bakkenbaeck.toshi.network.ws.model.Payment;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.view.BaseApplication;
@@ -11,17 +13,17 @@ import rx.Observable;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 
-public class OfflineBalance {
+public class LocalBalanceManager {
 
-    private final BehaviorSubject<BigInteger> balanceSubject = BehaviorSubject.create();
+    private final BehaviorSubject<LocalBalance> balanceSubject = BehaviorSubject.create();
     private final PublishSubject<Void> upsellSubject = PublishSubject.create();
 
-    private BigInteger amountInWei;
+    private LocalBalance localBalance;
     private boolean hasWithdrawn = false;
     private int numberOfRewards = -1;
 
-    public OfflineBalance() {
-        this.amountInWei = BigInteger.ZERO;
+    public LocalBalanceManager() {
+        this.localBalance = new LocalBalance();
         initBalanceListeners();
     }
 
@@ -33,18 +35,18 @@ public class OfflineBalance {
     private final OnNextObserver<User> currentUserSubscriber = new OnNextObserver<User>() {
         @Override
         public void onNext(final User user) {
-            setBalance(user.getBalance());
+            setUnconfirmedBalance(user.getBalance());
         }
     };
 
     private final OnNextObserver<Payment> newPaymentSubscriber = new OnNextObserver<Payment>() {
         @Override
         public void onNext(final Payment payment) {
-            setBalance(payment.getNewBalance());
+            setUnconfirmedBalance(payment.getNewBalance());
         }
     };
 
-    public Observable<BigInteger> getObservable() {
+    public Observable<LocalBalance> getObservable() {
         return this.balanceSubject.asObservable();
     }
 
@@ -52,17 +54,19 @@ public class OfflineBalance {
         return this.upsellSubject.asObservable();
     }
 
-    private void setBalance(final BigInteger balance) {
+    private void setUnconfirmedBalance(final BigInteger balance) {
         ++numberOfRewards;
-        this.amountInWei = balance;
+        this.localBalance.setUnconfirmedBalance(balance);
         emitNewBalance();
     }
-
+    
+/*
+    TODO
     public void subtract(final BigInteger amount) {
         this.amountInWei = this.amountInWei.subtract(amount);
         this.hasWithdrawn = true;
     }
-
+*/
 
     // True if the wallet is in a state wher we can consider
     // showing an upsell message to the user. The upsell message containing
@@ -75,15 +79,11 @@ public class OfflineBalance {
         if (isInUpsellState()) {
             this.upsellSubject.onCompleted();
         }
-        this.balanceSubject.onNext(this.amountInWei);
+        this.balanceSubject.onNext(this.localBalance);
     }
 
     @Override
     public String toString() {
-        if (this.amountInWei == null) {
-            return "0";
-        } else {
-            return this.amountInWei.toString();
-        }
+        return this.localBalance.unconfirmedBalanceString();
     }
 }

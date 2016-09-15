@@ -9,6 +9,7 @@ import android.view.View;
 import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.ActivityResultHolder;
 import com.bakkenbaeck.toshi.model.ChatMessage;
+import com.bakkenbaeck.toshi.model.LocalBalance;
 import com.bakkenbaeck.toshi.network.ws.model.Payment;
 import com.bakkenbaeck.toshi.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.toshi.util.OnCompletedObserver;
@@ -59,7 +60,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         this.chatMessageStore.getEmptySetObservable().subscribe(this.noStoredChatMessages);
         this.chatMessageStore.getNewMessageObservable().subscribe(this.newChatMessage);
         this.chatMessageStore.getUnwatchedVideoObservable().subscribe(this.unwatchedVideo);
-        BaseApplication.get().getOfflineBalance().getUpsellObservable().subscribe(this.upsellSubscriber);
+        BaseApplication.get().getLocalBalanceManager().getUpsellObservable().subscribe(this.upsellSubscriber);
         BaseApplication.get().getSocketObservables().getPaymentObservable().subscribe(this.newPaymentSubscriber);
 
         this.messageAdapter = new MessageAdapter();
@@ -70,7 +71,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
     private void initShortLivingObjects() {
         this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
-        BaseApplication.get().getOfflineBalance().getObservable().subscribe(this.newBalanceSubscriber);
+        BaseApplication.get().getLocalBalanceManager().getObservable().subscribe(this.newBalanceSubscriber);
     }
 
     private void initToolbar() {
@@ -135,11 +136,11 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         displayMessage(chatMessage, 200);
     }
 
-    private final OnNextObserver<BigInteger> newBalanceSubscriber = new OnNextObserver<BigInteger>() {
+    private final OnNextObserver<LocalBalance> newBalanceSubscriber = new OnNextObserver<LocalBalance>() {
         @Override
-        public void onNext(final BigInteger newBalance) {
+        public void onNext(final LocalBalance newBalance) {
             if (activity != null && newBalance != null) {
-                activity.getBinding().balanceBar.setBalance(newBalance.toString());
+                activity.getBinding().balanceBar.setBalance(newBalance.unconfirmedBalanceString());
             }
         }
     };
