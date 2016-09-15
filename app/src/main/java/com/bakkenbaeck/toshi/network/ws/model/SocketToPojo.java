@@ -41,14 +41,15 @@ public class SocketToPojo {
 
         switch (message.type) {
             case "hello":
-                // this type can be ignored
+                LogUtil.i(getClass(), "Ignoring websocket event -- hello");
                 break;
             case "payment":
+                LogUtil.i(getClass(), "Handling websocket event -- payment");
                 final Payment payment = this.paymentAdapter.fromJson(json);
                 this.socketObservables.emit(payment);
                 break;
             default:
-                LogUtil.e(getClass(), "Unrecognised websocket message type - " + message.type);
+                LogUtil.e(getClass(), "Unrecognised websocket event - " + message.type);
         }
     }
 

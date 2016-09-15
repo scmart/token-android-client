@@ -9,10 +9,13 @@ import java.math.BigInteger;
 
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
+import rx.subjects.PublishSubject;
 
 public class OfflineBalance {
 
     private final BehaviorSubject<BigInteger> balanceSubject = BehaviorSubject.create();
+    private final PublishSubject<Void> upsellSubject = PublishSubject.create();
+
     private BigInteger amountInWei;
     private boolean hasWithdrawn = false;
     private int numberOfRewards = -1;
@@ -45,6 +48,10 @@ public class OfflineBalance {
         return this.balanceSubject.asObservable();
     }
 
+    public Observable<Void> getUpsellObservable() {
+        return this.upsellSubject.asObservable();
+    }
+
     private void setBalance(final BigInteger balance) {
         ++numberOfRewards;
         this.amountInWei = balance;
@@ -56,15 +63,18 @@ public class OfflineBalance {
         this.hasWithdrawn = true;
     }
 
-    public boolean hasWithdraw() {
-        return this.hasWithdrawn;
-    }
 
-    public int getNumberOfRewards() {
-        return this.numberOfRewards;
+    // True if the wallet is in a state wher we can consider
+    // showing an upsell message to the user. The upsell message containing
+    // information on withdrawal
+    private boolean isInUpsellState() {
+        return  !hasWithdrawn && numberOfRewards == 3;
     }
 
     private void emitNewBalance() {
+        if (isInUpsellState()) {
+            this.upsellSubject.onCompleted();
+        }
         this.balanceSubject.onNext(this.amountInWei);
     }
 
