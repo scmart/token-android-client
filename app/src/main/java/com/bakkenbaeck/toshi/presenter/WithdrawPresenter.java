@@ -10,6 +10,7 @@ import android.view.View;
 
 import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.ActivityResultHolder;
+import com.bakkenbaeck.toshi.model.LocalBalance;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.view.BaseApplication;
@@ -107,13 +108,13 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         this.activity.getBinding().previousWallets.setAdapter(this.previousAddressesAdapter);
     }
 
-    private final OnNextObserver<BigInteger> newBalanceSubscriber = new OnNextObserver<BigInteger>() {
+    private final OnNextObserver<LocalBalance> newBalanceSubscriber = new OnNextObserver<LocalBalance>() {
         @Override
-        public void onNext(final BigInteger newBalance) {
+        public void onNext(final LocalBalance newBalance) {
             if (activity != null && newBalance != null) {
-                activity.getBinding().balanceBar.setBalance(newBalance.toString());
-                tryPopulateAmountField(currentBalance, newBalance);
-                currentBalance = newBalance;
+                activity.getBinding().balanceBar.setBalance(newBalance.unconfirmedBalanceString());
+                tryPopulateAmountField(currentBalance, newBalance.getUnconfirmedBalance());
+                currentBalance = newBalance.getUnconfirmedBalance();
             }
         }
     };
@@ -199,7 +200,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
     private void registerObservables() {
         this.previousAddressesAdapter.getPositionClicks().subscribe(this.clicksSubscriber);
-        BaseApplication.get().getOfflineBalance().getObservable().subscribe(this.newBalanceSubscriber);
+        BaseApplication.get().getLocalBalanceManager().getObservable().subscribe(this.newBalanceSubscriber);
     }
 
     private void unregisterObservable() {

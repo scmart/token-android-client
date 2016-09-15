@@ -4,7 +4,7 @@ package com.bakkenbaeck.toshi.view;
 import android.app.Application;
 
 import com.bakkenbaeck.toshi.manager.UserManager;
-import com.bakkenbaeck.toshi.model.OfflineBalance;
+import com.bakkenbaeck.toshi.manager.LocalBalanceManager;
 import com.bakkenbaeck.toshi.model.User;
 import com.bakkenbaeck.toshi.network.ws.SocketObservables;
 import com.bakkenbaeck.toshi.network.ws.WebSocketManager;
@@ -20,7 +20,7 @@ public class BaseApplication extends Application {
 
     private UserManager userManager;
     private WebSocketManager webSocketManager;
-    private OfflineBalance offlineBalance;
+    private LocalBalanceManager localBalanceManager;
 
     @Override
     public void onCreate() {
@@ -30,7 +30,7 @@ public class BaseApplication extends Application {
         initUserManager();
         initWebsocketManager();
         initRealm();
-        this.offlineBalance = new OfflineBalance();
+        this.localBalanceManager = new LocalBalanceManager();
     }
 
     private void initUserManager() {
@@ -72,7 +72,7 @@ public class BaseApplication extends Application {
         }
     };
 
-    public OfflineBalance getOfflineBalance() {
-        return offlineBalance;
+    public LocalBalanceManager getLocalBalanceManager() {
+        return localBalanceManager;
     }
 }
