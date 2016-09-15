@@ -59,7 +59,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         this.chatMessageStore.getEmptySetObservable().subscribe(this.noStoredChatMessages);
         this.chatMessageStore.getNewMessageObservable().subscribe(this.newChatMessage);
         this.chatMessageStore.getUnwatchedVideoObservable().subscribe(this.unwatchedVideo);
-        BaseApplication.get().getOfflineBalance().getObservable().subscribe(this.newBalanceSubscriber);
+        BaseApplication.get().getOfflineBalance().getUpsellObservable().subscribe(this.upsellSubscriber);
         BaseApplication.get().getSocketObservables().getPaymentObservable().subscribe(this.newPaymentSubscriber);
 
         this.messageAdapter = new MessageAdapter();
@@ -70,6 +70,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
     private void initShortLivingObjects() {
         this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
+        BaseApplication.get().getOfflineBalance().getObservable().subscribe(this.newBalanceSubscriber);
     }
 
     private void initToolbar() {
@@ -155,21 +156,15 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         final String message = String.format(BaseApplication.get().getResources().getString(R.string.chat__currency_earned), amount);
         final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message);
         displayMessage(response, 500);
-
-        /*
-        TODO
-        if (!offlineBalance.hasWithdraw() && offlineBalance.getNumberOfRewards() == 2) {
-            showWithdrawMessage();
-        }*/
     }
 
-
-    private void showWithdrawMessage() {
-        final ChatMessage message = new ChatMessage().makeRemoteWithdrawMessage();
-        displayMessage(message, 1000);
-    }
-
-
+    private final OnCompletedObserver<Void> upsellSubscriber = new OnCompletedObserver<Void>() {
+        @Override
+        public void onCompleted() {
+            final ChatMessage message = new ChatMessage().makeRemoteWithdrawMessage();
+            displayMessage(message);
+        }
+    };
 
     private void withdrawAmountFromAddress(final BigInteger amount, final String walletAddress) {
         final String message = String.format(this.activity.getResources().getString(R.string.chat__withdraw_to_address), amount.toString(), walletAddress);
