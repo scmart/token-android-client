@@ -59,7 +59,6 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         this.chatMessageStore.getEmptySetObservable().subscribe(this.noStoredChatMessages);
         this.chatMessageStore.getNewMessageObservable().subscribe(this.newChatMessage);
         this.chatMessageStore.getUnwatchedVideoObservable().subscribe(this.unwatchedVideo);
-        BaseApplication.get().getOfflineBalance().getObservable().subscribe(this.newBalanceSubscriber);
         BaseApplication.get().getOfflineBalance().getUpsellObservable().subscribe(this.upsellSubscriber);
         BaseApplication.get().getSocketObservables().getPaymentObservable().subscribe(this.newPaymentSubscriber);
 
@@ -71,6 +70,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
     private void initShortLivingObjects() {
         this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
+        BaseApplication.get().getOfflineBalance().getObservable().subscribe(this.newBalanceSubscriber);
     }
 
     private void initToolbar() {
