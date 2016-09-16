@@ -21,7 +21,7 @@ import com.bakkenbaeck.toshi.view.activity.VideoActivity;
 import com.bakkenbaeck.toshi.view.activity.WithdrawActivity;
 import com.bakkenbaeck.toshi.view.adapter.MessageAdapter;
 
-import java.math.BigInteger;
+import java.math.BigDecimal;
 
 import io.realm.Realm;
 import rx.Subscriber;
@@ -155,7 +155,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     };
 
     private void handleNewPayment(final Payment payment) {
-        final String amount = EthUtil.weiToEth(payment.getAmount());
+        final String amount = EthUtil.weiToEthString(payment.getAmount());
         final String message = String.format(BaseApplication.get().getResources().getString(R.string.chat__currency_earned), amount);
         final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message);
         displayMessage(response, 500);
@@ -169,7 +169,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         }
     };
 
-    private void withdrawAmountFromAddress(final BigInteger amount, final String walletAddress) {
+    private void withdrawAmountFromAddress(final BigDecimal amount, final String walletAddress) {
         final String message = String.format(this.activity.getResources().getString(R.string.chat__withdraw_to_address), amount.toString(), walletAddress);
         final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message);
         displayMessage(response, 500);
@@ -276,7 +276,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
         if (activityResultHolder.getRequestCode() == WITHDRAW_REQUEST_CODE) {
             final String address = activityResultHolder.getIntent().getStringExtra(WithdrawPresenter.INTENT_WALLET_ADDRESS);
-            final BigInteger amount = (BigInteger) activityResultHolder.getIntent().getSerializableExtra(WithdrawPresenter.INTENT_WITHDRAW_AMOUNT);
+            final BigDecimal amount = (BigDecimal) activityResultHolder.getIntent().getSerializableExtra(WithdrawPresenter.INTENT_WITHDRAW_AMOUNT);
             withdrawAmountFromAddress(amount, address);
         }
     }

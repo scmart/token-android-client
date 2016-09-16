@@ -20,7 +20,7 @@ import com.bakkenbaeck.toshi.view.adapter.WalletAddressesAdapter;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import java.math.BigInteger;
+import java.math.BigDecimal;
 
 import rx.Subscriber;
 
@@ -33,7 +33,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
     private WithdrawActivity activity;
     private boolean firstTimeAttaching = true;
-    private BigInteger currentBalance = BigInteger.ZERO;
+    private BigDecimal currentBalance = BigDecimal.ZERO;
 
     private final WalletAddressesAdapter previousAddressesAdapter = new WalletAddressesAdapter();
 
@@ -113,16 +113,16 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         public void onNext(final LocalBalance newBalance) {
             if (activity != null && newBalance != null) {
                 activity.getBinding().balanceBar.setBalance(newBalance.unconfirmedBalanceString());
-                tryPopulateAmountField(currentBalance, newBalance.getUnconfirmedBalance());
-                currentBalance = newBalance.getUnconfirmedBalance();
+                tryPopulateAmountField(currentBalance, newBalance.confirmedBalanceString());
+                currentBalance = newBalance.getConfirmedBalanceAsEth();
             }
         }
     };
 
-    private void tryPopulateAmountField(final BigInteger previousBalance, final BigInteger newBalance) {
+    private void tryPopulateAmountField(final BigDecimal previousBalance, final String newBalanceAsEthString) {
         try {
-            if (new BigInteger(this.activity.getBinding().amount.getText().toString()).equals(previousBalance)) {
-                this.activity.getBinding().amount.setText(newBalance.toString());
+            if (new BigDecimal(this.activity.getBinding().amount.getText().toString()).equals(previousBalance)) {
+                this.activity.getBinding().amount.setText(newBalanceAsEthString);
                 this.activity.getBinding().amount.setSelection(this.activity.getBinding().amount.getText().length());
             }
         } catch (final Exception ex) {
@@ -177,7 +177,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         }
         final Intent intent = new Intent();
         intent.putExtra(INTENT_WALLET_ADDRESS, this.activity.getBinding().walletAddress.getText().toString());
-        intent.putExtra(INTENT_WITHDRAW_AMOUNT, new BigInteger(this.activity.getBinding().amount.getText().toString()));
+        intent.putExtra(INTENT_WITHDRAW_AMOUNT, new BigDecimal(this.activity.getBinding().amount.getText().toString()));
         this.activity.setResult(RESULT_OK, intent);
         this.activity.finish();
         this.activity.overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right);
@@ -185,9 +185,9 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
     private boolean validate() {
         try {
-            final BigInteger amountRequested = new BigInteger(this.activity.getBinding().amount.getText().toString());
+            final BigDecimal amountRequested = new BigDecimal(this.activity.getBinding().amount.getText().toString());
 
-            if (amountRequested.compareTo(BigInteger.ZERO) > 0 && amountRequested.compareTo(this.currentBalance) <= 0) {
+            if (amountRequested.compareTo(BigDecimal.ZERO) > 0 && amountRequested.compareTo(this.currentBalance) <= 0) {
                 return true;
             }
         } catch (final NumberFormatException ex) {
