@@ -12,6 +12,7 @@ import com.bakkenbaeck.toshi.model.ChatMessage;
 import com.bakkenbaeck.toshi.model.LocalBalance;
 import com.bakkenbaeck.toshi.network.ws.model.Payment;
 import com.bakkenbaeck.toshi.presenter.store.ChatMessageStore;
+import com.bakkenbaeck.toshi.util.EthUtil;
 import com.bakkenbaeck.toshi.util.OnCompletedObserver;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.view.BaseApplication;
@@ -154,7 +155,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     };
 
     private void handleNewPayment(final Payment payment) {
-        final String amount = payment.getAmount().toString();
+        final String amount = EthUtil.weiToEth(payment.getAmount());
         final String message = String.format(BaseApplication.get().getResources().getString(R.string.chat__currency_earned), amount);
         final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message);
         displayMessage(response, 500);
