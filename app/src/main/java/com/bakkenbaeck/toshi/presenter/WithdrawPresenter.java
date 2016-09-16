@@ -19,6 +19,7 @@ import com.bakkenbaeck.toshi.model.User;
 import com.bakkenbaeck.toshi.network.rest.ToshiService;
 import com.bakkenbaeck.toshi.network.rest.model.SignatureRequest;
 import com.bakkenbaeck.toshi.network.rest.model.SignedWithdrawalRequest;
+import com.bakkenbaeck.toshi.network.rest.model.TransactionSent;
 import com.bakkenbaeck.toshi.network.rest.model.WithdrawalRequest;
 import com.bakkenbaeck.toshi.util.EthUtil;
 import com.bakkenbaeck.toshi.util.LogUtil;
@@ -231,8 +232,8 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                 ToshiService.getApi().postSignedWithdrawal(currentUser.getAuthToken(), request).subscribe(generateSignedWithdrawalSubscriber());
             }
 
-            private Subscriber<SignatureRequest> generateSignedWithdrawalSubscriber() {
-                return new Subscriber<SignatureRequest>() {
+            private Subscriber<TransactionSent> generateSignedWithdrawalSubscriber() {
+                return new Subscriber<TransactionSent>() {
                     @Override
                     public void onCompleted() {}
 
@@ -249,13 +250,15 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                     }
 
                     @Override
-                    public void onNext(final SignatureRequest signatureRequest) {
+                    public void onNext(final TransactionSent transactionSent) {
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
                                 progressDialog.dismiss();
                             }
                         });
+
+                        BaseApplication.get().getSocketObservables().emitTransactionSent(transactionSent);
 
                         final Intent intent = new Intent();
                         intent.putExtra(INTENT_WALLET_ADDRESS, activity.getBinding().walletAddress.getText().toString());

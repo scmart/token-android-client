@@ -3,6 +3,7 @@ package com.bakkenbaeck.toshi.manager;
 
 import com.bakkenbaeck.toshi.model.LocalBalance;
 import com.bakkenbaeck.toshi.model.User;
+import com.bakkenbaeck.toshi.network.rest.model.TransactionSent;
 import com.bakkenbaeck.toshi.network.ws.model.Payment;
 import com.bakkenbaeck.toshi.network.ws.model.TransactionConfirmation;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
@@ -30,6 +31,7 @@ public class LocalBalanceManager {
         BaseApplication.get().getUserManager().getObservable().subscribe(this.currentUserSubscriber);
         BaseApplication.get().getSocketObservables().getPaymentObservable().subscribe(this.newPaymentSubscriber);
         BaseApplication.get().getSocketObservables().getTransactionConfirmationObservable().subscribe(this.newTransactionConfirmationSubscriber);
+        BaseApplication.get().getSocketObservables().getTransactionSentObservable().subscribe(this.newTransactionSentSubscriber);
     }
 
     private final OnNextObserver<User> currentUserSubscriber = new OnNextObserver<User>() {
@@ -50,6 +52,13 @@ public class LocalBalanceManager {
         @Override
         public void onNext(final TransactionConfirmation confirmation) {
             setBalance(confirmation);
+        }
+    };
+
+    private final OnNextObserver<TransactionSent> newTransactionSentSubscriber = new OnNextObserver<TransactionSent>() {
+        @Override
+        public void onNext(final TransactionSent transactionSent) {
+            setBalance(transactionSent);
         }
     };
 
@@ -80,14 +89,13 @@ public class LocalBalanceManager {
         this.localBalance.setConfirmedBalance(confirmation.getConfirmedBalance());
         emitNewBalance();
     }
-    
-/*
-    TODO
-    public void subtract(final BigInteger amount) {
-        this.amountInWei = this.amountInWei.subtract(amount);
+
+    private void setBalance(final TransactionSent transactionSent) {
         this.hasWithdrawn = true;
+        this.localBalance.setUnconfirmedBalance(transactionSent.getUnconfirmedBalance());
+        this.localBalance.setConfirmedBalance(transactionSent.getConfirmedBalance());
+        emitNewBalance();
     }
-*/
 
     // True if the wallet is in a state wher we can consider
     // showing an upsell message to the user. The upsell message containing
