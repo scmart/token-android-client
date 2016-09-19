@@ -8,6 +8,7 @@
 -keepattributes Signature
 # Retain declared checked exceptions for use by a Proxy instance.
 -keepattributes Exceptions
+-keepattributes EnclosingMethod
 
 
 -keepclassmembers class com.supersonicads.sdk.controller.SupersonicWebView$JSInterface {
@@ -22,28 +23,28 @@
 -keep,includedescriptorclasses class com.supersonic.adapters.** { *;
 }
 
-# bitcoinj
--keep,includedescriptorclasses class org.bitcoinj.wallet.Protos$** { *; }
--keepclassmembers class org.bitcoinj.wallet.Protos { com.google.protobuf.Descriptors$FileDescriptor descriptor; }
--keep,includedescriptorclasses class org.bitcoin.protocols.payments.Protos$** { *; }
--keep,includedescriptorclasses class org.bitcoin.protocols.payments.Protos$** { *; }
--keepclassmembers,includedescriptorclasses class org.bitcoin.protocols.payments.Protos { com.google.protobuf.Descriptors$FileDescriptor descriptor; }
--dontwarn org.bitcoinj.store.WindowsMMapHack
--dontwarn org.bitcoinj.store.LevelDBBlockStore
--dontnote org.bitcoinj.crypto.DRMWorkaround
--dontnote org.bitcoinj.crypto.TrustStoreLoader$DefaultTrustStoreLoader
+-keep class com.bakkenbaeck.toshi.model.** { *;
+}
+-keep class com.bakkenbaeck.toshi.network.** { *;
+}
 
--keep,includedescriptorclasses class org.bitcoinj.wallet.Wallet { *; }
--keep,includedescriptorclasses class org.bitcoinj.core.* { *; }
--dontwarn org.bitcoinj.store.LevelDBFullPrunedBlockStore**
+-keep class org.spongycastle.crypto.* {*;}
+-keep class org.spongycastle.crypto.ec.* {*;}
+-keep class org.spongycastle.crypto.encodings.* {*;}
+-keep class org.spongycastle.crypto.macs.* {*;}
+-keep class org.spongycastle.crypto.modes.* {*;}
+-keep class org.spongycastle.crypto.paddings.* {*;}
+-keep class org.spongycastle.crypto.prng.* {*;}
+-keep class org.spongycastle.crypto.signers.* {*;}
 
--keep,includedescriptorclasses class org.slf4j.**
--keep,includedescriptorclasses interface org.slf4j.**
--keep,includedescriptorclasses enum org.slf4j.**
--dontwarn org.slf4j.**
+-keep class org.spongycastle.jcajce.provider.asymmetric.* {*;}
+-keep class org.spongycastle.jcajce.provider.asymmetric.util.* {*;}
+-keep class org.spongycastle.jcajce.provider.asymmetric.ec.* {*;}
+
+-keep class org.spongycastle.jcajce.provider.keystore.** {*;}
+-keep class org.spongycastle.jce.** {*;}
 
 -dontwarn okio.**
-
 
 -keep class com.squareup.moshi.** { *; }
 -keep interface com.squareup.moshi.** { *; }

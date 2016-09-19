@@ -3,7 +3,6 @@ package com.bakkenbaeck.toshi.crypto;
 import android.content.SharedPreferences;
 
 import com.bakkenbaeck.toshi.crypto.util.TypeConverter;
-import com.bakkenbaeck.toshi.manager.UserManager;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.google.android.gms.tasks.RuntimeExecutionException;
@@ -43,18 +42,18 @@ public class Wallet {
         }).start();
     }
 
-    public Observable<Wallet> initWallet(final String password) {
+    public Observable<Wallet> initWallet(final String password, final String salt) {
         return Observable.create(new Observable.OnSubscribe<Wallet>() {
             @Override
             public void call(final Subscriber<? super Wallet> subscriber) {
-                subscriber.onNext(initWalletSync(password));
+                subscriber.onNext(initWalletSync(password, salt));
                 subscriber.onCompleted();
             }
         });
     }
 
-    private Wallet initWalletSync(final String password) {
-        this.bCryptedPassword = bCryptPassword(password);
+    private Wallet initWalletSync(final String password, final String salt) {
+        this.bCryptedPassword = bCryptPassword(password, salt);
         this.encryptedPrivateKey = readEncryptedPrivateKeyFromStorage();
         if (this.encryptedPrivateKey == null) {
             return generateNewWallet(password);
@@ -65,8 +64,8 @@ public class Wallet {
     }
 
     private void initAes() {
-        this.prefs = new SecurePreferences(BaseApplication.get());
-        this.aes = new Aes(this.prefs);
+        this.prefs = new SecurePreferences(BaseApplication.get(), "", "w");
+        this.aes = new Aes();
     }
 
     public String sign(final String hexString) {
@@ -132,8 +131,7 @@ public class Wallet {
         return this.aes.encrypt(privateKey, password);
     }
 
-    private String bCryptPassword(final String password) {
-        final String salt = this.prefs.getString(UserManager.BCRYPT_SALT, null);
+    private String bCryptPassword(final String password, final String salt) {
         if (salt == null) {
             throw new RuntimeExecutionException(new IllegalStateException("No salt found in preferences"));
         }
