@@ -20,7 +20,7 @@ import rx.subjects.BehaviorSubject;
 
 public class UserManager {
 
-    public final static String BCRYPT_SALT = "b";
+    private final static String BCRYPT_SALT = "b";
     private final static String USER_ID = "u";
     private final static String AUTH_TOKEN = "t";
     private final static String WALLET_PASSWORD = "w";
@@ -52,7 +52,7 @@ public class UserManager {
     }
 
     private void initUser() {
-        this.prefs = new SecurePreferences(BaseApplication.get());
+        this.prefs = new SecurePreferences(BaseApplication.get(), "", "um");
         this.userWallet = new Wallet();
         if (!userExistsInPrefs()) {
             requestNewUser();
@@ -147,11 +147,12 @@ public class UserManager {
 
     private Observable<Wallet> initUserWallet() {
         final String walletPassword = this.prefs.getString(WALLET_PASSWORD, null);
+        final String salt = prefs.getString(BCRYPT_SALT, null);
         if (walletPassword == null) {
             throw new RuntimeException("Not yet implemented user inputted password");
         }
 
-        return this.userWallet.initWallet(walletPassword);
+        return this.userWallet.initWallet(walletPassword, salt);
     }
 
     private void emitUser() {

@@ -3,6 +3,9 @@ package com.bakkenbaeck.toshi.crypto;
 import android.content.SharedPreferences;
 import android.util.Base64;
 
+import com.bakkenbaeck.toshi.view.BaseApplication;
+import com.securepreferences.SecurePreferences;
+
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -28,8 +31,8 @@ public class Aes
     private SecretKeySpec key;
     private AlgorithmParameterSpec spec;
 
-    public Aes(final SharedPreferences preferences) {
-        this.preferences = preferences;
+    public Aes() {
+        this.preferences = new SecurePreferences(BaseApplication.get(), "", "a");
     }
 
     public String encrypt(final String plainText, final String password) {
