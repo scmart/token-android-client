@@ -2,15 +2,26 @@ package com.bakkenbaeck.toshi.presenter;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.Toast;
 
 import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.ActivityResultHolder;
 import com.bakkenbaeck.toshi.model.LocalBalance;
+import com.bakkenbaeck.toshi.model.User;
+import com.bakkenbaeck.toshi.network.rest.ToshiService;
+import com.bakkenbaeck.toshi.network.rest.model.SignatureRequest;
+import com.bakkenbaeck.toshi.network.rest.model.SignedWithdrawalRequest;
+import com.bakkenbaeck.toshi.network.rest.model.TransactionSent;
+import com.bakkenbaeck.toshi.network.rest.model.WithdrawalRequest;
+import com.bakkenbaeck.toshi.util.EthUtil;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.view.BaseApplication;
@@ -21,6 +32,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import rx.Subscriber;
 
@@ -32,8 +44,11 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     static final String INTENT_WITHDRAW_AMOUNT = "withdraw_amount";
 
     private WithdrawActivity activity;
+    private User currentUser;
     private boolean firstTimeAttaching = true;
     private BigDecimal currentBalance = BigDecimal.ZERO;
+    private final BigDecimal minWithdrawLimit = new BigDecimal("0.0000000001");
+    private ProgressDialog progressDialog;
 
     private final WalletAddressesAdapter previousAddressesAdapter = new WalletAddressesAdapter();
 
@@ -47,7 +62,15 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         if (firstTimeAttaching) {
             firstTimeAttaching = false;
             registerObservables();
+            initProgressDialog();
         }
+    }
+
+    private void initProgressDialog() {
+        this.progressDialog = new ProgressDialog(this.activity, R.style.DialogTheme);
+        this.progressDialog.setTitle("Withdrawing...");
+        this.progressDialog.setMessage("It may take a few minutes before the ether appears in the receiver wallet");
+        this.progressDialog.setIndeterminate(true);
     }
 
     private void initButtons() {
@@ -175,19 +198,85 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         if (!validate()) {
             return;
         }
-        final Intent intent = new Intent();
-        intent.putExtra(INTENT_WALLET_ADDRESS, this.activity.getBinding().walletAddress.getText().toString());
-        intent.putExtra(INTENT_WITHDRAW_AMOUNT, new BigDecimal(this.activity.getBinding().amount.getText().toString()));
-        this.activity.setResult(RESULT_OK, intent);
-        this.activity.finish();
-        this.activity.overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right);
+
+        final BigDecimal amountInEth = new BigDecimal(this.activity.getBinding().amount.getText().toString());
+        final BigInteger amountInWei = EthUtil.ethToWei(amountInEth);
+        final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
+        final WithdrawalRequest withdrawalRequest = new WithdrawalRequest(amountInWei, toAddress);
+        ToshiService.getApi().postWithdrawalRequest(this.currentUser.getAuthToken(), withdrawalRequest).subscribe(generateSigningSubscriber());
+        this.progressDialog.show();
+    }
+
+    private Subscriber<SignatureRequest> generateSigningSubscriber() {
+        return new Subscriber<SignatureRequest>() {
+            @Override
+            public void onCompleted() {}
+
+            @Override
+            public void onError(final Throwable ex) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(activity, "There was a problem withdrawing, please try again.", Toast.LENGTH_LONG).show();
+                        progressDialog.dismiss();
+                    }
+                });
+                LogUtil.e(getClass(), "postWithdrawalRequest: " + ex);
+            }
+
+            @Override
+            public void onNext(final SignatureRequest signatureRequest) {
+                final String unsignedTransaction = signatureRequest.getTransaction();
+                final String signature = BaseApplication.get().getUserManager().signTransaction(unsignedTransaction);
+                final SignedWithdrawalRequest request = new SignedWithdrawalRequest(unsignedTransaction, signature);
+                ToshiService.getApi().postSignedWithdrawal(currentUser.getAuthToken(), request).subscribe(generateSignedWithdrawalSubscriber());
+            }
+
+            private Subscriber<TransactionSent> generateSignedWithdrawalSubscriber() {
+                return new Subscriber<TransactionSent>() {
+                    @Override
+                    public void onCompleted() {}
+
+                    @Override
+                    public void onError(final Throwable ex) {
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(activity, "There was a problem withdrawing, please try again.", Toast.LENGTH_LONG).show();
+                                progressDialog.dismiss();
+                            }
+                        });
+                        LogUtil.e(getClass(), "postSignedWithdrawal: " + ex);
+                    }
+
+                    @Override
+                    public void onNext(final TransactionSent transactionSent) {
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressDialog.dismiss();
+                            }
+                        });
+
+                        BaseApplication.get().getSocketObservables().emitTransactionSent(transactionSent);
+
+                        final Intent intent = new Intent();
+                        intent.putExtra(INTENT_WALLET_ADDRESS, activity.getBinding().walletAddress.getText().toString());
+                        intent.putExtra(INTENT_WITHDRAW_AMOUNT, new BigDecimal(activity.getBinding().amount.getText().toString()));
+                        activity.setResult(RESULT_OK, intent);
+                        activity.finish();
+                        activity.overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right);
+                    }
+                };
+            }
+        };
     }
 
     private boolean validate() {
         try {
             final BigDecimal amountRequested = new BigDecimal(this.activity.getBinding().amount.getText().toString());
 
-            if (amountRequested.compareTo(BigDecimal.ZERO) > 0 && amountRequested.compareTo(this.currentBalance) <= 0) {
+            if (amountRequested.compareTo(this.minWithdrawLimit) > 0 && amountRequested.compareTo(this.currentBalance) <= 0) {
                 return true;
             }
         } catch (final NumberFormatException ex) {
@@ -201,6 +290,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     private void registerObservables() {
         this.previousAddressesAdapter.getPositionClicks().subscribe(this.clicksSubscriber);
         BaseApplication.get().getLocalBalanceManager().getObservable().subscribe(this.newBalanceSubscriber);
+        BaseApplication.get().getUserManager().getObservable().subscribe(this.userSubscriber);
     }
 
     private void unregisterObservable() {
@@ -217,6 +307,14 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         @Override
         public void onNext(final String clickedAddress) {
             activity.getBinding().walletAddress.setText(clickedAddress);
+        }
+    };
+
+    private final OnNextObserver<User> userSubscriber = new OnNextObserver<User>() {
+        @Override
+        public void onNext(final User user) {
+            currentUser = user;
+            this.onCompleted();
         }
     };
 }

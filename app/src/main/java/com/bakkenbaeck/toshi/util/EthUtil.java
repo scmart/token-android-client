@@ -20,4 +20,8 @@ public class EthUtil {
     public static BigDecimal weiToEth(final BigInteger wei) {
         return new BigDecimal(wei).divide(weiToEthRatio);
     }
+
+    public static BigInteger ethToWei(final BigDecimal amountInEth) {
+        return amountInEth.multiply(weiToEthRatio).toBigInteger();
+    }
 }

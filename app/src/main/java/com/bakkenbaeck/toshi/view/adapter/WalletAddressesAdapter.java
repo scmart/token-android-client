@@ -20,11 +20,11 @@ public final class WalletAddressesAdapter extends RecyclerView.Adapter<WalletAdd
 
     public WalletAddressesAdapter() {
         this.addresses = new ArrayList<> ();
-        this.addresses.add("0xc2f651fD599627a33962aA7df020bf004De9A958");
-        this.addresses.add("0x737B8f37C518453B98A9Ef82Ac38E67143DBccfF");
-        this.addresses.add("0xa5453837CEF269664dcf70f76992D7F5C3D9e3b9");
-        this.addresses.add("0xfc67DC70845aA54cb175d86C7c95090697De01f2");
-        this.addresses.add("0x8e799B043191393A09089f429D2BC6DB97c2B02a");
+        this.addresses.add("0x098D62064258bC733B841df754182EE5f46bf83d ");
+        this.addresses.add("0x098D62064258bC733B841df754182EE5f46bf83d ");
+        this.addresses.add("0x098D62064258bC733B841df754182EE5f46bf83d ");
+        this.addresses.add("0x098D62064258bC733B841df754182EE5f46bf83d ");
+        this.addresses.add("0x098D62064258bC733B841df754182EE5f46bf83d ");
         notifyDataSetChanged();
     }
 

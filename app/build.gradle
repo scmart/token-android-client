@@ -64,10 +64,15 @@ dependencies {
             'com.madgag.spongycastle:prov:1.54.0.0',
             'org.mindrot:jbcrypt:0.3m'
     )
-    testCompile 'junit:junit:4.12'
+
     compile fileTree(include: '*.jar', dir: 'libs')
 
     compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {
         transitive = true;
     }
+
+    testCompile(
+            'junit:junit:4.12',
+            'org.hamcrest:hamcrest-library:1.3'
+    )
 }

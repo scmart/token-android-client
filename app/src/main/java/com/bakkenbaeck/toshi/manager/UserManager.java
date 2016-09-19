@@ -47,6 +47,10 @@ public class UserManager {
         return this;
     }
 
+    public String signTransaction(final String transaction) {
+        return this.userWallet.sign(transaction);
+    }
+
     private void initUser() {
         this.prefs = new SecurePreferences(BaseApplication.get());
         this.userWallet = new Wallet();

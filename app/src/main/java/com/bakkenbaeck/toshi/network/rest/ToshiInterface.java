@@ -3,6 +3,10 @@ package com.bakkenbaeck.toshi.network.rest;
 
 import com.bakkenbaeck.toshi.model.CryptoDetails;
 import com.bakkenbaeck.toshi.model.User;
+import com.bakkenbaeck.toshi.network.rest.model.SignatureRequest;
+import com.bakkenbaeck.toshi.network.rest.model.SignedWithdrawalRequest;
+import com.bakkenbaeck.toshi.network.rest.model.TransactionSent;
+import com.bakkenbaeck.toshi.network.rest.model.WithdrawalRequest;
 
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -25,4 +29,12 @@ public interface ToshiInterface {
     Observable<Void> putUserCryptoDetails(@Header("TOSHIAPP-AUTH-TOKEN") String userAuthToken,
                                           @Path("id") String userId,
                                           @Body CryptoDetails details);
+
+    @POST("/message")
+    Observable<SignatureRequest> postWithdrawalRequest(@Header("TOSHIAPP-AUTH-TOKEN") String userAuthToken,
+                                                       @Body WithdrawalRequest withdrawalRequest);
+
+    @POST("/message")
+    Observable<TransactionSent> postSignedWithdrawal(@Header("TOSHIAPP-AUTH-TOKEN") String userAuthToken,
+                                                     @Body SignedWithdrawalRequest signedWithdrawalRequest);
 }
