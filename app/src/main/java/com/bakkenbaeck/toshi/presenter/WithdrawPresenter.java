@@ -209,6 +209,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                 .retryWhen(new RetryWithBackoff())
                 .subscribe(generateSigningSubscriber());
         this.progressDialog.show();
+        this.previousAddressesAdapter.addAddress(toAddress);
     }
 
     private Subscriber<SignatureRequest> generateSigningSubscriber() {
@@ -249,7 +250,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(activity, "There was a problem withdrawing, please try again.", Toast.LENGTH_LONG).show();
+                                Toast.makeText(activity, R.string.error__withdrawing, Toast.LENGTH_LONG).show();
                                 progressDialog.dismiss();
                             }
                         });
