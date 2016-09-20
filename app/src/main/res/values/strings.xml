@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">Toshi</string>
+    <string name="app_name">Free Ethereum</string>
     <string name="chat__title">Free Ethereum</string>
-    <string name="chat__welcome_message">Welcome to Free Ethereum - Toshi. Simply watch the video below to earn ethereum.</string>
+    <string name="chat__welcome_message">Welcome to Free Ethereum. Simply watch the video below to earn ethereum.</string>
     <string name="chat__currency_earned">Congratulations, you just earned %1$s ETH!</string>
     <string name="balance__current_balance">%1$.5f</string>
     <string name="chat__request_video_message">Another video please!</string>
