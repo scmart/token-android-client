@@ -10,10 +10,16 @@ public class RetryWithBackoff implements Func1<Observable<? extends Throwable>, 
 
     private final int retryDelayMillis = 1000;
     private final int maxRetryDelayMillis = 15000;
+    private final int maxRetries;
     private int retryCount;
 
     public RetryWithBackoff() {
+        this(10000);
+    }
+
+    public RetryWithBackoff(final int maxRetries) {
         this.retryCount = 0;
+        this.maxRetries = maxRetries;
     }
 
     @Override
@@ -22,9 +28,13 @@ public class RetryWithBackoff implements Func1<Observable<? extends Throwable>, 
                 .flatMap(new Func1<Throwable, Observable<?>>() {
                     @Override
                     public Observable<?> call(Throwable throwable) {
-                        retryCount++;
-                        final int backedOffRetryDelay = Math.min(retryDelayMillis * retryCount, maxRetryDelayMillis);
-                        return Observable.timer(backedOffRetryDelay, TimeUnit.MILLISECONDS);
+                        if (++retryCount < maxRetries) {
+                            final int backedOffRetryDelay = Math.min(retryDelayMillis * retryCount, maxRetryDelayMillis);
+                            return Observable.timer(backedOffRetryDelay, TimeUnit.MILLISECONDS);
+                        }
+
+                        // Max retries hit. Just pass the error along.
+                        return Observable.error(throwable);
                     }
                 });
     }

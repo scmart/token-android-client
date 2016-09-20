@@ -235,7 +235,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                 final SignedWithdrawalRequest request = new SignedWithdrawalRequest(unsignedTransaction, signature);
                 ToshiService.getApi()
                         .postSignedWithdrawal(currentUser.getAuthToken(), request)
-                        .retryWhen(new RetryWithBackoff())
+                        .retryWhen(new RetryWithBackoff(10))
                         .subscribe(generateSignedWithdrawalSubscriber());
             }
 
