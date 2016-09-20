@@ -18,6 +18,8 @@ import java.util.Map;
 
     /* package */ interface Listener {
         void onJsonMessage(final String json);
+        void onReconnecting();
+        void onConnected();
     }
 
     private final WebSocketFactory wsFactory;
@@ -40,6 +42,7 @@ import java.util.Map;
                 @Override
                 public void onConnected(final WebSocket websocket, final Map<String, List<String>> headers) throws Exception {
                     LogUtil.i(getClass(), "Connected");
+                    listener.onConnected();
                     websocket.setPingInterval(50 * 1000);
                 }
 
@@ -68,6 +71,7 @@ import java.util.Map;
     }
 
     private void reconnect() {
+        this.listener.onReconnecting();
         this.reconnectHandler.postDelayed(new Runnable() {
             @Override
             public void run() {

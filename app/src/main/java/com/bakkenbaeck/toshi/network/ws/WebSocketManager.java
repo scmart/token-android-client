@@ -2,6 +2,7 @@ package com.bakkenbaeck.toshi.network.ws;
 
 
 import com.bakkenbaeck.toshi.network.ws.WebSocketConnection.Listener;
+import com.bakkenbaeck.toshi.network.ws.model.ConnectionState;
 import com.bakkenbaeck.toshi.network.ws.model.SocketToPojo;
 
 public class WebSocketManager {
@@ -24,6 +25,16 @@ public class WebSocketManager {
         @Override
         public void onJsonMessage(final String json) {
             socketToPojo.handleNewMessage(json);
+        }
+
+        @Override
+        public void onReconnecting() {
+            socketObservables.emitNewConnectionState(ConnectionState.CONNECTING);
+        }
+
+        @Override
+        public void onConnected() {
+            socketObservables.emitNewConnectionState(ConnectionState.CONNECTED);
         }
     };
 
