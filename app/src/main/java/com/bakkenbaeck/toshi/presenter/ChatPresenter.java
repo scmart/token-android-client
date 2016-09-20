@@ -3,6 +3,8 @@ package com.bakkenbaeck.toshi.presenter;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
@@ -10,6 +12,7 @@ import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.ActivityResultHolder;
 import com.bakkenbaeck.toshi.model.ChatMessage;
 import com.bakkenbaeck.toshi.model.LocalBalance;
+import com.bakkenbaeck.toshi.network.ws.model.ConnectionState;
 import com.bakkenbaeck.toshi.network.ws.model.Payment;
 import com.bakkenbaeck.toshi.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.toshi.util.EthUtil;
@@ -38,6 +41,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     private boolean firstViewAttachment = true;
     private boolean isShowingAnotherOneButton;
     private ChatMessageStore chatMessageStore;
+    private Snackbar networkStateSnackbar;
 
     @Override
     public void onViewAttached(final ChatActivity activity) {
@@ -58,17 +62,28 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     }
 
     private void initLongLivingObjects() {
+        initNetworkStateSnackbar();
+
         this.chatMessageStore = new ChatMessageStore();
         this.chatMessageStore.getEmptySetObservable().subscribe(this.noStoredChatMessages);
         this.chatMessageStore.getNewMessageObservable().subscribe(this.newChatMessage);
         this.chatMessageStore.getUnwatchedVideoObservable().subscribe(this.unwatchedVideo);
         BaseApplication.get().getLocalBalanceManager().getUpsellObservable().subscribe(this.upsellSubscriber);
         BaseApplication.get().getSocketObservables().getPaymentObservable().subscribe(this.newPaymentSubscriber);
+        BaseApplication.get().getSocketObservables().getConnectionObservable().subscribe(this.connectionStateSubscriber);
 
         this.messageAdapter = new MessageAdapter();
         registerMessageClickedObservable();
 
         this.chatMessageStore.load();
+    }
+
+    private void initNetworkStateSnackbar() {
+        this.networkStateSnackbar = Snackbar.make(
+                this.activity.getBinding().balanceBar,
+                this.activity.getString(R.string.socket__connecting_state),
+                Snackbar.LENGTH_INDEFINITE);
+        this.networkStateSnackbar.getView().setBackgroundColor(ContextCompat.getColor(this.activity, R.color.colorAccent));
     }
 
     private void initShortLivingObjects() {
@@ -300,4 +315,18 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         this.activity.startActivityForResult(intent, WITHDRAW_REQUEST_CODE);
         this.activity.overridePendingTransition(R.anim.enter_from_right, R.anim.exit_to_left);
     }
+
+    private final OnNextObserver<ConnectionState> connectionStateSubscriber = new OnNextObserver<ConnectionState>() {
+        @Override
+        public void onNext(final ConnectionState connectionState) {
+            if (connectionState == ConnectionState.CONNECTING) {
+                if (networkStateSnackbar.isShownOrQueued()) {
+                    return;
+                }
+                networkStateSnackbar.show();
+            } else {
+                networkStateSnackbar.dismiss();
+            }
+        }
+    };
 }
