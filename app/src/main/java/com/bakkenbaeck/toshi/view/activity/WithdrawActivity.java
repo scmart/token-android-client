@@ -36,6 +36,7 @@ public class WithdrawActivity extends AppCompatActivity implements LoaderManager
 
         final RecyclerView.LayoutManager recyclerLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         this.binding.previousWallets.setLayoutManager(recyclerLayoutManager);
+        this.binding.previousWallets.setEmptyView(this.binding.emptyView);
     }
 
     public final ActivityWithdrawBinding getBinding() {
