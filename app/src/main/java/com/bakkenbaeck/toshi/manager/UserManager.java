@@ -9,6 +9,7 @@ import com.bakkenbaeck.toshi.model.User;
 import com.bakkenbaeck.toshi.network.rest.ToshiService;
 import com.bakkenbaeck.toshi.util.OnCompletedObserver;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
+import com.bakkenbaeck.toshi.util.RetryWithBackoff;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.securepreferences.SecurePreferences;
 
@@ -72,12 +73,14 @@ public class UserManager {
 
     private void requestNewUser() {
         final Observable<User> call = ToshiService.getApi().requestUserId();
-        call.subscribe(this.newUserSubscriber);
+        call.retryWhen(new RetryWithBackoff())
+            .subscribe(this.newUserSubscriber);
     }
 
     private void getExistingUser(final String authToken, final String userId) {
         final Observable<User> call = ToshiService.getApi().getUser(authToken, userId);
-        call.subscribe(this.existingUserSubscriber);
+        call.retryWhen(new RetryWithBackoff())
+            .subscribe(this.existingUserSubscriber);
     }
 
     private final OnNextObserver<User> newUserSubscriber = new OnNextObserver<User>() {
@@ -133,7 +136,7 @@ public class UserManager {
                         currentUser.getAuthToken(),
                         currentUser.getId(),
                         cryptoDetails)
-                    .retry(5)
+                    .retryWhen(new RetryWithBackoff())
                     .subscribe(storedCryptoSubscriber);
         }
     };

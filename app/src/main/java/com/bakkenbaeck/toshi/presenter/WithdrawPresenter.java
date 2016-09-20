@@ -24,6 +24,7 @@ import com.bakkenbaeck.toshi.network.rest.model.WithdrawalRequest;
 import com.bakkenbaeck.toshi.util.EthUtil;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
+import com.bakkenbaeck.toshi.util.RetryWithBackoff;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.BarcodeScannerActivity;
 import com.bakkenbaeck.toshi.view.activity.WithdrawActivity;
@@ -203,7 +204,10 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         final BigInteger amountInWei = EthUtil.ethToWei(amountInEth);
         final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
         final WithdrawalRequest withdrawalRequest = new WithdrawalRequest(amountInWei, toAddress);
-        ToshiService.getApi().postWithdrawalRequest(this.currentUser.getAuthToken(), withdrawalRequest).subscribe(generateSigningSubscriber());
+        ToshiService.getApi()
+                .postWithdrawalRequest(this.currentUser.getAuthToken(), withdrawalRequest)
+                .retryWhen(new RetryWithBackoff())
+                .subscribe(generateSigningSubscriber());
         this.progressDialog.show();
     }
 
@@ -229,7 +233,10 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                 final String unsignedTransaction = signatureRequest.getTransaction();
                 final String signature = BaseApplication.get().getUserManager().signTransaction(unsignedTransaction);
                 final SignedWithdrawalRequest request = new SignedWithdrawalRequest(unsignedTransaction, signature);
-                ToshiService.getApi().postSignedWithdrawal(currentUser.getAuthToken(), request).subscribe(generateSignedWithdrawalSubscriber());
+                ToshiService.getApi()
+                        .postSignedWithdrawal(currentUser.getAuthToken(), request)
+                        .retryWhen(new RetryWithBackoff())
+                        .subscribe(generateSignedWithdrawalSubscriber());
             }
 
             private Subscriber<TransactionSent> generateSignedWithdrawalSubscriber() {
