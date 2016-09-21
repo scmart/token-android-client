@@ -29,6 +29,7 @@ public abstract class AdvertisementActivity extends AppCompatActivity {
     private final String mAppKey = "527a318d";
     private Supersonic mMediationAgent;
     private Snackbar errorSnackbar;
+    private boolean startedPlaying = false;
 
     abstract void onVideoCompleted();
 
@@ -69,6 +70,15 @@ public abstract class AdvertisementActivity extends AppCompatActivity {
                 }
             }, 150);
         }
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (!startedPlaying) {
+                    showErrorSnackbar();
+                }
+            }
+        }, 10000);
     }
 
     protected void onResume() {
@@ -122,14 +132,13 @@ public abstract class AdvertisementActivity extends AppCompatActivity {
             if (available) {
                 mMediationAgent.showRewardedVideo(adZone);
             } else {
-                errorSnackbar = Snackbar.make(findViewById(content), R.string.error__supersonic, Snackbar.LENGTH_INDEFINITE);
-                errorSnackbar.getView().setBackgroundColor(ContextCompat.getColor(AdvertisementActivity.this, R.color.generalBg));
-                errorSnackbar.show();
+                showErrorSnackbar();
             }
         }
 
         @Override
         public void onVideoStart() {
+            startedPlaying = true;
             if (errorSnackbar != null) {
                 errorSnackbar.dismiss();
             }
@@ -143,4 +152,10 @@ public abstract class AdvertisementActivity extends AppCompatActivity {
             onVideoCompleted();
         }
     };
+
+    private void showErrorSnackbar() {
+        errorSnackbar = Snackbar.make(findViewById(content), R.string.error__supersonic, Snackbar.LENGTH_INDEFINITE);
+        errorSnackbar.getView().setBackgroundColor(ContextCompat.getColor(AdvertisementActivity.this, R.color.generalBg));
+        errorSnackbar.show();
+    }
 }
