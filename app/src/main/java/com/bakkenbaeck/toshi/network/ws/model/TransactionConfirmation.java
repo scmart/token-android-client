@@ -8,7 +8,7 @@ public class TransactionConfirmation {
     private TransactionInternals payload;
 
     public BigInteger getUnconfirmedBalance() {
-        return new BigInteger(this.payload.new_balance);
+        return new BigInteger(this.payload.balance);
     }
 
     public BigInteger getConfirmedBalance() {
@@ -17,7 +17,7 @@ public class TransactionConfirmation {
 
     private static class TransactionInternals {
 
-        private String new_balance;
+        private String balance;
         private String confirmed_balance;
     }
 }
