@@ -13,6 +13,7 @@ public class LocalBalance {
     // Both balances are stored in wei
     private BigInteger confirmedBalance = BigInteger.ZERO;
     private BigInteger unconfirmedBalance = BigInteger.ZERO;
+    private BigInteger transferFee = new BigInteger("420000000000000");
 
 
     public BigInteger getConfirmedBalance() {
@@ -27,11 +28,25 @@ public class LocalBalance {
         return EthUtil.weiToEth(this.confirmedBalance);
     }
 
+    public BigDecimal getConfirmedBalanceAsEthMinusTransferFee() {
+        if (this.confirmedBalance == null || this.confirmedBalance.subtract(transferFee).compareTo(BigInteger.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+        return EthUtil.weiToEth(this.confirmedBalance.subtract(transferFee));
+    }
+
     public String confirmedBalanceString() {
         if (this.confirmedBalance == null || this.confirmedBalance.equals(BigInteger.ZERO)) {
             return "0.0000000000";
         }
         return EthUtil.weiToEthString(this.confirmedBalance);
+    }
+
+    public String confirmedBalanceStringMinusTransferFee() {
+        if (this.confirmedBalance == null || this.confirmedBalance.subtract(transferFee).compareTo(BigInteger.ZERO) <= 0) {
+            return "0.0000000000";
+        }
+        return EthUtil.weiToEthString(this.confirmedBalance.subtract(transferFee));
     }
 
     public void setUnconfirmedBalance(final BigInteger unconfirmedBalance) {

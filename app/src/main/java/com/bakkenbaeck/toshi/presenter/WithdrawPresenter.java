@@ -137,8 +137,8 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         public void onNext(final LocalBalance newBalance) {
             if (activity != null && newBalance != null) {
                 activity.getBinding().balanceBar.setBalance(newBalance.unconfirmedBalanceString());
-                tryPopulateAmountField(currentBalance, newBalance.confirmedBalanceString());
-                currentBalance = newBalance.getConfirmedBalanceAsEth();
+                tryPopulateAmountField(currentBalance, newBalance.confirmedBalanceStringMinusTransferFee());
+                currentBalance = newBalance.getConfirmedBalanceAsEthMinusTransferFee();
             }
         }
     };
