@@ -42,10 +42,10 @@ If a user is opening the app but has already gone through the user creation proc
 
 When the client wishes to tranfer funds out of the wallet on their device to a different wallet, the client will need to sign the transaction.
 
-  - Client requests a transaction to an address with an amount by (TODO)
-  - Server responds with the transaction as a hex string (TODO)
+  - Client requests a transaction to an address with an amount
+  - Server responds with the transaction as a hex string
   - Client signs the transaction with the on-device wallet. The signed transaction normalises the ECDSA Signature value `v` to be either 0 or 1.
-  - Client returns the unsigned transaction and the signed transaction to the server (TODO)
+  - Client returns the unsigned transaction and the signed transaction to the server
 
 
 
