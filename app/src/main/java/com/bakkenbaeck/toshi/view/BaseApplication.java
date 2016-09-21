@@ -3,15 +3,13 @@ package com.bakkenbaeck.toshi.view;
 
 import android.app.Application;
 
-import com.bakkenbaeck.toshi.manager.UserManager;
 import com.bakkenbaeck.toshi.manager.LocalBalanceManager;
-import com.bakkenbaeck.toshi.model.User;
+import com.bakkenbaeck.toshi.manager.UserManager;
 import com.bakkenbaeck.toshi.network.ws.SocketObservables;
 import com.bakkenbaeck.toshi.network.ws.WebSocketManager;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
-import rx.Subscriber;
 
 public class BaseApplication extends Application {
 
@@ -35,7 +33,6 @@ public class BaseApplication extends Application {
 
     private void initUserManager() {
         this.userManager = new UserManager().init();
-        this.userManager.getObservable().subscribe(this.currentUserSubscriber);
     }
 
     private void initWebsocketManager() {
@@ -57,20 +54,6 @@ public class BaseApplication extends Application {
     public SocketObservables getSocketObservables() {
         return this.webSocketManager.getSocketObservables();
     }
-
-    private final Subscriber<User> currentUserSubscriber = new Subscriber<User>() {
-        @Override
-        public void onCompleted() {}
-
-        @Override
-        public void onError(final Throwable e) {}
-
-        @Override
-        public void onNext(final User user) {
-            this.unsubscribe();
-            webSocketManager.init(user.getId());
-        }
-    };
 
     public LocalBalanceManager getLocalBalanceManager() {
         return localBalanceManager;

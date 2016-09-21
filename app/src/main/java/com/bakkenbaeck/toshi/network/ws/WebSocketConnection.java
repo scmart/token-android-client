@@ -35,9 +35,9 @@ import java.util.Map;
         this.listener = listener;
     }
 
-    public void init(final String userId) {
+    public void init(final String url) {
         try {
-            this.webSocket = wsFactory.createSocket("ws://toshi-app.herokuapp.com/ws/" + userId);
+            this.webSocket = wsFactory.createSocket(url);
             this.webSocket.addListener(new WebSocketAdapter() {
                 @Override
                 public void onConnected(final WebSocket websocket, final Map<String, List<String>> headers) throws Exception {

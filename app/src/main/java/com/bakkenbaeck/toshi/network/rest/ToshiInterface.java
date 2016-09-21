@@ -6,6 +6,7 @@ import com.bakkenbaeck.toshi.model.User;
 import com.bakkenbaeck.toshi.network.rest.model.SignatureRequest;
 import com.bakkenbaeck.toshi.network.rest.model.SignedWithdrawalRequest;
 import com.bakkenbaeck.toshi.network.rest.model.TransactionSent;
+import com.bakkenbaeck.toshi.network.rest.model.WebSocketConnectionDetails;
 import com.bakkenbaeck.toshi.network.rest.model.WithdrawalRequest;
 
 import retrofit2.http.Body;
@@ -24,6 +25,9 @@ public interface ToshiInterface {
     @GET("/user/{id}")
     Observable<User> getUser(@Header("TOSHIAPP-AUTH-TOKEN") String userAuthToken,
                              @Path("id") String userId);
+
+    @GET("/api/v1/rtm.start")
+    Observable<WebSocketConnectionDetails> getWebsocketUrl(@Header("TOSHIAPP-AUTH-TOKEN") String userAuthToken);
 
     @PUT("/user/{id}")
     Observable<Void> putUserCryptoDetails(@Header("TOSHIAPP-AUTH-TOKEN") String userAuthToken,
