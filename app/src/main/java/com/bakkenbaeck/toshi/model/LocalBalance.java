@@ -28,7 +28,7 @@ public class LocalBalance {
     }
 
     public String confirmedBalanceString() {
-        if (this.confirmedBalance == null) {
+        if (this.confirmedBalance == null || this.confirmedBalance.equals(BigInteger.ZERO)) {
             return "0.0000000000";
         }
         return EthUtil.weiToEthString(this.confirmedBalance);
@@ -47,7 +47,7 @@ public class LocalBalance {
     }
 
     public String unconfirmedBalanceString() {
-        if (this.unconfirmedBalance == null) {
+        if (this.unconfirmedBalance == null || this.unconfirmedBalance.equals(BigInteger.ZERO)) {
             return "0.0000000000";
         }
         return EthUtil.weiToEthString(this.unconfirmedBalance);

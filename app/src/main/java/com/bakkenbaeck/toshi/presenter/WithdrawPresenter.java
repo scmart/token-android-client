@@ -206,7 +206,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         final WithdrawalRequest withdrawalRequest = new WithdrawalRequest(amountInWei, toAddress);
         ToshiService.getApi()
                 .postWithdrawalRequest(this.currentUser.getAuthToken(), withdrawalRequest)
-                .retryWhen(new RetryWithBackoff())
+                .retryWhen(new RetryWithBackoff(5))
                 .subscribe(generateSigningSubscriber());
         this.progressDialog.show();
         this.previousAddressesAdapter.addAddress(toAddress);
@@ -236,7 +236,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                 final SignedWithdrawalRequest request = new SignedWithdrawalRequest(unsignedTransaction, signature);
                 ToshiService.getApi()
                         .postSignedWithdrawal(currentUser.getAuthToken(), request)
-                        .retryWhen(new RetryWithBackoff(6))
+                        .retryWhen(new RetryWithBackoff(5))
                         .subscribe(generateSignedWithdrawalSubscriber());
             }
 
