@@ -206,9 +206,10 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         final WithdrawalRequest withdrawalRequest = new WithdrawalRequest(amountInWei, toAddress);
         ToshiService.getApi()
                 .postWithdrawalRequest(this.currentUser.getAuthToken(), withdrawalRequest)
-                .retryWhen(new RetryWithBackoff())
+                .retryWhen(new RetryWithBackoff(5))
                 .subscribe(generateSigningSubscriber());
         this.progressDialog.show();
+        this.previousAddressesAdapter.addAddress(toAddress);
     }
 
     private Subscriber<SignatureRequest> generateSigningSubscriber() {
@@ -235,7 +236,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                 final SignedWithdrawalRequest request = new SignedWithdrawalRequest(unsignedTransaction, signature);
                 ToshiService.getApi()
                         .postSignedWithdrawal(currentUser.getAuthToken(), request)
-                        .retryWhen(new RetryWithBackoff(6))
+                        .retryWhen(new RetryWithBackoff(5))
                         .subscribe(generateSignedWithdrawalSubscriber());
             }
 
@@ -249,7 +250,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(activity, "There was a problem withdrawing, please try again.", Toast.LENGTH_LONG).show();
+                                Toast.makeText(activity, R.string.error__withdrawing, Toast.LENGTH_LONG).show();
                                 progressDialog.dismiss();
                             }
                         });

@@ -1,30 +1,60 @@
 package com.bakkenbaeck.toshi.view.adapter;
 
+import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.toshi.R;
+import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.WalletAddressViewHolder;
+import com.securepreferences.SecurePreferences;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
 public final class WalletAddressesAdapter extends RecyclerView.Adapter<WalletAddressViewHolder> {
+
+    private static final String WALLET_ADDRESSES = "wa";
+
     private List<String> addresses;
     private final PublishSubject<String> onClickSubject = PublishSubject.create();
+    private final SharedPreferences prefs;
 
     public WalletAddressesAdapter() {
-        this.addresses = new ArrayList<> ();
-        this.addresses.add("0x098D62064258bC733B841df754182EE5f46bf83d ");
-        this.addresses.add("0x098D62064258bC733B841df754182EE5f46bf83d ");
-        this.addresses.add("0x098D62064258bC733B841df754182EE5f46bf83d ");
-        this.addresses.add("0x098D62064258bC733B841df754182EE5f46bf83d ");
-        this.addresses.add("0x098D62064258bC733B841df754182EE5f46bf83d ");
+        this.addresses = new ArrayList<>();
+        this.prefs = new SecurePreferences(BaseApplication.get(), "", "waa");
+        loadFromPreferences();
+        notifyDataSetChanged();
+    }
+
+    private void loadFromPreferences() {
+        final Set<String> previousAddresses = this.prefs.getStringSet(WALLET_ADDRESSES, null);
+        if (previousAddresses != null) {
+            this.addresses.addAll(previousAddresses);
+        }
+    }
+
+    // Will trim duplicates
+    public void addAddress(final String address) {
+        // Convert addresses to Set for saving
+        final Set<String> addressesToSave = new HashSet<>();
+        addressesToSave.addAll(this.addresses);
+        addressesToSave.add(address);
+        this.prefs
+                .edit()
+                .putStringSet(WALLET_ADDRESSES, addressesToSave)
+                .apply();
+
+        // Recast the set to List for rendeing (will clear out dupes)
+        this.addresses.clear();
+        this.addresses.addAll(addressesToSave);
         notifyDataSetChanged();
     }
 

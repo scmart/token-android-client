@@ -97,7 +97,7 @@ public class LocalBalanceManager {
         emitNewBalance();
     }
 
-    // True if the wallet is in a state wher we can consider
+    // True if the wallet is in a state where we can consider
     // showing an upsell message to the user. The upsell message containing
     // information on withdrawal
     private boolean isInUpsellState() {
