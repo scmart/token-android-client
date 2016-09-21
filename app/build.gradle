@@ -25,7 +25,7 @@ android {
         abi {
             enable true
             reset()
-            include 'x86', 'armeabi', 'armeabi-v7a', 'mips', 'x86_64', 'arm64-v8a'
+            include 'armeabi', 'armeabi-v7a', 'arm64-v8a' //, 'x86',  'x86_64', 'mips', 'mips64'
             universalApk false
         }
     }
@@ -34,10 +34,10 @@ android {
 dependencies {
     compile(
             // Support
-            'com.android.support:appcompat-v7:24.0.0',
-            'com.android.support:recyclerview-v7:24.0.0',
-            'com.android.support:gridlayout-v7:24.0.0',
-            'com.android.support:design:24.0.0',
+            'com.android.support:appcompat-v7:24.2.1',
+            'com.android.support:recyclerview-v7:24.2.1',
+            'com.android.support:gridlayout-v7:24.2.1',
+            'com.android.support:design:24.2.1',
             'com.google.android.gms:play-services-ads:9.4.0',
             // Networking
             'com.squareup.retrofit2:retrofit:2.1.0',
