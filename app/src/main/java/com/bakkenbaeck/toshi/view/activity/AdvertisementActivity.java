@@ -3,8 +3,11 @@ package com.bakkenbaeck.toshi.view.activity;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
+import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.User;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.view.BaseApplication;
@@ -18,11 +21,14 @@ import com.supersonic.mediationsdk.sdk.SupersonicFactory;
 
 import rx.Subscriber;
 
+import static android.R.id.content;
+
 public abstract class AdvertisementActivity extends AppCompatActivity {
 
     private final String adZone = "DefaultRewardedVideo";
     private final String mAppKey = "527a318d";
     private Supersonic mMediationAgent;
+    private Snackbar errorSnackbar;
 
     abstract void onVideoCompleted();
 
@@ -115,11 +121,19 @@ public abstract class AdvertisementActivity extends AppCompatActivity {
         public void onVideoAvailabilityChanged(final boolean available) {
             if (available) {
                 mMediationAgent.showRewardedVideo(adZone);
+            } else {
+                errorSnackbar = Snackbar.make(findViewById(content), R.string.error__supersonic, Snackbar.LENGTH_INDEFINITE);
+                errorSnackbar.getView().setBackgroundColor(ContextCompat.getColor(AdvertisementActivity.this, R.color.generalBg));
+                errorSnackbar.show();
             }
         }
 
         @Override
-        public void onVideoStart() {}
+        public void onVideoStart() {
+            if (errorSnackbar != null) {
+                errorSnackbar.dismiss();
+            }
+        }
 
         @Override
         public void onVideoEnd() {}
