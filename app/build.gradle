@@ -55,7 +55,7 @@ dependencies {
             'de.hdodenhof:circleimageview:2.1.0',
             // Animations
             'com.robinhood.ticker:ticker:1.1.0',
-            'com.github.bhargavms:DotLoader:1.0.0',
+            'com.github.ybq:Android-SpinKit:1.1.0',
             // Reading barcodes
             'com.journeyapps:zxing-android-embedded:3.3.0',
             // I/O
