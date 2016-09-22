@@ -43,7 +43,7 @@ import java.util.Map;
                 public void onConnected(final WebSocket websocket, final Map<String, List<String>> headers) throws Exception {
                     LogUtil.i(getClass(), "Connected");
                     listener.onConnected();
-                    websocket.setPingInterval(50 * 1000);
+                    websocket.setPingInterval(15 * 1000);
                 }
 
                 @Override
