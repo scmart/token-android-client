@@ -1,11 +1,17 @@
 package com.bakkenbaeck.toshi.network.rest;
 
 
+import com.bakkenbaeck.toshi.BuildConfig;
 import com.bakkenbaeck.toshi.model.jsonadapter.BigIntegerAdapter;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.squareup.moshi.Moshi;
 
+import java.io.IOException;
+
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
@@ -42,6 +48,7 @@ public class ToshiService {
         final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io());
         this.client = new OkHttpClient.Builder();
 
+        addUserAgentHeader();
         addLogging();
 
         final Moshi moshi = new Moshi.Builder()
@@ -55,6 +62,21 @@ public class ToshiService {
                 .client(client.build())
                 .build();
         this.toshiInterface = retrofit.create(ToshiInterface.class);
+    }
+
+    private void addUserAgentHeader() {
+        final Interceptor userAgentInterceptor = new Interceptor() {
+            @Override
+            public Response intercept(Interceptor.Chain chain) throws IOException {
+                final Request original = chain.request();
+                final Request request = original.newBuilder()
+                        .header("User-Agent", String.valueOf(BuildConfig.VERSION_CODE))
+                        .method(original.method(), original.body())
+                        .build();
+                return chain.proceed(request);
+            }
+        };
+        this.client.addInterceptor(userAgentInterceptor);
     }
 
     private void addLogging() {
