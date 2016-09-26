@@ -7,10 +7,9 @@ import com.bakkenbaeck.toshi.network.rest.model.WebSocketConnectionDetails;
 import com.bakkenbaeck.toshi.network.ws.WebSocketConnection.Listener;
 import com.bakkenbaeck.toshi.network.ws.model.ConnectionState;
 import com.bakkenbaeck.toshi.network.ws.model.SocketToPojo;
+import com.bakkenbaeck.toshi.util.OnNextSubscriber;
 import com.bakkenbaeck.toshi.util.RetryWithBackoff;
 import com.bakkenbaeck.toshi.view.BaseApplication;
-
-import rx.Subscriber;
 
 public class WebSocketManager {
 
@@ -47,13 +46,7 @@ public class WebSocketManager {
         }
     };
 
-    private final Subscriber<User> newUserSubscriber = new Subscriber<User>() {
-        @Override
-        public void onCompleted() {}
-
-        @Override
-        public void onError(final Throwable e) {}
-
+    private final OnNextSubscriber<User> newUserSubscriber = new OnNextSubscriber<User>() {
         @Override
         public void onNext(final User user) {
             this.unsubscribe();
@@ -63,13 +56,7 @@ public class WebSocketManager {
                     .subscribe(this.webConnectionDetailsSubscriber);
         }
 
-        private final Subscriber<WebSocketConnectionDetails> webConnectionDetailsSubscriber = new Subscriber<WebSocketConnectionDetails>() {
-            @Override
-            public void onCompleted() {}
-
-            @Override
-            public void onError(final Throwable e) {}
-
+        private final OnNextSubscriber<WebSocketConnectionDetails> webConnectionDetailsSubscriber = new OnNextSubscriber<WebSocketConnectionDetails>() {
             @Override
             public void onNext(final WebSocketConnectionDetails webSocketConnectionDetails) {
                 this.unsubscribe();

@@ -24,6 +24,7 @@ import com.bakkenbaeck.toshi.network.rest.model.WithdrawalRequest;
 import com.bakkenbaeck.toshi.util.EthUtil;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
+import com.bakkenbaeck.toshi.util.OnNextSubscriber;
 import com.bakkenbaeck.toshi.util.RetryWithBackoff;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.BarcodeScannerActivity;
@@ -305,13 +306,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         this.clicksSubscriber.unsubscribe();
     }
 
-    private final Subscriber<String> clicksSubscriber = new Subscriber<String>() {
-        @Override
-        public void onCompleted() {}
-
-        @Override
-        public void onError(final Throwable e) {}
-
+    private final OnNextSubscriber<String> clicksSubscriber = new OnNextSubscriber<String>() {
         @Override
         public void onNext(final String clickedAddress) {
             activity.getBinding().walletAddress.setText(clickedAddress);

@@ -18,6 +18,7 @@ import com.bakkenbaeck.toshi.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.toshi.util.EthUtil;
 import com.bakkenbaeck.toshi.util.OnCompletedObserver;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
+import com.bakkenbaeck.toshi.util.OnNextSubscriber;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.ChatActivity;
 import com.bakkenbaeck.toshi.view.activity.VideoActivity;
@@ -27,7 +28,6 @@ import com.bakkenbaeck.toshi.view.adapter.MessageAdapter;
 import java.math.BigDecimal;
 
 import io.realm.Realm;
-import rx.Subscriber;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -254,13 +254,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         this.clicksSubscriber.unsubscribe();
     }
 
-    private final Subscriber<Integer> clicksSubscriber = new Subscriber<Integer>() {
-        @Override
-        public void onCompleted() {}
-
-        @Override
-        public void onError(final Throwable e) {}
-
+    private final OnNextSubscriber<Integer> clicksSubscriber = new OnNextSubscriber<Integer>() {
         @Override
         public void onNext(final Integer clickedPosition) {
             showVideoActivity(clickedPosition);
