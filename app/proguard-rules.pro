@@ -28,21 +28,7 @@
 -keep class com.bakkenbaeck.toshi.network.** { *;
 }
 
--keep class org.spongycastle.crypto.* {*;}
--keep class org.spongycastle.crypto.ec.* {*;}
--keep class org.spongycastle.crypto.encodings.* {*;}
--keep class org.spongycastle.crypto.macs.* {*;}
--keep class org.spongycastle.crypto.modes.* {*;}
--keep class org.spongycastle.crypto.paddings.* {*;}
--keep class org.spongycastle.crypto.prng.* {*;}
--keep class org.spongycastle.crypto.signers.* {*;}
-
--keep class org.spongycastle.jcajce.provider.asymmetric.* {*;}
--keep class org.spongycastle.jcajce.provider.asymmetric.util.* {*;}
--keep class org.spongycastle.jcajce.provider.asymmetric.ec.* {*;}
-
--keep class org.spongycastle.jcajce.provider.keystore.** {*;}
--keep class org.spongycastle.jce.** {*;}
+-keep class org.spongycastle.** {*;}
 
 -dontwarn okio.**
 

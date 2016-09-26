@@ -14,7 +14,7 @@ public class RetryWithBackoff implements Func1<Observable<? extends Throwable>, 
     private int retryCount;
 
     public RetryWithBackoff() {
-        this(10000);
+        this(7);
     }
 
     public RetryWithBackoff(final int maxRetries) {

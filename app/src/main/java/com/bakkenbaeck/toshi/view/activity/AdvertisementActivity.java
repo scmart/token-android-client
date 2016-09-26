@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.User;
 import com.bakkenbaeck.toshi.util.LogUtil;
+import com.bakkenbaeck.toshi.util.OnNextSubscriber;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.supersonic.mediationsdk.logger.LogListener;
 import com.supersonic.mediationsdk.logger.SupersonicError;
@@ -18,8 +19,6 @@ import com.supersonic.mediationsdk.model.Placement;
 import com.supersonic.mediationsdk.sdk.RewardedVideoListener;
 import com.supersonic.mediationsdk.sdk.Supersonic;
 import com.supersonic.mediationsdk.sdk.SupersonicFactory;
-
-import rx.Subscriber;
 
 import static android.R.id.content;
 
@@ -46,13 +45,7 @@ public abstract class AdvertisementActivity extends AppCompatActivity {
         BaseApplication.get().getUserManager().getObservable().subscribe(this.currentUserSubscriber);
     }
 
-    private final Subscriber<User> currentUserSubscriber = new Subscriber<User>() {
-        @Override
-        public void onCompleted() {}
-
-        @Override
-        public void onError(final Throwable e) {}
-
+    private final OnNextSubscriber<User> currentUserSubscriber = new OnNextSubscriber<User>() {
         @Override
         public void onNext(final User user) {
             this.unsubscribe();

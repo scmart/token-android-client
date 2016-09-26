@@ -7,9 +7,9 @@ import android.widget.Toast;
 
 import com.bakkenbaeck.toshi.view.BaseApplication;
 
-import rx.Observer;
+import rx.Subscriber;
 
-public abstract class OnNextObserver<T> implements Observer<T> {
+public abstract class OnNextSubscriber<T> extends Subscriber<T> {
 
     @Override
     public void onCompleted() {
