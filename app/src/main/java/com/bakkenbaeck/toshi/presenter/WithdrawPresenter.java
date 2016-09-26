@@ -286,14 +286,23 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             final BigDecimal amountRequested = new BigDecimal(this.activity.getBinding().amount.getText().toString());
 
             if (amountRequested.compareTo(this.minWithdrawLimit) > 0 && amountRequested.compareTo(this.currentBalance) <= 0) {
-                return true;
+                return userHasEnoughReputationScore();
             }
         } catch (final NumberFormatException ex) {
             LogUtil.e(getClass(), ex.toString());
         }
 
         this.activity.getBinding().amount.setError(this.activity.getResources().getString(R.string.withdraw__amount_error));
+        this.activity.getBinding().amount.requestFocus();
         return false;
+    }
+
+    private boolean userHasEnoughReputationScore() {
+        // Todo: Reputation required for withdrawal should be dictated by the server
+        if (currentUser == null || currentUser.getReputationScore() == 0) {
+            return false;
+        }
+        return true;
     }
 
     private void registerObservables() {
