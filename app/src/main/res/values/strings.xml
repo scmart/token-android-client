@@ -23,4 +23,9 @@
     <string name="socket__connecting_state">Connecting…</string>
     <string name="error__withdrawing">There was a problem withdrawing, please try again later.</string>
     <string name="error__supersonic">Having trouble connecting...</string>
+    <string name="dialog_phone_input__title">Verification Needed</string>
+    <string name="dialog_phone_input__instruction">Please enter your phone number to verify your account</string>
+    <string name="dialog_phone_input__hint">Phone number</string>
+    <string name="button__cancel">Cancel</string>
+    <string name="button__continue">Continue</string>
 </resources>

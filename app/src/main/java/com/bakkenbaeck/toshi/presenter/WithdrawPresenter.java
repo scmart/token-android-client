@@ -30,6 +30,7 @@ import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.BarcodeScannerActivity;
 import com.bakkenbaeck.toshi.view.activity.WithdrawActivity;
 import com.bakkenbaeck.toshi.view.adapter.WalletAddressesAdapter;
+import com.bakkenbaeck.toshi.view.dialog.PhoneInputDialog;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -300,6 +301,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     private boolean userHasEnoughReputationScore() {
         // Todo: Reputation required for withdrawal should be dictated by the server
         if (currentUser == null || currentUser.getReputationScore() == 0) {
+            new PhoneInputDialog().show(this.activity.getSupportFragmentManager(), "dialog");
             return false;
         }
         return true;
