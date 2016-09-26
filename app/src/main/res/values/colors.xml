@@ -12,7 +12,7 @@
 
     <color name="bubbleBgLocal">#5AD3ED</color>
     <color name="bubbleTextLocal">#EEEEF3</color>
-    <color name="bubbleBgRemote">#F6F6FA</color>
+    <color name="bubbleBgRemote">#FFFFFF</color>
     <color name="bubbleBorderRemote">#E5E5E5</color>
 
     <color name="balanceBg">#575B65</color>
