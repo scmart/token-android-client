@@ -67,6 +67,8 @@ public class PhoneInputDialog extends DialogFragment {
 
             final VerificationStart vsFrame = new VerificationStart(fullNumber);
             BaseApplication.get().sendWebSocketMessage(vsFrame.toString());
+
+            this.view.findViewById(R.id.spinner_view).setVisibility(View.VISIBLE);
         }
     }
 
