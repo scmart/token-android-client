@@ -12,6 +12,9 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.bakkenbaeck.toshi.R;
+import com.bakkenbaeck.toshi.network.ws.model.VerificationStart;
+import com.bakkenbaeck.toshi.view.BaseApplication;
+import com.hbb20.CountryCodePicker;
 
 public class PhoneInputDialog extends DialogFragment {
 
@@ -56,7 +59,14 @@ public class PhoneInputDialog extends DialogFragment {
             if (TextUtils.isEmpty(phoneNumberField.getText())) {
                 phoneNumberField.requestFocus();
                 phoneNumberField.setError(getString(R.string.error__invalid_phone_number));
+                return;
             }
+
+            final String countryCode = ((CountryCodePicker)view.findViewById(R.id.country_code)).getSelectedCountryCodeWithPlus();
+            final String fullNumber = countryCode + phoneNumberField.getText();
+
+            final VerificationStart vsFrame = new VerificationStart(fullNumber);
+            BaseApplication.get().sendWebSocketMessage(vsFrame.toString());
         }
     }
 

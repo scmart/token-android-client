@@ -58,4 +58,8 @@ public class BaseApplication extends Application {
     public LocalBalanceManager getLocalBalanceManager() {
         return localBalanceManager;
     }
+
+    public void sendWebSocketMessage(final String message) {
+        this.webSocketManager.sendMessage(message);
+    }
 }

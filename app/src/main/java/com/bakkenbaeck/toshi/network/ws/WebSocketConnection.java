@@ -85,4 +85,8 @@ import java.util.Map;
         }, 10 * 1000);
 
     }
+
+    public void sendMessage(final String message) {
+        this.webSocket.sendText(message);
+    }
 }

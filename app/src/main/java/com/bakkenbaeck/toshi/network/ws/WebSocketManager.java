@@ -68,4 +68,8 @@ public class WebSocketManager {
     public final SocketObservables getSocketObservables() {
         return this.socketObservables;
     }
+
+    public final void sendMessage(final String message) {
+        this.webSocketConnection.sendMessage(message);
+    }
 }
