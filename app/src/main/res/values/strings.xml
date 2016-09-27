@@ -28,4 +28,5 @@
     <string name="dialog_phone_input__hint">Phone number</string>
     <string name="button__cancel">Cancel</string>
     <string name="button__continue">Continue</string>
+    <string name="error__invalid_phone_number">This phone number is invalid</string>
 </resources>
