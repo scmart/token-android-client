@@ -12,6 +12,7 @@
         <item name="android:editTextStyle">@style/AppEditTextStyle</item>
         <item name="android:autoCompleteTextViewStyle">@style/AppAutoCompleteTextStyle</item>
         <item name="android:buttonStyle">@style/Button</item>
+        <item name="buttonStyle">@style/Button</item>
     </style>
 
     <style name="AppEditTextStyle" parent="@android:style/Widget.EditText">
@@ -22,7 +23,7 @@
         <item name="android:textColor">@color/mainText</item>
     </style>
 
-    <style name="Button" parent="@android:style/Widget.Button">
+    <style name="Button" parent="android:Widget.Holo.Button">
         <item name="android:textColor">@color/colorAccent</item>
         <item name="android:background">@drawable/background_message_remote</item>
         <item name="android:paddingTop">10dp</item>
