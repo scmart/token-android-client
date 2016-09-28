@@ -110,6 +110,7 @@
                         android:textColorHint="@color/generalBg"
                         android:textSize="24sp"
                         android:text="0"
+                        android:textCursorDrawable="@drawable/white_cursor"
                         android:inputType="number|numberSigned"/>
             </LinearLayout>
 
