@@ -11,14 +11,9 @@ import rx.subjects.BehaviorSubject;
 
 public class SocketObservables {
 
-    private final BehaviorSubject<Payment> paymentSubject = BehaviorSubject.create();
     private final BehaviorSubject<TransactionConfirmation> transactionConfirmationSubject = BehaviorSubject.create();
     private final BehaviorSubject<TransactionSent> transactionSentSubject = BehaviorSubject.create();
     private final BehaviorSubject<ConnectionState> connectionObservable = BehaviorSubject.create(ConnectionState.CONNECTING);
-
-    public Observable<Payment> getPaymentObservable() {
-        return this.paymentSubject.asObservable();
-    }
 
     public Observable<TransactionConfirmation> getTransactionConfirmationObservable() {
         return this.transactionConfirmationSubject.asObservable();
@@ -30,10 +25,6 @@ public class SocketObservables {
 
     public Observable<ConnectionState> getConnectionObservable() {
         return this.connectionObservable.asObservable();
-    }
-
-    public void emitPayment(final Payment payment) {
-        this.paymentSubject.onNext(payment);
     }
 
     public void emitTransactionConfirmation(final TransactionConfirmation transactionConfirmation) {

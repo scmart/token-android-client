@@ -283,8 +283,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                             }
                         });
 
-                        BaseApplication.get().getSocketObservables().emitTransactionSent(transactionSent);
-
                         final Intent intent = new Intent();
                         intent.putExtra(INTENT_WALLET_ADDRESS, activity.getBinding().walletAddress.getText().toString());
                         intent.putExtra(INTENT_WITHDRAW_AMOUNT, new BigDecimal(activity.getBinding().amount.getText().toString()));

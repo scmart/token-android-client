@@ -12,8 +12,8 @@ import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.ActivityResultHolder;
 import com.bakkenbaeck.toshi.model.ChatMessage;
 import com.bakkenbaeck.toshi.model.LocalBalance;
+import com.bakkenbaeck.toshi.network.rest.model.TransactionSent;
 import com.bakkenbaeck.toshi.network.ws.model.ConnectionState;
-import com.bakkenbaeck.toshi.network.ws.model.Payment;
 import com.bakkenbaeck.toshi.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.toshi.util.EthUtil;
 import com.bakkenbaeck.toshi.util.OnCompletedObserver;
@@ -69,7 +69,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         this.chatMessageStore.getNewMessageObservable().subscribe(this.newChatMessage);
         this.chatMessageStore.getUnwatchedVideoObservable().subscribe(this.unwatchedVideo);
         BaseApplication.get().getLocalBalanceManager().getUpsellObservable().subscribe(this.upsellSubscriber);
-        BaseApplication.get().getSocketObservables().getPaymentObservable().subscribe(this.newPaymentSubscriber);
+        BaseApplication.get().getSocketObservables().getTransactionSentObservable().subscribe(this.transactionSentSubscriber);
         BaseApplication.get().getSocketObservables().getConnectionObservable().subscribe(this.connectionStateSubscriber);
 
         this.messageAdapter = new MessageAdapter();
@@ -162,15 +162,15 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         }
     };
 
-    private final OnNextObserver<Payment> newPaymentSubscriber = new OnNextObserver<Payment>() {
+    private final OnNextObserver<TransactionSent> transactionSentSubscriber = new OnNextObserver<TransactionSent>() {
         @Override
-        public void onNext(final Payment payment) {
-            handleNewPayment(payment);
+        public void onNext(final TransactionSent transactionSent) {
+            handleTransactionSent(transactionSent);
         }
     };
 
-    private void handleNewPayment(final Payment payment) {
-        final String amount = EthUtil.weiToEthString(payment.getAmount());
+    private void handleTransactionSent(final TransactionSent transactionSent) {
+        final String amount = EthUtil.weiToEthString(transactionSent.getAmount());
         final String message = String.format(BaseApplication.get().getResources().getString(R.string.chat__currency_earned), amount);
         final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message);
         displayMessage(response, 500);
