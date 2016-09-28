@@ -17,9 +17,12 @@ import android.widget.EditText;
 import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.network.ws.model.VerificationStart;
 import com.bakkenbaeck.toshi.network.ws.model.WebSocketError;
+import com.bakkenbaeck.toshi.util.LocaleUtil;
 import com.bakkenbaeck.toshi.util.OnNextSubscriber;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.hbb20.CountryCodePicker;
+
+import java.util.Locale;
 
 import rx.Subscriber;
 
@@ -82,6 +85,8 @@ public class PhoneInputDialog extends DialogFragment {
     }
 
     private void initViews(final View view) {
+        final Locale currentLocale = LocaleUtil.getLocale();
+        ((CountryCodePicker)view.findViewById(R.id.country_code)).setCountryForNameCode(currentLocale.getCountry());
         view.findViewById(R.id.cancelButton).setOnClickListener(this.dismissDialog);
         view.findViewById(R.id.continueButton).setOnClickListener(new ValidateAndContinueDialog(view));
     }
