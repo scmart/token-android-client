@@ -2,18 +2,15 @@ package com.bakkenbaeck.toshi.presenter;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.bakkenbaeck.toshi.R;
@@ -34,7 +31,7 @@ import com.bakkenbaeck.toshi.util.RetryWithBackoff;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.BarcodeScannerActivity;
 import com.bakkenbaeck.toshi.view.activity.WithdrawActivity;
-import com.bakkenbaeck.toshi.view.adapter.WalletAddressesAdapter;
+import com.bakkenbaeck.toshi.view.adapter.PreviousWalletAddress;
 import com.bakkenbaeck.toshi.view.dialog.PhoneInputDialog;
 import com.bakkenbaeck.toshi.view.dialog.VerificationCodeDialog;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -44,7 +41,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.Locale;
 
 import rx.Subscriber;
 
@@ -62,14 +58,14 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     private final BigDecimal minWithdrawLimit = new BigDecimal("0.0000000001");
     private ProgressDialog progressDialog;
 
-    private final WalletAddressesAdapter previousAddressesAdapter = new WalletAddressesAdapter();
+    private final PreviousWalletAddress previousWalletAddress = new PreviousWalletAddress();
 
     @Override
     public void onViewAttached(final WithdrawActivity activity) {
         this.activity = activity;
         initButtons();
         initToolbar();
-        initPreviousAddresses();
+        initPreviousAddress();
 
         if (firstTimeAttaching) {
             firstTimeAttaching = false;
@@ -139,8 +135,10 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         this.activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
-    private void initPreviousAddresses() {
-        this.activity.getBinding().previousWallets.setAdapter(this.previousAddressesAdapter);
+    private void initPreviousAddress() {
+        final EditText walletAddress = this.activity.getBinding().walletAddress;
+        walletAddress.setText(this.previousWalletAddress.getAddress());
+        walletAddress.setSelection(walletAddress.getText().length());
     }
 
     private final OnNextObserver<LocalBalance> newBalanceSubscriber = new OnNextObserver<LocalBalance>() {
@@ -173,7 +171,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
     @Override
     public void onViewDestroyed() {
-        unregisterObservable();
         this.activity = null;
     }
 
@@ -226,7 +223,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                 .retryWhen(new RetryWithBackoff(5))
                 .subscribe(generateSigningSubscriber());
         this.progressDialog.show();
-        this.previousAddressesAdapter.addAddress(toAddress);
+        this.previousWalletAddress.setAddress(toAddress);
     }
 
     private Subscriber<SignatureRequest> generateSigningSubscriber() {
@@ -323,21 +320,9 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     }
 
     private void registerObservables() {
-        this.previousAddressesAdapter.getPositionClicks().subscribe(this.clicksSubscriber);
         BaseApplication.get().getLocalBalanceManager().getObservable().subscribe(this.newBalanceSubscriber);
         BaseApplication.get().getUserManager().getObservable().subscribe(this.userSubscriber);
     }
-
-    private void unregisterObservable() {
-        this.clicksSubscriber.unsubscribe();
-    }
-
-    private final OnNextSubscriber<String> clicksSubscriber = new OnNextSubscriber<String>() {
-        @Override
-        public void onNext(final String clickedAddress) {
-            activity.getBinding().walletAddress.setText(clickedAddress);
-        }
-    };
 
     private final OnNextObserver<User> userSubscriber = new OnNextObserver<User>() {
         @Override

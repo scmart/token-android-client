@@ -7,18 +7,17 @@
     <string name="chat__request_video_message">Another video please!</string>
     <string name="menu__withdraw">Withdraw</string>
     <string name="chat__withdraw_to_address">Withdrew %1$s ETH to wallet with address %2$s</string>
-    <string name="withdraw__title">Withdraw Ethereum</string>
+    <string name="withdraw__title">Send Ethereum</string>
     <string name="ethereum_address">Ethereum Address</string>
     <string name="button_send">Send</string>
     <string name="my_balance">MY BALANCE</string>
     <string name="withdraw__to">TO</string>
-    <string name="withdraw__previous_addresses">PREVIOUS ADDRESSES</string>
     <string name="another_one">Another One</string>
     <string name="barcode__title">Scan QR code</string>
     <string name="withdraw__amount">AMOUNT</string>
     <string name="withdraw__amount_error">Enter a valid amount for withdrawal</string>
     <string name="eth_symbol">Ξ</string>
-    <string name="withdraw__button">Withdraw</string>
+    <string name="withdraw__button">Send</string>
     <string name="chat__withdraw_instructions">Good job earning ethereum! When you\'re ready you should try withdrawing your balance. To get started click: </string>
     <string name="socket__connecting_state">Connecting…</string>
     <string name="error__withdrawing">There was a problem withdrawing, please try again later.</string>
@@ -32,4 +31,5 @@
     <string name="dialog_verification_code__instruction">Enter the code sent to your phone number below</string>
     <string name="dialog_verification_code__hint">Confirmation code</string>
     <string name="error__invalid_verification_code">The confirmation code you entered is wrong</string>
+    <string name="withdraw__ether">Ether</string>
 </resources>

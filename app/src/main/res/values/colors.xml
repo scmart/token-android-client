@@ -16,5 +16,7 @@
     <color name="bubbleBorderRemote">#E5E5E5</color>
 
     <color name="balanceBg">#575B65</color>
+    <color name="toBg">#F3F3F3</color>
+    <color name="divider">#EBEBEB</color>
 
 </resources>

@@ -37,10 +37,6 @@ public class WithdrawActivity extends AppCompatActivity implements
     private void init() {
         getSupportLoaderManager().initLoader(UNIQUE_ACTIVITY_ID, null, this);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_withdraw);
-
-        final RecyclerView.LayoutManager recyclerLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        this.binding.previousWallets.setLayoutManager(recyclerLayoutManager);
-        this.binding.previousWallets.setEmptyView(this.binding.emptyView);
     }
 
     public final ActivityWithdrawBinding getBinding() {
