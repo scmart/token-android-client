@@ -16,6 +16,7 @@ public class SocketToPojo {
     private final JsonAdapter<WebSocketMessage> jsonAdapter;
     private final JsonAdapter<TransactionSent> transactionSentAdapter;
     private final JsonAdapter<TransactionConfirmation> confirmationAdapter;
+    private final JsonAdapter<WebSocketError> errorAdapter;
     private final SocketObservables socketObservables;
 
     public SocketToPojo(final SocketObservables socketObservables) {
@@ -27,6 +28,7 @@ public class SocketToPojo {
         this.jsonAdapter = this.moshi.adapter(WebSocketMessage.class);
         this.transactionSentAdapter = this.moshi.adapter(TransactionSent.class);
         this.confirmationAdapter = this.moshi.adapter(TransactionConfirmation.class);
+        this.errorAdapter = this.moshi.adapter(WebSocketError.class);
     }
 
     public void handleNewMessage(final String json) {
@@ -39,8 +41,10 @@ public class SocketToPojo {
     }
 
     private void convertAndEmitPojo(final String json) throws IOException {
+        LogUtil.i(getClass(), "Incoming WS event. " + json);
         final WebSocketMessage message = getWebSocketMessageFromJson(json);
         if (message == null) {
+            LogUtil.e(getClass(), "Websocket frame unhandled");
             return;
         }
 
@@ -57,6 +61,11 @@ public class SocketToPojo {
                 LogUtil.i(getClass(), "Handling websocket event -- transaction_confirmation");
                 final TransactionConfirmation confirmation = this.confirmationAdapter.fromJson(json);
                 this.socketObservables.emitTransactionConfirmation(confirmation);
+                break;
+            case "error":
+                LogUtil.i(getClass(), "Handling websocket event -- error");
+                final WebSocketError error = this.errorAdapter.fromJson(json);
+                this.socketObservables.emitError(error);
                 break;
             default:
                 LogUtil.e(getClass(), "Unrecognised websocket event - " + message.type);

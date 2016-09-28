@@ -4,6 +4,8 @@ package com.bakkenbaeck.toshi.view.dialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ContextThemeWrapper;
@@ -14,13 +16,18 @@ import android.widget.EditText;
 
 import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.network.ws.model.VerificationStart;
+import com.bakkenbaeck.toshi.network.ws.model.WebSocketError;
+import com.bakkenbaeck.toshi.util.OnNextSubscriber;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.hbb20.CountryCodePicker;
+
+import rx.Subscriber;
 
 public class PhoneInputDialog extends DialogFragment {
 
     private String inputtedPhoneNumber;
     private Listener listener;
+    private View view;
 
     /* The activity that creates an instance of this dialog fragment must
      * implement this interface in order to receive event callbacks.
@@ -41,6 +48,23 @@ public class PhoneInputDialog extends DialogFragment {
         } catch (final ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement PhoneInputDialog.Listener");
         }
+
+        BaseApplication.get().getSocketObservables().getErrorObservable().subscribe(generateErrorObservable());
+    }
+
+    private Subscriber<WebSocketError> generateErrorObservable() {
+        return new OnNextSubscriber<WebSocketError>() {
+            @Override
+            public void onNext(final WebSocketError webSocketError) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        view.findViewById(R.id.spinner_view).setVisibility(View.INVISIBLE);
+                        setErrorOnPhoneField();
+                    }
+                });
+            }
+        };
     }
 
     @Override
@@ -48,10 +72,9 @@ public class PhoneInputDialog extends DialogFragment {
         final AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.DialogTheme));
         final LayoutInflater inflater = getActivity().getLayoutInflater();
 
-        final View view = inflater.inflate(R.layout.dialog_phone_input, null);
-        builder.setView(view);
-
-        initViews(view);
+        this.view = inflater.inflate(R.layout.dialog_phone_input, null);
+        builder.setView(this.view);
+        initViews(this.view);
 
         final Dialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);
@@ -82,8 +105,7 @@ public class PhoneInputDialog extends DialogFragment {
         public void onClick(final View v) {
             final EditText phoneNumberField = (EditText) this.view.findViewById(R.id.phone_number);
             if (TextUtils.isEmpty(phoneNumberField.getText())) {
-                phoneNumberField.requestFocus();
-                phoneNumberField.setError(getString(R.string.error__invalid_phone_number));
+                setErrorOnPhoneField();
                 return;
             }
 
@@ -95,6 +117,12 @@ public class PhoneInputDialog extends DialogFragment {
 
             this.view.findViewById(R.id.spinner_view).setVisibility(View.VISIBLE);
         }
+    }
+
+    private void setErrorOnPhoneField() {
+        final EditText phoneNumberField = (EditText) this.view.findViewById(R.id.phone_number);
+        phoneNumberField.requestFocus();
+        phoneNumberField.setError(getString(R.string.error__invalid_phone_number));
     }
 
 }
