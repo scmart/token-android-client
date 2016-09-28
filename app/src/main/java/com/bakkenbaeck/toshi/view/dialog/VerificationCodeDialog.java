@@ -19,6 +19,17 @@ import com.hbb20.CountryCodePicker;
 
 public class VerificationCodeDialog extends DialogFragment {
 
+    private static final String PHONE_NUMBER = "phone_number";
+    private String phoneNumber;
+
+    public static VerificationCodeDialog newInstance(final String phoneNumber) {
+        final VerificationCodeDialog dialog = new VerificationCodeDialog();
+        final Bundle args = new Bundle();
+        args.putString(PHONE_NUMBER, phoneNumber);
+        dialog.setArguments(args);
+        return dialog;
+    }
+
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.DialogTheme));
@@ -27,6 +38,7 @@ public class VerificationCodeDialog extends DialogFragment {
         final View view = inflater.inflate(R.layout.dialog_verification_code, null);
         builder.setView(view);
 
+        this.phoneNumber = getArguments().getString(PHONE_NUMBER);
         initViews(view);
 
         final Dialog dialog = builder.create();
@@ -65,7 +77,7 @@ public class VerificationCodeDialog extends DialogFragment {
 
             final String inputtedVerificationCode = verificationCodeInput.getText().toString().trim();
 
-            final VerificationConfirm vcFrame = new VerificationConfirm(null, inputtedVerificationCode);
+            final VerificationConfirm vcFrame = new VerificationConfirm(phoneNumber, inputtedVerificationCode);
             BaseApplication.get().sendWebSocketMessage(vcFrame.toString());
 
             this.view.findViewById(R.id.spinner_view).setVisibility(View.VISIBLE);

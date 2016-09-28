@@ -2,6 +2,7 @@ package com.bakkenbaeck.toshi.view.dialog;
 
 
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
@@ -17,6 +18,30 @@ import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.hbb20.CountryCodePicker;
 
 public class PhoneInputDialog extends DialogFragment {
+
+    private String inputtedPhoneNumber;
+    private Listener listener;
+
+    /* The activity that creates an instance of this dialog fragment must
+     * implement this interface in order to receive event callbacks.
+     * Each method passes the DialogFragment in case the host needs to query it. */
+    public interface Listener {
+        void onPhoneInputSuccess(final PhoneInputDialog dialog);
+    }
+
+    public String getInputtedPhoneNumber() {
+        return this.inputtedPhoneNumber;
+    }
+
+    @Override
+    public void onAttach(final Context context) {
+        super.onAttach(context);
+        try {
+            this.listener = (Listener) context;
+        } catch (final ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement PhoneInputDialog.Listener");
+        }
+    }
 
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
@@ -63,9 +88,9 @@ public class PhoneInputDialog extends DialogFragment {
             }
 
             final String countryCode = ((CountryCodePicker)view.findViewById(R.id.country_code)).getSelectedCountryCodeWithPlus();
-            final String fullNumber = countryCode + phoneNumberField.getText();
+            inputtedPhoneNumber = countryCode + phoneNumberField.getText();
 
-            final VerificationStart vsFrame = new VerificationStart(fullNumber);
+            final VerificationStart vsFrame = new VerificationStart(inputtedPhoneNumber);
             BaseApplication.get().sendWebSocketMessage(vsFrame.toString());
 
             this.view.findViewById(R.id.spinner_view).setVisibility(View.VISIBLE);

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -35,6 +36,7 @@ import com.bakkenbaeck.toshi.view.activity.BarcodeScannerActivity;
 import com.bakkenbaeck.toshi.view.activity.WithdrawActivity;
 import com.bakkenbaeck.toshi.view.adapter.WalletAddressesAdapter;
 import com.bakkenbaeck.toshi.view.dialog.PhoneInputDialog;
+import com.bakkenbaeck.toshi.view.dialog.VerificationCodeDialog;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -173,6 +175,12 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     public void onViewDestroyed() {
         unregisterObservable();
         this.activity = null;
+    }
+
+    public void onPhoneInputSuccess(final PhoneInputDialog dialog) {
+        final String phoneNumber = dialog.getInputtedPhoneNumber();
+        final VerificationCodeDialog vcDialog = VerificationCodeDialog.newInstance(phoneNumber);
+        vcDialog.show(this.activity.getSupportFragmentManager(), "dialog");
     }
 
     public void handleActivityResult(final ActivityResultHolder activityResultHolder) {
