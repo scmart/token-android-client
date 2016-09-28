@@ -29,4 +29,7 @@
     <string name="button__cancel">Cancel</string>
     <string name="button__continue">Continue</string>
     <string name="error__invalid_phone_number">This phone number is invalid</string>
+    <string name="dialog_verification_code__instruction">Enter the code sent to your phone number below</string>
+    <string name="dialog_verification_code__hint">Confirmation code</string>
+    <string name="error__invalid_verification_code">The confirmation code you entered is wrong</string>
 </resources>
