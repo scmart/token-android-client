@@ -2,10 +2,13 @@ package com.bakkenbaeck.toshi.presenter;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -22,6 +25,7 @@ import com.bakkenbaeck.toshi.network.rest.model.SignedWithdrawalRequest;
 import com.bakkenbaeck.toshi.network.rest.model.TransactionSent;
 import com.bakkenbaeck.toshi.network.rest.model.WithdrawalRequest;
 import com.bakkenbaeck.toshi.util.EthUtil;
+import com.bakkenbaeck.toshi.util.LocaleUtil;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.util.OnNextSubscriber;
@@ -36,6 +40,9 @@ import com.google.zxing.integration.android.IntentResult;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Locale;
 
 import rx.Subscriber;
 
@@ -284,12 +291,14 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
     private boolean validate() {
         try {
-            final BigDecimal amountRequested = new BigDecimal(this.activity.getBinding().amount.getText().toString());
+            final NumberFormat nf = NumberFormat.getInstance(LocaleUtil.getLocale());
+            final String inputtedText = this.activity.getBinding().amount.getText().toString();
+            final BigDecimal amountRequested = new BigDecimal(nf.parse(inputtedText).toString());
 
             if (amountRequested.compareTo(this.minWithdrawLimit) > 0 && amountRequested.compareTo(this.currentBalance) <= 0) {
                 return userHasEnoughReputationScore();
             }
-        } catch (final NumberFormatException ex) {
+        } catch (final NumberFormatException | ParseException ex) {
             LogUtil.e(getClass(), ex.toString());
         }
 
