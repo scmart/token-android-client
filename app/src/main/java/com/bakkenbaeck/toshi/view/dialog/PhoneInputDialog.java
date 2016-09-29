@@ -34,6 +34,9 @@ public class PhoneInputDialog extends DialogFragment {
     private Listener listener;
     private View view;
 
+    private OnNextSubscriber<WebSocketError> errorSubscriber;
+    private OnNextSubscriber<VerificationSent> verificationSentSubscriber;
+
     /* The activity that creates an instance of this dialog fragment must
      * implement this interface in order to receive event callbacks.
      * Each method passes the DialogFragment in case the host needs to query it. */
@@ -54,11 +57,13 @@ public class PhoneInputDialog extends DialogFragment {
             throw new ClassCastException(context.toString() + " must implement PhoneInputDialog.Listener");
         }
 
-        BaseApplication.get().getSocketObservables().getErrorObservable().subscribe(generateErrorObservable());
-        BaseApplication.get().getSocketObservables().getVerificationSentObservable().subscribe(generateVerificationSentObservable());
+        this.errorSubscriber = generateErrorSubscriber();
+        this.verificationSentSubscriber = generateVerificationSentSubscriber();
+        BaseApplication.get().getSocketObservables().getErrorObservable().subscribe(this.errorSubscriber);
+        BaseApplication.get().getSocketObservables().getVerificationSentObservable().subscribe(this.verificationSentSubscriber);
     }
 
-    private Subscriber<WebSocketError> generateErrorObservable() {
+    private OnNextSubscriber<WebSocketError> generateErrorSubscriber() {
         return new OnNextSubscriber<WebSocketError>() {
             @Override
             public void onNext(final WebSocketError webSocketError) {
@@ -73,7 +78,7 @@ public class PhoneInputDialog extends DialogFragment {
         };
     }
 
-    private Subscriber<VerificationSent> generateVerificationSentObservable() {
+    private OnNextSubscriber<VerificationSent> generateVerificationSentSubscriber() {
         return new OnNextSubscriber<VerificationSent>() {
             @Override
             public void onNext(final VerificationSent verificationSent) {
@@ -152,6 +157,13 @@ public class PhoneInputDialog extends DialogFragment {
         }
     }
 
-
+    @Override
+    public void onDetach() {
+        this.errorSubscriber.unsubscribe();
+        this.verificationSentSubscriber.unsubscribe();
+        this.errorSubscriber = null;
+        this.verificationSentSubscriber = null;
+        super.onDetach();
+    }
 
 }
