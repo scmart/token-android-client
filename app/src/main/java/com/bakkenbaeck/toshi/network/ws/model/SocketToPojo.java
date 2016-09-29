@@ -3,6 +3,7 @@ package com.bakkenbaeck.toshi.network.ws.model;
 
 import com.bakkenbaeck.toshi.model.jsonadapter.BigIntegerAdapter;
 import com.bakkenbaeck.toshi.network.rest.model.TransactionSent;
+import com.bakkenbaeck.toshi.network.rest.model.VerificationSent;
 import com.bakkenbaeck.toshi.network.ws.SocketObservables;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.squareup.moshi.JsonAdapter;
@@ -16,6 +17,7 @@ public class SocketToPojo {
     private final JsonAdapter<WebSocketMessage> jsonAdapter;
     private final JsonAdapter<TransactionSent> transactionSentAdapter;
     private final JsonAdapter<TransactionConfirmation> confirmationAdapter;
+    private final JsonAdapter<VerificationSent> verificationSentAdapter;
     private final JsonAdapter<WebSocketError> errorAdapter;
     private final SocketObservables socketObservables;
 
@@ -28,6 +30,7 @@ public class SocketToPojo {
         this.jsonAdapter = this.moshi.adapter(WebSocketMessage.class);
         this.transactionSentAdapter = this.moshi.adapter(TransactionSent.class);
         this.confirmationAdapter = this.moshi.adapter(TransactionConfirmation.class);
+        this.verificationSentAdapter = this.moshi.adapter(VerificationSent.class);
         this.errorAdapter = this.moshi.adapter(WebSocketError.class);
     }
 
@@ -53,23 +56,27 @@ public class SocketToPojo {
                 LogUtil.i(getClass(), "Ignoring websocket event -- hello");
                 break;
             case "transaction_sent":
-                LogUtil.i(getClass(), "Handling websocket event -- transaction_sent");
                 final TransactionSent transactionSent = this.transactionSentAdapter.fromJson(json);
                 this.socketObservables.emitTransactionSent(transactionSent);
                 break;
             case "transaction_confirmation":
-                LogUtil.i(getClass(), "Handling websocket event -- transaction_confirmation");
                 final TransactionConfirmation confirmation = this.confirmationAdapter.fromJson(json);
                 this.socketObservables.emitTransactionConfirmation(confirmation);
                 break;
+            case "verification_sent":
+                final VerificationSent verificationSent = this.verificationSentAdapter.fromJson(json);
+                this.socketObservables.emitVerificationSent(verificationSent);
+                break;
             case "error":
-                LogUtil.i(getClass(), "Handling websocket event -- error");
-                final WebSocketError error = this.errorAdapter.fromJson(json);
-                this.socketObservables.emitError(error);
+                try {
+                    final WebSocketError error = this.errorAdapter.fromJson(json);
+                    this.socketObservables.emitError(error);
+                } catch (final Exception ex) {
+                    LogUtil.e(getClass(), "Unrecognised error code. Error was not emitted.");
+                }
                 break;
             default:
                 LogUtil.e(getClass(), "Unrecognised websocket event - " + message.type);
-                LogUtil.e(getClass(), "Full event - " + json);
         }
     }
 

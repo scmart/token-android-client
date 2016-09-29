@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.bakkenbaeck.toshi.R;
+import com.bakkenbaeck.toshi.network.rest.model.VerificationSent;
 import com.bakkenbaeck.toshi.network.ws.model.VerificationStart;
 import com.bakkenbaeck.toshi.network.ws.model.WebSocketError;
 import com.bakkenbaeck.toshi.util.LocaleUtil;
@@ -53,12 +54,23 @@ public class PhoneInputDialog extends DialogFragment {
         }
 
         BaseApplication.get().getSocketObservables().getErrorObservable().subscribe(generateErrorObservable());
+        BaseApplication.get().getSocketObservables().getVerificationSentObservable().subscribe(generateVerificationSentObservable());
     }
 
     private Subscriber<WebSocketError> generateErrorObservable() {
         return new OnNextSubscriber<WebSocketError>() {
             @Override
             public void onNext(final WebSocketError webSocketError) {
+                listener.onPhoneInputSuccess(PhoneInputDialog.this);
+                dismiss();
+            }
+        };
+    }
+
+    private Subscriber<VerificationSent> generateVerificationSentObservable() {
+        return new OnNextSubscriber<VerificationSent>() {
+            @Override
+            public void onNext(final VerificationSent verificationSent) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
