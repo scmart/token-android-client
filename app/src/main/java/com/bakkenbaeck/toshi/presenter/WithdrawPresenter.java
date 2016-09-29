@@ -222,16 +222,22 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             return;
         }
 
-        final BigDecimal amountInEth = new BigDecimal(this.activity.getBinding().amount.getText().toString());
-        final BigInteger amountInWei = EthUtil.ethToWei(amountInEth);
-        final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
-        final WithdrawalRequest withdrawalRequest = new WithdrawalRequest(amountInWei, toAddress);
-        ToshiService.getApi()
-                .postWithdrawalRequest(this.currentUser.getAuthToken(), withdrawalRequest)
-                .retryWhen(new RetryWithBackoff(5))
-                .subscribe(generateSigningSubscriber());
-        this.progressDialog.show();
-        this.previousWalletAddress.setAddress(toAddress);
+        try {
+            final NumberFormat nf = NumberFormat.getInstance(LocaleUtil.getLocale());
+            final String inputtedText = this.activity.getBinding().amount.getText().toString();
+            final BigDecimal amountInEth = new BigDecimal(nf.parse(inputtedText).toString());
+
+            final BigInteger amountInWei = EthUtil.ethToWei(amountInEth);
+            final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
+            final WithdrawalRequest withdrawalRequest = new WithdrawalRequest(amountInWei, toAddress);
+            ToshiService.getApi()
+                    .postWithdrawalRequest(this.currentUser.getAuthToken(), withdrawalRequest)
+                    .subscribe(generateSigningSubscriber());
+            this.progressDialog.show();
+            this.previousWalletAddress.setAddress(toAddress);
+        } catch (final ParseException ex) {
+            LogUtil.e(getClass(), ex.toString());
+        }
     }
 
     private Subscriber<SignatureRequest> generateSigningSubscriber() {
