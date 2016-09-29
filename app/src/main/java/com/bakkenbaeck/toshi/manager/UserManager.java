@@ -52,6 +52,10 @@ public class UserManager {
         return this.userWallet.sign(transaction);
     }
 
+    public void refresh() {
+        userExistsInPrefs();
+    }
+
     private void initUser() {
         this.prefs = new SecurePreferences(BaseApplication.get(), "", "um");
         this.userWallet = new Wallet();

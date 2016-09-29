@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.bakkenbaeck.toshi.R;
+import com.bakkenbaeck.toshi.network.rest.ToshiService;
 import com.bakkenbaeck.toshi.network.ws.model.VerificationConfirm;
 import com.bakkenbaeck.toshi.network.ws.model.VerificationSuccess;
 import com.bakkenbaeck.toshi.network.ws.model.WebSocketError;
@@ -97,6 +98,8 @@ public class VerificationCodeDialog extends DialogFragment {
         return new OnNextSubscriber<VerificationSuccess>() {
             @Override
             public void onNext(final VerificationSuccess verificationSuccess) {
+                // Update the user
+                BaseApplication.get().getUserManager().refresh();
                 listener.onVerificationCodeSuccess(VerificationCodeDialog.this);
                 dismiss();
             }
