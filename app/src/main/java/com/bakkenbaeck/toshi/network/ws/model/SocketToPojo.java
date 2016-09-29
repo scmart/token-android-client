@@ -68,12 +68,14 @@ public class SocketToPojo {
                 this.socketObservables.emitVerificationSent(verificationSent);
                 break;
             case "error":
+                WebSocketError error;
                 try {
-                    final WebSocketError error = this.errorAdapter.fromJson(json);
-                    this.socketObservables.emitError(error);
+                    error = this.errorAdapter.fromJson(json);
                 } catch (final Exception ex) {
-                    LogUtil.e(getClass(), "Unrecognised error code. Error was not emitted.");
+                    LogUtil.e(getClass(), "Unrecognised error code. Emitting generic error.");
+                    error = new WebSocketError();
                 }
+                this.socketObservables.emitError(error);
                 break;
             default:
                 LogUtil.e(getClass(), "Unrecognised websocket event - " + message.type);

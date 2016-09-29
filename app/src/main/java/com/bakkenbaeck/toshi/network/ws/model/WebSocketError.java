@@ -2,6 +2,10 @@ package com.bakkenbaeck.toshi.network.ws.model;
 
 public class WebSocketError {
 
+    public WebSocketError() {
+        this.payload = new Internals();
+    }
+
     private Internals payload;
 
     public WebSocketErrors getCode() {
@@ -9,7 +13,9 @@ public class WebSocketError {
     }
 
     private static class Internals {
-
+        private Internals() {
+            this.code = WebSocketErrors.unknown_error;
+        }
         private WebSocketErrors code;
     }
 }
