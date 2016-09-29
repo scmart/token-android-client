@@ -29,7 +29,6 @@ public class LocalBalanceManager {
 
     private void initBalanceListeners() {
         BaseApplication.get().getUserManager().getObservable().subscribe(this.currentUserSubscriber);
-        BaseApplication.get().getSocketObservables().getPaymentObservable().subscribe(this.newPaymentSubscriber);
         BaseApplication.get().getSocketObservables().getTransactionConfirmationObservable().subscribe(this.newTransactionConfirmationSubscriber);
         BaseApplication.get().getSocketObservables().getTransactionSentObservable().subscribe(this.newTransactionSentSubscriber);
     }
@@ -38,13 +37,6 @@ public class LocalBalanceManager {
         @Override
         public void onNext(final User user) {
             setBalance(user);
-        }
-    };
-
-    private final OnNextObserver<Payment> newPaymentSubscriber = new OnNextObserver<Payment>() {
-        @Override
-        public void onNext(final Payment payment) {
-            setBalance(payment);
         }
     };
 
@@ -70,13 +62,6 @@ public class LocalBalanceManager {
         return this.upsellSubject.asObservable();
     }
 
-    private void setBalance(final Payment payment) {
-        ++numberOfRewards;
-        this.localBalance.setUnconfirmedBalance(payment.getUnconfirmedBalance());
-        this.localBalance.setConfirmedBalance(payment.getConfirmedBalance());
-        emitNewBalance();
-    }
-
     private void setBalance(final User user) {
         this.localBalance.setUnconfirmedBalance(user.getUnconfirmedBalance());
         this.localBalance.setConfirmedBalance(user.getConfirmedBalance());
@@ -91,7 +76,8 @@ public class LocalBalanceManager {
     }
 
     private void setBalance(final TransactionSent transactionSent) {
-        this.hasWithdrawn = true;
+        // TODO - when have we withdrawn?
+       // this.hasWithdrawn = true;
         this.localBalance.setUnconfirmedBalance(transactionSent.getUnconfirmedBalance());
         this.localBalance.setConfirmedBalance(transactionSent.getConfirmedBalance());
         emitNewBalance();

@@ -53,9 +53,10 @@ dependencies {
             'io.reactivex:rxandroid:1.2.0@aar',
             // Images
             'de.hdodenhof:circleimageview:2.1.0',
-            // Animations
+            // Animations / custom views
             'com.robinhood.ticker:ticker:1.1.0',
             'com.github.ybq:Android-SpinKit:1.1.0',
+            'com.hbb20:ccp:1.5.1',
             // Reading barcodes
             'com.journeyapps:zxing-android-embedded:3.3.0',
             // I/O

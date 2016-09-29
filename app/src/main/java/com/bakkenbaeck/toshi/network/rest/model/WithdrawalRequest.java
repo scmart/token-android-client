@@ -7,7 +7,7 @@ import java.math.BigInteger;
 
 public class WithdrawalRequest {
 
-    private final String type = "payment";
+    private final String type = "transaction_create";
     private final WithdrawalInternals payload;
 
     public WithdrawalRequest(final BigInteger amountInWei, final String toHexAddress) {

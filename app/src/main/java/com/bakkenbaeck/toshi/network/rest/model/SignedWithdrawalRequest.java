@@ -3,7 +3,7 @@ package com.bakkenbaeck.toshi.network.rest.model;
 
 public class SignedWithdrawalRequest {
 
-    private final String type = "payment";
+    private final String type = "transaction_send";
     private final SignedWithdrawalInternals payload;
 
     public SignedWithdrawalRequest(final String transaction, final String signature) {

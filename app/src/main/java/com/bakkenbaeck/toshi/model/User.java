@@ -9,6 +9,7 @@ public class User {
     private BigInteger confirmed_balance;
     private String auth_token;
     private String bcrypt_salt;
+    private int reputation_score;
 
     public String getId() {
         return id;
@@ -43,8 +44,7 @@ public class User {
         this.bcrypt_salt = bcrypt_salt;
     }
 
-    public boolean isNewUser() {
-        // Auth token is only returned when we first create a user.
-        return this.auth_token != null;
+    public int getReputationScore() {
+        return this.reputation_score;
     }
 }

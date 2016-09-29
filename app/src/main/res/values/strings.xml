@@ -7,20 +7,31 @@
     <string name="chat__request_video_message">Another video please!</string>
     <string name="menu__withdraw">Withdraw</string>
     <string name="chat__withdraw_to_address">Withdrew %1$s ETH to wallet with address %2$s</string>
-    <string name="withdraw__title">Withdraw Ethereum</string>
+    <string name="withdraw__title">Send Ethereum</string>
     <string name="ethereum_address">Ethereum Address</string>
     <string name="button_send">Send</string>
     <string name="my_balance">MY BALANCE</string>
     <string name="withdraw__to">TO</string>
-    <string name="withdraw__previous_addresses">PREVIOUS ADDRESSES</string>
     <string name="another_one">Another One</string>
     <string name="barcode__title">Scan QR code</string>
     <string name="withdraw__amount">AMOUNT</string>
     <string name="withdraw__amount_error">Enter a valid amount for withdrawal</string>
     <string name="eth_symbol">Ξ</string>
-    <string name="withdraw__button">Withdraw</string>
+    <string name="withdraw__button">Send</string>
     <string name="chat__withdraw_instructions">Good job earning ethereum! When you\'re ready you should try withdrawing your balance. To get started click: </string>
-    <string name="socket__connecting_state">Connecting…</string>
+    <string name="socket__connecting_state">&lt;font color=\"#ffffff\"&gt;Connecting…&lt;\/font\&gt;</string>
     <string name="error__withdrawing">There was a problem withdrawing, please try again later.</string>
-    <string name="error__supersonic">Having trouble connecting...</string>
+    <string name="error__supersonic">Having trouble connecting…</string>
+    <string name="dialog_phone_input__title">Verification Needed</string>
+    <string name="dialog_phone_input__instruction">Please enter your phone number to verify your account</string>
+    <string name="dialog_phone_input__hint">Phone number</string>
+    <string name="button__cancel">Cancel</string>
+    <string name="button__continue">Continue</string>
+    <string name="error__invalid_phone_number">This phone number is invalid</string>
+    <string name="dialog_verification_code__instruction">Enter the code sent to your phone number below</string>
+    <string name="dialog_verification_code__hint">Confirmation code</string>
+    <string name="error__invalid_verification_code">The confirmation code you entered is wrong</string>
+    <string name="withdraw__ether">Ether</string>
+    <string name="error__phone_number_in_use">This number is already in use</string>
+    <string name="verification_success">&lt;font color=\"#ffffff\"&gt;Your phone number was successfully verified!&lt;\/font\&gt;</string>
 </resources>

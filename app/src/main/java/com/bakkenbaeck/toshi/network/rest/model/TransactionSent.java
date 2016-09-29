@@ -7,6 +7,10 @@ public class TransactionSent {
 
     private TransactionSentInternals payload;
 
+    public BigInteger getAmount() {
+        return this.payload.amount;
+    }
+
     public BigInteger getUnconfirmedBalance() {
         return this.payload.new_balance;
     }

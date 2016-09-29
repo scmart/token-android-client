@@ -6,10 +6,13 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.bakkenbaeck.toshi.R;
@@ -22,19 +25,23 @@ import com.bakkenbaeck.toshi.network.rest.model.SignedWithdrawalRequest;
 import com.bakkenbaeck.toshi.network.rest.model.TransactionSent;
 import com.bakkenbaeck.toshi.network.rest.model.WithdrawalRequest;
 import com.bakkenbaeck.toshi.util.EthUtil;
+import com.bakkenbaeck.toshi.util.LocaleUtil;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
-import com.bakkenbaeck.toshi.util.OnNextSubscriber;
 import com.bakkenbaeck.toshi.util.RetryWithBackoff;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.BarcodeScannerActivity;
 import com.bakkenbaeck.toshi.view.activity.WithdrawActivity;
-import com.bakkenbaeck.toshi.view.adapter.WalletAddressesAdapter;
+import com.bakkenbaeck.toshi.view.adapter.PreviousWalletAddress;
+import com.bakkenbaeck.toshi.view.dialog.PhoneInputDialog;
+import com.bakkenbaeck.toshi.view.dialog.VerificationCodeDialog;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.NumberFormat;
+import java.text.ParseException;
 
 import rx.Subscriber;
 
@@ -52,14 +59,14 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     private final BigDecimal minWithdrawLimit = new BigDecimal("0.0000000001");
     private ProgressDialog progressDialog;
 
-    private final WalletAddressesAdapter previousAddressesAdapter = new WalletAddressesAdapter();
+    private final PreviousWalletAddress previousWalletAddress = new PreviousWalletAddress();
 
     @Override
     public void onViewAttached(final WithdrawActivity activity) {
         this.activity = activity;
         initButtons();
         initToolbar();
-        initPreviousAddresses();
+        initPreviousAddress();
 
         if (firstTimeAttaching) {
             firstTimeAttaching = false;
@@ -129,8 +136,10 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         this.activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
-    private void initPreviousAddresses() {
-        this.activity.getBinding().previousWallets.setAdapter(this.previousAddressesAdapter);
+    private void initPreviousAddress() {
+        final EditText walletAddress = this.activity.getBinding().walletAddress;
+        walletAddress.setText(this.previousWalletAddress.getAddress());
+        walletAddress.setSelection(walletAddress.getText().length());
     }
 
     private final OnNextObserver<LocalBalance> newBalanceSubscriber = new OnNextObserver<LocalBalance>() {
@@ -163,8 +172,20 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
     @Override
     public void onViewDestroyed() {
-        unregisterObservable();
         this.activity = null;
+    }
+
+    public void onPhoneInputSuccess(final PhoneInputDialog dialog) {
+        final String phoneNumber = dialog.getInputtedPhoneNumber();
+        final VerificationCodeDialog vcDialog = VerificationCodeDialog.newInstance(phoneNumber);
+        vcDialog.show(this.activity.getSupportFragmentManager(), "dialog");
+    }
+
+    public void onVerificationSuccess() {
+        Snackbar.make(
+                this.activity.getBinding().getRoot(),
+                Html.fromHtml(this.activity.getString(R.string.verification_success)),
+                Snackbar.LENGTH_LONG).show();
     }
 
     public void handleActivityResult(final ActivityResultHolder activityResultHolder) {
@@ -201,16 +222,22 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             return;
         }
 
-        final BigDecimal amountInEth = new BigDecimal(this.activity.getBinding().amount.getText().toString());
-        final BigInteger amountInWei = EthUtil.ethToWei(amountInEth);
-        final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
-        final WithdrawalRequest withdrawalRequest = new WithdrawalRequest(amountInWei, toAddress);
-        ToshiService.getApi()
-                .postWithdrawalRequest(this.currentUser.getAuthToken(), withdrawalRequest)
-                .retryWhen(new RetryWithBackoff(5))
-                .subscribe(generateSigningSubscriber());
-        this.progressDialog.show();
-        this.previousAddressesAdapter.addAddress(toAddress);
+        try {
+            final NumberFormat nf = NumberFormat.getInstance(LocaleUtil.getLocale());
+            final String inputtedText = this.activity.getBinding().amount.getText().toString();
+            final BigDecimal amountInEth = new BigDecimal(nf.parse(inputtedText).toString());
+
+            final BigInteger amountInWei = EthUtil.ethToWei(amountInEth);
+            final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
+            final WithdrawalRequest withdrawalRequest = new WithdrawalRequest(amountInWei, toAddress);
+            ToshiService.getApi()
+                    .postWithdrawalRequest(this.currentUser.getAuthToken(), withdrawalRequest)
+                    .subscribe(generateSigningSubscriber());
+            this.progressDialog.show();
+            this.previousWalletAddress.setAddress(toAddress);
+        } catch (final ParseException ex) {
+            LogUtil.e(getClass(), ex.toString());
+        }
     }
 
     private Subscriber<SignatureRequest> generateSigningSubscriber() {
@@ -267,8 +294,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                             }
                         });
 
-                        BaseApplication.get().getSocketObservables().emitTransactionSent(transactionSent);
-
                         final Intent intent = new Intent();
                         intent.putExtra(INTENT_WALLET_ADDRESS, activity.getBinding().walletAddress.getText().toString());
                         intent.putExtra(INTENT_WITHDRAW_AMOUNT, new BigDecimal(activity.getBinding().amount.getText().toString()));
@@ -283,35 +308,35 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
     private boolean validate() {
         try {
-            final BigDecimal amountRequested = new BigDecimal(this.activity.getBinding().amount.getText().toString());
+            final NumberFormat nf = NumberFormat.getInstance(LocaleUtil.getLocale());
+            final String inputtedText = this.activity.getBinding().amount.getText().toString();
+            final BigDecimal amountRequested = new BigDecimal(nf.parse(inputtedText).toString());
 
             if (amountRequested.compareTo(this.minWithdrawLimit) > 0 && amountRequested.compareTo(this.currentBalance) <= 0) {
-                return true;
+                return userHasEnoughReputationScore();
             }
-        } catch (final NumberFormatException ex) {
+        } catch (final NumberFormatException | ParseException ex) {
             LogUtil.e(getClass(), ex.toString());
         }
 
         this.activity.getBinding().amount.setError(this.activity.getResources().getString(R.string.withdraw__amount_error));
+        this.activity.getBinding().amount.requestFocus();
         return false;
     }
 
+    private boolean userHasEnoughReputationScore() {
+        // Todo: Reputation required for withdrawal should be dictated by the server
+        if (currentUser == null || currentUser.getReputationScore() == 0) {
+            new PhoneInputDialog().show(this.activity.getSupportFragmentManager(), "dialog");
+            return false;
+        }
+        return true;
+    }
+
     private void registerObservables() {
-        this.previousAddressesAdapter.getPositionClicks().subscribe(this.clicksSubscriber);
         BaseApplication.get().getLocalBalanceManager().getObservable().subscribe(this.newBalanceSubscriber);
         BaseApplication.get().getUserManager().getObservable().subscribe(this.userSubscriber);
     }
-
-    private void unregisterObservable() {
-        this.clicksSubscriber.unsubscribe();
-    }
-
-    private final OnNextSubscriber<String> clicksSubscriber = new OnNextSubscriber<String>() {
-        @Override
-        public void onNext(final String clickedAddress) {
-            activity.getBinding().walletAddress.setText(clickedAddress);
-        }
-    };
 
     private final OnNextObserver<User> userSubscriber = new OnNextObserver<User>() {
         @Override
