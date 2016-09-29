@@ -67,6 +67,9 @@ public class SocketToPojo {
                 final VerificationSent verificationSent = this.verificationSentAdapter.fromJson(json);
                 this.socketObservables.emitVerificationSent(verificationSent);
                 break;
+            case "verification_success":
+                this.socketObservables.emitVerificationSuccess(new VerificationSuccess());
+                break;
             case "error":
                 WebSocketError error;
                 try {

@@ -18,10 +18,12 @@ import com.bakkenbaeck.toshi.presenter.PresenterLoader;
 import com.bakkenbaeck.toshi.presenter.WithdrawPresenter;
 import com.bakkenbaeck.toshi.presenter.factory.WithdrawPresenterFactory;
 import com.bakkenbaeck.toshi.view.dialog.PhoneInputDialog;
+import com.bakkenbaeck.toshi.view.dialog.VerificationCodeDialog;
 
 public class WithdrawActivity extends AppCompatActivity implements
                                                             LoaderManager.LoaderCallbacks<WithdrawPresenter>,
-                                                            PhoneInputDialog.Listener {
+                                                            PhoneInputDialog.Listener,
+                                                            VerificationCodeDialog.Listener {
 
     private static final int UNIQUE_ACTIVITY_ID = 104;
     private WithdrawPresenter presenter;
@@ -93,5 +95,13 @@ public class WithdrawActivity extends AppCompatActivity implements
             return;
         }
         this.presenter.onPhoneInputSuccess(dialog);
+    }
+
+    @Override
+    public void onVerificationCodeSuccess(VerificationCodeDialog dialog) {
+        if (this.presenter == null) {
+            return;
+        }
+        this.presenter.onVerificationSuccess();
     }
 }

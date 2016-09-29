@@ -6,6 +6,7 @@ import com.bakkenbaeck.toshi.network.rest.model.VerificationSent;
 import com.bakkenbaeck.toshi.network.ws.model.ConnectionState;
 import com.bakkenbaeck.toshi.network.ws.model.Payment;
 import com.bakkenbaeck.toshi.network.ws.model.TransactionConfirmation;
+import com.bakkenbaeck.toshi.network.ws.model.VerificationSuccess;
 import com.bakkenbaeck.toshi.network.ws.model.WebSocketError;
 
 import rx.Observable;
@@ -16,6 +17,7 @@ public class SocketObservables {
 
     private final BehaviorSubject<TransactionConfirmation> transactionConfirmationSubject = BehaviorSubject.create();
     private final PublishSubject<VerificationSent> verificationSentSubject = PublishSubject.create();
+    private final PublishSubject<VerificationSuccess> verificationSuccessSubject = PublishSubject.create();
     private final BehaviorSubject<TransactionSent> transactionSentSubject = BehaviorSubject.create();
     private final PublishSubject<WebSocketError> errorSubject = PublishSubject.create();
     private final BehaviorSubject<ConnectionState> connectionObservable = BehaviorSubject.create(ConnectionState.CONNECTING);
@@ -40,12 +42,20 @@ public class SocketObservables {
         return this.verificationSentSubject.asObservable();
     }
 
+    public Observable<VerificationSuccess> getVerificationSuccessObservable() {
+        return this.verificationSuccessSubject.asObservable();
+    }
+
     public void emitTransactionConfirmation(final TransactionConfirmation transactionConfirmation) {
         this.transactionConfirmationSubject.onNext(transactionConfirmation);
     }
 
     public void emitVerificationSent(final VerificationSent verificationSent) {
         this.verificationSentSubject.onNext(verificationSent);
+    }
+
+    public void emitVerificationSuccess(final VerificationSuccess verificationSuccess) {
+        this.verificationSuccessSubject.onNext(verificationSuccess);
     }
 
     public void emitError(final WebSocketError error) {

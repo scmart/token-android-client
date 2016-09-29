@@ -33,4 +33,5 @@
     <string name="error__invalid_verification_code">The confirmation code you entered is wrong</string>
     <string name="withdraw__ether">Ether</string>
     <string name="error__phone_number_in_use">This number is already in use</string>
+    <string name="verification_success">Your phone number was successfully verified!</string>
 </resources>

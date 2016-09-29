@@ -16,7 +16,7 @@ public class VerificationConfirm {
         return "{" +
                 " \"type\": \"verification_confirm\"," +
                 " \"payload\": {" +
-                "   \"phone_number\": \"" + this.phoneNumber + "\"" +
+                "   \"phone_number\": \"" + this.phoneNumber + "\"," +
                 "   \"verification_code\": \"" + this.verificationCode + "\"" +
                 " }" +
                 "}";

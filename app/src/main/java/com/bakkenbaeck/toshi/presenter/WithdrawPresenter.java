@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -26,7 +27,6 @@ import com.bakkenbaeck.toshi.util.EthUtil;
 import com.bakkenbaeck.toshi.util.LocaleUtil;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
-import com.bakkenbaeck.toshi.util.OnNextSubscriber;
 import com.bakkenbaeck.toshi.util.RetryWithBackoff;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.BarcodeScannerActivity;
@@ -178,6 +178,13 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         final String phoneNumber = dialog.getInputtedPhoneNumber();
         final VerificationCodeDialog vcDialog = VerificationCodeDialog.newInstance(phoneNumber);
         vcDialog.show(this.activity.getSupportFragmentManager(), "dialog");
+    }
+
+    public void onVerificationSuccess() {
+        Snackbar.make(
+                this.activity.getBinding().getRoot(),
+                this.activity.getString(R.string.verification_success),
+                Snackbar.LENGTH_INDEFINITE);
     }
 
     public void handleActivityResult(final ActivityResultHolder activityResultHolder) {
