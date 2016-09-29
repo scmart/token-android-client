@@ -14,8 +14,13 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
     buildTypes {
+        debug {
+            multiDexEnabled true
+        }
         release {
+            multiDexEnabled false
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -40,6 +45,7 @@ dependencies {
             'com.android.support:gridlayout-v7:24.2.1',
             'com.android.support:design:24.2.1',
             'com.google.android.gms:play-services-ads:9.4.0',
+            'com.android.support:multidex:1.0.0',
             // Networking
             'com.squareup.retrofit2:retrofit:2.1.0',
             'com.squareup.retrofit2:converter-moshi:2.1.0',
