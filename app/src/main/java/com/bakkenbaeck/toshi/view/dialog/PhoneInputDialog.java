@@ -18,6 +18,7 @@ import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.network.rest.model.VerificationSent;
 import com.bakkenbaeck.toshi.network.ws.model.VerificationStart;
 import com.bakkenbaeck.toshi.network.ws.model.WebSocketError;
+import com.bakkenbaeck.toshi.network.ws.model.WebSocketErrors;
 import com.bakkenbaeck.toshi.util.LocaleUtil;
 import com.bakkenbaeck.toshi.util.OnNextSubscriber;
 import com.bakkenbaeck.toshi.view.BaseApplication;
@@ -61,8 +62,13 @@ public class PhoneInputDialog extends DialogFragment {
         return new OnNextSubscriber<WebSocketError>() {
             @Override
             public void onNext(final WebSocketError webSocketError) {
-                listener.onPhoneInputSuccess(PhoneInputDialog.this);
-                dismiss();
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        view.findViewById(R.id.spinner_view).setVisibility(View.INVISIBLE);
+                        setErrorOnPhoneField(webSocketError);
+                    }
+                });
             }
         };
     }
@@ -71,13 +77,8 @@ public class PhoneInputDialog extends DialogFragment {
         return new OnNextSubscriber<VerificationSent>() {
             @Override
             public void onNext(final VerificationSent verificationSent) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        view.findViewById(R.id.spinner_view).setVisibility(View.INVISIBLE);
-                        setErrorOnPhoneField();
-                    }
-                });
+                listener.onPhoneInputSuccess(PhoneInputDialog.this);
+                dismiss();
             }
         };
     }
@@ -137,9 +138,20 @@ public class PhoneInputDialog extends DialogFragment {
     }
 
     private void setErrorOnPhoneField() {
+        setErrorOnPhoneField(null);
+    }
+
+    private void setErrorOnPhoneField(final WebSocketError error) {
         final EditText phoneNumberField = (EditText) this.view.findViewById(R.id.phone_number);
         phoneNumberField.requestFocus();
-        phoneNumberField.setError(getString(R.string.error__invalid_phone_number));
+
+        if (error != null && error.getCode().equals(WebSocketErrors.phone_number_already_in_use)) {
+            phoneNumberField.setError(getString(R.string.error__phone_number_in_use));
+        } else {
+            phoneNumberField.setError(getString(R.string.error__invalid_phone_number));
+        }
     }
+
+
 
 }
