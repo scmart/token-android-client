@@ -19,9 +19,9 @@
     <string name="eth_symbol">Ξ</string>
     <string name="withdraw__button">Send</string>
     <string name="chat__withdraw_instructions">Good job earning ethereum! When you\'re ready you should try withdrawing your balance. To get started click: </string>
-    <string name="socket__connecting_state">Connecting…</string>
+    <string name="socket__connecting_state">&lt;font color=\"#ffffff\"&gt;Connecting…&lt;\/font\&gt;</string>
     <string name="error__withdrawing">There was a problem withdrawing, please try again later.</string>
-    <string name="error__supersonic">Having trouble connecting...</string>
+    <string name="error__supersonic">Having trouble connecting…</string>
     <string name="dialog_phone_input__title">Verification Needed</string>
     <string name="dialog_phone_input__instruction">Please enter your phone number to verify your account</string>
     <string name="dialog_phone_input__hint">Phone number</string>
@@ -33,5 +33,5 @@
     <string name="error__invalid_verification_code">The confirmation code you entered is wrong</string>
     <string name="withdraw__ether">Ether</string>
     <string name="error__phone_number_in_use">This number is already in use</string>
-    <string name="verification_success">Your phone number was successfully verified!</string>
+    <string name="verification_success">&lt;font color=\"#ffffff\"&gt;Your phone number was successfully verified!&lt;\/font\&gt;</string>
 </resources>

@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.view.View;
 
 import com.bakkenbaeck.toshi.R;
@@ -81,9 +82,8 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     private void initNetworkStateSnackbar() {
         this.networkStateSnackbar = Snackbar.make(
                 this.activity.getBinding().balanceBar,
-                this.activity.getString(R.string.socket__connecting_state),
+                Html.fromHtml(this.activity.getString(R.string.socket__connecting_state)),
                 Snackbar.LENGTH_INDEFINITE);
-        this.networkStateSnackbar.getView().setBackgroundColor(ContextCompat.getColor(this.activity, R.color.colorAccent));
     }
 
     private void initShortLivingObjects() {

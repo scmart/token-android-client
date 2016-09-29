@@ -9,6 +9,7 @@ import android.os.Looper;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
@@ -183,8 +184,8 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     public void onVerificationSuccess() {
         Snackbar.make(
                 this.activity.getBinding().getRoot(),
-                this.activity.getString(R.string.verification_success),
-                Snackbar.LENGTH_INDEFINITE);
+                Html.fromHtml(this.activity.getString(R.string.verification_success)),
+                Snackbar.LENGTH_LONG).show();
     }
 
     public void handleActivityResult(final ActivityResultHolder activityResultHolder) {
