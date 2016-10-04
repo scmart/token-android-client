@@ -4,10 +4,11 @@ package com.bakkenbaeck.toshi.manager;
 import com.bakkenbaeck.toshi.model.LocalBalance;
 import com.bakkenbaeck.toshi.model.User;
 import com.bakkenbaeck.toshi.network.rest.model.TransactionSent;
-import com.bakkenbaeck.toshi.network.ws.model.Payment;
 import com.bakkenbaeck.toshi.network.ws.model.TransactionConfirmation;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.view.BaseApplication;
+
+import java.math.BigDecimal;
 
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
@@ -19,8 +20,7 @@ public class LocalBalanceManager {
     private final PublishSubject<Void> upsellSubject = PublishSubject.create();
 
     private LocalBalance localBalance;
-    private boolean hasWithdrawn = false;
-    private int numberOfRewards = 0;
+    private boolean hasShownUpsell = false;
 
     public LocalBalanceManager() {
         this.localBalance = new LocalBalance();
@@ -69,15 +69,12 @@ public class LocalBalanceManager {
     }
 
     private void setBalance(final TransactionConfirmation confirmation) {
-        ++numberOfRewards;
         this.localBalance.setUnconfirmedBalance(confirmation.getUnconfirmedBalance());
         this.localBalance.setConfirmedBalance(confirmation.getConfirmedBalance());
         emitNewBalance();
     }
 
     private void setBalance(final TransactionSent transactionSent) {
-        // TODO - when have we withdrawn?
-       // this.hasWithdrawn = true;
         this.localBalance.setUnconfirmedBalance(transactionSent.getUnconfirmedBalance());
         this.localBalance.setConfirmedBalance(transactionSent.getConfirmedBalance());
         emitNewBalance();
@@ -87,12 +84,13 @@ public class LocalBalanceManager {
     // showing an upsell message to the user. The upsell message containing
     // information on withdrawal
     private boolean isInUpsellState() {
-        return  !hasWithdrawn && numberOfRewards == 3;
+        return !hasShownUpsell && this.localBalance.getConfirmedBalanceAsEth().compareTo(new BigDecimal("0.001")) == 1;
     }
 
     private void emitNewBalance() {
         if (isInUpsellState()) {
             this.upsellSubject.onCompleted();
+            this.hasShownUpsell = true;
         }
         this.balanceSubject.onNext(this.localBalance);
     }

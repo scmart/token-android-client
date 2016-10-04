@@ -312,6 +312,9 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             final String inputtedText = this.activity.getBinding().amount.getText().toString();
             final BigDecimal amountRequested = new BigDecimal(nf.parse(inputtedText).toString());
 
+            final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
+            this.activity.getBinding().walletAddress.setText(toAddress.replaceFirst("ethereum:", ""));
+
             if (amountRequested.compareTo(this.minWithdrawLimit) > 0 && amountRequested.compareTo(this.currentBalance) <= 0) {
                 return userHasEnoughReputationScore();
             }
