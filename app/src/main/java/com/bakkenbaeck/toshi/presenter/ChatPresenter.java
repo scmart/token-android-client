@@ -72,7 +72,6 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         this.chatMessageStore.getEmptySetObservable().subscribe(this.noStoredChatMessages);
         this.chatMessageStore.getNewMessageObservable().subscribe(this.newChatMessage);
         this.chatMessageStore.getUnwatchedVideoObservable().subscribe(this.unwatchedVideo);
-        BaseApplication.get().getLocalBalanceManager().getUpsellObservable().subscribe(this.upsellSubscriber);
         BaseApplication.get().getSocketObservables().getTransactionSentObservable().subscribe(this.transactionSentSubscriber);
         BaseApplication.get().getSocketObservables().getConnectionObservable().subscribe(this.connectionStateSubscriber);
 
@@ -178,14 +177,6 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message);
         displayMessage(response, 500);
     }
-
-    private final OnCompletedObserver<Void> upsellSubscriber = new OnCompletedObserver<Void>() {
-        @Override
-        public void onCompleted() {
-            final ChatMessage message = new ChatMessage().makeRemoteWithdrawMessage();
-            displayMessage(message);
-        }
-    };
 
     private void withdrawAmountFromAddress(final BigDecimal amount, final String walletAddress) {
         final String message = String.format(this.activity.getResources().getString(R.string.chat__withdraw_to_address), amount.toString(), walletAddress);

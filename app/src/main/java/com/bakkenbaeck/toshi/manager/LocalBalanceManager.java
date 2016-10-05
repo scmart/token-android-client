@@ -8,19 +8,14 @@ import com.bakkenbaeck.toshi.network.ws.model.TransactionConfirmation;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 
-import java.math.BigDecimal;
-
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
-import rx.subjects.PublishSubject;
 
 public class LocalBalanceManager {
 
     private final BehaviorSubject<LocalBalance> balanceSubject = BehaviorSubject.create();
-    private final PublishSubject<Void> upsellSubject = PublishSubject.create();
 
     private LocalBalance localBalance;
-    private boolean hasShownUpsell = false;
 
     public LocalBalanceManager() {
         this.localBalance = new LocalBalance();
@@ -58,10 +53,6 @@ public class LocalBalanceManager {
         return this.balanceSubject.asObservable();
     }
 
-    public Observable<Void> getUpsellObservable() {
-        return this.upsellSubject.asObservable();
-    }
-
     private void setBalance(final User user) {
         this.localBalance.setUnconfirmedBalance(user.getUnconfirmedBalance());
         this.localBalance.setConfirmedBalance(user.getConfirmedBalance());
@@ -80,18 +71,7 @@ public class LocalBalanceManager {
         emitNewBalance();
     }
 
-    // True if the wallet is in a state where we can consider
-    // showing an upsell message to the user. The upsell message containing
-    // information on withdrawal
-    private boolean isInUpsellState() {
-        return !hasShownUpsell && this.localBalance.getConfirmedBalanceAsEth().compareTo(new BigDecimal("0.001")) == 1;
-    }
-
     private void emitNewBalance() {
-        if (isInUpsellState()) {
-            this.upsellSubject.onCompleted();
-            this.hasShownUpsell = true;
-        }
         this.balanceSubject.onNext(this.localBalance);
     }
 
