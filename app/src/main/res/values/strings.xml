@@ -31,7 +31,7 @@
     <string name="dialog_verification_code__instruction">Enter the code sent to your phone number below</string>
     <string name="dialog_verification_code__hint">Confirmation code</string>
     <string name="error__invalid_verification_code">The confirmation code you entered is wrong</string>
-    <string name="withdraw__ether">Ether</string>
+    <string name="withdraw__ether">ETH</string>
     <string name="error__phone_number_in_use">This number is already in use</string>
     <string name="verification_success">&lt;font color=\"#ffffff\"&gt;Your phone number was successfully verified!&lt;\/font\&gt;</string>
 </resources>

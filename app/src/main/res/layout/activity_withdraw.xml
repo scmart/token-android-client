@@ -3,10 +3,6 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -72,62 +68,43 @@
                 android:layout_height="1dp"
                 android:background="@color/divider" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_gravity="center_vertical|right"
-                android:textSize="12sp"
-                android:textColor="@color/mainTextHint"
-                android:text="@string/withdraw__amount"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:layout_marginLeft="@dimen/activity_horizontal_margin"/>
-
             <LinearLayout
-                android:orientation="vertical"
-                android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                android:layout_marginRight="@dimen/activity_horizontal_margin"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:orientation="horizontal"
                 android:paddingRight="@dimen/activity_horizontal_margin"
                 android:paddingTop="@dimen/activity_vertical_margin"
                 android:layout_width="match_parent"
-                android:background="@color/colorAccent"
                 android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/amount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:maxLines="1"
+                    android:textSize="24sp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:hint="@string/withdraw__amount"
+                    android:text="0"
+                    android:inputType="number|numberSigned"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="12sp"
-                    android:paddingLeft="4dp"
                     android:text="@string/withdraw__ether"/>
-
-                    <EditText
-                        android:id="@+id/amount"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:textColor="@color/generalBg"
-                        android:textColorHint="@color/generalBg"
-                        android:textSize="24sp"
-                        android:text="0"
-                        android:textCursorDrawable="@drawable/white_cursor"
-                        android:inputType="number|numberSigned"/>
             </LinearLayout>
 
-        </LinearLayout>
+            <Button
+                android:id="@+id/send_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_margin="16dp"
+                android:enabled="false"
+                android:text="@string/withdraw__button"/>
 
-        <Button
-            android:id="@+id/send_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginBottom="30dp"
-            tools:visibility="visible"
-            android:visibility="invisible"
-            android:alpha="0"
-            tools:alpha="255"
-            android:text="@string/withdraw__button"/>
-    </FrameLayout>
+        </LinearLayout>
 
 </layout>
 

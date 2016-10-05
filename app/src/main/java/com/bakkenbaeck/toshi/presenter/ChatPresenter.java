@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.view.View;
@@ -60,6 +59,10 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         this.messageAdapter.notifyDataSetChanged();
         refreshAnotherOneButtonState();
         scrollToBottom(false);
+    }
+
+    public boolean isAttached() {
+        return this.activity != null;
     }
 
     private void initLongLivingObjects() {
