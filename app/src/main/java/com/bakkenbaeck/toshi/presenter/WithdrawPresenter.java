@@ -26,6 +26,7 @@ import com.bakkenbaeck.toshi.util.EthUtil;
 import com.bakkenbaeck.toshi.util.LocaleUtil;
 import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
+import com.bakkenbaeck.toshi.util.OnSingleClickListener;
 import com.bakkenbaeck.toshi.util.RetryWithBackoff;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.BarcodeScannerActivity;
@@ -81,16 +82,16 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     }
 
     private void initButtons() {
-        this.activity.getBinding().barcodeButton.setOnClickListener(new View.OnClickListener() {
+        this.activity.getBinding().barcodeButton.setOnClickListener(new OnSingleClickListener() {
             @Override
-            public void onClick(final View view) {
+            public void onSingleClick(final View v) {
                 showBarcodeActivity();
             }
         });
 
-        this.activity.getBinding().sendButton.setOnClickListener(new View.OnClickListener() {
+        this.activity.getBinding().sendButton.setOnClickListener(new OnSingleClickListener() {
             @Override
-            public void onClick(final View view) {
+            public void onSingleClick(final View view) {
                 handleSendClicked();
             }
         });
