@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.ChatMessage;
+import com.bakkenbaeck.toshi.util.OnSingleClickListener;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.LocalTextViewHolder;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteTextViewHolder;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteVideoViewHolder;
@@ -92,9 +93,9 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
                 final RemoteVideoViewHolder vh = (RemoteVideoViewHolder) holder;
                 if (!chatMessage.hasBeenWatched()) {
                     vh.videoState.setImageResource(R.drawable.ic_av_play_circle_outline);
-                    holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    holder.itemView.setOnClickListener(new OnSingleClickListener() {
                         @Override
-                        public void onClick(View v) {
+                        public void onSingleClick(View v) {
                             onClickSubject.onNext(holder.getAdapterPosition());
                         }
                     });

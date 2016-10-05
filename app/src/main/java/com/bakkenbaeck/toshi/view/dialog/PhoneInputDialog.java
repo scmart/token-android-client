@@ -21,12 +21,11 @@ import com.bakkenbaeck.toshi.network.ws.model.WebSocketError;
 import com.bakkenbaeck.toshi.network.ws.model.WebSocketErrors;
 import com.bakkenbaeck.toshi.util.LocaleUtil;
 import com.bakkenbaeck.toshi.util.OnNextSubscriber;
+import com.bakkenbaeck.toshi.util.OnSingleClickListener;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.hbb20.CountryCodePicker;
 
 import java.util.Locale;
-
-import rx.Subscriber;
 
 public class PhoneInputDialog extends DialogFragment {
 
@@ -109,9 +108,9 @@ public class PhoneInputDialog extends DialogFragment {
         view.findViewById(R.id.continueButton).setOnClickListener(new ValidateAndContinueDialog(view));
     }
 
-    private final View.OnClickListener dismissDialog = new View.OnClickListener() {
+    private final View.OnClickListener dismissDialog = new OnSingleClickListener() {
         @Override
-        public void onClick(final View v) {
+        public void onSingleClick(final View v) {
             dismiss();
         }
     };

@@ -19,6 +19,7 @@ import com.bakkenbaeck.toshi.util.EthUtil;
 import com.bakkenbaeck.toshi.util.OnCompletedObserver;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.util.OnNextSubscriber;
+import com.bakkenbaeck.toshi.util.OnSingleClickListener;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.ChatActivity;
 import com.bakkenbaeck.toshi.view.activity.VideoActivity;
@@ -214,9 +215,9 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         );
 
         if (this.isShowingAnotherOneButton) {
-            this.activity.getBinding().buttonAnotherVideo.setOnClickListener(new View.OnClickListener() {
+            this.activity.getBinding().buttonAnotherVideo.setOnClickListener(new OnSingleClickListener() {
                 @Override
-                public void onClick(final View view) {
+                public void onSingleClick(final View view) {
                     isShowingAnotherOneButton = false;
                     refreshAnotherOneButtonState();
                     showVideoRequestMessage();

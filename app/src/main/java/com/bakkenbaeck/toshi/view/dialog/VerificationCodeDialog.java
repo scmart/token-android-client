@@ -15,11 +15,11 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.bakkenbaeck.toshi.R;
-import com.bakkenbaeck.toshi.network.rest.ToshiService;
 import com.bakkenbaeck.toshi.network.ws.model.VerificationConfirm;
 import com.bakkenbaeck.toshi.network.ws.model.VerificationSuccess;
 import com.bakkenbaeck.toshi.network.ws.model.WebSocketError;
 import com.bakkenbaeck.toshi.util.OnNextSubscriber;
+import com.bakkenbaeck.toshi.util.OnSingleClickListener;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 
 public class VerificationCodeDialog extends DialogFragment {
@@ -111,9 +111,9 @@ public class VerificationCodeDialog extends DialogFragment {
         view.findViewById(R.id.continueButton).setOnClickListener(new ValidateAndContinueDialog(view));
     }
 
-    private final View.OnClickListener dismissDialog = new View.OnClickListener() {
+    private final View.OnClickListener dismissDialog = new OnSingleClickListener() {
         @Override
-        public void onClick(final View v) {
+        public void onSingleClick(final View v) {
             dismiss();
         }
     };
