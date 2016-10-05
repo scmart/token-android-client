@@ -83,7 +83,12 @@ public final class ChatActivity extends AppCompatActivity implements LoaderManag
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        this.activityResultHolder = new ActivityResultHolder(requestCode, resultCode, data);
+        if (this.presenter == null) {
+            // Will get processed when the activity attaches
+            this.activityResultHolder = new ActivityResultHolder(requestCode, resultCode, data);
+        } else {
+            this.presenter.handleActivityResult(new ActivityResultHolder(requestCode, resultCode, data));
+        }
     }
 
     @Override
