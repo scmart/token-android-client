@@ -310,7 +310,9 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
             this.activity.getBinding().walletAddress.setText(toAddress.replaceFirst("ethereum:", ""));
 
-            return amountRequested.compareTo(this.minWithdrawLimit) > 0 && amountRequested.compareTo(this.currentBalance) <= 0;
+            if (amountRequested.compareTo(this.minWithdrawLimit) > 0 && amountRequested.compareTo(this.currentBalance) <= 0) {
+                return true;
+            }
         } catch (final NumberFormatException | ParseException ex) {
             LogUtil.e(getClass(), ex.toString());
         }
@@ -337,9 +339,18 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         @Override
         public void onNext(final User user) {
             currentUser = user;
-            activity.getBinding().increaseReputationButton.setEnabled(currentUser.getReputationScore() == 0);
-            updateSendButtonEnabledState();
+            refreshButtonStates();
             this.onCompleted();
+        }
+
+        private void refreshButtonStates() {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    activity.getBinding().increaseReputationButton.setEnabled(currentUser.getReputationScore() == 0);
+                    updateSendButtonEnabledState();
+                }
+            });
         }
     };
 }
