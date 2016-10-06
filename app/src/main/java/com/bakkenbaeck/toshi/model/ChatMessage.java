@@ -10,14 +10,12 @@ public class ChatMessage extends RealmObject {
     @IntDef({
             TYPE_LOCAL_TEXT,
             TYPE_REMOTE_TEXT,
-            TYPE_REMOTE_VIDEO,
-            TYPE_REMOTE_WITHDRAW
+            TYPE_REMOTE_VIDEO
     })
     private @interface Type {}
     @Ignore public static final int TYPE_LOCAL_TEXT = 0;
     @Ignore public static final int TYPE_REMOTE_TEXT = 1;
     @Ignore public static final int TYPE_REMOTE_VIDEO = 2;
-    @Ignore public static final int TYPE_REMOTE_WITHDRAW = 3;
 
     private long creationTime;
     private @Type int type;
@@ -72,12 +70,6 @@ public class ChatMessage extends RealmObject {
 
     public ChatMessage makeRemoteVideoMessage() {
         setType(TYPE_REMOTE_VIDEO);
-        setText("");
-        return this;
-    }
-
-    public ChatMessage makeRemoteWithdrawMessage() {
-        setType(TYPE_REMOTE_WITHDRAW);
         setText("");
         return this;
     }

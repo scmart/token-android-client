@@ -2,7 +2,6 @@
     <string name="app_name">Free Ethereum</string>
     <string name="chat__title">Free Ethereum</string>
     <string name="chat__welcome_message">Welcome to Free Ethereum. Simply watch the video below to earn ethereum.</string>
-    <string name="chat__currency_earned">Congratulations, you just earned %1$s ETH!</string>
     <string name="balance__current_balance">%1$.5f</string>
     <string name="chat__request_video_message">Another video please!</string>
     <string name="menu__withdraw">Withdraw</string>
@@ -18,7 +17,6 @@
     <string name="withdraw__amount_error">Enter a valid amount for withdrawal</string>
     <string name="eth_symbol">Ξ</string>
     <string name="withdraw__button">Send</string>
-    <string name="chat__withdraw_instructions">Good job earning ethereum! When you\'re ready you should try withdrawing your balance. To get started click: </string>
     <string name="socket__connecting_state">&lt;font color=\"#ffffff\"&gt;Connecting…&lt;\/font\&gt;</string>
     <string name="error__withdrawing">There was a problem withdrawing, please try again later.</string>
     <string name="error__supersonic">Having trouble connecting…</string>
