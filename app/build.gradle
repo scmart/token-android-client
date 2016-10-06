@@ -7,12 +7,17 @@ android {
     buildToolsVersion '24.0.2'
     dataBinding.enabled = true
 
+    def versionMajor = 1
+    def versionMinor = 0
+    def versionPatch = 0
+    def versionBuild = 0
+
     defaultConfig {
         applicationId "com.bakkenbaeck.toshi"
         minSdkVersion 16
         targetSdkVersion 24
-        versionCode 1
-        versionName "1.0"
+        versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
+        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
     }
 
     buildTypes {
@@ -31,8 +36,17 @@ android {
         abi {
             enable true
             reset()
-            include 'x86', 'armeabi', 'armeabi-v7a'
+            include 'x86', 'armeabi', 'armeabi-v7a', 'arm64-v8a'
             universalApk true
+        }
+    }
+
+    // Give each APK in the API split a different versionCode and versionName
+    project.ext.versionCodes = ['armeabi': 1, 'armeabi-v7a': 2, 'arm64-v8a': 3, 'x86': 4]
+    android.applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            output.versionCodeOverride =
+                    project.ext.versionCodes.get(output.getFilter(com.android.build.OutputFile.ABI), 0) * 1000000 + android.defaultConfig.versionCode
         }
     }
 }
