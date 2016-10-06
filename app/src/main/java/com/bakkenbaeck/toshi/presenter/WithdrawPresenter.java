@@ -115,6 +115,8 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             @Override
             public void afterTextChanged(final Editable editable) {}
         });
+
+        refreshButtonStates();
     }
 
     private void updateSendButtonEnabledState() {
@@ -342,15 +344,18 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             refreshButtonStates();
             this.onCompleted();
         }
-
-        private void refreshButtonStates() {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    activity.getBinding().increaseReputationButton.setEnabled(currentUser.getReputationScore() == 0);
-                    updateSendButtonEnabledState();
-                }
-            });
-        }
     };
+
+    private void refreshButtonStates() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if (activity == null) {
+                    return;
+                }
+                activity.getBinding().increaseReputationButton.setEnabled(!userHasEnoughReputationScore());
+                updateSendButtonEnabledState();
+            }
+        });
+    }
 }
