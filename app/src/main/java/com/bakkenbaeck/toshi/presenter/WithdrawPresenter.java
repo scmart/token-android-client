@@ -96,19 +96,31 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             }
         });
 
+        this.activity.getBinding().increaseReputationButton.setOnClickListener(new OnSingleClickListener() {
+            @Override
+            public void onSingleClick(final View view) {
+                new PhoneInputDialog().show(activity.getSupportFragmentManager(), "dialog");
+            }
+        });
+
         this.activity.getBinding().walletAddress.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence charSequence, final int i, final int i1, final int i2) {}
 
             @Override
             public void onTextChanged(final CharSequence charSequence, final int i, final int i1, final int i2) {
-                final boolean shouldEnableButton = charSequence.length() > 0;
-                activity.getBinding().sendButton.setEnabled(shouldEnableButton);
+                updateSendButtonEnabledState();
             }
 
             @Override
             public void afterTextChanged(final Editable editable) {}
         });
+    }
+
+    private void updateSendButtonEnabledState() {
+        final Editable walletAddress = this.activity.getBinding().walletAddress.getText();
+        final boolean shouldEnableButton = walletAddress.length() > 0 && userHasEnoughReputationScore();
+        activity.getBinding().sendButton.setEnabled(shouldEnableButton);
     }
 
     private void initToolbar() {
@@ -298,9 +310,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
             this.activity.getBinding().walletAddress.setText(toAddress.replaceFirst("ethereum:", ""));
 
-            if (amountRequested.compareTo(this.minWithdrawLimit) > 0 && amountRequested.compareTo(this.currentBalance) <= 0) {
-                return userHasEnoughReputationScore();
-            }
+            return amountRequested.compareTo(this.minWithdrawLimit) > 0 && amountRequested.compareTo(this.currentBalance) <= 0;
         } catch (final NumberFormatException | ParseException ex) {
             LogUtil.e(getClass(), ex.toString());
         }
@@ -313,7 +323,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     private boolean userHasEnoughReputationScore() {
         // Todo: Reputation required for withdrawal should be dictated by the server
         if (currentUser == null || currentUser.getReputationScore() == 0) {
-            new PhoneInputDialog().show(this.activity.getSupportFragmentManager(), "dialog");
             return false;
         }
         return true;
@@ -328,6 +337,8 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         @Override
         public void onNext(final User user) {
             currentUser = user;
+            activity.getBinding().increaseReputationButton.setEnabled(currentUser.getReputationScore() == 0);
+            updateSendButtonEnabledState();
             this.onCompleted();
         }
     };
