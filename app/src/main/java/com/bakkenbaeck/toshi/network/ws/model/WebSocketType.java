@@ -1,8 +1,12 @@
 package com.bakkenbaeck.toshi.network.ws.model;
 
 
-public class WebSocketMessage {
-    public String type;
+public class WebSocketType {
+    private String type;
+
+    public String get() {
+        return this.type;
+    }
 
     @Override
     public String toString() {

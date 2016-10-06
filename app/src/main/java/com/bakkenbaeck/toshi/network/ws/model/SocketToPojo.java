@@ -14,7 +14,8 @@ import java.io.IOException;
 public class SocketToPojo {
 
     private final Moshi moshi;
-    private final JsonAdapter<WebSocketMessage> jsonAdapter;
+    private final JsonAdapter<WebSocketType> jsonAdapter;
+    private final JsonAdapter<Message> messageAdapter;
     private final JsonAdapter<TransactionSent> transactionSentAdapter;
     private final JsonAdapter<TransactionConfirmation> confirmationAdapter;
     private final JsonAdapter<VerificationSent> verificationSentAdapter;
@@ -27,7 +28,8 @@ public class SocketToPojo {
                             .Builder()
                             .add(new BigIntegerAdapter())
                             .build();
-        this.jsonAdapter = this.moshi.adapter(WebSocketMessage.class);
+        this.jsonAdapter = this.moshi.adapter(WebSocketType.class);
+        this.messageAdapter = this.moshi.adapter(Message.class);
         this.transactionSentAdapter = this.moshi.adapter(TransactionSent.class);
         this.confirmationAdapter = this.moshi.adapter(TransactionConfirmation.class);
         this.verificationSentAdapter = this.moshi.adapter(VerificationSent.class);
@@ -45,15 +47,19 @@ public class SocketToPojo {
 
     private void convertAndEmitPojo(final String json) throws IOException {
         LogUtil.i(getClass(), "Incoming WS event. " + json);
-        final WebSocketMessage message = getWebSocketMessageFromJson(json);
-        if (message == null) {
+        final WebSocketType webSocketType = getWebSocketMessageFromJson(json);
+        if (webSocketType == null) {
             LogUtil.e(getClass(), "Websocket frame unhandled");
             return;
         }
 
-        switch (message.type) {
+        switch (webSocketType.get()) {
             case "hello":
                 LogUtil.i(getClass(), "Ignoring websocket event -- hello");
+                break;
+            case "message":
+                final Message message = this.messageAdapter.fromJson(json);
+                this.socketObservables.emitMessage(message);
                 break;
             case "transaction_sent":
                 final TransactionSent transactionSent = this.transactionSentAdapter.fromJson(json);
@@ -81,14 +87,13 @@ public class SocketToPojo {
                 this.socketObservables.emitError(error);
                 break;
             default:
-                LogUtil.e(getClass(), "Unrecognised websocket event - " + message.type);
+                LogUtil.e(getClass(), "Unrecognised websocket event - " + webSocketType.get());
         }
     }
 
-    private WebSocketMessage getWebSocketMessageFromJson(final String message) {
+    private WebSocketType getWebSocketMessageFromJson(final String message) {
         try {
-            final WebSocketMessage webSocketMessage = this.jsonAdapter.fromJson(message);
-            return webSocketMessage;
+            return this.jsonAdapter.fromJson(message);
         } catch (final IOException e) {
             LogUtil.e(getClass(), "Invalid JSON input. " + e);
             return null;

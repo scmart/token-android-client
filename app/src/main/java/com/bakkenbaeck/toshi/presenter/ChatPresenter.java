@@ -12,10 +12,9 @@ import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.ActivityResultHolder;
 import com.bakkenbaeck.toshi.model.ChatMessage;
 import com.bakkenbaeck.toshi.model.LocalBalance;
-import com.bakkenbaeck.toshi.network.rest.model.TransactionSent;
 import com.bakkenbaeck.toshi.network.ws.model.ConnectionState;
+import com.bakkenbaeck.toshi.network.ws.model.Message;
 import com.bakkenbaeck.toshi.presenter.store.ChatMessageStore;
-import com.bakkenbaeck.toshi.util.EthUtil;
 import com.bakkenbaeck.toshi.util.OnCompletedObserver;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.util.OnNextSubscriber;
@@ -73,7 +72,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         this.chatMessageStore.getEmptySetObservable().subscribe(this.noStoredChatMessages);
         this.chatMessageStore.getNewMessageObservable().subscribe(this.newChatMessage);
         this.chatMessageStore.getUnwatchedVideoObservable().subscribe(this.unwatchedVideo);
-        BaseApplication.get().getSocketObservables().getTransactionSentObservable().subscribe(this.transactionSentSubscriber);
+        BaseApplication.get().getSocketObservables().getMessageObservable().subscribe(this.newMessageSubscriber);
         BaseApplication.get().getSocketObservables().getConnectionObservable().subscribe(this.connectionStateSubscriber);
 
         this.messageAdapter = new MessageAdapter();
@@ -165,19 +164,13 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         }
     };
 
-    private final OnNextObserver<TransactionSent> transactionSentSubscriber = new OnNextObserver<TransactionSent>() {
+    private final OnNextObserver<Message> newMessageSubscriber = new OnNextObserver<Message>() {
         @Override
-        public void onNext(final TransactionSent transactionSent) {
-            handleTransactionSent(transactionSent);
+        public void onNext(final Message message) {
+            final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message.toString());
+            displayMessage(response, 500);
         }
     };
-
-    private void handleTransactionSent(final TransactionSent transactionSent) {
-        final String amount = EthUtil.weiToEthString(transactionSent.getAmount());
-        final String message = String.format(BaseApplication.get().getResources().getString(R.string.chat__currency_earned), amount);
-        final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message);
-        displayMessage(response, 500);
-    }
 
     private void withdrawAmountFromAddress(final BigDecimal amount, final String walletAddress) {
         final String message = String.format(this.activity.getResources().getString(R.string.chat__withdraw_to_address), amount.toString(), walletAddress);
