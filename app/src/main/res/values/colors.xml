@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#4E525D</color>
-    <color name="colorPrimaryDark">#4E525D</color>
-    <color name="textColorPrimary">#FFFFFF</color>
-    <color name="colorAccent">#00DAA9</color>
+    <!--<color name="colorPrimary">#4E525D</color>
+    <color name="colorPrimaryDark">#4E525D</color>-->
+    <color name="colorPrimary">#FFFFFF</color>
+    <color name="colorPrimaryDark">#FFFFFF</color>
+    <!--<color name="textColorPrimary">#FFFFFF</color>-->
+    <color name="textColorPrimary">#4E525D</color>
+    <color name="textColorSecondary">#4E525D</color>
+    <color name="textColorTertiary">#33AFFF</color>
+    <color name="buttonTextColor">#FFFFFF</color>
+    <color name="colorAccent">#33AFFF</color>
     <color name="generalBg">#F6F6FA</color>
     <color name="mainText">#4C4848</color>
     <color name="mainTextHint">#B2B4B8</color>
@@ -15,8 +21,14 @@
     <color name="bubbleBgRemote">#FFFFFF</color>
     <color name="bubbleBorderRemote">#E5E5E5</color>
 
-    <color name="balanceBg">#575B65</color>
+    <color name="balanceBg">#FFFFFF</color>
     <color name="toBg">#F3F3F3</color>
     <color name="divider">#EBEBEB</color>
 
+    <color name="accent1">#689de3</color>
+    <color name="accent2">#8868e3</color>
+    <color name="accent3">#50D08B</color>
+    <color name="accent4">#F6C44C</color>
+    <color name="statusbarBackgroundColor">#ffffff</color>
+    <color name="dividerColor">#0D4E525D</color>
 </resources>

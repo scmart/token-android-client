@@ -44,6 +44,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center_horizontal"
             android:layout_marginBottom="30dp"
+            android:background="@drawable/btn_with_radius"
+            android:textColor="@color/buttonTextColor"
+            android:textSize="12sp"
             tools:visibility="visible"
             android:visibility="invisible"
             android:text="@string/another_one"/>

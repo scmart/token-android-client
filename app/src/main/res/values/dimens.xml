@@ -4,7 +4,10 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="textBubblePadding">16dp</dimen>
     <dimen name="textBubbleHalfPadding">8dp</dimen>
-    <dimen name="bubbleMargin">12dp</dimen>
-    <dimen name="avatarPadding">10dp</dimen>
+    <dimen name="bubbleMargin">8dp</dimen>
+    <dimen name="avatarPadding">5dp</dimen>
     <integer name="animLength">200</integer>
+
+    <dimen name="radiusSize">6dp</dimen>
+    <dimen name="balance_bar_text_size">13sp</dimen>
 </resources>

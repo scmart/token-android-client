@@ -295,7 +295,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     public void handleWithdrawClicked() {
         final Intent intent = new Intent(this.activity, WithdrawActivity.class);
         this.activity.startActivityForResult(intent, WITHDRAW_REQUEST_CODE);
-        this.activity.overridePendingTransition(R.anim.enter_from_right, R.anim.exit_to_left);
+        this.activity.overridePendingTransition(R.anim.enter_fade_in, R.anim.exit_fade_out);
     }
 
     private final OnNextObserver<ConnectionState> connectionStateSubscriber = new OnNextObserver<ConnectionState>() {

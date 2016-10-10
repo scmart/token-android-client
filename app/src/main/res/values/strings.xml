@@ -1,17 +1,17 @@
 <resources>
-    <string name="app_name">Free Ethereum</string>
-    <string name="chat__title">Free Ethereum</string>
-    <string name="chat__welcome_message">Welcome to Free Ethereum. Simply watch the video below to earn ethereum.</string>
+    <string name="app_name">Toshi</string>
+    <string name="chat__title">Toshi</string>
+    <string name="chat__welcome_message">Welcome to Toshi. Simply watch the video below to earn ethereum.</string>
     <string name="balance__current_balance">%1$.5f</string>
-    <string name="chat__request_video_message">Another video please!</string>
-    <string name="menu__withdraw">Withdraw</string>
+    <string name="chat__request_video_message">Hit me with another video!</string>
+    <string name="menu__withdraw">Send Ether</string>
     <string name="chat__withdraw_to_address">Withdrew %1$s ETH to wallet with address %2$s</string>
     <string name="withdraw__title">Send Ethereum</string>
     <string name="ethereum_address">Ethereum Address</string>
     <string name="button_send">Send</string>
-    <string name="my_balance">MY BALANCE</string>
+    <string name="my_balance">Eth</string>
     <string name="withdraw__to">TO</string>
-    <string name="another_one">Another One</string>
+    <string name="another_one">WATCH ANOTHER</string>
     <string name="barcode__title">Scan QR code</string>
     <string name="withdraw__amount">AMOUNT</string>
     <string name="withdraw__amount_error">Enter a valid amount for withdrawal</string>
@@ -33,4 +33,5 @@
     <string name="error__phone_number_in_use">This number is already in use</string>
     <string name="verification_success">&lt;font color=\"#ffffff\"&gt;Your phone number was successfully verified!&lt;\/font\&gt;</string>
     <string name="increase_reputation__button">Increase Reputation</string>
+    <string name="rep">Rep</string>
 </resources>

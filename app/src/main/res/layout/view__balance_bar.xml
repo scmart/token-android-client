@@ -1,59 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/balanceBg"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:gravity="center">
+    android:layout_height="40dp">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_account_balance_wallet"/>
+    <include layout="@layout/horizontal_divider"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/textColorPrimary"
-        android:textSize="12sp"
-        android:text="@string/my_balance"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"/>
-
-    <TextView
-        android:layout_width="0dp"
+    <!--<LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:gravity="center_vertical|right"
-        android:textSize="16sp"
-        android:textColor="@color/textColorPrimary"
-        android:text="@string/eth_symbol"/>
+        android:background="@color/balanceBg"
+        android:gravity="center"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
 
-    <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="6dp">
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
 
-        <com.github.ybq.android.spinkit.SpinKitView
-            android:id="@+id/dot_loader"
-            style="@style/SpinKitView.Small.Wave"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="center"
-            app:SpinKit_Color="@color/textColorPrimary" />
 
-        <com.robinhood.ticker.TickerView
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_account_balance_wallet"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="@dimen/balance_bar_text_size"
+            android:text="@string/my_balance" />
+
+        <TextView
             android:id="@+id/balance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="@dimen/balance_bar_text_size"
+            android:layout_marginLeft="8dp"
+            android:text="0" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="@dimen/balance_bar_text_size"
+            android:text="Rep" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical|right"
             android:textSize="16sp"
             android:textColor="@color/textColorPrimary"
-            android:gravity="center_vertical"
-            app:ticker_animationDuration="1500"/>
+            android:text="@string/eth_symbol"/>
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <com.github.ybq.android.spinkit.SpinKitView
+                android:id="@+id/dot_loader"
+                style="@style/SpinKitView.Small.Wave"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                app:SpinKit_Color="@color/textColorPrimary" />
+
+            <com.robinhood.ticker.TickerView
+                android:id="@+id/balance1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="@color/textColorPrimary"
+                android:gravity="center_vertical"
+                app:ticker_animationDuration="1500"/>
+        </FrameLayout>
+    </LinearLayout>-->
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/balanceBg"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="left"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/balance_bar_text_size"
+                android:text="@string/my_balance" />
+
+            <TextView
+                android:id="@+id/balance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/balance_bar_text_size"
+                android:layout_marginLeft="8dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="right"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/balance_bar_text_size"
+                android:text="@string/rep"
+                android:id="@+id/textView" />
+
+            <TextView
+                android:id="@+id/reputation"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:gravity="center"
+                android:textColor="@color/buttonTextColor"
+                android:textSize="@dimen/balance_bar_text_size"
+                android:background="@drawable/reputation_background"
+                android:layout_marginLeft="8dp"
+                android:text="0" />
+
+        </LinearLayout>
+
     </FrameLayout>
+
+
+    <include layout="@layout/horizontal_divider"/>
 
 </LinearLayout>

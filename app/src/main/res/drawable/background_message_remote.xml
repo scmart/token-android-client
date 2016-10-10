@@ -3,7 +3,7 @@
     <solid
         android:color="@color/bubbleBgRemote" />
     <corners
-        android:radius="6dp" />
+        android:radius="@dimen/radiusSize" />
 
     <stroke
         android:width="2px"

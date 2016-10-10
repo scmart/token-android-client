@@ -8,8 +8,8 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:src="@drawable/ic_chat_bot_avatar"
+        android:layout_gravity="top"
+        android:src="@drawable/toshi_avatar"
         android:layout_margin="@dimen/avatarPadding"/>
 
     <FrameLayout
@@ -22,7 +22,7 @@
 
         <ImageView
             android:id="@+id/video_state"
-            android:src="@drawable/ic_av_play_circle_outline"
+            android:src="@drawable/play"
             android:layout_gravity="center"
             android:layout_width="55dp"
             android:layout_height="55dp"/>

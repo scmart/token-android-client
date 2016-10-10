@@ -30,7 +30,8 @@
         </activity>
 
         <activity android:name="com.bakkenbaeck.toshi.view.activity.ChatActivity" />
-        <activity android:name="com.bakkenbaeck.toshi.view.activity.VideoActivity" />
+        <activity android:name="com.bakkenbaeck.toshi.view.activity.VideoActivity"
+            android:theme="@style/FullscreenAppTheme"/>
 
         <activity android:name="com.bakkenbaeck.toshi.view.activity.WithdrawActivity"
                   android:windowSoftInputMode="stateHidden"/>

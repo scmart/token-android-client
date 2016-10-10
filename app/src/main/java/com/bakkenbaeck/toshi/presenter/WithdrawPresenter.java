@@ -296,7 +296,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                         intent.putExtra(INTENT_WITHDRAW_AMOUNT, new BigDecimal(activity.getBinding().amount.getText().toString()));
                         activity.setResult(RESULT_OK, intent);
                         activity.finish();
-                        activity.overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right);
+                        activity.overridePendingTransition(R.anim.enter_fade_in, R.anim.exit_fade_out);
                     }
                 };
             }

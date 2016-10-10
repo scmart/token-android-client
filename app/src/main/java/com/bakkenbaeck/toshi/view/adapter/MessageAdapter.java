@@ -86,7 +86,7 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
             case TYPE_REMOTE_VIDEO: {
                 final RemoteVideoViewHolder vh = (RemoteVideoViewHolder) holder;
                 if (!chatMessage.hasBeenWatched()) {
-                    vh.videoState.setImageResource(R.drawable.ic_av_play_circle_outline);
+                    vh.videoState.setImageResource(R.drawable.play);
                     holder.itemView.setOnClickListener(new OnSingleClickListener() {
                         @Override
                         public void onSingleClick(View v) {

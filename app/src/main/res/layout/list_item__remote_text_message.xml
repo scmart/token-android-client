@@ -4,21 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:layout_marginTop="@dimen/bubbleMargin"
+    android:layout_marginBottom="@dimen/bubbleMargin">
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:src="@drawable/ic_chat_bot_avatar"
-        android:layout_margin="@dimen/avatarPadding"/>
+        android:layout_gravity="top"
+        android:src="@drawable/toshi_avatar"
+        android:layout_marginLeft="@dimen/avatarPadding"
+        android:layout_marginRight="@dimen/avatarPadding" />
 
     <TextView
         android:id="@+id/single_message_item__message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/bubbleMargin"
-        android:layout_marginBottom="@dimen/bubbleMargin"
         android:layout_marginRight="@dimen/bubbleMargin"
         android:padding="@dimen/textBubblePadding"
         android:minWidth="50dp"

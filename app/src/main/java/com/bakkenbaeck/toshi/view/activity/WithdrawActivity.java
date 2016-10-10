@@ -85,7 +85,7 @@ public class WithdrawActivity extends AppCompatActivity implements
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
-        this.overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right);
+        this.overridePendingTransition(R.anim.enter_fade_in, R.anim.exit_fade_out);
         return true;
     }
 
@@ -103,5 +103,12 @@ public class WithdrawActivity extends AppCompatActivity implements
             return;
         }
         this.presenter.onVerificationSuccess();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        this.overridePendingTransition(R.anim.enter_fade_in, R.anim.exit_fade_out);
+        finish();
     }
 }
