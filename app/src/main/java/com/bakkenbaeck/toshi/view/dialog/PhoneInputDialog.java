@@ -3,15 +3,17 @@ package com.bakkenbaeck.toshi.view.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.view.ContextThemeWrapper;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.EditText;
 
 import com.bakkenbaeck.toshi.R;
@@ -51,7 +53,7 @@ public class PhoneInputDialog extends DialogFragment {
     public void onAttach(final Context context) {
         super.onAttach(context);
         try {
-            this.listener = (Listener) context;
+            this.listener = (PhoneInputDialog.Listener) context;
         } catch (final ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement PhoneInputDialog.Listener");
         }
@@ -88,24 +90,33 @@ public class PhoneInputDialog extends DialogFragment {
     }
 
     @Override
-    public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.DialogTheme));
-        final LayoutInflater inflater = getActivity().getLayoutInflater();
-
-        this.view = inflater.inflate(R.layout.dialog_phone_input, null);
-        builder.setView(this.view);
-        initViews(this.view);
-
-        final Dialog dialog = builder.create();
-        dialog.setCanceledOnTouchOutside(false);
+    public Dialog onCreateDialog(Bundle state) {
+        Dialog dialog = super.onCreateDialog(state);
+        if(dialog.getWindow() != null) {
+            dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+        dialog.setCanceledOnTouchOutside(true);
         return dialog;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.dialog_phone_input, container, true);
+        getDialog().setCanceledOnTouchOutside(true);
+
+        initViews(view);
+
+        return view;
     }
 
     private void initViews(final View view) {
         final Locale currentLocale = LocaleUtil.getLocale();
+        CountryCodePicker countryPicker = (CountryCodePicker) view.findViewById(R.id.country_code);
+
         ((CountryCodePicker)view.findViewById(R.id.country_code)).setCountryForNameCode(currentLocale.getCountry());
         view.findViewById(R.id.cancelButton).setOnClickListener(this.dismissDialog);
-        view.findViewById(R.id.continueButton).setOnClickListener(new ValidateAndContinueDialog(view));
+        view.findViewById(R.id.continueButton).setOnClickListener(new PhoneInputDialog.ValidateAndContinueDialog(view));
     }
 
     private final View.OnClickListener dismissDialog = new OnSingleClickListener() {

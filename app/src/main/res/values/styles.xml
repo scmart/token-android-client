@@ -77,13 +77,18 @@
     </style>
 
     <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowBackground">@drawable/splash_screen</item>
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:actionBarStyle">@style/TranslucentActionBar</item>
+        <item name="android:windowContentOverlay">@null</item>
     </style>
 
     <style name="DialogTheme" parent="Theme.AppCompat.Dialog">
-        <item name="android:background">@color/generalBg</item>
+        <item name="android:background">@drawable/round_corner_dialog</item>
         <item name="android:textColor">@color/mainText</item>
         <item name="android:textColorHint">@color/mainTextHint</item>
+        <item name="colorPrimary">@color/divider</item>
+        <item name="colorPrimaryDark">@color/divider</item>
+        <item name="colorAccent">@color/divider</item>
     </style>
 
     <style name="LowerCaseMenuTextAppearance" parent="android:TextAppearance.Holo.Widget.ActionBar.Menu">

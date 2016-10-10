@@ -1,6 +1,8 @@
 package com.bakkenbaeck.toshi.network.ws;
 
 
+import android.util.Log;
+
 import com.bakkenbaeck.toshi.network.rest.model.TransactionSent;
 import com.bakkenbaeck.toshi.network.rest.model.VerificationSent;
 import com.bakkenbaeck.toshi.network.ws.model.ConnectionState;
@@ -68,6 +70,7 @@ public class SocketObservables {
     }
 
     public void emitMessage(final Message message) {
+        Log.d("emit", "emitMessage: ");
         this.messageSubject.onNext(message);
     }
 

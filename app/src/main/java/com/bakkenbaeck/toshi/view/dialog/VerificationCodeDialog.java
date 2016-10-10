@@ -3,6 +3,8 @@ package com.bakkenbaeck.toshi.view.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,6 +14,8 @@ import android.support.v7.view.ContextThemeWrapper;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.EditText;
 
 import com.bakkenbaeck.toshi.R;
@@ -64,19 +68,25 @@ public class VerificationCodeDialog extends DialogFragment {
     }
 
     @Override
-    public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.DialogTheme));
-        final LayoutInflater inflater = getActivity().getLayoutInflater();
-
-        this.view = inflater.inflate(R.layout.dialog_verification_code, null);
-        builder.setView(this.view);
-
+    public Dialog onCreateDialog(Bundle state) {
+        Dialog dialog = super.onCreateDialog(state);
+        if(dialog.getWindow() != null) {
+            dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
         this.phoneNumber = getArguments().getString(PHONE_NUMBER);
-        initViews(this.view);
-
-        final Dialog dialog = builder.create();
-        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCanceledOnTouchOutside(true);
         return dialog;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.dialog_verification_code, container, true);
+        getDialog().setCanceledOnTouchOutside(true);
+
+        initViews(view);
+
+        return view;
     }
 
     private OnNextSubscriber<WebSocketError> generateErrorSubscriber() {

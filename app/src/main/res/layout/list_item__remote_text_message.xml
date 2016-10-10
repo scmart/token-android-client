@@ -13,17 +13,63 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top"
         android:src="@drawable/toshi_avatar"
-        android:layout_marginLeft="@dimen/avatarPadding"
         android:layout_marginRight="@dimen/avatarPadding" />
 
-    <TextView
-        android:id="@+id/single_message_item__message"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginRight="@dimen/bubbleMargin"
-        android:padding="@dimen/textBubblePadding"
         android:minWidth="50dp"
-        android:gravity="center_vertical"
-        android:background="@drawable/background_message_remote"
-        tools:text="We are the robots!" />
+        android:orientation="vertical"
+        android:padding="@dimen/textBubblePadding"
+        android:background="@drawable/background_message_remote">
+
+        <TextView
+            android:id="@+id/single_message_item__message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/bubbleMargin"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="@dimen/textBubbleHalfPadding"
+            tools:text="We are the robots!" />
+
+        <LinearLayout
+            android:id="@+id/details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/textBubblePadding"
+            android:background="@drawable/reward_background"
+            android:visibility="visible">
+
+            <TextView
+                android:id="@+id/earned"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#994E525D"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:id="@+id/earnedValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#ffffff"
+                android:textSize="18sp"/>
+
+            <TextView
+                android:id="@+id/earnedTotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="#994E525D"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:id="@+id/earnedTotalValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#ffffff"
+                android:textSize="18sp"/>
+
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>

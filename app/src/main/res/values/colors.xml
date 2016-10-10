@@ -29,6 +29,12 @@
     <color name="accent2">#8868e3</color>
     <color name="accent3">#50D08B</color>
     <color name="accent4">#F6C44C</color>
-    <color name="statusbarBackgroundColor">#ffffff</color>
+    <color name="input_underline">#565A64</color>
+    <color name="statusbarBackgroundColor">#FFFFFF</color>
     <color name="dividerColor">#0D4E525D</color>
+    <color name="tile_color">#FFFFFF</color>
+    <color name="textColorPri">#CC4E525D</color>
+    <color name="textColorSec">#994E525D</color>
+    <color name="inputText">#CC4E525D</color>
+    <color name="hintText">#664E525D</color>
 </resources>

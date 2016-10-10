@@ -1,6 +1,8 @@
 package com.bakkenbaeck.toshi.network.ws.model;
 
 
+import android.util.Log;
+
 import com.bakkenbaeck.toshi.model.jsonadapter.BigIntegerAdapter;
 import com.bakkenbaeck.toshi.network.rest.model.TransactionSent;
 import com.bakkenbaeck.toshi.network.rest.model.VerificationSent;
@@ -12,7 +14,7 @@ import com.squareup.moshi.Moshi;
 import java.io.IOException;
 
 public class SocketToPojo {
-
+    private static final String TAG = "SocketToPojo";
     private final Moshi moshi;
     private final JsonAdapter<WebSocketType> jsonAdapter;
     private final JsonAdapter<Message> messageAdapter;
@@ -52,6 +54,8 @@ public class SocketToPojo {
             LogUtil.e(getClass(), "Websocket frame unhandled");
             return;
         }
+
+        Log.d(TAG, "convertAndEmitPojo: " + json);
 
         switch (webSocketType.get()) {
             case "hello":

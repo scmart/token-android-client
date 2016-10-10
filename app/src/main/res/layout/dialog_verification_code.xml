@@ -8,61 +8,70 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="@dimen/activity_vertical_margin">
+        android:layout_height="match_parent">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:text="@string/dialog_phone_input__title"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/dialog_verification_code__instruction"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
-
+            android:textColor="#994E525D"
+            android:layout_marginTop="10dp"
+            android:textSize="15sp"
+            android:text="@string/dialog_verification_code__instruction" />
 
         <EditText
             android:id="@+id/verification_code"
-            android:focusableInTouchMode="true"
-            android:focusable="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/dialog_verification_code__hint"
+            android:focusableInTouchMode="true"
+            android:focusable="true"
+            android:lineSpacingExtra="5dp"
+            android:layout_marginTop="10dp"
+            android:maxLines="1"
             android:inputType="number"
-            android:maxLines="1"/>
+            android:textColor="#99565A64"
+            android:textColorHint="#99565A64"
+            android:textSize="16sp"
+            android:hint="@string/dialog_verification_code__hint"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:layout_marginTop="10dp"
             android:gravity="end">
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/FlatButton"
-            android:id="@+id/cancelButton"
-            android:text="@string/button__cancel"
-            android:layout_marginRight="8dp"/>
+            <TextView
+                android:id="@+id/cancelButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:gravity="center"
+                android:textAllCaps="true"
+                android:textColor="#4D4E525D"
+                android:textSize="12sp"
+                android:text="@string/button__cancel"
+                android:layout_marginRight="8dp"/>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/GreenButton"
-            android:id="@+id/continueButton"
-            android:text="@string/button__continue"/>
+            <TextView
+                android:id="@+id/continueButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:background="@drawable/btn_with_radius"
+                android:gravity="center"
+                android:textAllCaps="true"
+                android:textColor="@color/buttonTextColor"
+                android:textSize="12sp"
+                android:text="@string/button__continue" />
+
         </LinearLayout>
-
     </LinearLayout>
 
     <FrameLayout
         android:id="@+id/spinner_view"
-        android:background="@color/generalBg"
+        android:background="#FFFFFF"
         android:alpha="0.9"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

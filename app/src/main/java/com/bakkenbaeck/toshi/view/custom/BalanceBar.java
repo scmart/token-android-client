@@ -3,6 +3,7 @@ package com.bakkenbaeck.toshi.view.custom;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -11,6 +12,7 @@ import com.robinhood.ticker.TickerUtils;
 import com.robinhood.ticker.TickerView;
 
 public class BalanceBar extends LinearLayout {
+    private static final String TAG = "BalanceBar";
 
     public BalanceBar(final Context context) {
         super(context);
@@ -29,6 +31,7 @@ public class BalanceBar extends LinearLayout {
     }
 
     public void setBalance(final String balance) {
+        Log.d(TAG, "setBalance: " + balance);
         this.postDelayed(new Runnable() {
             @Override
             public void run() {

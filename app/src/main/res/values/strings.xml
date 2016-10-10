@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Toshi</string>
     <string name="chat__title">Toshi</string>
-    <string name="chat__welcome_message">Welcome to Toshi. Simply watch the video below to earn ethereum.</string>
+    <string name="chat__welcome_message">Welcome to Toshi! Toshi allows you to earn and send Ethereum. Get started by watching the video below.</string>
     <string name="balance__current_balance">%1$.5f</string>
     <string name="chat__request_video_message">Hit me with another video!</string>
     <string name="menu__withdraw">Send Ether</string>
@@ -26,7 +26,7 @@
     <string name="button__cancel">Cancel</string>
     <string name="button__continue">Continue</string>
     <string name="error__invalid_phone_number">This phone number is invalid</string>
-    <string name="dialog_verification_code__instruction">Enter the code sent to your phone number below</string>
+    <string name="dialog_verification_code__instruction">Enter the code we just sent to your phone below</string>
     <string name="dialog_verification_code__hint">Confirmation code</string>
     <string name="error__invalid_verification_code">The confirmation code you entered is wrong</string>
     <string name="withdraw__ether">ETH</string>
@@ -34,4 +34,9 @@
     <string name="verification_success">&lt;font color=\"#ffffff\"&gt;Your phone number was successfully verified!&lt;\/font\&gt;</string>
     <string name="increase_reputation__button">Increase Reputation</string>
     <string name="rep">Rep</string>
+    <string name="to">To:</string>
+    <string name="amount">Amount:</string>
+    <string name="send">Send</string>
+    <string name="earned">Earned</string>
+    <string name="watched">Watched</string>
 </resources>

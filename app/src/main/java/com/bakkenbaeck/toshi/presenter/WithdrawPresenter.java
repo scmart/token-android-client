@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -47,7 +48,7 @@ import rx.Subscriber;
 import static android.app.Activity.RESULT_OK;
 
 public class WithdrawPresenter implements Presenter<WithdrawActivity> {
-
+    private static final String TAG = "WithdrawPresenter";
     static final String INTENT_WALLET_ADDRESS = "wallet_address";
     static final String INTENT_WITHDRAW_AMOUNT = "withdraw_amount";
 
@@ -82,6 +83,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     }
 
     private void initButtons() {
+        Log.d(TAG, "initButtons: ");
         this.activity.getBinding().barcodeButton.setOnClickListener(new OnSingleClickListener() {
             @Override
             public void onSingleClick(final View v) {
@@ -92,6 +94,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         this.activity.getBinding().sendButton.setOnClickListener(new OnSingleClickListener() {
             @Override
             public void onSingleClick(final View view) {
+                Log.d(TAG, "onSingleClick: ");
                 handleSendClicked();
             }
         });
@@ -215,6 +218,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     }
 
     private void handleSendClicked() {
+        Log.d(TAG, "handleSendClicked: ");
         if (!validate()) {
             return;
         }

@@ -3,28 +3,54 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:layout_marginTop="@dimen/bubbleMargin"
+    android:layout_marginBottom="@dimen/bubbleMargin">
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
         android:src="@drawable/toshi_avatar"
-        android:layout_margin="@dimen/avatarPadding"/>
+        android:layout_marginRight="@dimen/avatarPadding" />
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:layout_marginTop="@dimen/bubbleMargin"
-        android:background="@drawable/background_video"
-        android:layout_marginBottom="@dimen/bubbleMargin"
-        android:layout_marginRight="60dp">
+        android:layout_height="wrap_content"
+        android:background="@drawable/background_message_remote"
+        android:padding="@dimen/textBubblePadding"
+        android:minWidth="50dp"
+        android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/video_state"
-            android:src="@drawable/play"
-            android:layout_gravity="center"
-            android:layout_width="55dp"
-            android:layout_height="55dp"/>
-    </FrameLayout>
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/textBubbleHalfPadding"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:background="@drawable/background_video">
+
+            <ImageView
+                android:id="@+id/video_state"
+                android:src="@drawable/play"
+                android:layout_gravity="center"
+                android:layout_width="55dp"
+                android:layout_height="55dp"/>
+            
+            <TextView
+                android:id="@+id/watched"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="#ffffff"
+                android:textSize="12sp"
+                android:visibility="gone"
+                android:textAllCaps="true"
+                android:text="@string/watched"/>
+            
+        </FrameLayout>
+    </LinearLayout>
 </LinearLayout>

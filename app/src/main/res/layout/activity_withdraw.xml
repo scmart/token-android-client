@@ -24,7 +24,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <LinearLayout
+            <!--<LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -61,44 +61,99 @@
                     app:layout_gravity="center"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_action_qr_icon"/>
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/divider" />
+            </LinearLayout>-->
 
             <LinearLayout
-                android:orientation="horizontal"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingTop="@dimen/activity_vertical_margin"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <EditText
-                    android:id="@+id/amount"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:maxLines="1"
-                    android:textSize="24sp"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
-                    android:hint="@string/withdraw__amount"
-                    android:text="0"
-                    android:inputType="number|numberSigned"/>
+                android:layout_height="70dp"
+                android:orientation="vertical"
+                android:gravity="center_vertical"
+                android:layout_marginTop="15dp"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:background="@color/tile_color">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:text="@string/withdraw__ether"/>
+                    android:textColor="@color/textColorPrimary"
+                    android:textSize="@dimen/balance_bar_text_size"
+                    android:text="@string/to"/>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <EditText
+                        android:id="@+id/wallet_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/line_bottom_edit_text"
+                        android:layout_marginTop="10dp"
+                        android:paddingBottom="5dp"
+                        android:paddingLeft="0dp"
+                        android:maxLines="1"
+                        android:inputType="text"
+                        android:textColor="@color/inputText"
+                        android:textColorHint="@color/hintText"
+                        android:textSize="@dimen/balance_bar_text_size"
+                        android:hint="@string/ethereum_address"/>
+
+                    <ImageButton
+                        android:id="@+id/barcode_button"
+                        android:layout_width="17dp"
+                        android:layout_height="17dp"
+                        android:layout_gravity="right|center_vertical"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/qr"/>
+
+                </FrameLayout>
+
+                <include layout="@layout/horizontal_divider"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:orientation="vertical"
+                android:gravity="center_vertical"
+                android:layout_marginTop="15dp"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:background="@color/tile_color">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/textColorPrimary"
+                    android:textSize="@dimen/balance_bar_text_size"
+                    android:text="@string/amount"/>
+
+                <EditText
+                    android:id="@+id/amount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/line_bottom_edit_text"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="0dp"
+                    android:maxLines="1"
+                    android:inputType="numberDecimal"
+                    android:textColor="@color/inputText"
+                    android:textColorHint="@color/hintText"
+                    android:textSize="@dimen/balance_bar_text_size"
+                    android:hint="Enter amount to transfer"/>
+
+                <include layout="@layout/horizontal_divider"/>
+
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:layout_marginTop="10dp"
                 android:gravity="right">
 
                 <Button
@@ -110,17 +165,22 @@
                     android:enabled="false"
                     android:text="@string/increase_reputation__button"/>
 
-                <Button
+                <TextView
                     android:id="@+id/send_button"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="40dp"
+                    android:background="@drawable/btn_with_radius"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
                     android:layout_gravity="end"
                     android:layout_margin="16dp"
-                    android:enabled="false"
-                    android:text="@string/withdraw__button"/>
+                    android:gravity="center"
+                    android:textAllCaps="true"
+                    android:textColor="@color/buttonTextColor"
+                    android:textSize="12sp"
+                    android:text="@string/send" />
+
             </LinearLayout>
-
         </LinearLayout>
-
 </layout>
 

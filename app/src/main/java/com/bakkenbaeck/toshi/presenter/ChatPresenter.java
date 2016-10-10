@@ -32,7 +32,7 @@ import io.realm.Realm;
 import static android.app.Activity.RESULT_OK;
 
 public final class ChatPresenter implements Presenter<ChatActivity> {
-
+    private static final String TAG = "ChatPresenter";
     private final int VIDEO_REQUEST_CODE = 1;
     private final int WITHDRAW_REQUEST_CODE = 2;
 
@@ -125,12 +125,17 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
 
     private void showWelcomeMessage() {
         final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(this.activity.getResources().getString(R.string.chat__welcome_message));
-        displayMessage(response);
-        showAVideo();
+        showAVideo(response);
     }
 
-    private void showAVideo() {
-        final ChatMessage video = new ChatMessage().makeRemoteVideoMessage();
+    private void showAVideo(ChatMessage message) {
+        ChatMessage video;
+        if(message == null){
+           video = new ChatMessage().makeRemoteVideoMessage("");
+        }else{
+            video = new ChatMessage().makeRemoteVideoMessage(message.getText());
+        }
+
         displayMessage(video, 700);
     }
 
@@ -167,7 +172,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     private final OnNextObserver<Message> newMessageSubscriber = new OnNextObserver<Message>() {
         @Override
         public void onNext(final Message message) {
-            final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message.toString());
+            final ChatMessage response = new ChatMessage().makeRemoteRewardMessage(message);
             displayMessage(response, 500);
         }
     };
@@ -214,7 +219,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
                     isShowingAnotherOneButton = false;
                     refreshAnotherOneButtonState();
                     showVideoRequestMessage();
-                    showAVideo();
+                    showAVideo(null);
                 }
             });
         }
