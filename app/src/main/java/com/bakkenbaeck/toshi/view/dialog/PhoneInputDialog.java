@@ -96,14 +96,13 @@ public class PhoneInputDialog extends DialogFragment {
             dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-        dialog.setCanceledOnTouchOutside(true);
         return dialog;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.dialog_phone_input, container, true);
-        getDialog().setCanceledOnTouchOutside(true);
+        getDialog().setCanceledOnTouchOutside(false);
 
         initViews(view);
 
@@ -112,8 +111,6 @@ public class PhoneInputDialog extends DialogFragment {
 
     private void initViews(final View view) {
         final Locale currentLocale = LocaleUtil.getLocale();
-        CountryCodePicker countryPicker = (CountryCodePicker) view.findViewById(R.id.country_code);
-
         ((CountryCodePicker)view.findViewById(R.id.country_code)).setCountryForNameCode(currentLocale.getCountry());
         view.findViewById(R.id.cancelButton).setOnClickListener(this.dismissDialog);
         view.findViewById(R.id.continueButton).setOnClickListener(new PhoneInputDialog.ValidateAndContinueDialog(view));

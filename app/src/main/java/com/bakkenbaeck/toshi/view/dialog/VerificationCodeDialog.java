@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ContextThemeWrapper;
@@ -67,6 +68,7 @@ public class VerificationCodeDialog extends DialogFragment {
         BaseApplication.get().getSocketObservables().getVerificationSuccessObservable().subscribe(this.successSubscriber);
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle state) {
         Dialog dialog = super.onCreateDialog(state);
@@ -75,14 +77,13 @@ public class VerificationCodeDialog extends DialogFragment {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
         this.phoneNumber = getArguments().getString(PHONE_NUMBER);
-        dialog.setCanceledOnTouchOutside(true);
         return dialog;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.dialog_verification_code, container, true);
-        getDialog().setCanceledOnTouchOutside(true);
+        getDialog().setCanceledOnTouchOutside(false);
 
         initViews(view);
 

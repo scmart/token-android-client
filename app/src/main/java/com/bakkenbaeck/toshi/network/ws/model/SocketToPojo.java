@@ -62,6 +62,7 @@ public class SocketToPojo {
                 LogUtil.i(getClass(), "Ignoring websocket event -- hello");
                 break;
             case "message":
+                Log.d(TAG, "convertAndEmitPojo: 1");
                 final Message message = this.messageAdapter.fromJson(json);
                 this.socketObservables.emitMessage(message);
                 break;

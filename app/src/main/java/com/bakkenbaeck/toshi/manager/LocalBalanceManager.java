@@ -14,6 +14,7 @@ import rx.subjects.BehaviorSubject;
 public class LocalBalanceManager {
 
     private final BehaviorSubject<LocalBalance> balanceSubject = BehaviorSubject.create();
+    private final BehaviorSubject<Integer> reputationSubject = BehaviorSubject.create();
 
     private LocalBalance localBalance;
 
@@ -31,6 +32,7 @@ public class LocalBalanceManager {
     private final OnNextObserver<User> currentUserSubscriber = new OnNextObserver<User>() {
         @Override
         public void onNext(final User user) {
+            emitNewReputation(user.getReputationScore());
             setBalance(user);
         }
     };
@@ -53,6 +55,10 @@ public class LocalBalanceManager {
         return this.balanceSubject.asObservable();
     }
 
+    public Observable<Integer> getReputationObservable(){
+        return this.reputationSubject.asObservable();
+    }
+
     private void setBalance(final User user) {
         this.localBalance.setUnconfirmedBalance(user.getUnconfirmedBalance());
         this.localBalance.setConfirmedBalance(user.getConfirmedBalance());
@@ -73,6 +79,10 @@ public class LocalBalanceManager {
 
     private void emitNewBalance() {
         this.balanceSubject.onNext(this.localBalance);
+    }
+
+    private void emitNewReputation(int score){
+        this.reputationSubject.onNext(score);
     }
 
     @Override

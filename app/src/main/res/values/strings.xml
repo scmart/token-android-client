@@ -39,4 +39,7 @@
     <string name="send">Send</string>
     <string name="earned">Earned</string>
     <string name="watched">Watched</string>
+    <string name="sending_ether_info">It may take a few minutes before the Ether appears in the receiver’s wallet.</string>
+    <string name="verification_success_message">That’s it! Your phone number is verified. We’ve deposited your earnings in your wallet</string>
+    <string name="sending">Sending...</string>
 </resources>

@@ -6,15 +6,18 @@ import android.os.Looper;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.util.Log;
 import android.view.View;
 
 import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.ActivityResultHolder;
 import com.bakkenbaeck.toshi.model.ChatMessage;
 import com.bakkenbaeck.toshi.model.LocalBalance;
+import com.bakkenbaeck.toshi.network.ws.model.Action;
 import com.bakkenbaeck.toshi.network.ws.model.ConnectionState;
 import com.bakkenbaeck.toshi.network.ws.model.Message;
 import com.bakkenbaeck.toshi.presenter.store.ChatMessageStore;
+import com.bakkenbaeck.toshi.util.MessageUtil;
 import com.bakkenbaeck.toshi.util.OnCompletedObserver;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.util.OnNextSubscriber;
@@ -24,14 +27,17 @@ import com.bakkenbaeck.toshi.view.activity.ChatActivity;
 import com.bakkenbaeck.toshi.view.activity.VideoActivity;
 import com.bakkenbaeck.toshi.view.activity.WithdrawActivity;
 import com.bakkenbaeck.toshi.view.adapter.MessageAdapter;
+import com.bakkenbaeck.toshi.view.dialog.PhoneInputDialog;
+import com.bakkenbaeck.toshi.view.dialog.VerificationCodeDialog;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import io.realm.Realm;
 
 import static android.app.Activity.RESULT_OK;
 
-public final class ChatPresenter implements Presenter<ChatActivity> {
+public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapter.OnVerifyClicklistener {
     private static final String TAG = "ChatPresenter";
     private final int VIDEO_REQUEST_CODE = 1;
     private final int WITHDRAW_REQUEST_CODE = 2;
@@ -76,6 +82,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         BaseApplication.get().getSocketObservables().getConnectionObservable().subscribe(this.connectionStateSubscriber);
 
         this.messageAdapter = new MessageAdapter();
+        this.messageAdapter.setOnVerifyClickListener(this);
         registerMessageClickedObservable();
 
         this.chatMessageStore.load();
@@ -91,6 +98,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     private void initShortLivingObjects() {
         this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
         BaseApplication.get().getLocalBalanceManager().getObservable().subscribe(this.newBalanceSubscriber);
+        BaseApplication.get().getLocalBalanceManager().getReputationObservable().subscribe(this.newReputationSubscriber);
     }
 
     private void initToolbar() {
@@ -124,19 +132,12 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     };
 
     private void showWelcomeMessage() {
-        final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(this.activity.getResources().getString(R.string.chat__welcome_message));
+        final ChatMessage response = new ChatMessage().makeRemoteVideoMessage(this.activity.getResources().getString(R.string.chat__welcome_message));
         showAVideo(response);
     }
 
     private void showAVideo(ChatMessage message) {
-        ChatMessage video;
-        if(message == null){
-           video = new ChatMessage().makeRemoteVideoMessage("");
-        }else{
-            video = new ChatMessage().makeRemoteVideoMessage(message.getText());
-        }
-
-        displayMessage(video, 700);
+        displayMessage(message, 700);
     }
 
     private void showVideoRequestMessage() {
@@ -145,6 +146,7 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
     }
 
     private void displayMessage(final ChatMessage chatMessage, final int delay) {
+        Log.d(TAG, "displayMessage: " + chatMessage.getType());
         final Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(new Runnable() {
             @Override
@@ -169,13 +171,40 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
         }
     };
 
+    private final OnNextObserver<Integer> newReputationSubscriber = new OnNextObserver<Integer>() {
+        @Override
+        public void onNext(Integer reputationScore) {
+            if(activity != null){
+                activity.getBinding().balanceBar.setReputation(reputationScore);
+            }
+        }
+    };
+
     private final OnNextObserver<Message> newMessageSubscriber = new OnNextObserver<Message>() {
         @Override
         public void onNext(final Message message) {
-            final ChatMessage response = new ChatMessage().makeRemoteRewardMessage(message);
+            Log.d(TAG, "onNext: messageSubscriber");
+            ChatMessage response;
+
+            if(message.getType().equals(ChatMessage.VERIFICATION_TYPE)){
+                Log.d(TAG, "onNext: verifiation type");
+                response = new ChatMessage().makeRemoteVerificationMessage(message);
+            }else if(message.getType().equals(ChatMessage.REWARD_EARNED_TYPE)){
+                Log.d(TAG, "onNext: eth earned type");
+                response = new ChatMessage().makeRemoteRewardMessage(message);
+            }else{
+                Log.d(TAG, "onNext: regular type");
+                response = new ChatMessage().makeRemoteMessageWithText(message.toString());
+            }
+
             displayMessage(response, 500);
         }
     };
+
+    @Override
+    public void onVerifyClicked() {
+        new PhoneInputDialog().show(activity.getSupportFragmentManager(), "dialog");
+    }
 
     private void withdrawAmountFromAddress(final BigDecimal amount, final String walletAddress) {
         final String message = String.format(this.activity.getResources().getString(R.string.chat__withdraw_to_address), amount.toString(), walletAddress);
@@ -219,7 +248,10 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
                     isShowingAnotherOneButton = false;
                     refreshAnotherOneButtonState();
                     showVideoRequestMessage();
-                    showAVideo(null);
+
+                    String s = MessageUtil.getRandomMessage();
+                    ChatMessage message = new ChatMessage().makeRemoteVideoMessage(s);
+                    showAVideo(message);
                 }
             });
         }
@@ -316,4 +348,22 @@ public final class ChatPresenter implements Presenter<ChatActivity> {
             }
         }
     };
+
+    public void onPhoneInputSuccess(final PhoneInputDialog dialog) {
+        final String phoneNumber = dialog.getInputtedPhoneNumber();
+        final VerificationCodeDialog vcDialog = VerificationCodeDialog.newInstance(phoneNumber);
+        vcDialog.show(this.activity.getSupportFragmentManager(), "dialog");
+    }
+
+    public void onVerificationSuccess() {
+        //messageAdapter.disableVerifyButton(activity);
+
+        ChatMessage message = new ChatMessage().makeRemoteVerificationMessageSuccess(this.activity.getString(R.string.verification_success_message));
+        displayMessage(message);
+
+        Snackbar.make(
+                this.activity.getBinding().root,
+                Html.fromHtml(this.activity.getString(R.string.verification_success)),
+                Snackbar.LENGTH_LONG).show();
+    }
 }

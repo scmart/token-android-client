@@ -30,6 +30,8 @@
             android:layout_marginRight="@dimen/bubbleMargin"
             android:gravity="center_vertical"
             android:layout_marginBottom="@dimen/textBubbleHalfPadding"
+            android:textSize="13sp"
+            android:textColor="@color/textColorSec"
             tools:text="We are the robots!" />
 
         <LinearLayout

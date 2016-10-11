@@ -18,10 +18,13 @@ import com.bakkenbaeck.toshi.model.ActivityResultHolder;
 import com.bakkenbaeck.toshi.presenter.ChatPresenter;
 import com.bakkenbaeck.toshi.presenter.PresenterLoader;
 import com.bakkenbaeck.toshi.presenter.factory.ChatPresenterFactory;
+import com.bakkenbaeck.toshi.view.dialog.PhoneInputDialog;
+import com.bakkenbaeck.toshi.view.dialog.VerificationCodeDialog;
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 
-public final class ChatActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ChatPresenter> {
+public final class ChatActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ChatPresenter>, PhoneInputDialog.Listener,
+        VerificationCodeDialog.Listener{
 
     private static final int UNIQUE_ACTIVITY_ID = 101;
 
@@ -105,5 +108,21 @@ public final class ChatActivity extends AppCompatActivity implements LoaderManag
     public void onLoaderReset(final Loader<ChatPresenter> loader) {
         this.presenter.onViewDestroyed();
         this.presenter = null;
+    }
+
+    @Override
+    public void onPhoneInputSuccess(PhoneInputDialog dialog) {
+        if (this.presenter == null) {
+            return;
+        }
+        this.presenter.onPhoneInputSuccess(dialog);
+    }
+
+    @Override
+    public void onVerificationCodeSuccess(VerificationCodeDialog dialog) {
+        if (this.presenter == null) {
+            return;
+        }
+        this.presenter.onVerificationSuccess();
     }
 }

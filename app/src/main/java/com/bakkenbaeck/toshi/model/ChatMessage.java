@@ -2,6 +2,7 @@ package com.bakkenbaeck.toshi.model;
 
 import android.support.annotation.IntDef;
 
+import com.bakkenbaeck.toshi.network.ws.model.Action;
 import com.bakkenbaeck.toshi.network.ws.model.Detail;
 import com.bakkenbaeck.toshi.network.ws.model.Message;
 
@@ -16,17 +17,23 @@ public class ChatMessage extends RealmObject {
     @IntDef({
             TYPE_LOCAL_TEXT,
             TYPE_REMOTE_TEXT,
-            TYPE_REMOTE_VIDEO
+            TYPE_REMOTE_VIDEO,
+            TYPE_REMOTE_VERIFICATION
     })
     private @interface Type {}
     @Ignore public static final int TYPE_LOCAL_TEXT = 0;
     @Ignore public static final int TYPE_REMOTE_TEXT = 1;
     @Ignore public static final int TYPE_REMOTE_VIDEO = 2;
+    @Ignore public static final int TYPE_REMOTE_VERIFICATION = 3;
+
+    @Ignore public static final String VERIFICATION_TYPE = "verification_reminder";
+    @Ignore public static final String REWARD_EARNED_TYPE = "rewards_earned";
 
     private long creationTime;
     private @Type int type;
     private String text;
     private RealmList<Detail> details;
+    private RealmList<Action> actions;
     private boolean hasBeenWatched = false;
 
     public ChatMessage() {
@@ -45,6 +52,19 @@ public class ChatMessage extends RealmObject {
 
     public List<Detail> getDetails(){
         return this.details;
+    }
+
+    public List<Action> getAction(){
+        return actions;
+    }
+
+    public ChatMessage setActions(List<Action> actions){
+        if(this.actions == null){
+            this.actions = new RealmList<>();
+        }
+        this.actions.clear();
+        this.actions.addAll(actions);
+        return this;
     }
 
     public ChatMessage setDetails(List<Detail> details){
@@ -96,8 +116,21 @@ public class ChatMessage extends RealmObject {
 
     public ChatMessage makeRemoteRewardMessage(Message message){
         setType(TYPE_REMOTE_TEXT);
-        setText(text);
+        setText(message.toString());
         setDetails(message.getDetails());
+        return this;
+    }
+
+    public ChatMessage makeRemoteVerificationMessage(Message message){
+        setType(TYPE_REMOTE_VERIFICATION);
+        setText(message.toString());
+        setActions(message.getActions());
+        return this;
+    }
+
+    public ChatMessage makeRemoteVerificationMessageSuccess(String message){
+        setType(TYPE_REMOTE_VERIFICATION);
+        setText(message);
         return this;
     }
 }

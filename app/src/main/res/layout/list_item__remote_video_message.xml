@@ -26,6 +26,8 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:textColor="@color/textColorSec"
             android:layout_marginBottom="@dimen/textBubbleHalfPadding"/>
 
         <FrameLayout

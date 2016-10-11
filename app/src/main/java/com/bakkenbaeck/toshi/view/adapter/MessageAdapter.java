@@ -1,5 +1,8 @@
 package com.bakkenbaeck.toshi.view.adapter;
 
+import android.content.Context;
+import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,9 +10,11 @@ import android.view.ViewGroup;
 
 import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.ChatMessage;
+import com.bakkenbaeck.toshi.util.MessageUtil;
 import com.bakkenbaeck.toshi.util.OnSingleClickListener;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.LocalTextViewHolder;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteTextViewHolder;
+import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteVerificationViewHolder;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteVideoViewHolder;
 
 import java.util.ArrayList;
@@ -20,10 +25,11 @@ import rx.subjects.PublishSubject;
 
 import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_LOCAL_TEXT;
 import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_REMOTE_TEXT;
+import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_REMOTE_VERIFICATION;
 import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_REMOTE_VIDEO;
 
 public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
+    private static final String TAG = "MessageAdapter";
     private List<ChatMessage> chatMessages;
     private List<ChatMessage> chatMessagesWhilstPaused;
 
@@ -42,6 +48,16 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         } else {
             addAndRenderMessage(chatMessage);
         }
+    }
+
+    public interface OnVerifyClicklistener{
+        void onVerifyClicked();
+    }
+
+    private OnVerifyClicklistener verifyClicklistener;
+
+    public void setOnVerifyClickListener(OnVerifyClicklistener listener){
+        verifyClicklistener = listener;
     }
 
     private void addAndRenderMessage(final ChatMessage chatMessage) {
@@ -66,6 +82,10 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__remote_video_message, parent, false);
                 return new RemoteVideoViewHolder(v);
             }
+            case TYPE_REMOTE_VERIFICATION: {
+                final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__verification_message, parent, false);
+                return new RemoteVerificationViewHolder(v);
+            }
             case TYPE_LOCAL_TEXT:
             default: {
                 final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__local_text_message, parent, false);
@@ -82,8 +102,8 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 final RemoteTextViewHolder vh = (RemoteTextViewHolder) holder;
                 vh.messageText.setText(chatMessage.getText());
                 if(chatMessage.getDetails() != null && chatMessage.getDetails().size() > 0) {
+                    vh.messageText.setText(chatMessage.getText());
                     vh.details.setVisibility(View.VISIBLE);
-                    vh.messageText.setText("Title");
 
                     //Earned
                     vh.earned.setText(chatMessage.getDetails().get(0).getTitle());
@@ -110,10 +130,24 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         }
                     });
                 } else {
-                    vh.title.setText(chatMessage.getText());
                     holder.itemView.setOnClickListener(null);
+                    vh.title.setText(chatMessage.getText());
                     vh.watched.setVisibility(View.VISIBLE);
                     vh.videoState.setImageResource(0);
+                }
+
+                break;
+            }
+            case TYPE_REMOTE_VERIFICATION: {
+                final RemoteVerificationViewHolder vh = (RemoteVerificationViewHolder) holder;
+                if(chatMessage.getAction().size() > 0 && chatMessage.getAction().get(0).getAction().equals("verify_phone_number")) {
+                    String parsedString = MessageUtil.parseString(chatMessage.getText());
+                    vh.message.setText(parsedString);
+                    vh.verificationButton.setVisibility(View.VISIBLE);
+                    vh.bind(verifyClicklistener);
+                }else{
+                    vh.message.setText(chatMessage.getText());
+                    vh.verificationButton.setVisibility(View.GONE);
                 }
 
                 break;

@@ -1,13 +1,12 @@
 package com.bakkenbaeck.toshi.presenter;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
-import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
@@ -33,8 +32,7 @@ import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.BarcodeScannerActivity;
 import com.bakkenbaeck.toshi.view.activity.WithdrawActivity;
 import com.bakkenbaeck.toshi.view.adapter.PreviousWalletAddress;
-import com.bakkenbaeck.toshi.view.dialog.PhoneInputDialog;
-import com.bakkenbaeck.toshi.view.dialog.VerificationCodeDialog;
+import com.bakkenbaeck.toshi.view.dialog.ProgressDialog;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -71,15 +69,12 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         if (firstTimeAttaching) {
             firstTimeAttaching = false;
             registerObservables();
-            initProgressDialog();
+            initProgressDialog2();
         }
     }
 
-    private void initProgressDialog() {
-        this.progressDialog = new ProgressDialog(this.activity, R.style.DialogTheme);
-        this.progressDialog.setTitle("Withdrawing...");
-        this.progressDialog.setMessage("It may take a few minutes before the ether appears in the receiver wallet");
-        this.progressDialog.setIndeterminate(true);
+    private void initProgressDialog2(){
+        progressDialog = ProgressDialog.newInstance();
     }
 
     private void initButtons() {
@@ -94,15 +89,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         this.activity.getBinding().sendButton.setOnClickListener(new OnSingleClickListener() {
             @Override
             public void onSingleClick(final View view) {
-                Log.d(TAG, "onSingleClick: ");
                 handleSendClicked();
-            }
-        });
-
-        this.activity.getBinding().increaseReputationButton.setOnClickListener(new OnSingleClickListener() {
-            @Override
-            public void onSingleClick(final View view) {
-                new PhoneInputDialog().show(activity.getSupportFragmentManager(), "dialog");
             }
         });
 
@@ -112,6 +99,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
             @Override
             public void onTextChanged(final CharSequence charSequence, final int i, final int i1, final int i2) {
+                Log.d(TAG, "onTextChanged: walletAddress");
                 updateSendButtonEnabledState();
             }
 
@@ -119,13 +107,45 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             public void afterTextChanged(final Editable editable) {}
         });
 
-        refreshButtonStates();
+        this.activity.getBinding().amount.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Log.d(TAG, "onTextChanged: amount");
+                updateSendButtonEnabledState();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        //refreshButtonStates();
     }
 
     private void updateSendButtonEnabledState() {
+        Log.d(TAG, "updateSendButtonEnabledState: ");
         final Editable walletAddress = this.activity.getBinding().walletAddress.getText();
-        final boolean shouldEnableButton = walletAddress.length() > 0 && userHasEnoughReputationScore();
+        String amount = this.activity.getBinding().amount.getText().toString();
+        final boolean shouldEnableButton = walletAddress.length() > 0 && userHasEnoughReputationScore() && amount.length() > 0;
+        enableSendButton(shouldEnableButton);
         activity.getBinding().sendButton.setEnabled(shouldEnableButton);
+    }
+
+    private void enableSendButton(boolean enabled){
+        Log.d(TAG, "enableSendButton: " + enabled);
+        if(enabled){
+            activity.getBinding().sendButton.setTextColor(Color.parseColor("#FFFFFF"));
+            activity.getBinding().sendButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.btn_with_radius));
+        }else{
+            activity.getBinding().sendButton.setTextColor(Color.parseColor("#33565A64"));
+            activity.getBinding().sendButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.disabled_background));
+        }
     }
 
     private void initToolbar() {
@@ -153,13 +173,29 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         }
     };
 
+    private final OnNextObserver<Integer> newReputationSubscriber = new OnNextObserver<Integer>() {
+        @Override
+        public void onNext(Integer reputationScore) {
+            if(activity != null){
+                activity.getBinding().balanceBar.setReputation(reputationScore);
+            }
+        }
+    };
+
     private void tryPopulateAmountField(final BigDecimal previousBalance, final String newBalanceAsEthString) {
+        Log.d(TAG, "tryPopulateAmountField: 1 " + previousBalance + " " + newBalanceAsEthString);
         try {
+            Log.d(TAG, "tryPopulateAmountField: 2");
+
+            this.activity.getBinding().amount.setText(newBalanceAsEthString);
+
             if (new BigDecimal(this.activity.getBinding().amount.getText().toString()).equals(previousBalance)) {
+                Log.d(TAG, "tryPopulateAmountField: 3");
                 this.activity.getBinding().amount.setText(newBalanceAsEthString);
                 this.activity.getBinding().amount.setSelection(this.activity.getBinding().amount.getText().length());
             }
         } catch (final Exception ex) {
+            Log.d(TAG, "tryPopulateAmountField: 4");
             // Do nothing -- user is editing the field
         }
 
@@ -175,7 +211,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         this.activity = null;
     }
 
-    public void onPhoneInputSuccess(final PhoneInputDialog dialog) {
+    /*public void onPhoneInputSuccess(final PhoneInputDialog dialog) {
         final String phoneNumber = dialog.getInputtedPhoneNumber();
         final VerificationCodeDialog vcDialog = VerificationCodeDialog.newInstance(phoneNumber);
         vcDialog.show(this.activity.getSupportFragmentManager(), "dialog");
@@ -186,7 +222,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                 this.activity.getBinding().getRoot(),
                 Html.fromHtml(this.activity.getString(R.string.verification_success)),
                 Snackbar.LENGTH_LONG).show();
-    }
+    }*/
 
     public void handleActivityResult(final ActivityResultHolder activityResultHolder) {
         if (activityResultHolder.getResultCode() != RESULT_OK) {
@@ -220,6 +256,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     private void handleSendClicked() {
         Log.d(TAG, "handleSendClicked: ");
         if (!validate()) {
+            Log.d(TAG, "handleSendClicked: return !valid");
             return;
         }
 
@@ -234,7 +271,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             ToshiService.getApi()
                     .postWithdrawalRequest(this.currentUser.getAuthToken(), withdrawalRequest)
                     .subscribe(generateSigningSubscriber());
-            this.progressDialog.show();
+            progressDialog.show(this.activity.getSupportFragmentManager(), "progressDialog");
             this.previousWalletAddress.setAddress(toAddress);
         } catch (final ParseException ex) {
             LogUtil.e(getClass(), ex.toString());
@@ -276,6 +313,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
                     @Override
                     public void onError(final Throwable ex) {
+                        Log.d(TAG, "onError: ");
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
@@ -288,6 +326,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
                     @Override
                     public void onNext(final TransactionSent transactionSent) {
+                        Log.d(TAG, "onNext: ");
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
@@ -339,6 +378,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     private void registerObservables() {
         BaseApplication.get().getLocalBalanceManager().getObservable().subscribe(this.newBalanceSubscriber);
         BaseApplication.get().getUserManager().getObservable().subscribe(this.userSubscriber);
+        BaseApplication.get().getLocalBalanceManager().getReputationObservable().subscribe(this.newReputationSubscriber);
     }
 
     private final OnNextObserver<User> userSubscriber = new OnNextObserver<User>() {
@@ -351,13 +391,13 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     };
 
     private void refreshButtonStates() {
+        Log.d(TAG, "refreshButtonStates: ");
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 if (activity == null) {
                     return;
                 }
-                activity.getBinding().increaseReputationButton.setEnabled(!userHasEnoughReputationScore());
                 updateSendButtonEnabledState();
             }
         });

@@ -4,6 +4,7 @@
         xmlns:tools="http://schemas.android.com/tools">
 
         <LinearLayout
+            android:id="@+id/root"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
@@ -23,45 +24,6 @@
                 android:id="@+id/balance_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
-
-            <!--<LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="@color/toBg"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:textColor="@color/mainTextHint"
-                    android:text="@string/withdraw__to"/>
-
-                <android.support.design.widget.TextInputLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="@dimen/activity_horizontal_margin"
-                    android:paddingRight="@dimen/activity_horizontal_margin"
-                    android:layout_weight="1">
-
-                    <EditText
-                        android:id="@+id/wallet_address"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:inputType="text"
-                        android:hint="@string/ethereum_address"/>
-                </android.support.design.widget.TextInputLayout>
-                <ImageButton
-                    android:id="@+id/barcode_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_gravity="center"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/ic_action_qr_icon"/>
-            </LinearLayout>-->
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -149,38 +111,21 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="10dp"
-                android:gravity="right">
+            <TextView
+                android:id="@+id/send_button"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_with_radius"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:layout_gravity="end"
+                android:layout_margin="16dp"
+                android:gravity="center"
+                android:textAllCaps="true"
+                android:textColor="@color/buttonTextColor"
+                android:textSize="12sp"
+                android:text="@string/send" />
 
-                <Button
-                    android:id="@+id/increase_reputation_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:layout_margin="16dp"
-                    android:enabled="false"
-                    android:text="@string/increase_reputation__button"/>
-
-                <TextView
-                    android:id="@+id/send_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:background="@drawable/btn_with_radius"
-                    android:paddingLeft="20dp"
-                    android:paddingRight="20dp"
-                    android:layout_gravity="end"
-                    android:layout_margin="16dp"
-                    android:gravity="center"
-                    android:textAllCaps="true"
-                    android:textColor="@color/buttonTextColor"
-                    android:textSize="12sp"
-                    android:text="@string/send" />
-
-            </LinearLayout>
         </LinearLayout>
 </layout>
 

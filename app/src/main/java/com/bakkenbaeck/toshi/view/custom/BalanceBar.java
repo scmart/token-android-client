@@ -41,4 +41,14 @@ public class BalanceBar extends LinearLayout {
             }
         }, 200);
     }
+
+    public void setReputation(final int reputationScore){
+        Log.d(TAG, "setReputation: " + reputationScore);
+        this.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ((TextView)findViewById(R.id.reputation)).setText(String.valueOf(reputationScore));
+            }
+        }, 200);
+    }
 }

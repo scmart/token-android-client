@@ -7,20 +7,7 @@ public class Message {
 
     // private String recipient_id;
     // private String sender_id;
-    private Internals payload;
-
-    @Override
-    public String toString() {
-        return this.payload.message.text;
-    }
-
-    public List<Detail> getDetails(){
-        return this.payload.message.details;
-    }
-
-    public String getType(){
-        return this.payload.message.type;
-    }
+    private MessageInternals payload;
 
     private static class Internals {
         private MessageInternals message;
@@ -31,6 +18,24 @@ public class Message {
         // private BigInteger new_balance;
         private String text;
         private List<Detail> details;
+        private List<Action> actions;
         private String type;
+    }
+
+    @Override
+    public String toString() {
+        return this.payload.text;
+    }
+
+    public List<Detail> getDetails(){
+        return this.payload.details;
+    }
+
+    public String getType(){
+        return this.payload.type;
+    }
+
+    public List<Action> getActions(){
+        return payload.actions;
     }
 }

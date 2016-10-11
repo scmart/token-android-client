@@ -4,12 +4,9 @@ package com.bakkenbaeck.toshi.view.activity;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 
 import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.databinding.ActivityWithdrawBinding;
@@ -17,13 +14,9 @@ import com.bakkenbaeck.toshi.model.ActivityResultHolder;
 import com.bakkenbaeck.toshi.presenter.PresenterLoader;
 import com.bakkenbaeck.toshi.presenter.WithdrawPresenter;
 import com.bakkenbaeck.toshi.presenter.factory.WithdrawPresenterFactory;
-import com.bakkenbaeck.toshi.view.dialog.PhoneInputDialog;
-import com.bakkenbaeck.toshi.view.dialog.VerificationCodeDialog;
 
 public class WithdrawActivity extends AppCompatActivity implements
-                                                            LoaderManager.LoaderCallbacks<WithdrawPresenter>,
-                                                            PhoneInputDialog.Listener,
-                                                            VerificationCodeDialog.Listener {
+                                                            LoaderManager.LoaderCallbacks<WithdrawPresenter>{
 
     private static final int UNIQUE_ACTIVITY_ID = 104;
     private WithdrawPresenter presenter;
@@ -89,7 +82,7 @@ public class WithdrawActivity extends AppCompatActivity implements
         return true;
     }
 
-    @Override
+    /*@Override
     public void onPhoneInputSuccess(final PhoneInputDialog dialog) {
         if (this.presenter == null) {
             return;
@@ -103,7 +96,7 @@ public class WithdrawActivity extends AppCompatActivity implements
             return;
         }
         this.presenter.onVerificationSuccess();
-    }
+    }*/
 
     @Override
     public void onBackPressed() {
