@@ -183,19 +183,13 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     };
 
     private void tryPopulateAmountField(final BigDecimal previousBalance, final String newBalanceAsEthString) {
-        Log.d(TAG, "tryPopulateAmountField: 1 " + previousBalance + " " + newBalanceAsEthString);
         try {
-            Log.d(TAG, "tryPopulateAmountField: 2");
-
-            this.activity.getBinding().amount.setText(newBalanceAsEthString);
-
-            if (new BigDecimal(this.activity.getBinding().amount.getText().toString()).equals(previousBalance)) {
-                Log.d(TAG, "tryPopulateAmountField: 3");
+            String s = this.activity.getBinding().amount.getText().toString();
+            if (new BigDecimal(s).equals(previousBalance)) {
                 this.activity.getBinding().amount.setText(newBalanceAsEthString);
                 this.activity.getBinding().amount.setSelection(this.activity.getBinding().amount.getText().length());
             }
         } catch (final Exception ex) {
-            Log.d(TAG, "tryPopulateAmountField: 4");
             // Do nothing -- user is editing the field
         }
 
@@ -313,7 +307,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
                     @Override
                     public void onError(final Throwable ex) {
-                        Log.d(TAG, "onError: ");
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
@@ -326,7 +319,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
                     @Override
                     public void onNext(final TransactionSent transactionSent) {
-                        Log.d(TAG, "onNext: ");
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
@@ -350,8 +342,8 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         try {
             final NumberFormat nf = NumberFormat.getInstance(LocaleUtil.getLocale());
             final String inputtedText = this.activity.getBinding().amount.getText().toString();
-            final BigDecimal amountRequested = new BigDecimal(nf.parse(inputtedText).toString());
-
+            final String parsedInput = inputtedText.replace(".", ",");
+            final BigDecimal amountRequested = new BigDecimal(nf.parse(parsedInput).toString());
             final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
             this.activity.getBinding().walletAddress.setText(toAddress.replaceFirst("ethereum:", ""));
 

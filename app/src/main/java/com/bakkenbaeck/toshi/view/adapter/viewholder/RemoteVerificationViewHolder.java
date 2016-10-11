@@ -19,9 +19,11 @@ public class RemoteVerificationViewHolder extends RecyclerView.ViewHolder{
     }
 
     public void bind(final MessageAdapter.OnVerifyClicklistener listener) {
-        itemView.setOnClickListener(new View.OnClickListener() {
+        verificationButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                listener.onVerifyClicked();
+                if(listener != null) {
+                    listener.onVerifyClicked();
+                }
             }
         });
     }

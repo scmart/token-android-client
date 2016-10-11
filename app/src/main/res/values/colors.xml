@@ -37,4 +37,5 @@
     <color name="textColorSec">#994E525D</color>
     <color name="inputText">#CC4E525D</color>
     <color name="hintText">#664E525D</color>
+    <color name="disabledState">#1A565A64</color>
 </resources>

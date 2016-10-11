@@ -3,5 +3,5 @@
     <solid
         android:color="@color/disabledState" />
     <corners
-        android:radius="@dimen/radiusSize" />
+        android:radius="10dp" />
 </shape>

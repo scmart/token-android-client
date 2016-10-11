@@ -101,11 +101,12 @@
                     android:paddingBottom="5dp"
                     android:paddingLeft="0dp"
                     android:maxLines="1"
-                    android:inputType="numberDecimal"
+                    android:inputType="numberDecimal|numberSigned"
                     android:textColor="@color/inputText"
                     android:textColorHint="@color/hintText"
                     android:textSize="@dimen/balance_bar_text_size"
-                    android:hint="Enter amount to transfer"/>
+                    android:hint="@string/enter_amount_to_transfer"
+                    android:text="0"/>
 
                 <include layout="@layout/horizontal_divider"/>
 

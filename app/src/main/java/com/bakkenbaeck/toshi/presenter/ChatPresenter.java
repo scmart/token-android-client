@@ -1,9 +1,11 @@
 package com.bakkenbaeck.toshi.presenter;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.Log;
@@ -13,6 +15,7 @@ import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.ActivityResultHolder;
 import com.bakkenbaeck.toshi.model.ChatMessage;
 import com.bakkenbaeck.toshi.model.LocalBalance;
+import com.bakkenbaeck.toshi.model.User;
 import com.bakkenbaeck.toshi.network.ws.model.Action;
 import com.bakkenbaeck.toshi.network.ws.model.ConnectionState;
 import com.bakkenbaeck.toshi.network.ws.model.Message;
@@ -22,11 +25,13 @@ import com.bakkenbaeck.toshi.util.OnCompletedObserver;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.util.OnNextSubscriber;
 import com.bakkenbaeck.toshi.util.OnSingleClickListener;
+import com.bakkenbaeck.toshi.util.SharedPrefsUtil;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.ChatActivity;
 import com.bakkenbaeck.toshi.view.activity.VideoActivity;
 import com.bakkenbaeck.toshi.view.activity.WithdrawActivity;
 import com.bakkenbaeck.toshi.view.adapter.MessageAdapter;
+import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteVerificationViewHolder;
 import com.bakkenbaeck.toshi.view.dialog.PhoneInputDialog;
 import com.bakkenbaeck.toshi.view.dialog.VerificationCodeDialog;
 
@@ -81,7 +86,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         BaseApplication.get().getSocketObservables().getMessageObservable().subscribe(this.newMessageSubscriber);
         BaseApplication.get().getSocketObservables().getConnectionObservable().subscribe(this.connectionStateSubscriber);
 
-        this.messageAdapter = new MessageAdapter();
+        this.messageAdapter = new MessageAdapter(activity);
         this.messageAdapter.setOnVerifyClickListener(this);
         registerMessageClickedObservable();
 
@@ -132,6 +137,9 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
     };
 
     private void showWelcomeMessage() {
+        ChatMessage message = new ChatMessage().makeDayMessage();
+        displayMessage(message);
+
         final ChatMessage response = new ChatMessage().makeRemoteVideoMessage(this.activity.getResources().getString(R.string.chat__welcome_message));
         showAVideo(response);
     }
@@ -146,7 +154,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
     }
 
     private void displayMessage(final ChatMessage chatMessage, final int delay) {
-        Log.d(TAG, "displayMessage: " + chatMessage.getType());
         final Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(new Runnable() {
             @Override
@@ -183,17 +190,13 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
     private final OnNextObserver<Message> newMessageSubscriber = new OnNextObserver<Message>() {
         @Override
         public void onNext(final Message message) {
-            Log.d(TAG, "onNext: messageSubscriber");
             ChatMessage response;
 
             if(message.getType().equals(ChatMessage.VERIFICATION_TYPE)){
-                Log.d(TAG, "onNext: verifiation type");
                 response = new ChatMessage().makeRemoteVerificationMessage(message);
             }else if(message.getType().equals(ChatMessage.REWARD_EARNED_TYPE)){
-                Log.d(TAG, "onNext: eth earned type");
                 response = new ChatMessage().makeRemoteRewardMessage(message);
             }else{
-                Log.d(TAG, "onNext: regular type");
                 response = new ChatMessage().makeRemoteMessageWithText(message.toString());
             }
 
@@ -294,6 +297,10 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
 
     @Override
     public void onViewDestroyed() {
+        if(messageAdapter != null){
+            messageAdapter.clean();
+            messageAdapter = null;
+        }
         this.activity = null;
         unregisterMessageClickedObservable();
     }
@@ -356,7 +363,11 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
     }
 
     public void onVerificationSuccess() {
-        //messageAdapter.disableVerifyButton(activity);
+        if(activity != null && messageAdapter != null) {
+            messageAdapter.disableVerifyButton2(activity);
+        }
+
+        SharedPrefsUtil.saveVerified(true);
 
         ChatMessage message = new ChatMessage().makeRemoteVerificationMessageSuccess(this.activity.getString(R.string.verification_success_message));
         displayMessage(message);

@@ -18,13 +18,15 @@ public class ChatMessage extends RealmObject {
             TYPE_LOCAL_TEXT,
             TYPE_REMOTE_TEXT,
             TYPE_REMOTE_VIDEO,
-            TYPE_REMOTE_VERIFICATION
+            TYPE_REMOTE_VERIFICATION,
+            TYPE_DAY
     })
     private @interface Type {}
     @Ignore public static final int TYPE_LOCAL_TEXT = 0;
     @Ignore public static final int TYPE_REMOTE_TEXT = 1;
     @Ignore public static final int TYPE_REMOTE_VIDEO = 2;
     @Ignore public static final int TYPE_REMOTE_VERIFICATION = 3;
+    @Ignore public static final int TYPE_DAY = 4;
 
     @Ignore public static final String VERIFICATION_TYPE = "verification_reminder";
     @Ignore public static final String REWARD_EARNED_TYPE = "rewards_earned";
@@ -131,6 +133,11 @@ public class ChatMessage extends RealmObject {
     public ChatMessage makeRemoteVerificationMessageSuccess(String message){
         setType(TYPE_REMOTE_VERIFICATION);
         setText(message);
+        return this;
+    }
+
+    public ChatMessage makeDayMessage(){
+        setType(TYPE_DAY);
         return this;
     }
 }

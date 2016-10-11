@@ -12,6 +12,8 @@ import com.bakkenbaeck.toshi.network.ws.model.VerificationSuccess;
 import com.bakkenbaeck.toshi.network.ws.model.WebSocketError;
 
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 
@@ -50,7 +52,7 @@ public class SocketObservables {
     }
 
     public Observable<VerificationSuccess> getVerificationSuccessObservable() {
-        return this.verificationSuccessSubject.asObservable();
+        return this.verificationSuccessSubject.asObservable().observeOn(AndroidSchedulers.mainThread());
     }
 
     public void emitTransactionConfirmation(final TransactionConfirmation transactionConfirmation) {

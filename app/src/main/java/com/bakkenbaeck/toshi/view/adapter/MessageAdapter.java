@@ -1,28 +1,37 @@
 package com.bakkenbaeck.toshi.view.adapter;
 
-import android.content.Context;
+import android.app.Activity;
 import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.ChatMessage;
+import com.bakkenbaeck.toshi.util.DateUtil;
 import com.bakkenbaeck.toshi.util.MessageUtil;
 import com.bakkenbaeck.toshi.util.OnSingleClickListener;
+import com.bakkenbaeck.toshi.util.SharedPrefsUtil;
+import com.bakkenbaeck.toshi.view.activity.ChatActivity;
+import com.bakkenbaeck.toshi.view.adapter.viewholder.DayViewHolder;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.LocalTextViewHolder;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteTextViewHolder;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteVerificationViewHolder;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteVideoViewHolder;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
+import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_DAY;
 import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_LOCAL_TEXT;
 import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_REMOTE_TEXT;
 import static com.bakkenbaeck.toshi.model.ChatMessage.TYPE_REMOTE_VERIFICATION;
@@ -36,10 +45,13 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private final PublishSubject<Integer> onClickSubject = PublishSubject.create();
 
     private boolean isRenderingPaused;
+    private Activity activity;
+    private TextView verifyButton;
 
-    public MessageAdapter() {
+    public MessageAdapter(Activity activity) {
         this.chatMessages = new ArrayList<>();
         this.chatMessagesWhilstPaused = new ArrayList<>();
+        this.activity = activity;
     }
 
     public final void addMessage(final ChatMessage chatMessage) {
@@ -85,6 +97,10 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             case TYPE_REMOTE_VERIFICATION: {
                 final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__verification_message, parent, false);
                 return new RemoteVerificationViewHolder(v);
+            }
+            case TYPE_DAY: {
+                final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__day_message, parent, false);
+                return new DayViewHolder(v);
             }
             case TYPE_LOCAL_TEXT:
             default: {
@@ -143,6 +159,12 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 if(chatMessage.getAction().size() > 0 && chatMessage.getAction().get(0).getAction().equals("verify_phone_number")) {
                     String parsedString = MessageUtil.parseString(chatMessage.getText());
                     vh.message.setText(parsedString);
+                    verifyButton = vh.verificationButton;
+
+                    if(SharedPrefsUtil.isVerified()){
+                        disableVerifyButton2(activity);
+                    }
+
                     vh.verificationButton.setVisibility(View.VISIBLE);
                     vh.bind(verifyClicklistener);
                 }else{
@@ -152,6 +174,12 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
                 break;
             }
+            case TYPE_DAY: {
+                final DayViewHolder vh = (DayViewHolder) holder;
+                String d = DateUtil.getDate("EEEE", new Date());
+                vh.date.setText(d);
+                break;
+            }
             case TYPE_LOCAL_TEXT:
             default: {
                 final LocalTextViewHolder vh = (LocalTextViewHolder) holder;
@@ -159,6 +187,13 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 break;
             }
         }
+    }
+
+    public void disableVerifyButton2(Activity activity){
+        verifyButton.setTextColor(Color.parseColor("#33565A64"));
+        verifyButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.disabled_background));
+        verifyButton.setEnabled(false);
+        verifyButton.setOnClickListener(null);
     }
 
     @Override
@@ -184,5 +219,10 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             addAndRenderMessage(chatMessage);
         }
         this.chatMessagesWhilstPaused.clear();
+    }
+
+    public void clean(){
+        activity = null;
+        verifyButton = null;
     }
 }
