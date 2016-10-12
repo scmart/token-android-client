@@ -6,6 +6,7 @@ import com.bakkenbaeck.toshi.network.ws.model.Action;
 import com.bakkenbaeck.toshi.network.ws.model.Detail;
 import com.bakkenbaeck.toshi.network.ws.model.Message;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.RealmList;
@@ -130,8 +131,13 @@ public class ChatMessage extends RealmObject {
         return this;
     }
 
-    public ChatMessage makeRemoteVerificationMessageSuccess(String message){
+    public ChatMessage makeRemoteVerificationMessageSuccess(String message, int reputationGained){
         setType(TYPE_REMOTE_VERIFICATION);
+
+        List<Detail> details = new ArrayList<Detail>();
+        details.add(new Detail("reputation_gained", reputationGained));
+
+        setDetails(details);
         setText(message);
         return this;
     }

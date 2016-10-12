@@ -362,14 +362,18 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         vcDialog.show(this.activity.getSupportFragmentManager(), "dialog");
     }
 
-    public void onVerificationSuccess() {
+    public void onVerificationSuccess(int reputationGained) {
         if(activity != null && messageAdapter != null) {
             messageAdapter.disableVerifyButton2(activity);
         }
 
         SharedPrefsUtil.saveVerified(true);
 
-        ChatMessage message = new ChatMessage().makeRemoteVerificationMessageSuccess(this.activity.getString(R.string.verification_success_message));
+        String resourceMessage = this.activity.getString(R.string.verification_success_message);
+        String s = String.valueOf(reputationGained);
+        String mergedMessage = resourceMessage + " " + s;
+
+        ChatMessage message = new ChatMessage().makeRemoteVerificationMessageSuccess(resourceMessage, reputationGained);
         displayMessage(message);
 
         Snackbar.make(

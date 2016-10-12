@@ -12,8 +12,10 @@ import android.widget.TextView;
 
 import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.ChatMessage;
+import com.bakkenbaeck.toshi.network.ws.model.Detail;
 import com.bakkenbaeck.toshi.util.DateUtil;
 import com.bakkenbaeck.toshi.util.MessageUtil;
+import com.bakkenbaeck.toshi.util.OnNextSubscriber;
 import com.bakkenbaeck.toshi.util.OnSingleClickListener;
 import com.bakkenbaeck.toshi.util.SharedPrefsUtil;
 import com.bakkenbaeck.toshi.view.activity.ChatActivity;
@@ -161,14 +163,27 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     vh.message.setText(parsedString);
                     verifyButton = vh.verificationButton;
 
-                    if(SharedPrefsUtil.isVerified()){
-                        disableVerifyButton2(activity);
-                    }
+                    SharedPrefsUtil.isVerified().subscribe(new OnNextSubscriber<Boolean>() {
+                        @Override
+                        public void onNext(Boolean isVerified) {
+                            if(isVerified) {
+                                disableVerifyButton2(activity);
+                            }
+                        }
+                    });
 
                     vh.verificationButton.setVisibility(View.VISIBLE);
                     vh.bind(verifyClicklistener);
                 }else{
-                    vh.message.setText(chatMessage.getText());
+                    String message = chatMessage.getText();
+                    if(chatMessage.getDetails() != null){
+                        List<Detail> details = chatMessage.getDetails();
+                        if(details.size() > 0 && details.get(0) != null){
+                            Detail detail = details.get(0);
+                            message +=  " " + (int)detail.getValue();
+                        }
+                    }
+                    vh.message.setText(message);
                     vh.verificationButton.setVisibility(View.GONE);
                 }
 

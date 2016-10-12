@@ -119,10 +119,10 @@ public final class ChatActivity extends AppCompatActivity implements LoaderManag
     }
 
     @Override
-    public void onVerificationCodeSuccess(VerificationCodeDialog dialog) {
+    public void onVerificationCodeSuccess(VerificationCodeDialog dialog, int reputationGained) {
         if (this.presenter == null) {
             return;
         }
-        this.presenter.onVerificationSuccess();
+        this.presenter.onVerificationSuccess(reputationGained);
     }
 }

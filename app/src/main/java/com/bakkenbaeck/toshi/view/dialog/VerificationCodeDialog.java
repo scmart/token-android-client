@@ -41,7 +41,7 @@ public class VerificationCodeDialog extends DialogFragment {
      * implement this interface in order to receive event callbacks.
      * Each method passes the DialogFragment in case the host needs to query it. */
     public interface Listener {
-        void onVerificationCodeSuccess(final VerificationCodeDialog dialog);
+        void onVerificationCodeSuccess(final VerificationCodeDialog dialog, int reputationGained);
     }
 
 
@@ -111,7 +111,7 @@ public class VerificationCodeDialog extends DialogFragment {
             public void onNext(final VerificationSuccess verificationSuccess) {
                 // Update the user
                 BaseApplication.get().getUserManager().refresh();
-                listener.onVerificationCodeSuccess(VerificationCodeDialog.this);
+                listener.onVerificationCodeSuccess(VerificationCodeDialog.this, verificationSuccess.getReputationGained());
                 dismiss();
             }
         };

@@ -21,6 +21,7 @@ public class SocketToPojo {
     private final JsonAdapter<TransactionSent> transactionSentAdapter;
     private final JsonAdapter<TransactionConfirmation> confirmationAdapter;
     private final JsonAdapter<VerificationSent> verificationSentAdapter;
+    private final JsonAdapter<VerificationSuccess> verificationSuccessAdapter;
     private final JsonAdapter<WebSocketError> errorAdapter;
     private final SocketObservables socketObservables;
 
@@ -35,6 +36,7 @@ public class SocketToPojo {
         this.transactionSentAdapter = this.moshi.adapter(TransactionSent.class);
         this.confirmationAdapter = this.moshi.adapter(TransactionConfirmation.class);
         this.verificationSentAdapter = this.moshi.adapter(VerificationSent.class);
+        this.verificationSuccessAdapter = this.moshi.adapter(VerificationSuccess.class);
         this.errorAdapter = this.moshi.adapter(WebSocketError.class);
     }
 
@@ -79,7 +81,8 @@ public class SocketToPojo {
                 this.socketObservables.emitVerificationSent(verificationSent);
                 break;
             case "verification_success":
-                this.socketObservables.emitVerificationSuccess(new VerificationSuccess());
+                final VerificationSuccess verificationMessage = this.verificationSuccessAdapter.fromJson(json);
+                this.socketObservables.emitVerificationSuccess(verificationMessage);
                 break;
             case "error":
                 WebSocketError error;
