@@ -1,22 +1,17 @@
 package com.bakkenbaeck.toshi.presenter;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
-import android.util.Log;
 import android.view.View;
 
 import com.bakkenbaeck.toshi.R;
 import com.bakkenbaeck.toshi.model.ActivityResultHolder;
 import com.bakkenbaeck.toshi.model.ChatMessage;
 import com.bakkenbaeck.toshi.model.LocalBalance;
-import com.bakkenbaeck.toshi.model.User;
-import com.bakkenbaeck.toshi.network.ws.model.Action;
 import com.bakkenbaeck.toshi.network.ws.model.ConnectionState;
 import com.bakkenbaeck.toshi.network.ws.model.Message;
 import com.bakkenbaeck.toshi.presenter.store.ChatMessageStore;
@@ -26,18 +21,17 @@ import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.util.OnNextSubscriber;
 import com.bakkenbaeck.toshi.util.OnSingleClickListener;
 import com.bakkenbaeck.toshi.util.SharedPrefsUtil;
+import com.bakkenbaeck.toshi.util.SnackbarUtil;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.ChatActivity;
 import com.bakkenbaeck.toshi.view.activity.VideoActivity;
 import com.bakkenbaeck.toshi.view.activity.WithdrawActivity;
 import com.bakkenbaeck.toshi.view.adapter.MessageAdapter;
-import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteVerificationViewHolder;
 import com.bakkenbaeck.toshi.view.dialog.PhoneInputDialog;
 import com.bakkenbaeck.toshi.view.dialog.VerificationCodeDialog;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
-import java.util.List;
 
 import io.realm.Realm;
 import rx.Subscriber;
@@ -210,7 +204,14 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
 
     @Override
     public void onVerifyClicked() {
-        new PhoneInputDialog().show(activity.getSupportFragmentManager(), "dialog");
+        PhoneInputDialog dialog = new PhoneInputDialog();
+        dialog.getErrorObservable().subscribe(new OnNextSubscriber<String>() {
+            @Override
+            public void onNext(String s) {
+                SnackbarUtil.make(activity.getBinding().root, s).show();
+            }
+        });
+        dialog.show(activity.getSupportFragmentManager(), "dialog");
     }
 
     private void withdrawAmountFromAddress(final BigDecimal amount, final String walletAddress) {
@@ -402,6 +403,12 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
     public void onPhoneInputSuccess(final PhoneInputDialog dialog) {
         final String phoneNumber = dialog.getInputtedPhoneNumber();
         final VerificationCodeDialog vcDialog = VerificationCodeDialog.newInstance(phoneNumber);
+        vcDialog.getObservable().subscribe(new OnNextSubscriber<String>() {
+            @Override
+            public void onNext(String s) {
+                SnackbarUtil.make(activity.getBinding().root, s).show();
+            }
+        });
         vcDialog.show(this.activity.getSupportFragmentManager(), "dialog");
     }
 

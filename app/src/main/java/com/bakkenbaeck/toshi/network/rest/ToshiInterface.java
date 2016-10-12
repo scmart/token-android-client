@@ -9,6 +9,7 @@ import com.bakkenbaeck.toshi.network.rest.model.TransactionSent;
 import com.bakkenbaeck.toshi.network.rest.model.WebSocketConnectionDetails;
 import com.bakkenbaeck.toshi.network.rest.model.WithdrawalRequest;
 
+import retrofit2.Response;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
@@ -35,8 +36,8 @@ public interface ToshiInterface {
                                           @Body CryptoDetails details);
 
     @POST("/message")
-    Observable<SignatureRequest> postWithdrawalRequest(@Header("TOSHIAPP-AUTH-TOKEN") String userAuthToken,
-                                                       @Body WithdrawalRequest withdrawalRequest);
+    Observable<Response<SignatureRequest>> postWithdrawalRequest(@Header("TOSHIAPP-AUTH-TOKEN") String userAuthToken,
+                                                                @Body WithdrawalRequest withdrawalRequest);
 
     @POST("/message")
     Observable<TransactionSent> postSignedWithdrawal(@Header("TOSHIAPP-AUTH-TOKEN") String userAuthToken,

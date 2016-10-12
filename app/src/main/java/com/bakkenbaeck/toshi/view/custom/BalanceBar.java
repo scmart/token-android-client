@@ -26,24 +26,18 @@ public class BalanceBar extends LinearLayout {
 
     private void init() {
         inflate(getContext(), R.layout.view__balance_bar, this);
-        /*((TextView)findViewById(R.id.balance)).setText(String.valueOf(TickerUtils.getDefaultListForUSCurrency()));
-        ((TickerView)findViewById(R.id.balance1)).setCharacterList(TickerUtils.getDefaultListForUSCurrency());*/
     }
 
     public void setBalance(final String balance) {
-        Log.d(TAG, "setBalance: " + balance);
         this.postDelayed(new Runnable() {
             @Override
             public void run() {
-                //findViewById(R.id.dot_loader).setVisibility(INVISIBLE);
-                //((TickerView) findViewById(R.id.balance1)).setText(balance);
                 ((TextView)findViewById(R.id.balance)).setText(balance);
             }
         }, 200);
     }
 
     public void setReputation(final int reputationScore){
-        Log.d(TAG, "setReputation: " + reputationScore);
         this.postDelayed(new Runnable() {
             @Override
             public void run() {

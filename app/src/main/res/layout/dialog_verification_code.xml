@@ -30,7 +30,7 @@
             android:inputType="number"
             android:textColor="#99565A64"
             android:textColorHint="#99565A64"
-            android:textSize="16sp"
+            android:textSize="@dimen/inputSize"
             android:hint="@string/dialog_verification_code__hint"/>
 
         <LinearLayout
@@ -49,7 +49,7 @@
                 android:gravity="center"
                 android:textAllCaps="true"
                 android:textColor="#4D4E525D"
-                android:textSize="12sp"
+                android:textSize="@dimen/buttonTextSize"
                 android:text="@string/button__cancel"
                 android:layout_marginRight="8dp"/>
 
@@ -63,7 +63,7 @@
                 android:gravity="center"
                 android:textAllCaps="true"
                 android:textColor="@color/buttonTextColor"
-                android:textSize="12sp"
+                android:textSize="@dimen/buttonTextSize"
                 android:text="@string/button__continue" />
 
         </LinearLayout>

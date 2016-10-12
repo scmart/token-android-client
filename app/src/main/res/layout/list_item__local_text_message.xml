@@ -17,7 +17,7 @@
         android:layout_gravity="right"
         android:minWidth="50dp"
         android:textColor="@color/buttonTextColor"
-        android:textSize="13sp" />
+        android:textSize="@dimen/defaultTextSize" />
 
 </FrameLayout>
 

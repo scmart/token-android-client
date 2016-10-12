@@ -10,5 +10,11 @@
     <integer name="animLength">200</integer>
 
     <dimen name="radiusSize">6dp</dimen>
-    <dimen name="balance_bar_text_size">13sp</dimen>
+
+    <dimen name="balance_bar_text_size">15sp</dimen>
+    <dimen name="defaultTextSize">15sp</dimen>
+    <dimen name="subTitleSize">18sp</dimen>
+    <dimen name="buttonTextSize">15sp</dimen>
+    <dimen name="smallSubSize">12sp</dimen>
+    <dimen name="inputSize">16sp</dimen>
 </resources>

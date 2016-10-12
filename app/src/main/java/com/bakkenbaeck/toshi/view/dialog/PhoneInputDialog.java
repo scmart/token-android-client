@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -25,9 +26,13 @@ import com.bakkenbaeck.toshi.util.LocaleUtil;
 import com.bakkenbaeck.toshi.util.OnNextSubscriber;
 import com.bakkenbaeck.toshi.util.OnSingleClickListener;
 import com.bakkenbaeck.toshi.view.BaseApplication;
+import com.bakkenbaeck.toshi.view.activity.ChatActivity;
 import com.hbb20.CountryCodePicker;
 
 import java.util.Locale;
+
+import rx.Observable;
+import rx.subjects.PublishSubject;
 
 public class PhoneInputDialog extends DialogFragment {
 
@@ -37,6 +42,7 @@ public class PhoneInputDialog extends DialogFragment {
 
     private OnNextSubscriber<WebSocketError> errorSubscriber;
     private OnNextSubscriber<VerificationSent> verificationSentSubscriber;
+    private PublishSubject<String> errorSubject = PublishSubject.create();
 
     /* The activity that creates an instance of this dialog fragment must
      * implement this interface in order to receive event callbacks.
@@ -158,10 +164,16 @@ public class PhoneInputDialog extends DialogFragment {
         phoneNumberField.requestFocus();
 
         if (error != null && error.getCode().equals(WebSocketErrors.phone_number_already_in_use)) {
-            phoneNumberField.setError(getString(R.string.error__phone_number_in_use));
+            String errorMessage = getContext().getResources().getString(R.string.error__phone_number_in_use);
+            errorSubject.onNext(errorMessage);
         } else {
-            phoneNumberField.setError(getString(R.string.error__invalid_phone_number));
+            String errorMessage = getContext().getResources().getString(R.string.error__invalid_phone_number);
+            errorSubject.onNext(errorMessage);
         }
+    }
+
+    public Observable<String> getErrorObservable(){
+        return errorSubject.asObservable();
     }
 
     @Override

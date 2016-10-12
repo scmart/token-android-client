@@ -28,6 +28,7 @@ import com.bakkenbaeck.toshi.util.LogUtil;
 import com.bakkenbaeck.toshi.util.OnNextObserver;
 import com.bakkenbaeck.toshi.util.OnSingleClickListener;
 import com.bakkenbaeck.toshi.util.RetryWithBackoff;
+import com.bakkenbaeck.toshi.util.SnackbarUtil;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 import com.bakkenbaeck.toshi.view.activity.BarcodeScannerActivity;
 import com.bakkenbaeck.toshi.view.activity.WithdrawActivity;
@@ -41,6 +42,7 @@ import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.text.ParseException;
 
+import retrofit2.Response;
 import rx.Subscriber;
 
 import static android.app.Activity.RESULT_OK;
@@ -78,7 +80,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     }
 
     private void initButtons() {
-        Log.d(TAG, "initButtons: ");
         this.activity.getBinding().barcodeButton.setOnClickListener(new OnSingleClickListener() {
             @Override
             public void onSingleClick(final View v) {
@@ -99,7 +100,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
             @Override
             public void onTextChanged(final CharSequence charSequence, final int i, final int i1, final int i2) {
-                Log.d(TAG, "onTextChanged: walletAddress");
                 updateSendButtonEnabledState();
             }
 
@@ -115,7 +115,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Log.d(TAG, "onTextChanged: amount");
                 updateSendButtonEnabledState();
             }
 
@@ -129,7 +128,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     }
 
     private void updateSendButtonEnabledState() {
-        Log.d(TAG, "updateSendButtonEnabledState: ");
         final Editable walletAddress = this.activity.getBinding().walletAddress.getText();
         String amount = this.activity.getBinding().amount.getText().toString();
         final boolean shouldEnableButton = walletAddress.length() > 0 && userHasEnoughReputationScore() && amount.length() > 0;
@@ -138,7 +136,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     }
 
     private void enableSendButton(boolean enabled){
-        Log.d(TAG, "enableSendButton: " + enabled);
         if(enabled){
             activity.getBinding().sendButton.setTextColor(Color.parseColor("#FFFFFF"));
             activity.getBinding().sendButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.btn_with_radius));
@@ -248,9 +245,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     }
 
     private void handleSendClicked() {
-        Log.d(TAG, "handleSendClicked: ");
         if (!validate()) {
-            Log.d(TAG, "handleSendClicked: return !valid");
             return;
         }
 
@@ -272,8 +267,8 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         }
     }
 
-    private Subscriber<SignatureRequest> generateSigningSubscriber() {
-        return new Subscriber<SignatureRequest>() {
+    private Subscriber<Response<SignatureRequest>> generateSigningSubscriber() {
+        return new Subscriber<Response<SignatureRequest>>() {
             @Override
             public void onCompleted() {}
 
@@ -290,14 +285,19 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             }
 
             @Override
-            public void onNext(final SignatureRequest signatureRequest) {
-                final String unsignedTransaction = signatureRequest.getTransaction();
+            public void onNext(final Response<SignatureRequest> signatureRequest) {
+                Log.d(TAG, "onNext: 1");
+                final String unsignedTransaction = signatureRequest.body().getTransaction();
                 final String signature = BaseApplication.get().getUserManager().signTransaction(unsignedTransaction);
                 final SignedWithdrawalRequest request = new SignedWithdrawalRequest(unsignedTransaction, signature);
                 ToshiService.getApi()
                         .postSignedWithdrawal(currentUser.getAuthToken(), request)
                         .retryWhen(new RetryWithBackoff(5))
                         .subscribe(generateSignedWithdrawalSubscriber());
+
+                if(signatureRequest.code() == 400){
+                    Log.d(TAG, "onNext: 400" + signatureRequest.body().getMessage());
+                }
             }
 
             private Subscriber<TransactionSent> generateSignedWithdrawalSubscriber() {
@@ -319,6 +319,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
                     @Override
                     public void onNext(final TransactionSent transactionSent) {
+                        Log.d(TAG, "onNext: 2");
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
@@ -331,7 +332,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                         intent.putExtra(INTENT_WITHDRAW_AMOUNT, new BigDecimal(activity.getBinding().amount.getText().toString()));
                         activity.setResult(RESULT_OK, intent);
                         activity.finish();
-                        activity.overridePendingTransition(R.anim.enter_fade_in, R.anim.exit_fade_out);
                     }
                 };
             }
@@ -354,7 +354,9 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             LogUtil.e(getClass(), ex.toString());
         }
 
-        this.activity.getBinding().amount.setError(this.activity.getResources().getString(R.string.withdraw__amount_error));
+        String errorMessage = this.activity.getResources().getString(R.string.withdraw__amount_error);
+        SnackbarUtil.make(this.activity.getBinding().root, errorMessage).show();
+
         this.activity.getBinding().amount.requestFocus();
         return false;
     }
@@ -383,7 +385,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     };
 
     private void refreshButtonStates() {
-        Log.d(TAG, "refreshButtonStates: ");
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {

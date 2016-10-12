@@ -28,6 +28,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
+            <include layout="@layout/horizontal_divider"/>
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/messages_list"
                 android:layout_width="match_parent"
@@ -36,6 +38,7 @@
                 android:paddingBottom="50dp"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/messageListRightMargin"
+                android:background="@color/defaultBackground"
                 android:clipToPadding="false"/>
         </LinearLayout>
 
@@ -51,7 +54,8 @@
             android:gravity="center"
             android:textAllCaps="true"
             android:textColor="@color/buttonTextColor"
-            android:textSize="12sp"
+            android:textSize="@dimen/buttonTextSize"
+            android:fontFamily="sans-serif-medium"
             tools:visibility="visible"
             android:visibility="invisible"
             android:text="@string/another_one" />

@@ -43,4 +43,6 @@
     <string name="verification_success_message">That’s it! Your phone number is verified. We’ve deposited your earnings in your wallet, and your reputation level went up to</string>
     <string name="sending">Sending...</string>
     <string name="enter_amount_to_transfer">Enter amount to transfer</string>
+    <string name="verify_phone_number">Verify phone number</string>
+    <string name="eth">ETH</string>
 </resources>

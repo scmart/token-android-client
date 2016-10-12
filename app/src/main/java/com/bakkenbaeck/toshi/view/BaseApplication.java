@@ -2,6 +2,7 @@ package com.bakkenbaeck.toshi.view;
 
 
 import android.app.Application;
+import android.support.multidex.MultiDexApplication;
 
 import com.bakkenbaeck.toshi.manager.LocalBalanceManager;
 import com.bakkenbaeck.toshi.manager.UserManager;
@@ -11,7 +12,7 @@ import com.bakkenbaeck.toshi.network.ws.WebSocketManager;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
-public class BaseApplication extends Application {
+public class BaseApplication extends MultiDexApplication {
 
     private static BaseApplication instance;
     public static BaseApplication get() { return instance; }

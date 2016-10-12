@@ -38,4 +38,5 @@
     <color name="inputText">#CC4E525D</color>
     <color name="hintText">#664E525D</color>
     <color name="disabledState">#1A565A64</color>
+    <color name="defaultBackground">#EFF3F6</color>
 </resources>

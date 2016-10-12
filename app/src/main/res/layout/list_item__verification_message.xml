@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="@dimen/bubbleMargin"
             android:gravity="center_vertical"
-            android:textSize="13sp"
+            android:textSize="@dimen/defaultTextSize"
             android:textColor="@color/textColorSec"
             tools:text="Now, your balance doesn’t show up in the bar in the top here yet. That’s because we can’t give it to you until you verify your phone number—we’re storing it for you until then.
 
@@ -46,8 +46,8 @@ Verifying your phone number will also activate and increase your reputation scor
             android:gravity="center"
             android:textAllCaps="true"
             android:textColor="@color/buttonTextColor"
-            android:textSize="12sp"
-            android:text="Verify phone number"
+            android:textSize="@dimen/buttonTextSize"
+            android:text="@string/verify_phone_number"
             android:visibility="gone"/>
         
     </LinearLayout>

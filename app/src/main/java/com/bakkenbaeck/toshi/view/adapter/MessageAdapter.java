@@ -18,16 +18,14 @@ import com.bakkenbaeck.toshi.util.MessageUtil;
 import com.bakkenbaeck.toshi.util.OnNextSubscriber;
 import com.bakkenbaeck.toshi.util.OnSingleClickListener;
 import com.bakkenbaeck.toshi.util.SharedPrefsUtil;
-import com.bakkenbaeck.toshi.view.activity.ChatActivity;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.DayViewHolder;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.LocalTextViewHolder;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteTextViewHolder;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteVerificationViewHolder;
 import com.bakkenbaeck.toshi.view.adapter.viewholder.RemoteVideoViewHolder;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import rx.Observable;
@@ -124,12 +122,16 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     vh.details.setVisibility(View.VISIBLE);
 
                     //Earned
+                    String subString1 = String.valueOf(chatMessage.getDetails().get(0).getValue());
+                    //Log.d(TAG, "onBindViewHolder: " + subString1);
                     vh.earned.setText(chatMessage.getDetails().get(0).getTitle());
-                    vh.earnedValue.setText(String.valueOf(chatMessage.getDetails().get(0).getValue()));
+                    vh.earnedValue.setText(subString1);
 
                     //Total
+                    String subString2 = String.valueOf(chatMessage.getDetails().get(1).getValue());
+                    //Log.d(TAG, "onBindViewHolder: " + subString2);
                     vh.earnedTotal.setText(chatMessage.getDetails().get(1).getTitle());
-                    vh.earnedTotalValue.setText(String.valueOf(chatMessage.getDetails().get(1).getValue()));
+                    vh.earnedTotalValue.setText(subString2);
                 }else{
                     vh.details.setVisibility(View.GONE);
                 }

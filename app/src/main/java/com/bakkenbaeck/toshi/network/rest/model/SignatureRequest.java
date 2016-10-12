@@ -9,7 +9,14 @@ public class SignatureRequest {
         return this.payload.transaction;
     }
 
+    public String getMessage(){
+        return payload.message;
+    }
+
     private static class SignatureRequestInternals {
         private String transaction;
+        private String message;
+        private String code;
+        private String type;
     }
 }

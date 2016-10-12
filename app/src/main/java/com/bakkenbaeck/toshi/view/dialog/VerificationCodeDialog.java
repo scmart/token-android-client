@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ContextThemeWrapper;
@@ -27,6 +28,9 @@ import com.bakkenbaeck.toshi.util.OnNextSubscriber;
 import com.bakkenbaeck.toshi.util.OnSingleClickListener;
 import com.bakkenbaeck.toshi.view.BaseApplication;
 
+import rx.Observable;
+import rx.subjects.PublishSubject;
+
 public class VerificationCodeDialog extends DialogFragment {
 
     private static final String PHONE_NUMBER = "phone_number";
@@ -36,6 +40,7 @@ public class VerificationCodeDialog extends DialogFragment {
 
     private OnNextSubscriber<WebSocketError> errorSubscriber;
     private OnNextSubscriber<VerificationSuccess> successSubscriber;
+    private PublishSubject<String> errorSubject = PublishSubject.create();
 
     /* The activity that creates an instance of this dialog fragment must
      * implement this interface in order to receive event callbacks.
@@ -157,7 +162,12 @@ public class VerificationCodeDialog extends DialogFragment {
     private void setErrorOnCodeField() {
         final EditText verificationCodeInput = (EditText) this.view.findViewById(R.id.verification_code);
         verificationCodeInput.requestFocus();
-        verificationCodeInput.setError(getString(R.string.error__invalid_verification_code));
+        String errorMessage = getContext().getResources().getString(R.string.error__invalid_verification_code);
+        errorSubject.onNext(errorMessage);
+    }
+
+    public Observable<String> getObservable(){
+        return errorSubject.asObservable();
     }
 
     @Override

@@ -26,7 +26,7 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="13sp"
+            android:textSize="@dimen/defaultTextSize"
             android:textColor="@color/textColorSec"
             android:layout_marginBottom="@dimen/textBubbleHalfPadding"/>
 
@@ -48,7 +48,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:textColor="#ffffff"
-                android:textSize="12sp"
+                android:textSize="@dimen/defaultTextSize"
+                android:letterSpacing="0.05"
+                android:fontFamily="sans-serif-medium"
                 android:visibility="gone"
                 android:textAllCaps="true"
                 android:text="@string/watched"/>
