@@ -36,9 +36,11 @@ import com.bakkenbaeck.toshi.view.dialog.PhoneInputDialog;
 import com.bakkenbaeck.toshi.view.dialog.VerificationCodeDialog;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.List;
 
 import io.realm.Realm;
+import rx.Subscriber;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -83,6 +85,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         this.chatMessageStore.getEmptySetObservable().subscribe(this.noStoredChatMessages);
         this.chatMessageStore.getNewMessageObservable().subscribe(this.newChatMessage);
         this.chatMessageStore.getUnwatchedVideoObservable().subscribe(this.unwatchedVideo);
+        this.chatMessageStore.getNewDateObservable().subscribe(this.newDateMessage);
         BaseApplication.get().getSocketObservables().getMessageObservable().subscribe(this.newMessageSubscriber);
         BaseApplication.get().getSocketObservables().getConnectionObservable().subscribe(this.connectionStateSubscriber);
 
@@ -155,6 +158,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
 
     private void displayMessage(final ChatMessage chatMessage, final int delay) {
         final Handler handler = new Handler(Looper.getMainLooper());
+
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -248,22 +252,61 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
             this.activity.getBinding().buttonAnotherVideo.setOnClickListener(new OnSingleClickListener() {
                 @Override
                 public void onSingleClick(final View view) {
-                    isShowingAnotherOneButton = false;
-                    refreshAnotherOneButtonState();
-                    showVideoRequestMessage();
-
-                    String s = MessageUtil.getRandomMessage();
-                    ChatMessage message = new ChatMessage().makeRemoteVideoMessage(s);
-                    showAVideo(message);
+                    final Handler handler = new Handler(Looper.getMainLooper());
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            chatMessageStore.checkDate();
+                        }
+                    });
                 }
             });
         }
+    }
+
+    private void watchAnotherVideo(){
+        isShowingAnotherOneButton = false;
+        refreshAnotherOneButtonState();
+        showVideoRequestMessage();
+
+        String s = MessageUtil.getRandomMessage();
+        ChatMessage message = new ChatMessage().makeRemoteVideoMessage(s);
+        showAVideo(message);
     }
 
     private void promptNewVideo() {
         this.isShowingAnotherOneButton = true;
         refreshAnotherOneButtonState();
     }
+
+    //Subscriber to the date database call. Checking if the last message has a different date than today
+    private final Subscriber<ChatMessage> newDateMessage = new Subscriber<ChatMessage>() {
+        @Override
+        public void onCompleted() {
+
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            watchAnotherVideo();
+        }
+
+        @Override
+        public void onNext(ChatMessage chatMessage) {
+            if(chatMessage != null) {
+                Calendar today = Calendar.getInstance();
+                Calendar anotherDay = Calendar.getInstance();
+                anotherDay.setTimeInMillis(chatMessage.getCreationTime());
+
+                if (today.get(Calendar.DAY_OF_YEAR) != anotherDay.get(Calendar.DAY_OF_YEAR)) {
+                    ChatMessage message = new ChatMessage().makeDayMessage();
+                    displayMessage(message);
+                }
+            }
+
+            watchAnotherVideo();
+        }
+    };
 
     @Override
     public void onViewDetached() {
@@ -370,9 +413,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         SharedPrefsUtil.saveVerified(true);
 
         String resourceMessage = this.activity.getString(R.string.verification_success_message);
-        String s = String.valueOf(reputationGained);
-        String mergedMessage = resourceMessage + " " + s;
-
         ChatMessage message = new ChatMessage().makeRemoteVerificationMessageSuccess(resourceMessage, reputationGained);
         displayMessage(message);
 

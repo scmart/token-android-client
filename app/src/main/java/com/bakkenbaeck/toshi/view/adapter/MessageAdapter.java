@@ -191,7 +191,8 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             }
             case TYPE_DAY: {
                 final DayViewHolder vh = (DayViewHolder) holder;
-                String d = DateUtil.getDate("EEEE", new Date());
+                chatMessage.getCreationTime();
+                String d = DateUtil.getDate("EEEE", chatMessage.getCreationTime());
                 vh.date.setText(d);
                 break;
             }

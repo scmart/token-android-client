@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">Toshi</string>
-    <string name="chat__title">Toshi</string>
-    <string name="chat__welcome_message">Welcome to Toshi! Toshi allows you to earn and send Ethereum. Get started by watching the video below.</string>
+    <string name="app_name">Token</string>
+    <string name="chat__title">Token</string>
+    <string name="chat__welcome_message">Welcome to Token! Token allows you to earn and send Ethereum. Get started by watching the video below.</string>
     <string name="balance__current_balance">%1$.5f</string>
     <string name="chat__request_video_message">Hit me with another video!</string>
     <string name="menu__withdraw">Send Ether</string>

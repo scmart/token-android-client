@@ -1,9 +1,14 @@
 package com.bakkenbaeck.toshi.presenter.store;
 
 
+import android.util.Log;
+
+import java.util.Date;
+
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 abstract class RealmStore<RO extends RealmObject> {
 
@@ -34,6 +39,14 @@ abstract class RealmStore<RO extends RealmObject> {
         onFinishedLoading();
     }
 
+    public void loadByDates(Class<RO> clazz){
+        final RealmResults<RO> storedObjects1 = realm.where(clazz).findAll().sort("creationTime", Sort.DESCENDING);
+        if(storedObjects1.size() > 0){
+            onNewDate(storedObjects1.get(0));
+        }
+    }
+
+    abstract void onNewDate(RO clazz);
     abstract void onNewObject(RO clazz);
     abstract void onEmptySetAfterLoad();
     abstract void onFinishedLoading();

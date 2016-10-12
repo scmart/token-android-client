@@ -7,6 +7,7 @@ import com.bakkenbaeck.toshi.network.ws.model.Detail;
 import com.bakkenbaeck.toshi.network.ws.model.Message;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import io.realm.RealmList;
@@ -77,6 +78,10 @@ public class ChatMessage extends RealmObject {
         this.details.clear();
         this.details.addAll(details);
         return this;
+    }
+
+    public long getCreationTime(){
+        return creationTime;
     }
 
     public String getText() {

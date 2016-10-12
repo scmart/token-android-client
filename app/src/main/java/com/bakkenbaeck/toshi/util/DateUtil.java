@@ -21,4 +21,19 @@ public class DateUtil {
             return s.substring(0,1).toUpperCase() + s.substring(1).toLowerCase();
         }
     }
+
+    public static String getDate(String format, long d){
+        Calendar date = Calendar.getInstance();
+        Calendar today = Calendar.getInstance();
+        date.setTimeInMillis(d);
+
+        if(date.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)
+                && date.get(Calendar.YEAR) == today.get(Calendar.YEAR)) {
+            return "Today";
+        }else{
+            SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
+            String s = sdf.format(date.getTime());
+            return s.substring(0,1).toUpperCase() + s.substring(1).toLowerCase();
+        }
+    }
 }
