@@ -1,10 +1,6 @@
 package com.bakkenbaeck.token.util;
 
 
-import android.widget.Toast;
-
-import com.bakkenbaeck.token.view.BaseApplication;
-
 import rx.Observer;
 
 public abstract class OnCompletedObserver<T> implements Observer<T> {
@@ -12,7 +8,7 @@ public abstract class OnCompletedObserver<T> implements Observer<T> {
     @Override
     public void onError(final Throwable e) {
         // Todo - remove this toast
-        Toast.makeText(BaseApplication.get(), e.getMessage(), Toast.LENGTH_LONG).show();
+        //Toast.makeText(BaseApplication.get(), e.getMessage(), Toast.LENGTH_LONG).show();
         LogUtil.w(getClass(), "Unhandled onError " + e);
     }
 

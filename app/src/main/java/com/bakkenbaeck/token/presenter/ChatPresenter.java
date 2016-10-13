@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.util.Log;
 import android.view.View;
 
 import com.bakkenbaeck.token.R;
@@ -181,6 +182,12 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         public void onNext(Integer reputationScore) {
             if(activity != null){
                 activity.getBinding().balanceBar.setReputation(reputationScore);
+                if(reputationScore == 0){
+                    Log.d(TAG, "onNext: == 0");
+                    //if reputation is 0, set verifies to false so the user can click the verify button
+                    SharedPrefsUtil.saveVerified(false);
+                    activity.getBinding().messagesList.invalidate();
+                }
             }
         }
     };
@@ -414,7 +421,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
 
     public void onVerificationSuccess(int reputationGained) {
         if(activity != null && messageAdapter != null) {
-            messageAdapter.disableVerifyButton2(activity);
+            messageAdapter.disableVerifyButton(activity);
         }
 
         SharedPrefsUtil.saveVerified(true);

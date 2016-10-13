@@ -10,6 +10,6 @@
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@drawable/toshi"/>
+            android:src="@drawable/token"/>
     </item>
 </layer-list>

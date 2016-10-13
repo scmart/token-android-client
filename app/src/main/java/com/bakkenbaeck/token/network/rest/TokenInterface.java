@@ -18,7 +18,7 @@ import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import rx.Observable;
 
-public interface ToshiInterface {
+public interface TokenInterface {
 
     @POST("/user")
     Observable<User> requestUserId();
@@ -40,6 +40,6 @@ public interface ToshiInterface {
                                                                 @Body WithdrawalRequest withdrawalRequest);
 
     @POST("/message")
-    Observable<TransactionSent> postSignedWithdrawal(@Header("TOSHIAPP-AUTH-TOKEN") String userAuthToken,
+    Observable<Response<TransactionSent>> postSignedWithdrawal(@Header("TOSHIAPP-AUTH-TOKEN") String userAuthToken,
                                                      @Body SignedWithdrawalRequest signedWithdrawalRequest);
 }

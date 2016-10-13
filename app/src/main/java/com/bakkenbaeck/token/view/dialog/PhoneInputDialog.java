@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +34,7 @@ import rx.Observable;
 import rx.subjects.PublishSubject;
 
 public class PhoneInputDialog extends DialogFragment {
-
+    private static final String TAG = "PhoneInputDialog";
     private String inputtedPhoneNumber;
     private Listener listener;
     private View view;
@@ -87,6 +88,7 @@ public class PhoneInputDialog extends DialogFragment {
         return new OnNextSubscriber<VerificationSent>() {
             @Override
             public void onNext(final VerificationSent verificationSent) {
+                Log.d(TAG, "onNext: generateVerificationSentSubscriber");
                 listener.onPhoneInputSuccess(PhoneInputDialog.this);
                 dismiss();
             }

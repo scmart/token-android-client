@@ -27,6 +27,6 @@ public class SharedPrefsUtil {
 
     public static void saveVerified(boolean b){
         SharedPreferences prefs = new SecurePreferences(BaseApplication.get(), "", "um");
-        prefs.edit().putBoolean(IS_VERIFIED, b).apply();
+        prefs.edit().putBoolean(IS_VERIFIED, b).commit();
     }
 }

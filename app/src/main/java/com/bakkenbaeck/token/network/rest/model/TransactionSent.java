@@ -15,6 +15,10 @@ public class TransactionSent {
         return this.payload.new_balance;
     }
 
+    public String getMessage(){
+        return this.payload.message;
+    }
+
     public BigInteger getConfirmedBalance() {
         return this.payload.confirmed_balance;
     }
@@ -23,5 +27,7 @@ public class TransactionSent {
         private BigInteger new_balance;
         private BigInteger amount;
         private BigInteger confirmed_balance;
+        private String message;
+        private String code;
     }
 }

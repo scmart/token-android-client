@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -167,7 +168,7 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         @Override
                         public void onNext(Boolean isVerified) {
                             if(isVerified) {
-                                disableVerifyButton2(activity);
+                                disableVerifyButton(activity);
                             }
                         }
                     });
@@ -205,7 +206,15 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
     }
 
-    public void disableVerifyButton2(Activity activity){
+    public void disableVerifyButton(Activity activity){
+        Log.d(TAG, "disableVerifyButton: ");
+        verifyButton.setTextColor(Color.parseColor("#33565A64"));
+        verifyButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.disabled_background));
+        verifyButton.setEnabled(false);
+        verifyButton.setOnClickListener(null);
+    }
+
+    public void enableVerifyButton(Activity activity){
         verifyButton.setTextColor(Color.parseColor("#33565A64"));
         verifyButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.disabled_background));
         verifyButton.setEnabled(false);

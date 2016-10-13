@@ -18,33 +18,33 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.moshi.MoshiConverterFactory;
 import rx.schedulers.Schedulers;
 
-public class ToshiService {
+public class TokenService {
 
     private static final String BASE_URL = "https://toshi-app.herokuapp.com";
-    private static ToshiService instance;
+    private static TokenService instance;
 
-    private final ToshiInterface toshiInterface;
+    private final TokenInterface tokenInterface;
     private final OkHttpClient.Builder client;
 
-    public static ToshiInterface getApi() {
-        return get().toshiInterface;
+    public static TokenInterface getApi() {
+        return get().tokenInterface;
     }
 
-    private static ToshiService get() {
+    private static TokenService get() {
         if (instance == null) {
             instance = getSync();
         }
         return instance;
     }
 
-    private static synchronized ToshiService getSync() {
+    private static synchronized TokenService getSync() {
         if (instance == null) {
-            instance = new ToshiService();
+            instance = new TokenService();
         }
         return instance;
     }
 
-    private ToshiService() {
+    private TokenService() {
         final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io());
         this.client = new OkHttpClient.Builder();
 
@@ -61,7 +61,7 @@ public class ToshiService {
                 .addCallAdapterFactory(rxAdapter)
                 .client(client.build())
                 .build();
-        this.toshiInterface = retrofit.create(ToshiInterface.class);
+        this.tokenInterface = retrofit.create(TokenInterface.class);
     }
 
     private void addUserAgentHeader() {

@@ -11,17 +11,17 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.ActivityResultHolder;
 import com.bakkenbaeck.token.model.LocalBalance;
 import com.bakkenbaeck.token.model.User;
-import com.bakkenbaeck.token.network.rest.ToshiService;
+import com.bakkenbaeck.token.network.rest.TokenService;
 import com.bakkenbaeck.token.network.rest.model.SignatureRequest;
 import com.bakkenbaeck.token.network.rest.model.SignedWithdrawalRequest;
 import com.bakkenbaeck.token.network.rest.model.TransactionSent;
 import com.bakkenbaeck.token.network.rest.model.WithdrawalRequest;
+import com.bakkenbaeck.token.network.ws.model.TransactionConfirmation;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LocaleUtil;
 import com.bakkenbaeck.token.util.LogUtil;
@@ -56,8 +56,8 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     private User currentUser;
     private boolean firstTimeAttaching = true;
     private BigDecimal currentBalance = BigDecimal.ZERO;
-    private final BigDecimal minWithdrawLimit = new BigDecimal("0.0000000001");
     private ProgressDialog progressDialog;
+    private final BigDecimal minWithdrawLimit = new BigDecimal("0.0000000001");
 
     private final PreviousWalletAddress previousWalletAddress = new PreviousWalletAddress();
 
@@ -164,8 +164,8 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         public void onNext(final LocalBalance newBalance) {
             if (activity != null && newBalance != null) {
                 activity.getBinding().balanceBar.setBalance(newBalance.unconfirmedBalanceString());
-                tryPopulateAmountField(currentBalance, newBalance.confirmedBalanceStringMinusTransferFee());
                 currentBalance = newBalance.getConfirmedBalanceAsEthMinusTransferFee();
+                tryPopulateAmountField(currentBalance, newBalance.confirmedBalanceStringMinusTransferFee());
             }
         }
     };
@@ -201,19 +201,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     public void onViewDestroyed() {
         this.activity = null;
     }
-
-    /*public void onPhoneInputSuccess(final PhoneInputDialog dialog) {
-        final String phoneNumber = dialog.getInputtedPhoneNumber();
-        final VerificationCodeDialog vcDialog = VerificationCodeDialog.newInstance(phoneNumber);
-        vcDialog.show(this.activity.getSupportFragmentManager(), "dialog");
-    }
-
-    public void onVerificationSuccess() {
-        Snackbar.make(
-                this.activity.getBinding().getRoot(),
-                Html.fromHtml(this.activity.getString(R.string.verification_success)),
-                Snackbar.LENGTH_LONG).show();
-    }*/
 
     public void handleActivityResult(final ActivityResultHolder activityResultHolder) {
         if (activityResultHolder.getResultCode() != RESULT_OK) {
@@ -252,12 +239,14 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         try {
             final NumberFormat nf = NumberFormat.getInstance(LocaleUtil.getLocale());
             final String inputtedText = this.activity.getBinding().amount.getText().toString();
-            final BigDecimal amountInEth = new BigDecimal(nf.parse(inputtedText).toString());
+            String parsedInput = inputtedText.replace(".", ",");
+            final BigDecimal amountInEth = new BigDecimal(nf.parse(parsedInput).toString());
 
             final BigInteger amountInWei = EthUtil.ethToWei(amountInEth);
             final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
+
             final WithdrawalRequest withdrawalRequest = new WithdrawalRequest(amountInWei, toAddress);
-            ToshiService.getApi()
+            TokenService.getApi()
                     .postWithdrawalRequest(this.currentUser.getAuthToken(), withdrawalRequest)
                     .subscribe(generateSigningSubscriber());
             progressDialog.show(this.activity.getSupportFragmentManager(), "progressDialog");
@@ -274,10 +263,11 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
             @Override
             public void onError(final Throwable ex) {
+                Log.d(TAG, "onError: 1 " + ex);
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(activity, "There was a problem withdrawing, please try again.", Toast.LENGTH_LONG).show();
+                        //Toast.makeText(activity, "There was a problem withdrawing, please try again.", Toast.LENGTH_LONG).show();
                         progressDialog.dismiss();
                     }
                 });
@@ -286,31 +276,33 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
             @Override
             public void onNext(final Response<SignatureRequest> signatureRequest) {
-                Log.d(TAG, "onNext: 1");
+                Log.d(TAG, "onNext: 1 " + signatureRequest.code());
                 final String unsignedTransaction = signatureRequest.body().getTransaction();
                 final String signature = BaseApplication.get().getUserManager().signTransaction(unsignedTransaction);
                 final SignedWithdrawalRequest request = new SignedWithdrawalRequest(unsignedTransaction, signature);
-                ToshiService.getApi()
+
+                TokenService.getApi()
                         .postSignedWithdrawal(currentUser.getAuthToken(), request)
                         .retryWhen(new RetryWithBackoff(5))
                         .subscribe(generateSignedWithdrawalSubscriber());
 
                 if(signatureRequest.code() == 400){
-                    Log.d(TAG, "onNext: 400" + signatureRequest.body().getMessage());
+                    SnackbarUtil.make(activity.getBinding().root, signatureRequest.body().getMessage());
                 }
             }
 
-            private Subscriber<TransactionSent> generateSignedWithdrawalSubscriber() {
-                return new Subscriber<TransactionSent>() {
+            private Subscriber<Response<TransactionSent>> generateSignedWithdrawalSubscriber() {
+                return new Subscriber<Response<TransactionSent>>() {
                     @Override
                     public void onCompleted() {}
 
                     @Override
                     public void onError(final Throwable ex) {
+                        Log.d(TAG, "onError: 2 " + ex);
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(activity, R.string.error__withdrawing, Toast.LENGTH_LONG).show();
+                                //Toast.makeText(activity, R.string.error__withdrawing, Toast.LENGTH_LONG).show();
                                 progressDialog.dismiss();
                             }
                         });
@@ -318,8 +310,8 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                     }
 
                     @Override
-                    public void onNext(final TransactionSent transactionSent) {
-                        Log.d(TAG, "onNext: 2");
+                    public void onNext(final Response<TransactionSent> transactionSent) {
+                        Log.d(TAG, "onNext: 2 " + transactionSent.code());
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
@@ -327,11 +319,24 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                             }
                         });
 
+                        if(transactionSent.code() == 400){
+                            SnackbarUtil.make(activity.getBinding().root, "Not enough funds to transfer the requested amount").show();
+                            return;
+                        }
+
+                        BigInteger t1 = transactionSent.body().getConfirmedBalance();
+                        BigInteger t2 = transactionSent.body().getUnconfirmedBalance();
+                        TransactionConfirmation t = new TransactionConfirmation(t1.toString(), t2.toString());
+                        BaseApplication.get().getSocketObservables().emitTransactionConfirmation(t);
+                        BaseApplication.get().getSocketObservables().emitTransactionSent(transactionSent.body());
+                        String parsedInput = activity.getBinding().amount.getText().toString().replace(",", ".");
+
                         final Intent intent = new Intent();
                         intent.putExtra(INTENT_WALLET_ADDRESS, activity.getBinding().walletAddress.getText().toString());
-                        intent.putExtra(INTENT_WITHDRAW_AMOUNT, new BigDecimal(activity.getBinding().amount.getText().toString()));
+                        intent.putExtra(INTENT_WITHDRAW_AMOUNT, new BigDecimal(parsedInput));
                         activity.setResult(RESULT_OK, intent);
                         activity.finish();
+                        activity.overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right);
                     }
                 };
             }
@@ -342,12 +347,17 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         try {
             final NumberFormat nf = NumberFormat.getInstance(LocaleUtil.getLocale());
             final String inputtedText = this.activity.getBinding().amount.getText().toString();
-            final String parsedInput = inputtedText.replace(".", ",");
+            String parsedInput = inputtedText.replace(".", ",");
+
             final BigDecimal amountRequested = new BigDecimal(nf.parse(parsedInput).toString());
             final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
             this.activity.getBinding().walletAddress.setText(toAddress.replaceFirst("ethereum:", ""));
 
-            if (amountRequested.compareTo(this.minWithdrawLimit) > 0 && amountRequested.compareTo(this.currentBalance) <= 0) {
+            Log.d(TAG, "validate: " + toAddress);
+
+            Log.d(TAG, "validate: " + currentBalance + " " + parsedInput);
+
+            if (amountRequested.compareTo(minWithdrawLimit) > 0 && amountRequested.compareTo(this.currentBalance) <= 0) {
                 return true;
             }
         } catch (final NumberFormatException | ParseException ex) {

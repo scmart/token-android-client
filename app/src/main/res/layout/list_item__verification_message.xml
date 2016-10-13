@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
-        android:src="@drawable/toshi_avatar"
+        android:src="@drawable/token_avatar"
         android:layout_marginRight="@dimen/avatarPadding" />
 
     <LinearLayout
@@ -31,6 +31,7 @@
             android:gravity="center_vertical"
             android:textSize="@dimen/defaultTextSize"
             android:textColor="@color/textColorSec"
+            android:lineSpacingExtra="2dp"
             tools:text="Now, your balance doesn’t show up in the bar in the top here yet. That’s because we can’t give it to you until you verify your phone number—we’re storing it for you until then.
 
 Verifying your phone number will also activate and increase your reputation score. So, what are you waiting for?" />
@@ -48,6 +49,7 @@ Verifying your phone number will also activate and increase your reputation scor
             android:textColor="@color/buttonTextColor"
             android:textSize="@dimen/buttonTextSize"
             android:text="@string/verify_phone_number"
+            android:lineSpacingExtra="2dp"
             android:visibility="gone"/>
         
     </LinearLayout>

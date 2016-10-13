@@ -7,6 +7,14 @@ public class TransactionConfirmation {
 
     private TransactionInternals payload;
 
+    public TransactionConfirmation(String balance, String confirmedBalance){
+        if(payload == null){
+            payload = new TransactionInternals();
+        }
+        payload.confirmed_balance = confirmedBalance;
+        payload.balance = balance;
+    }
+
     public BigInteger getUnconfirmedBalance() {
         return new BigInteger(this.payload.balance);
     }

@@ -4,6 +4,7 @@ package com.bakkenbaeck.token.network.rest.model;
 public class SignatureRequest {
 
     private SignatureRequestInternals payload;
+    private String type;
 
     public String getTransaction() {
         return this.payload.transaction;

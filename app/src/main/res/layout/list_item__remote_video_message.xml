@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
-        android:src="@drawable/toshi_avatar"
+        android:src="@drawable/token_avatar"
         android:layout_marginRight="@dimen/avatarPadding" />
 
     <LinearLayout
@@ -28,6 +28,7 @@
             android:layout_height="wrap_content"
             android:textSize="@dimen/defaultTextSize"
             android:textColor="@color/textColorSec"
+            android:lineSpacingExtra="2dp"
             android:layout_marginBottom="@dimen/textBubbleHalfPadding"/>
 
         <FrameLayout
@@ -53,6 +54,7 @@
                 android:fontFamily="sans-serif-medium"
                 android:visibility="gone"
                 android:textAllCaps="true"
+                android:lineSpacingExtra="2dp"
                 android:text="@string/watched"/>
             
         </FrameLayout>

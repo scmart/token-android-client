@@ -10,29 +10,31 @@ android {
     def versionMajor = 1
     def versionMinor = 0
     def versionPatch = 0
-    def versionBuild = 0
+    def versionBuild = 1
 
     defaultConfig {
         applicationId "com.bakkenbaeck.token"
         minSdkVersion 16
         targetSdkVersion 24
-        versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
-        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+        versionCode 10002
+        versionName "100002"
     }
 
     buildTypes {
         debug {
             multiDexEnabled true
+            debuggable false
         }
         release {
             multiDexEnabled false
             minifyEnabled true
             shrinkResources true
+            debuggable false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
-    /*splits {
+    splits {
         abi {
             enable true
             reset()
@@ -48,7 +50,7 @@ android {
             output.versionCodeOverride =
                     project.ext.versionCodes.get(output.getFilter(com.android.build.OutputFile.ABI), 0) * 1000000 + android.defaultConfig.versionCode
         }
-    }*/
+    }
 }
 
 dependencies {

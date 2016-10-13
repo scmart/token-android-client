@@ -2,7 +2,7 @@ package com.bakkenbaeck.token.network.ws;
 
 
 import com.bakkenbaeck.token.model.User;
-import com.bakkenbaeck.token.network.rest.ToshiService;
+import com.bakkenbaeck.token.network.rest.TokenService;
 import com.bakkenbaeck.token.network.rest.model.WebSocketConnectionDetails;
 import com.bakkenbaeck.token.network.ws.WebSocketConnection.Listener;
 import com.bakkenbaeck.token.network.ws.model.ConnectionState;
@@ -50,7 +50,7 @@ public class WebSocketManager {
         @Override
         public void onNext(final User user) {
             this.unsubscribe();
-            ToshiService.getApi()
+            TokenService.getApi()
                     .getWebsocketUrl(user.getAuthToken())
                     .retryWhen(new RetryWithBackoff(10))
                     .subscribe(this.webConnectionDetailsSubscriber);

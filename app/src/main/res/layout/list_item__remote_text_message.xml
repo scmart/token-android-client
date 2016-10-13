@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
-        android:src="@drawable/toshi_avatar"
+        android:src="@drawable/token_avatar"
         android:layout_marginRight="@dimen/avatarPadding" />
 
     <LinearLayout
@@ -32,6 +32,7 @@
             android:layout_marginBottom="@dimen/textBubbleHalfPadding"
             android:textSize="@dimen/defaultTextSize"
             android:textColor="@color/textColorSec"
+            android:lineSpacingExtra="2dp"
             tools:text="We are the robots!" />
 
         <LinearLayout
@@ -54,6 +55,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="#FFFFFF"
                     android:textSize="@dimen/defaultTextSize"
+                    android:lineSpacingExtra="2dp"
                     android:layout_gravity="center_vertical" />
 
                 <TextView
@@ -62,6 +64,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="#ffffff"
                     android:layout_gravity="center_vertical"
+                    android:lineSpacingExtra="2dp"
                     android:textSize="@dimen/subTitleSize" />
 
             </LinearLayout>
@@ -79,6 +82,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:textColor="#FFFFFF"
+                    android:lineSpacingExtra="2dp"
                     android:textSize="@dimen/defaultTextSize" />
 
                 <TextView
@@ -87,6 +91,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:textColor="#FFFFFF"
+                    android:lineSpacingExtra="2dp"
                     android:textSize="@dimen/subTitleSize" />
 
             </LinearLayout>

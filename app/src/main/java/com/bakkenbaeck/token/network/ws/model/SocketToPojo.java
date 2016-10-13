@@ -15,6 +15,8 @@ import java.io.IOException;
 
 public class SocketToPojo {
     private static final String TAG = "SocketToPojo";
+    private static final String AD_BOT_ID = "32a2299bd8dc405da979471275db2a5e";
+    
     private final Moshi moshi;
     private final JsonAdapter<WebSocketType> jsonAdapter;
     private final JsonAdapter<Message> messageAdapter;
@@ -57,14 +59,17 @@ public class SocketToPojo {
             return;
         }
 
-        Log.d(TAG, "convertAndEmitPojo: " + json);
-
         switch (webSocketType.get()) {
             case "hello":
                 LogUtil.i(getClass(), "Ignoring websocket event -- hello");
                 break;
             case "message":
-                Log.d(TAG, "convertAndEmitPojo: 1");
+
+                if(!webSocketType.getSenderId().equals(AD_BOT_ID)){
+                    LogUtil.i(getClass(), "convertAndEmitPojo: UNKNOWN SENDER ID");
+                    break;
+                }
+
                 final Message message = this.messageAdapter.fromJson(json);
                 this.socketObservables.emitMessage(message);
                 break;

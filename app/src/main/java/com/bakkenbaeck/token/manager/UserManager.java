@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import com.bakkenbaeck.token.crypto.Wallet;
 import com.bakkenbaeck.token.model.CryptoDetails;
 import com.bakkenbaeck.token.model.User;
-import com.bakkenbaeck.token.network.rest.ToshiService;
+import com.bakkenbaeck.token.network.rest.TokenService;
 import com.bakkenbaeck.token.util.OnCompletedObserver;
 import com.bakkenbaeck.token.util.OnNextObserver;
 import com.bakkenbaeck.token.util.RetryWithBackoff;
@@ -76,13 +76,13 @@ public class UserManager {
     }
 
     private void requestNewUser() {
-        final Observable<User> call = ToshiService.getApi().requestUserId();
+        final Observable<User> call = TokenService.getApi().requestUserId();
         call.retryWhen(new RetryWithBackoff())
             .subscribe(this.newUserSubscriber);
     }
 
     private void getExistingUser(final String authToken, final String userId) {
-        final Observable<User> call = ToshiService.getApi().getUser(authToken, userId);
+        final Observable<User> call = TokenService.getApi().getUser(authToken, userId);
         call.retryWhen(new RetryWithBackoff())
             .subscribe(this.existingUserSubscriber);
     }
@@ -136,7 +136,7 @@ public class UserManager {
                     .setAesEncodedPrivateKey(wallet.getEncryptedPrivateKey())
                     .setBCryptedPassword(wallet.getBCryptedPassword())
                     .setEthAddress(wallet.getAddress());
-            ToshiService.getApi().putUserCryptoDetails(
+            TokenService.getApi().putUserCryptoDetails(
                         currentUser.getAuthToken(),
                         currentUser.getId(),
                         cryptoDetails)

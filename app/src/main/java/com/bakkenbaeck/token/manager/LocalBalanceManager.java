@@ -9,6 +9,7 @@ import com.bakkenbaeck.token.util.OnNextObserver;
 import com.bakkenbaeck.token.view.BaseApplication;
 
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.BehaviorSubject;
 
 public class LocalBalanceManager {
@@ -56,7 +57,7 @@ public class LocalBalanceManager {
     }
 
     public Observable<Integer> getReputationObservable(){
-        return this.reputationSubject.asObservable();
+        return this.reputationSubject.asObservable().observeOn(AndroidSchedulers.mainThread());
     }
 
     private void setBalance(final User user) {
