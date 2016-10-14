@@ -23,13 +23,13 @@ android {
     buildTypes {
         debug {
             multiDexEnabled true
-            debuggable false
+            debuggable true
         }
         release {
             multiDexEnabled false
             minifyEnabled true
             shrinkResources true
-            debuggable false
+            debuggable true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
