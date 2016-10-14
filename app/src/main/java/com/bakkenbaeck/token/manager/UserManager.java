@@ -2,6 +2,7 @@ package com.bakkenbaeck.token.manager;
 
 
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.bakkenbaeck.token.crypto.Wallet;
 import com.bakkenbaeck.token.model.CryptoDetails;

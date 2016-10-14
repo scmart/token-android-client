@@ -50,10 +50,10 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/textColorSec"
                 android:textSize="@dimen/balance_bar_text_size"
-                android:text="@string/rep" />
+                android:text="@string/level" />
 
             <TextView
-                android:id="@+id/reputation"
+                android:id="@+id/level"
                 android:layout_width="wrap_content"
                 android:layout_height="24dp"
                 android:paddingLeft="8dp"

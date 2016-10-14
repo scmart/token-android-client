@@ -2,6 +2,7 @@ package com.bakkenbaeck.token.network.ws;
 
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.bakkenbaeck.token.util.LogUtil;
 import com.neovisionaries.ws.client.WebSocket;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 /* package */ class WebSocketConnection {
-
+        private static final String TAG = "WebSocketConnection";
     /* package */ interface Listener {
         void onJsonMessage(final String json);
         void onReconnecting();
@@ -25,9 +26,9 @@ import java.util.Map;
     private final WebSocketFactory wsFactory;
     private final Handler reconnectHandler;
     private final Listener listener;
+    private boolean connected = false;
 
     private WebSocket webSocket;
-
 
     public WebSocketConnection(final Listener listener) {
         this.wsFactory = new WebSocketFactory();
@@ -36,41 +37,52 @@ import java.util.Map;
     }
 
     public void init(final String url) {
-        try {
-            this.webSocket = wsFactory.createSocket(url);
-            this.webSocket.addListener(new WebSocketAdapter() {
-                @Override
-                public void onConnected(final WebSocket websocket, final Map<String, List<String>> headers) throws Exception {
-                    LogUtil.i(getClass(), "Connected");
-                    listener.onConnected();
-                    websocket.setPingInterval(15 * 1000);
+        Log.d(TAG, "init: " + connected);
+        if(!connected) {
+            try {
+                if(this.webSocket != null){
+                    webSocket.disconnect();
+                    webSocket.clearListeners();
                 }
+                this.webSocket = wsFactory.createSocket(url);
+                this.webSocket.addListener(new WebSocketAdapter() {
+                    @Override
+                    public void onConnected(final WebSocket websocket, final Map<String, List<String>> headers) throws Exception {
+                        LogUtil.i(getClass(), "Connected");
+                        listener.onConnected();
+                        connected = true;
+                        websocket.setPingInterval(15 * 1000);
+                    }
 
-                @Override
-                public void onConnectError(final WebSocket websocket, final WebSocketException cause) throws Exception {
-                    LogUtil.e(getClass(), "Connected Error");
-                    reconnect();
-                }
+                    @Override
+                    public void onConnectError(final WebSocket websocket, final WebSocketException cause) throws Exception {
+                        LogUtil.e(getClass(), "Connected Error");
+                        connected = false;
+                        listener.onReconnecting();
+                    }
 
-                @Override
-                public void onDisconnected(final WebSocket websocket, final WebSocketFrame serverCloseFrame, final WebSocketFrame clientCloseFrame, final boolean closedByServer) throws Exception {
-                    LogUtil.e(getClass(), "Disconnected");
-                    reconnect();
-                }
+                    @Override
+                    public void onDisconnected(final WebSocket websocket, final WebSocketFrame serverCloseFrame, final WebSocketFrame clientCloseFrame, final boolean closedByServer) throws Exception {
+                        LogUtil.e(getClass(), "Disconnected");
+                        connected = false;
+                        listener.onReconnecting();
+                    }
 
-                @Override
-                public void onTextMessage(final WebSocket websocket, final String message) throws Exception {
-                    listener.onJsonMessage(message);
-                }
-            });
-            this.webSocket.connectAsynchronously();
-        } catch (final IOException e) {
-            LogUtil.e(getClass(), "Connect failed. " + e);
-            reconnect();
+                    @Override
+                    public void onTextMessage(final WebSocket websocket, final String message) throws Exception {
+                        listener.onJsonMessage(message);
+                    }
+                });
+                this.webSocket.connectAsynchronously();
+            } catch (final IOException e) {
+                LogUtil.e(getClass(), "Connect failed. " + e);
+                listener.onReconnecting();
+            }
         }
     }
 
     private void reconnect() {
+        LogUtil.e(getClass(), "Reconnect!");
         this.listener.onReconnecting();
         this.reconnectHandler.postDelayed(new Runnable() {
             @Override
@@ -84,6 +96,10 @@ import java.util.Map;
             }
         }, 10 * 1000);
 
+    }
+
+    public boolean isConnected(){
+        return connected;
     }
 
     public void sendMessage(final String message) {

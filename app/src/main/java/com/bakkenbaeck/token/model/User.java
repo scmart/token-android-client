@@ -9,7 +9,7 @@ public class User {
     private BigInteger confirmed_balance;
     private String auth_token;
     private String bcrypt_salt;
-    private int reputation_score;
+    private int level;
 
     public String getId() {
         return id;
@@ -44,7 +44,7 @@ public class User {
         this.bcrypt_salt = bcrypt_salt;
     }
 
-    public int getReputationScore() {
-        return this.reputation_score;
+    public int getLevel() {
+        return this.level;
     }
 }

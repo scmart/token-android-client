@@ -4,13 +4,13 @@ public class VerificationSuccess {
     private MessageInternals payload;
 
     private static class MessageInternals {
-        private int reputation_gain;
-        private int reputation;
+        private int experience_gain;
+        private int level;
         private String message;
         private String type;
     }
 
     public int getReputationGained(){
-        return payload.reputation_gain;
+        return payload.experience_gain;
     }
 }

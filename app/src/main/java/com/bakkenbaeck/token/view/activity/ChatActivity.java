@@ -8,6 +8,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -18,6 +19,7 @@ import com.bakkenbaeck.token.model.ActivityResultHolder;
 import com.bakkenbaeck.token.presenter.ChatPresenter;
 import com.bakkenbaeck.token.presenter.PresenterLoader;
 import com.bakkenbaeck.token.presenter.factory.ChatPresenterFactory;
+import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.dialog.PhoneInputDialog;
 import com.bakkenbaeck.token.view.dialog.VerificationCodeDialog;
 import com.crashlytics.android.Crashlytics;
@@ -82,6 +84,7 @@ public final class ChatActivity extends AppCompatActivity implements LoaderManag
     public final void onStop() {
         super.onStop();
         presenter.onViewDetached();
+        Log.d("ChatActivity", "onStop: ");
     }
 
     @Override

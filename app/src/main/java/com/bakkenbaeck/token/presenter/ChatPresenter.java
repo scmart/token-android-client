@@ -28,6 +28,7 @@ import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.VideoActivity;
 import com.bakkenbaeck.token.view.activity.WithdrawActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
+import com.bakkenbaeck.token.view.custom.BalanceBar;
 import com.bakkenbaeck.token.view.dialog.PhoneInputDialog;
 import com.bakkenbaeck.token.view.dialog.VerificationCodeDialog;
 
@@ -53,6 +54,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
 
     @Override
     public void onViewAttached(final ChatActivity activity) {
+        Log.d(TAG, "onViewAttached: ");
         this.activity = activity;
         initToolbar();
 
@@ -67,8 +69,22 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         this.messageAdapter.notifyDataSetChanged();
         refreshAnotherOneButtonState();
         scrollToBottom(false);
+
+        BaseApplication.get().reconnectWebsocket();
+
+        initBalanceBar();
     }
 
+    private void initBalanceBar(){
+        BalanceBar balanceBar = this.activity.getBinding().balanceBar;
+        balanceBar.getLevelClickObservable().subscribe(new OnNextSubscriber<Boolean>() {
+            @Override
+            public void onNext(Boolean aBoolean) {
+                showPhoneInputDialog();
+            }
+        });
+    }
+    
     public boolean isAttached() {
         return this.activity != null;
     }
@@ -101,7 +117,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
     private void initShortLivingObjects() {
         this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
         BaseApplication.get().getLocalBalanceManager().getObservable().subscribe(this.newBalanceSubscriber);
-        BaseApplication.get().getLocalBalanceManager().getReputationObservable().subscribe(this.newReputationSubscriber);
+        BaseApplication.get().getLocalBalanceManager().getLevelObservable().subscribe(this.newReputationSubscriber);
     }
 
     private void initToolbar() {
@@ -211,13 +227,11 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
 
     @Override
     public void onVerifyClicked() {
+        showPhoneInputDialog();
+    }
+
+    private void showPhoneInputDialog(){
         PhoneInputDialog dialog = new PhoneInputDialog();
-        dialog.getErrorObservable().subscribe(new OnNextSubscriber<String>() {
-            @Override
-            public void onNext(String s) {
-                SnackbarUtil.make(activity.getBinding().root, s).show();
-            }
-        });
         dialog.show(activity.getSupportFragmentManager(), "dialog");
     }
 
@@ -410,12 +424,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
     public void onPhoneInputSuccess(final PhoneInputDialog dialog) {
         final String phoneNumber = dialog.getInputtedPhoneNumber();
         final VerificationCodeDialog vcDialog = VerificationCodeDialog.newInstance(phoneNumber);
-        vcDialog.getObservable().subscribe(new OnNextSubscriber<String>() {
-            @Override
-            public void onNext(String s) {
-                SnackbarUtil.make(activity.getBinding().root, s).show();
-            }
-        });
         vcDialog.show(this.activity.getSupportFragmentManager(), "dialog");
     }
 

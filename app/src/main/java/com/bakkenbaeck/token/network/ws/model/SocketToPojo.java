@@ -1,8 +1,6 @@
 package com.bakkenbaeck.token.network.ws.model;
 
 
-import android.util.Log;
-
 import com.bakkenbaeck.token.model.jsonadapter.BigIntegerAdapter;
 import com.bakkenbaeck.token.network.rest.model.TransactionSent;
 import com.bakkenbaeck.token.network.rest.model.VerificationSent;

@@ -23,18 +23,18 @@ android {
     buildTypes {
         debug {
             multiDexEnabled true
-            debuggable false
+            debuggable true
         }
         release {
             multiDexEnabled false
             minifyEnabled true
             shrinkResources true
-            debuggable false
+            debuggable true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
-    splits {
+    /*splits {
         abi {
             enable true
             reset()
@@ -50,7 +50,7 @@ android {
             output.versionCodeOverride =
                     project.ext.versionCodes.get(output.getFilter(com.android.build.OutputFile.ABI), 0) * 1000000 + android.defaultConfig.versionCode
         }
-    }
+    }*/
 }
 
 dependencies {

@@ -62,4 +62,13 @@ public class BaseApplication extends MultiDexApplication {
     public void sendWebSocketMessage(final String message) {
         this.webSocketManager.sendMessage(message);
     }
+
+    public void reconnectWebsocket(){
+        this.webSocketManager.requestWebsocketConnection();
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+    }
 }

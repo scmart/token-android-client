@@ -26,12 +26,24 @@
             android:focusable="true"
             android:lineSpacingExtra="5dp"
             android:layout_marginTop="10dp"
+            android:background="@drawable/edit_text_underline"
+            android:paddingBottom="2dp"
+            android:layout_marginLeft="5dp"
             android:maxLines="1"
             android:inputType="number"
             android:textColor="#99565A64"
             android:textColorHint="#99565A64"
             android:textSize="@dimen/inputSize"
             android:hint="@string/dialog_verification_code__hint"/>
+
+        <TextView
+            android:id="@+id/verification_code_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/errorState"
+            android:textSize="@dimen/smallSubSize"
+            android:layout_marginTop="3dp"
+            android:visibility="invisible"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -82,6 +94,7 @@
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:SpinKit_Color="@color/colorAccent" />
+            app:SpinKit_Color="@color/colorAccent"
+            android:id="@+id/spinKitView" />
     </FrameLayout>
 </FrameLayout>

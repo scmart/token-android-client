@@ -32,8 +32,8 @@
     <string name="withdraw__ether">ETH</string>
     <string name="error__phone_number_in_use">This number is already in use</string>
     <string name="verification_success">&lt;font color=\"#ffffff\"&gt;Your phone number was successfully verified!&lt;\/font\&gt;</string>
-    <string name="increase_reputation__button">Increase Reputation</string>
-    <string name="rep">Rep</string>
+    <string name="increase_reputation__button">Increase Level</string>
+    <string name="level">Level</string>
     <string name="to">To:</string>
     <string name="amount">Amount:</string>
     <string name="send">Send</string>

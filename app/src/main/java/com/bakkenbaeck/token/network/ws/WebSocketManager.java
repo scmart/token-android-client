@@ -1,6 +1,9 @@
 package com.bakkenbaeck.token.network.ws;
 
 
+import android.os.Handler;
+import android.util.Log;
+
 import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.network.rest.TokenService;
 import com.bakkenbaeck.token.network.rest.model.WebSocketConnectionDetails;
@@ -11,8 +14,10 @@ import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.RetryWithBackoff;
 import com.bakkenbaeck.token.view.BaseApplication;
 
-public class WebSocketManager {
+import rx.Subscriber;
 
+public class WebSocketManager {
+    private static final String TAG = "WebSocketManager";
     private SocketObservables socketObservables;
     private WebSocketConnection webSocketConnection;
     private SocketToPojo socketToPojo;
@@ -22,7 +27,7 @@ public class WebSocketManager {
         this.webSocketConnection = new WebSocketConnection(this.jsonMessageListener);
         this.socketToPojo = new SocketToPojo(this.socketObservables);
 
-        BaseApplication.get().getUserManager().getObservable().subscribe(this.newUserSubscriber);
+        //BaseApplication.get().getUserManager().getObservable().subscribe(this.newUserSubscriber);
     }
 
     private void init(final String url) {
@@ -37,7 +42,11 @@ public class WebSocketManager {
 
         @Override
         public void onReconnecting() {
+            Log.d(TAG, "onReconnecting: ");
+
             socketObservables.emitNewConnectionState(ConnectionState.CONNECTING);
+
+            tryToReconnect();
         }
 
         @Override
@@ -45,25 +54,75 @@ public class WebSocketManager {
             socketObservables.emitNewConnectionState(ConnectionState.CONNECTED);
         }
     };
+    
+    private void tryToReconnect(){
+        Log.d(TAG, "tryToReconnect: ");
+        if(!webSocketConnection.isConnected()){
+            requestWebsocketConnection();
+            Handler h = new Handler();
+            h.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    tryToReconnect();
+                }
+            }, 1000 * 10);
+        }
+    }
 
     private final OnNextSubscriber<User> newUserSubscriber = new OnNextSubscriber<User>() {
         @Override
         public void onNext(final User user) {
+            Log.d("NewUser", "onNext: ");
             this.unsubscribe();
             TokenService.getApi()
                     .getWebsocketUrl(user.getAuthToken())
                     .retryWhen(new RetryWithBackoff(10))
-                    .subscribe(this.webConnectionDetailsSubscriber);
+                    .subscribe(webConnectionDetailsSubscriber);
         }
-
-        private final OnNextSubscriber<WebSocketConnectionDetails> webConnectionDetailsSubscriber = new OnNextSubscriber<WebSocketConnectionDetails>() {
-            @Override
-            public void onNext(final WebSocketConnectionDetails webSocketConnectionDetails) {
-                this.unsubscribe();
-                init(webSocketConnectionDetails.getUrl());
-            }
-        };
     };
+
+    private final OnNextSubscriber<WebSocketConnectionDetails> webConnectionDetailsSubscriber = new OnNextSubscriber<WebSocketConnectionDetails>() {
+        @Override
+        public void onNext(final WebSocketConnectionDetails webSocketConnectionDetails) {
+            this.unsubscribe();
+            Log.d(TAG, "onNext: SOCKET INIT");
+            init(webSocketConnectionDetails.getUrl());
+        }
+    };
+
+    public void requestWebsocketConnection(){
+        Log.d(TAG, "reconnect socket ");
+        if(!webSocketConnection.isConnected()) {
+            BaseApplication.get().getUserManager().getObservable().subscribe(new OnNextSubscriber<User>() {
+                @Override
+                public void onNext(User user) {
+                    if (user != null) {
+                        Log.d(TAG, "onNext: NEW USER -> " + user.getAuthToken());
+                        TokenService.getApi()
+                                .getWebsocketUrl(user.getAuthToken())
+                                .retryWhen(new RetryWithBackoff(10))
+                                .subscribe(new Subscriber<WebSocketConnectionDetails>() {
+                                    @Override
+                                    public void onCompleted() {
+                                        Log.d(TAG, "onCompleted: ");
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                        Log.d(TAG, "onError: " + e);
+                                    }
+
+                                    @Override
+                                    public void onNext(WebSocketConnectionDetails webSocketConnectionDetails) {
+                                        Log.d(TAG, "onNext: ");
+                                        init(webSocketConnectionDetails.getUrl());
+                                    }
+                                });
+                    }
+                }
+            });
+        }
+    }
 
     public final SocketObservables getSocketObservables() {
         return this.socketObservables;

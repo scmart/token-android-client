@@ -11,6 +11,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.ActivityResultHolder;
@@ -28,7 +29,6 @@ import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextObserver;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.RetryWithBackoff;
-import com.bakkenbaeck.token.util.SnackbarUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.BarcodeScannerActivity;
 import com.bakkenbaeck.token.view.activity.WithdrawActivity;
@@ -236,6 +236,9 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             return;
         }
 
+        showAddressError(false, "");
+        showBalanceError(false, "");
+
         try {
             final NumberFormat nf = NumberFormat.getInstance(LocaleUtil.getLocale());
             final String inputtedText = this.activity.getBinding().amount.getText().toString();
@@ -267,7 +270,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        //Toast.makeText(activity, "There was a problem withdrawing, please try again.", Toast.LENGTH_LONG).show();
                         progressDialog.dismiss();
                     }
                 });
@@ -277,17 +279,26 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             @Override
             public void onNext(final Response<SignatureRequest> signatureRequest) {
                 Log.d(TAG, "onNext: 1 " + signatureRequest.code());
-                final String unsignedTransaction = signatureRequest.body().getTransaction();
-                final String signature = BaseApplication.get().getUserManager().signTransaction(unsignedTransaction);
-                final SignedWithdrawalRequest request = new SignedWithdrawalRequest(unsignedTransaction, signature);
 
-                TokenService.getApi()
-                        .postSignedWithdrawal(currentUser.getAuthToken(), request)
-                        .retryWhen(new RetryWithBackoff(5))
-                        .subscribe(generateSignedWithdrawalSubscriber());
+                if(signatureRequest.code() == 400 || signatureRequest.code() == 500){
+                    //Getting null when trying to parse when error
+                    showAddressError(true, "Enter a valid address");
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressDialog.dismiss();
+                        }
+                    });
+                }else if(signatureRequest.code() == 200) {
 
-                if(signatureRequest.code() == 400){
-                    SnackbarUtil.make(activity.getBinding().root, signatureRequest.body().getMessage());
+                    final String unsignedTransaction = signatureRequest.body().getTransaction();
+                    final String signature = BaseApplication.get().getUserManager().signTransaction(unsignedTransaction);
+                    final SignedWithdrawalRequest request = new SignedWithdrawalRequest(unsignedTransaction, signature);
+
+                    TokenService.getApi()
+                            .postSignedWithdrawal(currentUser.getAuthToken(), request)
+                            .retryWhen(new RetryWithBackoff(5))
+                            .subscribe(generateSignedWithdrawalSubscriber());
                 }
             }
 
@@ -320,7 +331,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                         });
 
                         if(transactionSent.code() == 400){
-                            SnackbarUtil.make(activity.getBinding().root, "Not enough funds to transfer the requested amount").show();
+                            showBalanceError(true, "Not enough funds to transfer the requested amount");
                             return;
                         }
 
@@ -343,19 +354,51 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         };
     }
 
+    private void showAddressError(final boolean show, final String errorMessage){
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                TextView addressError = activity.getBinding().ethErrorMessage;
+                View addressLine = activity.getBinding().addressLine;
+                if(show){
+                    addressError.setText(errorMessage);
+                    addressError.setVisibility(View.VISIBLE);
+                    addressLine.setBackgroundColor(ContextCompat.getColor(activity, R.color.errorState));
+                }else{
+                    addressError.setVisibility(View.INVISIBLE);
+                    addressLine.setBackgroundColor(ContextCompat.getColor(activity, R.color.divider));
+                }
+            }
+        });
+    }
+
+    private void showBalanceError(final boolean show, final String errorMassage){
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                TextView balanceError = activity.getBinding().balanceErrorMessage;
+                View balanceLine = activity.getBinding().balanceLine;
+                if(show){
+                    balanceError.setText(errorMassage);
+                    balanceError.setVisibility(View.VISIBLE);
+                    balanceLine.setBackgroundColor(ContextCompat.getColor(activity, R.color.errorState));
+                }else{
+                    balanceError.setVisibility(View.INVISIBLE);
+                    balanceLine.setBackgroundColor(ContextCompat.getColor(activity, R.color.divider));
+                }
+            }
+        });
+    }
+
     private boolean validate() {
         try {
             final NumberFormat nf = NumberFormat.getInstance(LocaleUtil.getLocale());
             final String inputtedText = this.activity.getBinding().amount.getText().toString();
             String parsedInput = inputtedText.replace(".", ",");
-
             final BigDecimal amountRequested = new BigDecimal(nf.parse(parsedInput).toString());
+
             final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
             this.activity.getBinding().walletAddress.setText(toAddress.replaceFirst("ethereum:", ""));
-
-            Log.d(TAG, "validate: " + toAddress);
-
-            Log.d(TAG, "validate: " + currentBalance + " " + parsedInput);
 
             if (amountRequested.compareTo(minWithdrawLimit) > 0 && amountRequested.compareTo(this.currentBalance) <= 0) {
                 return true;
@@ -365,7 +408,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         }
 
         String errorMessage = this.activity.getResources().getString(R.string.withdraw__amount_error);
-        SnackbarUtil.make(this.activity.getBinding().root, errorMessage).show();
+        showBalanceError(true, errorMessage);
 
         this.activity.getBinding().amount.requestFocus();
         return false;
@@ -373,7 +416,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
     private boolean userHasEnoughReputationScore() {
         // Todo: Reputation required for withdrawal should be dictated by the server
-        if (currentUser == null || currentUser.getReputationScore() == 0) {
+        if (currentUser == null || currentUser.getLevel() == 0) {
             return false;
         }
         return true;
@@ -382,7 +425,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     private void registerObservables() {
         BaseApplication.get().getLocalBalanceManager().getObservable().subscribe(this.newBalanceSubscriber);
         BaseApplication.get().getUserManager().getObservable().subscribe(this.userSubscriber);
-        BaseApplication.get().getLocalBalanceManager().getReputationObservable().subscribe(this.newReputationSubscriber);
+        BaseApplication.get().getLocalBalanceManager().getLevelObservable().subscribe(this.newReputationSubscriber);
     }
 
     private final OnNextObserver<User> userSubscriber = new OnNextObserver<User>() {

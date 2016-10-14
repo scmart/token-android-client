@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.network.rest.model.VerificationSent;
@@ -25,6 +27,7 @@ import com.bakkenbaeck.token.network.ws.model.WebSocketErrors;
 import com.bakkenbaeck.token.util.LocaleUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
+import com.bakkenbaeck.token.util.SnackbarUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.hbb20.CountryCodePicker;
 
@@ -41,7 +44,6 @@ public class PhoneInputDialog extends DialogFragment {
 
     private OnNextSubscriber<WebSocketError> errorSubscriber;
     private OnNextSubscriber<VerificationSent> verificationSentSubscriber;
-    private PublishSubject<String> errorSubject = PublishSubject.create();
 
     /* The activity that creates an instance of this dialog fragment must
      * implement this interface in order to receive event callbacks.
@@ -145,6 +147,8 @@ public class PhoneInputDialog extends DialogFragment {
                 return;
             }
 
+            showError(false, "");
+
             final String countryCode = ((CountryCodePicker)view.findViewById(R.id.country_code)).getSelectedCountryCodeWithPlus();
             inputtedPhoneNumber = countryCode + phoneNumberField.getText();
 
@@ -165,15 +169,28 @@ public class PhoneInputDialog extends DialogFragment {
 
         if (error != null && error.getCode().equals(WebSocketErrors.phone_number_already_in_use)) {
             String errorMessage = getContext().getResources().getString(R.string.error__phone_number_in_use);
-            errorSubject.onNext(errorMessage);
+            showError(true, errorMessage);
+
         } else {
             String errorMessage = getContext().getResources().getString(R.string.error__invalid_phone_number);
-            errorSubject.onNext(errorMessage);
+            showError(true, errorMessage);
+            phoneNumberField.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.edit_text_underline_error_state));
         }
     }
 
-    public Observable<String> getErrorObservable(){
-        return errorSubject.asObservable();
+    private void showError(boolean show, String errorMessage){
+        final TextView phoneNumberError = (TextView) this.view.findViewById(R.id.phone_number_error);
+        final EditText phoneNumberField = (EditText) this.view.findViewById(R.id.phone_number);
+
+        phoneNumberField.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.edit_text_underline_error_state));
+
+        if(show) {
+            phoneNumberError.setVisibility(View.VISIBLE);
+            phoneNumberError.setText(errorMessage);
+        }else{
+            phoneNumberError.setVisibility(View.INVISIBLE);
+            phoneNumberError.setText(errorMessage);
+        }
     }
 
     @Override

@@ -1,8 +1,6 @@
 package com.bakkenbaeck.token.network.ws;
 
 
-import android.util.Log;
-
 import com.bakkenbaeck.token.network.rest.model.TransactionSent;
 import com.bakkenbaeck.token.network.rest.model.VerificationSent;
 import com.bakkenbaeck.token.network.ws.model.ConnectionState;
@@ -25,6 +23,8 @@ public class SocketObservables {
     private final BehaviorSubject<TransactionSent> transactionSentSubject = BehaviorSubject.create();
     private final PublishSubject<WebSocketError> errorSubject = PublishSubject.create();
     private final BehaviorSubject<ConnectionState> connectionObservable = BehaviorSubject.create(ConnectionState.CONNECTING);
+
+    private final PublishSubject<Boolean> disconnectObservable = PublishSubject.create();
 
     public Observable<TransactionConfirmation> getTransactionConfirmationObservable() {
         return this.transactionConfirmationSubject.asObservable();
@@ -71,7 +71,6 @@ public class SocketObservables {
     }
 
     public void emitMessage(final Message message) {
-        Log.d("emit", "emitMessage: ");
         this.messageSubject.onNext(message);
     }
 

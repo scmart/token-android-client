@@ -10,12 +10,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.network.ws.model.VerificationConfirm;
@@ -37,7 +39,6 @@ public class VerificationCodeDialog extends DialogFragment {
 
     private OnNextSubscriber<WebSocketError> errorSubscriber;
     private OnNextSubscriber<VerificationSuccess> successSubscriber;
-    private PublishSubject<String> errorSubject = PublishSubject.create();
 
     /* The activity that creates an instance of this dialog fragment must
      * implement this interface in order to receive event callbacks.
@@ -147,6 +148,8 @@ public class VerificationCodeDialog extends DialogFragment {
                 return;
             }
 
+            showError(false, "");
+
             final String inputtedVerificationCode = verificationCodeInput.getText().toString().trim();
 
             final VerificationConfirm vcFrame = new VerificationConfirm(phoneNumber, inputtedVerificationCode);
@@ -160,11 +163,22 @@ public class VerificationCodeDialog extends DialogFragment {
         final EditText verificationCodeInput = (EditText) this.view.findViewById(R.id.verification_code);
         verificationCodeInput.requestFocus();
         String errorMessage = getContext().getResources().getString(R.string.error__invalid_verification_code);
-        errorSubject.onNext(errorMessage);
+        showError(true, errorMessage);
     }
 
-    public Observable<String> getObservable(){
-        return errorSubject.asObservable();
+    private void showError(boolean show, String errorMessage){
+        final TextView phoneNumberError = (TextView) this.view.findViewById(R.id.verification_code_error);
+        final EditText phoneNumberField = (EditText) this.view.findViewById(R.id.verification_code);
+
+        phoneNumberField.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.edit_text_underline_error_state));
+
+        if(show) {
+            phoneNumberError.setVisibility(View.VISIBLE);
+            phoneNumberError.setText(errorMessage);
+        }else{
+            phoneNumberError.setVisibility(View.INVISIBLE);
+            phoneNumberError.setText(errorMessage);
+        }
     }
 
     @Override

@@ -91,7 +91,10 @@
 
                 </LinearLayout>
 
-                <include layout="@layout/line"/>
+                <View android:id="@+id/addressLine"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider"/>
 
                 <TextView
                     android:id="@+id/ethErrorMessage"
@@ -100,7 +103,7 @@
                     android:layout_marginTop="5dp"
                     android:textSize="@dimen/smallSubSize"
                     android:textColor="@color/errorState"
-                    android:visibility="gone"/>
+                    android:visibility="invisible" />
 
             </LinearLayout>
 
@@ -140,8 +143,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:background="@drawable/line_bottom_edit_text"
                         android:paddingBottom="5dp"
+                        android:background="@null"
                         android:paddingLeft="0dp"
                         android:maxLines="1"
                         android:inputType="numberDecimal|numberSigned"
@@ -162,6 +165,11 @@
 
                 </FrameLayout>
 
+                <View android:id="@+id/balanceLine"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider"/>
+
                 <TextView
                     android:id="@+id/balanceErrorMessage"
                     android:layout_width="wrap_content"
@@ -169,7 +177,7 @@
                     android:layout_marginTop="5dp"
                     android:textSize="@dimen/smallSubSize"
                     android:textColor="@color/errorState"
-                    android:visibility="gone"/>
+                    android:visibility="invisible"/>
 
             </LinearLayout>
 

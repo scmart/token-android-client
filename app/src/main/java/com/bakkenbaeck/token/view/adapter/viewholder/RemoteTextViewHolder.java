@@ -14,6 +14,8 @@ public final class RemoteTextViewHolder extends RecyclerView.ViewHolder {
     public TextView earnedValue;
     public TextView earnedTotal;
     public TextView earnedTotalValue;
+    public LinearLayout earnedTotalWrapper;
+    public LinearLayout earnedWrapper;
 
     public RemoteTextViewHolder(final View v) {
         super(v);
@@ -23,5 +25,7 @@ public final class RemoteTextViewHolder extends RecyclerView.ViewHolder {
         this.earnedValue = (TextView) v.findViewById(R.id.earnedValue);
         this.earnedTotal = (TextView) v.findViewById(R.id.earnedTotal);
         this.earnedTotalValue = (TextView) v.findViewById(R.id.earnedTotalValue);
+        this.earnedTotalWrapper = (LinearLayout) v.findViewById(R.id.earnedTotalWrapper);
+        this.earnedWrapper = (LinearLayout) v.findViewById(R.id.earnedWrapper);
     }
 }

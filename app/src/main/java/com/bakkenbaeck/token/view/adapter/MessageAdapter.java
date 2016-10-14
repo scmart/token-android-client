@@ -121,16 +121,20 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     vh.details.setVisibility(View.VISIBLE);
 
                     //Earned
+
+                    vh.earnedTotalWrapper.setVisibility(View.GONE);
+                    vh.earnedWrapper.setVisibility(View.VISIBLE);
                     String subString1 = String.valueOf(chatMessage.getDetails().get(0).getValue());
-                    //Log.d(TAG, "onBindViewHolder: " + subString1);
                     vh.earned.setText(chatMessage.getDetails().get(0).getTitle());
                     vh.earnedValue.setText(subString1);
 
                     //Total
-                    String subString2 = String.valueOf(chatMessage.getDetails().get(1).getValue());
-                    //Log.d(TAG, "onBindViewHolder: " + subString2);
-                    vh.earnedTotal.setText(chatMessage.getDetails().get(1).getTitle());
-                    vh.earnedTotalValue.setText(subString2);
+                    if(chatMessage.getDetails().size() > 1) {
+                        vh.earnedTotalWrapper.setVisibility(View.VISIBLE);
+                        String subString2 = String.valueOf(chatMessage.getDetails().get(1).getValue());
+                        vh.earnedTotal.setText(chatMessage.getDetails().get(1).getTitle());
+                        vh.earnedTotalValue.setText(subString2);
+                    }
                 }else{
                     vh.details.setVisibility(View.GONE);
                 }
