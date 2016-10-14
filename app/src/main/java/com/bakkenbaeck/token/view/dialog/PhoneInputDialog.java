@@ -41,6 +41,7 @@ public class PhoneInputDialog extends DialogFragment {
     private String inputtedPhoneNumber;
     private Listener listener;
     private View view;
+    private boolean visible;
 
     private OnNextSubscriber<WebSocketError> errorSubscriber;
     private OnNextSubscriber<VerificationSent> verificationSentSubscriber;
@@ -69,6 +70,8 @@ public class PhoneInputDialog extends DialogFragment {
         this.verificationSentSubscriber = generateVerificationSentSubscriber();
         BaseApplication.get().getSocketObservables().getErrorObservable().subscribe(this.errorSubscriber);
         BaseApplication.get().getSocketObservables().getVerificationSentObservable().subscribe(this.verificationSentSubscriber);
+
+        visible = true;
     }
 
     private OnNextSubscriber<WebSocketError> generateErrorSubscriber() {
@@ -199,7 +202,12 @@ public class PhoneInputDialog extends DialogFragment {
         this.verificationSentSubscriber.unsubscribe();
         this.errorSubscriber = null;
         this.verificationSentSubscriber = null;
+        visible = false;
         super.onDetach();
+    }
+
+    public boolean isVisible2(){
+        return visible;
     }
 
 }

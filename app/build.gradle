@@ -16,20 +16,20 @@ android {
         applicationId "com.bakkenbaeck.token"
         minSdkVersion 16
         targetSdkVersion 24
-        versionCode 10002
-        versionName "100002"
+        versionCode 10003
+        versionName "100003"
     }
 
     buildTypes {
         debug {
             multiDexEnabled true
-            debuggable true
+            debuggable false
         }
         release {
             multiDexEnabled false
             minifyEnabled true
             shrinkResources true
-            debuggable true
+            debuggable false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

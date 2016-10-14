@@ -52,6 +52,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
     private ChatMessageStore chatMessageStore;
     private Snackbar networkStateSnackbar;
 
+
     @Override
     public void onViewAttached(final ChatActivity activity) {
         Log.d(TAG, "onViewAttached: ");
@@ -77,9 +78,9 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
 
     private void initBalanceBar(){
         BalanceBar balanceBar = this.activity.getBinding().balanceBar;
-        balanceBar.getLevelClickObservable().subscribe(new OnNextSubscriber<Boolean>() {
+        balanceBar.setOnLevelClicked(new BalanceBar.OnLevelClicked() {
             @Override
-            public void onNext(Boolean aBoolean) {
+            public void onClickListener() {
                 showPhoneInputDialog();
             }
         });
@@ -230,9 +231,17 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         showPhoneInputDialog();
     }
 
+    private PhoneInputDialog phoneInputDialog;
+
     private void showPhoneInputDialog(){
-        PhoneInputDialog dialog = new PhoneInputDialog();
-        dialog.show(activity.getSupportFragmentManager(), "dialog");
+        Log.d(TAG, "showPhoneInputDialog: ");
+        if(phoneInputDialog != null){
+            if(phoneInputDialog.isVisible2()){
+                return;
+            }
+        }
+        phoneInputDialog = new PhoneInputDialog();
+        phoneInputDialog.show(activity.getSupportFragmentManager(), "dialog");
     }
 
     private void withdrawAmountFromAddress(final BigDecimal amount, final String walletAddress) {

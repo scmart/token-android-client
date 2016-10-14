@@ -15,7 +15,15 @@ import rx.subjects.PublishSubject;
 public class BalanceBar extends LinearLayout {
     private static final String TAG = "BalanceBar";
 
-    private PublishSubject<Boolean> levelClickSubject = PublishSubject.create();
+    public interface OnLevelClicked{
+        void onClickListener();
+    }
+
+    private OnLevelClicked clickListener;
+
+    public void setOnLevelClicked(OnLevelClicked listener){
+        clickListener = listener;
+    }
 
     public BalanceBar(final Context context) {
         super(context);
@@ -30,11 +38,20 @@ public class BalanceBar extends LinearLayout {
     private void init() {
         inflate(getContext(), R.layout.view__balance_bar, this);
 
+        findViewById(R.id.textView).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(clickListener != null){
+                    clickListener.onClickListener();
+                }
+            }
+        });
+
         findViewById(R.id.level).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(levelClickSubject != null) {
-                    levelClickSubject.onNext(true);
+                if(clickListener != null){
+                    clickListener.onClickListener();
                 }
             }
         });
@@ -58,9 +75,4 @@ public class BalanceBar extends LinearLayout {
             }
         }, 200);
     }
-
-    public Observable<Boolean> getLevelClickObservable(){
-        return levelClickSubject.asObservable();
-    }
-
 }
