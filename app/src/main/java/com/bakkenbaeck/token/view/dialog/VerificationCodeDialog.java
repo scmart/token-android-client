@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,10 +28,8 @@ import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.view.BaseApplication;
 
-import rx.Observable;
-import rx.subjects.PublishSubject;
-
 public class VerificationCodeDialog extends DialogFragment {
+    private static final String TAG = "VerificationCodeDialog";
 
     private static final String PHONE_NUMBER = "phone_number";
     private String phoneNumber;
@@ -167,17 +166,22 @@ public class VerificationCodeDialog extends DialogFragment {
     }
 
     private void showError(boolean show, String errorMessage){
-        final TextView phoneNumberError = (TextView) this.view.findViewById(R.id.verification_code_error);
-        final EditText phoneNumberField = (EditText) this.view.findViewById(R.id.verification_code);
+        if(this.view != null) {
+            final TextView phoneNumberError = (TextView) this.view.findViewById(R.id.verification_code_error);
+            final EditText phoneNumberField = (EditText) this.view.findViewById(R.id.verification_code);
 
-        phoneNumberField.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.edit_text_underline_error_state));
-
-        if(show) {
-            phoneNumberError.setVisibility(View.VISIBLE);
-            phoneNumberError.setText(errorMessage);
-        }else{
-            phoneNumberError.setVisibility(View.INVISIBLE);
-            phoneNumberError.setText(errorMessage);
+            if(phoneNumberError != null) {
+                if (show) {
+                    phoneNumberError.setVisibility(View.VISIBLE);
+                    phoneNumberError.setText(errorMessage);
+                    if(phoneNumberField != null) {
+                        phoneNumberField.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.edit_text_underline_error_state));
+                    }
+                } else {
+                    phoneNumberError.setVisibility(View.INVISIBLE);
+                    phoneNumberError.setText(errorMessage);
+                }
+            }
         }
     }
 

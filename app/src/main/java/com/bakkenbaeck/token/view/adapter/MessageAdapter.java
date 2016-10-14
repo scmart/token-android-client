@@ -211,11 +211,12 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public void disableVerifyButton(Activity activity){
-        Log.d(TAG, "disableVerifyButton: ");
-        verifyButton.setTextColor(Color.parseColor("#33565A64"));
-        verifyButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.disabled_background));
-        verifyButton.setEnabled(false);
-        verifyButton.setOnClickListener(null);
+        if(verifyButton != null) {
+            verifyButton.setTextColor(Color.parseColor("#33565A64"));
+            verifyButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.disabled_background));
+            verifyButton.setEnabled(false);
+            verifyButton.setOnClickListener(null);
+        }
     }
 
     public void enableVerifyButton(Activity activity){

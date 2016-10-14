@@ -27,7 +27,7 @@ import io.fabric.sdk.android.Fabric;
 
 public final class ChatActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ChatPresenter>, PhoneInputDialog.Listener,
         VerificationCodeDialog.Listener{
-
+    private static final String TAG = "ChatActivity";
     private static final int UNIQUE_ACTIVITY_ID = 101;
 
     private ChatPresenter presenter;
@@ -84,7 +84,6 @@ public final class ChatActivity extends AppCompatActivity implements LoaderManag
     public final void onStop() {
         super.onStop();
         presenter.onViewDetached();
-        Log.d("ChatActivity", "onStop: ");
     }
 
     @Override

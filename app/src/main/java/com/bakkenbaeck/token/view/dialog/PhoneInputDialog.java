@@ -182,17 +182,22 @@ public class PhoneInputDialog extends DialogFragment {
     }
 
     private void showError(boolean show, String errorMessage){
-        final TextView phoneNumberError = (TextView) this.view.findViewById(R.id.phone_number_error);
-        final EditText phoneNumberField = (EditText) this.view.findViewById(R.id.phone_number);
+        if(this.view != null) {
+            final TextView phoneNumberError = (TextView) this.view.findViewById(R.id.phone_number_error);
+            final EditText phoneNumberField = (EditText) this.view.findViewById(R.id.phone_number);
 
-        phoneNumberField.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.edit_text_underline_error_state));
-
-        if(show) {
-            phoneNumberError.setVisibility(View.VISIBLE);
-            phoneNumberError.setText(errorMessage);
-        }else{
-            phoneNumberError.setVisibility(View.INVISIBLE);
-            phoneNumberError.setText(errorMessage);
+            if(phoneNumberError != null) {
+                if (show) {
+                    phoneNumberError.setVisibility(View.VISIBLE);
+                    phoneNumberError.setText(errorMessage);
+                    if(phoneNumberField != null) {
+                        phoneNumberField.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.edit_text_underline_error_state));
+                    }
+                } else {
+                    phoneNumberError.setVisibility(View.INVISIBLE);
+                    phoneNumberError.setText(errorMessage);
+                }
+            }
         }
     }
 

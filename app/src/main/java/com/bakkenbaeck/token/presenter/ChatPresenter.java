@@ -200,7 +200,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
             if(activity != null){
                 activity.getBinding().balanceBar.setReputation(reputationScore);
                 if(reputationScore == 0){
-                    Log.d(TAG, "onNext: == 0");
                     //if reputation is 0, set verifies to false so the user can click the verify button
                     SharedPrefsUtil.saveVerified(false);
                     activity.getBinding().messagesList.invalidate();
@@ -234,7 +233,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
     private PhoneInputDialog phoneInputDialog;
 
     private void showPhoneInputDialog(){
-        Log.d(TAG, "showPhoneInputDialog: ");
         if(phoneInputDialog != null){
             if(phoneInputDialog.isVisible2()){
                 return;
@@ -446,10 +444,5 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         String resourceMessage = this.activity.getString(R.string.verification_success_message);
         ChatMessage message = new ChatMessage().makeRemoteVerificationMessageSuccess(resourceMessage, reputationGained);
         displayMessage(message);
-
-        Snackbar.make(
-                this.activity.getBinding().root,
-                Html.fromHtml(this.activity.getString(R.string.verification_success)),
-                Snackbar.LENGTH_LONG).show();
     }
 }
