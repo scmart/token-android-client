@@ -47,11 +47,6 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private Activity activity;
     private TextView verifyButton;
 
-    //footers
-    List<View> footers = new ArrayList<>();
-
-    public static final int TYPE_FOOTER = 222;
-
     public MessageAdapter(Activity activity) {
         this.chatMessages = new ArrayList<>();
         this.chatMessagesWhilstPaused = new ArrayList<>();

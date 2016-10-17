@@ -17,4 +17,5 @@
     <dimen name="buttonTextSize">15sp</dimen>
     <dimen name="smallSubSize">12sp</dimen>
     <dimen name="inputSize">16sp</dimen>
+    <dimen name="bottom_offset_dp">60dp</dimen>
 </resources>
