@@ -20,6 +20,7 @@ import com.bakkenbaeck.token.presenter.ChatPresenter;
 import com.bakkenbaeck.token.presenter.PresenterLoader;
 import com.bakkenbaeck.token.presenter.factory.ChatPresenterFactory;
 import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.view.adapter.viewholder.BottomOffsetDecoration;
 import com.bakkenbaeck.token.view.dialog.PhoneInputDialog;
 import com.bakkenbaeck.token.view.dialog.VerificationCodeDialog;
 import com.crashlytics.android.Crashlytics;
@@ -51,6 +52,10 @@ public final class ChatActivity extends AppCompatActivity implements LoaderManag
 
         final RecyclerView.LayoutManager recyclerLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         this.binding.messagesList.setLayoutManager(recyclerLayoutManager);
+
+        float offsetPx = getResources().getDimension(R.dimen.bottom_offset_dp);
+        BottomOffsetDecoration bottomOffsetDecoration = new BottomOffsetDecoration((int) offsetPx);
+        getBinding().messagesList.addItemDecoration(bottomOffsetDecoration);
     }
 
     public final ActivityChatBinding getBinding() {

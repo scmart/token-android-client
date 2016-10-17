@@ -54,7 +54,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
     private boolean isShowingAnotherOneButton;
     private ChatMessageStore chatMessageStore;
     private Snackbar networkStateSnackbar;
-
+    private boolean recycleViewInitiated = false;
 
     @Override
     public void onViewAttached(final ChatActivity activity) {
@@ -77,6 +77,11 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         BaseApplication.get().reconnectWebsocket();
 
         initBalanceBar();
+        initView();
+    }
+
+    private void initView(){
+        this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
     }
 
     private void initBalanceBar(){
@@ -119,11 +124,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
     }
 
     private void initShortLivingObjects() {
-        this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
-        float offsetPx = this.activity.getResources().getDimension(R.dimen.bottom_offset_dp);
-        BottomOffsetDecoration bottomOffsetDecoration = new BottomOffsetDecoration((int) offsetPx);
-        this.activity.getBinding().messagesList.addItemDecoration(bottomOffsetDecoration);
-
         BaseApplication.get().getLocalBalanceManager().getObservable().subscribe(this.newBalanceSubscriber);
         BaseApplication.get().getLocalBalanceManager().getLevelObservable().subscribe(this.newReputationSubscriber);
     }

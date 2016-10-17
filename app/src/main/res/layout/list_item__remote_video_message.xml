@@ -32,9 +32,9 @@
             android:layout_marginBottom="@dimen/textBubbleHalfPadding"/>
 
         <FrameLayout
+            android:id="@+id/video_background"
             android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:background="@drawable/background_video">
+            android:layout_height="120dp">
 
             <ImageView
                 android:id="@+id/video_state"

@@ -54,11 +54,13 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public final void addMessage(final ChatMessage chatMessage) {
+        Log.d(TAG, "addMessage: ");
         if (isRenderingPaused) {
             this.chatMessagesWhilstPaused.add(chatMessage);
         } else {
             addAndRenderMessage(chatMessage);
         }
+        notifyDataSetChanged();
     }
 
     public interface OnVerifyClicklistener{
@@ -78,9 +80,6 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public int getItemViewType(final int position) {
-        /*if(position >= chatMessages.size()){
-            return TYPE_FOOTER;
-        }*/
         final ChatMessage chatMessage = this.chatMessages.get(position);
         return chatMessage.getType();
     }
@@ -151,6 +150,7 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             case TYPE_REMOTE_VIDEO: {
                 final RemoteVideoViewHolder vh = (RemoteVideoViewHolder) holder;
                 if (!chatMessage.hasBeenWatched()) {
+                    vh.videoBackground.setBackground(ContextCompat.getDrawable(activity, R.drawable.background_video));
                     vh.videoState.setImageResource(R.drawable.play);
                     vh.title.setText(chatMessage.getText());
                     vh.watched.setVisibility(View.GONE);
@@ -162,6 +162,7 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     });
                 } else {
                     holder.itemView.setOnClickListener(null);
+                    vh.videoBackground.setBackground(ContextCompat.getDrawable(activity, R.drawable.background_video_watched));
                     vh.title.setText(chatMessage.getText());
                     vh.watched.setVisibility(View.VISIBLE);
                     vh.videoState.setImageResource(0);
