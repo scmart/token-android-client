@@ -197,12 +197,18 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
     private final OnNextObserver<Integer> newReputationSubscriber = new OnNextObserver<Integer>() {
         @Override
         public void onNext(Integer reputationScore) {
-            if(activity != null){
-                activity.getBinding().balanceBar.setReputation(reputationScore);
-                if(reputationScore == 0){
-                    //if reputation is 0, set verifies to false so the user can click the verify button
-                    SharedPrefsUtil.saveVerified(false);
-                    activity.getBinding().messagesList.invalidate();
+            if(activity != null) {
+                BalanceBar balanceBar = activity.getBinding().balanceBar;
+                if (balanceBar != null) {
+                    balanceBar.setReputation(reputationScore);
+                    if (reputationScore == 0) {
+                        balanceBar.disableClickEvents(true);
+                        //if reputation is 0, set verifies to false so the user can click the verify button
+                        SharedPrefsUtil.saveVerified(false);
+                        activity.getBinding().messagesList.invalidate();
+                    }else{
+                        balanceBar.disableClickEvents(false);
+                    }
                 }
             }
         }

@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -24,6 +25,7 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.network.ws.model.VerificationConfirm;
 import com.bakkenbaeck.token.network.ws.model.VerificationSuccess;
 import com.bakkenbaeck.token.network.ws.model.WebSocketError;
+import com.bakkenbaeck.token.util.KeyboardUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -92,6 +94,17 @@ public class VerificationCodeDialog extends DialogFragment {
         return view;
     }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        EditText verificationCode = (EditText) view.findViewById(R.id.verification_code);
+        verificationCode.requestFocus();
+        if(getDialog().getWindow() != null) {
+            getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
+    }
+
     private OnNextSubscriber<WebSocketError> generateErrorSubscriber() {
         return new OnNextSubscriber<WebSocketError>() {
             @Override
@@ -127,6 +140,11 @@ public class VerificationCodeDialog extends DialogFragment {
     private final View.OnClickListener dismissDialog = new OnSingleClickListener() {
         @Override
         public void onSingleClick(final View v) {
+            EditText verificationCode = (EditText) view.findViewById(R.id.verification_code);
+            if(verificationCode != null) {
+                verificationCode.requestFocus();
+                KeyboardUtil.showKeyboard(getActivity(), verificationCode, false);
+            }
             dismiss();
         }
     };

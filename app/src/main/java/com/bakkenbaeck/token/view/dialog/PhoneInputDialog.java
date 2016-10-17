@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -24,6 +25,7 @@ import com.bakkenbaeck.token.network.rest.model.VerificationSent;
 import com.bakkenbaeck.token.network.ws.model.VerificationStart;
 import com.bakkenbaeck.token.network.ws.model.WebSocketError;
 import com.bakkenbaeck.token.network.ws.model.WebSocketErrors;
+import com.bakkenbaeck.token.util.KeyboardUtil;
 import com.bakkenbaeck.token.util.LocaleUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
@@ -120,16 +122,38 @@ public class PhoneInputDialog extends DialogFragment {
         return view;
     }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        EditText phoneNumber = (EditText) view.findViewById(R.id.phone_number);
+        phoneNumber.requestFocus();
+        if(getDialog().getWindow() != null) {
+            getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
+    }
+
     private void initViews(final View view) {
         final Locale currentLocale = LocaleUtil.getLocale();
         ((CountryCodePicker)view.findViewById(R.id.country_code)).setCountryForNameCode(currentLocale.getCountry());
         view.findViewById(R.id.cancelButton).setOnClickListener(this.dismissDialog);
         view.findViewById(R.id.continueButton).setOnClickListener(new PhoneInputDialog.ValidateAndContinueDialog(view));
+
+        EditText phoneNumber = (EditText) view.findViewById(R.id.phone_number);
+        phoneNumber.requestFocus();
+        if(getDialog().getWindow() != null) {
+            getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
     }
 
     private final View.OnClickListener dismissDialog = new OnSingleClickListener() {
         @Override
         public void onSingleClick(final View v) {
+            EditText phoneNumber = (EditText) view.findViewById(R.id.phone_number);
+            if(phoneNumber != null) {
+                phoneNumber.requestFocus();
+                KeyboardUtil.showKeyboard(getActivity(), phoneNumber, true);
+            }
             dismiss();
         }
     };

@@ -47,6 +47,11 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private Activity activity;
     private TextView verifyButton;
 
+    //footers
+    List<View> footers = new ArrayList<>();
+
+    public static final int TYPE_FOOTER = 222;
+
     public MessageAdapter(Activity activity) {
         this.chatMessages = new ArrayList<>();
         this.chatMessagesWhilstPaused = new ArrayList<>();
@@ -78,6 +83,9 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public int getItemViewType(final int position) {
+        /*if(position >= chatMessages.size()){
+            return TYPE_FOOTER;
+        }*/
         final ChatMessage chatMessage = this.chatMessages.get(position);
         return chatMessage.getType();
     }
@@ -114,15 +122,20 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         final ChatMessage chatMessage = this.chatMessages.get(position);
         switch (holder.getItemViewType()) {
             case TYPE_REMOTE_TEXT: {
+                Log.d(TAG, "onBindViewHolder: REMOTE_TEXT");
                 final RemoteTextViewHolder vh = (RemoteTextViewHolder) holder;
-                vh.messageText.setText(chatMessage.getText());
+                String parsedMessage = MessageUtil.parseString(chatMessage.getText());
+                vh.messageText.setText(parsedMessage);
                 if(chatMessage.getDetails() != null && chatMessage.getDetails().size() > 0) {
-                    vh.messageText.setText(chatMessage.getText());
                     vh.details.setVisibility(View.VISIBLE);
 
                     //Earned
-
                     vh.earnedTotalWrapper.setVisibility(View.GONE);
+                    if(chatMessage.getDetails().size() == 1){
+                        vh.earnedWrapper.setBackground(ContextCompat.getDrawable(activity, R.drawable.reward_background));
+                    }else{
+                        vh.earnedWrapper.setBackground(ContextCompat.getDrawable(activity, R.drawable.top_radius_background));
+                    }
                     vh.earnedWrapper.setVisibility(View.VISIBLE);
                     String subString1 = String.valueOf(chatMessage.getDetails().get(0).getValue());
                     vh.earned.setText(chatMessage.getDetails().get(0).getTitle());

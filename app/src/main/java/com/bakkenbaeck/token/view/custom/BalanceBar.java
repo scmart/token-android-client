@@ -3,6 +3,7 @@ package com.bakkenbaeck.token.view.custom;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -38,7 +39,7 @@ public class BalanceBar extends LinearLayout {
     private void init() {
         inflate(getContext(), R.layout.view__balance_bar, this);
 
-        findViewById(R.id.textView).setOnClickListener(new OnClickListener() {
+        /*findViewById(R.id.textView).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(clickListener != null){
@@ -54,15 +55,46 @@ public class BalanceBar extends LinearLayout {
                     clickListener.onClickListener();
                 }
             }
-        });
+        });*/
+    }
+
+    public void disableClickEvents(boolean disable){
+        if(!disable){
+            findViewById(R.id.textView).setOnClickListener(null);
+
+            findViewById(R.id.level).setOnClickListener(null);
+        }else{
+            findViewById(R.id.textView).setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(clickListener != null){
+                        clickListener.onClickListener();
+                    }
+                }
+            });
+
+            findViewById(R.id.level).setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(clickListener != null){
+                        clickListener.onClickListener();
+                    }
+                }
+            });
+        }
+
     }
 
     public void setBalance(final String balance) {
         this.postDelayed(new Runnable() {
             @Override
             public void run() {
-                String shortBalance = balance.substring(0,6);
-                ((TextView)findViewById(R.id.balance)).setText(shortBalance);
+                if(balance.length() > 6) {
+                    String shortBalance = balance.substring(0, 6).replace(",", ".");
+                    ((TextView) findViewById(R.id.balance)).setText(shortBalance);
+                }else{
+                    ((TextView) findViewById(R.id.balance)).setText(balance);
+                }
             }
         }, 200);
     }

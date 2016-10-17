@@ -37,14 +37,14 @@ public class LocalBalance {
 
     public String confirmedBalanceString() {
         if (this.confirmedBalance == null || this.confirmedBalance.equals(BigInteger.ZERO)) {
-            return "0.0000000000";
+            return "0";
         }
         return EthUtil.weiToEthString(this.confirmedBalance);
     }
 
     public String confirmedBalanceStringMinusTransferFee() {
         if (this.confirmedBalance == null || this.confirmedBalance.subtract(transferFee).compareTo(BigInteger.ZERO) <= 0) {
-            return "0.0000000000";
+            return "0";
         }
         return EthUtil.weiToEthString(this.confirmedBalance.subtract(transferFee));
     }
@@ -63,7 +63,7 @@ public class LocalBalance {
 
     public String unconfirmedBalanceString() {
         if (this.unconfirmedBalance == null || this.unconfirmedBalance.equals(BigInteger.ZERO)) {
-            return "0.0000000000";
+            return "0";
         }
         return EthUtil.weiToEthString(this.unconfirmedBalance);
     }

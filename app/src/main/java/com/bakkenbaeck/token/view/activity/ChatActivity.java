@@ -38,9 +38,10 @@ public final class ChatActivity extends AppCompatActivity implements LoaderManag
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!BuildConfig.DEBUG) {
+        /*if (!BuildConfig.DEBUG) {
             Fabric.with(this, new Crashlytics());
-        }
+        }*/
+        Fabric.with(this, new Crashlytics());
         init();
     }
 

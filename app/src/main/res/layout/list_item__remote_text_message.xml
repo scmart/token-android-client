@@ -48,8 +48,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="@dimen/textBubblePadding"
-                android:visibility="gone"
-                android:background="@drawable/top_radius_background">
+                android:visibility="gone">
 
                 <TextView
                     android:id="@+id/earned"

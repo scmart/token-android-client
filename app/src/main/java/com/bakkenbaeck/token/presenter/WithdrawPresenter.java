@@ -163,8 +163,9 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         @Override
         public void onNext(final LocalBalance newBalance) {
             if (activity != null && newBalance != null) {
-                activity.getBinding().balanceBar.setBalance(newBalance.unconfirmedBalanceString());
+                Log.d(TAG, "onNext: " + newBalance);
                 currentBalance = newBalance.getConfirmedBalanceAsEthMinusTransferFee();
+                activity.getBinding().balanceBar.setBalance(newBalance.unconfirmedBalanceString());
                 tryPopulateAmountField(currentBalance, newBalance.confirmedBalanceStringMinusTransferFee());
             }
         }

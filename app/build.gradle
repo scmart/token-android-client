@@ -26,10 +26,10 @@ android {
             debuggable true
         }
         release {
-            multiDexEnabled false
-            minifyEnabled true
-            shrinkResources true
-            debuggable true
+            multiDexEnabled true
+            minifyEnabled false
+            //shrinkResources true
+            debuggable false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
