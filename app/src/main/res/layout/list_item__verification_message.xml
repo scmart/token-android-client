@@ -6,7 +6,8 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:layout_marginTop="@dimen/bubbleMargin"
-    android:layout_marginBottom="@dimen/bubbleMargin">
+    android:layout_marginBottom="@dimen/bubbleMargin"
+    android:alpha="1">
 
     <ImageView
         android:layout_width="wrap_content"
@@ -47,6 +48,7 @@ Verifying your phone number will also activate and increase your reputation scor
             android:gravity="center"
             android:textAllCaps="true"
             android:textColor="@color/buttonTextColor"
+            android:fontFamily="sans-serif-medium"
             android:textSize="@dimen/buttonTextSize"
             android:text="@string/verify_phone_number"
             android:lineSpacingExtra="2dp"

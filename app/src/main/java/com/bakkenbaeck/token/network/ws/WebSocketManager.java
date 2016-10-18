@@ -26,8 +26,6 @@ public class WebSocketManager {
         this.socketObservables = new SocketObservables();
         this.webSocketConnection = new WebSocketConnection(this.jsonMessageListener);
         this.socketToPojo = new SocketToPojo(this.socketObservables);
-
-        //BaseApplication.get().getUserManager().getObservable().subscribe(this.newUserSubscriber);
     }
 
     private void init(final String url) {
@@ -42,8 +40,6 @@ public class WebSocketManager {
 
         @Override
         public void onReconnecting() {
-            Log.d(TAG, "onReconnecting: ");
-
             socketObservables.emitNewConnectionState(ConnectionState.CONNECTING);
 
             tryToReconnect();
@@ -56,7 +52,6 @@ public class WebSocketManager {
     };
     
     private void tryToReconnect(){
-        Log.d(TAG, "tryToReconnect: ");
         if(!webSocketConnection.isConnected()){
             requestWebsocketConnection();
             Handler h = new Handler();
@@ -72,7 +67,6 @@ public class WebSocketManager {
     private final OnNextSubscriber<User> newUserSubscriber = new OnNextSubscriber<User>() {
         @Override
         public void onNext(final User user) {
-            Log.d("NewUser", "onNext: ");
             this.unsubscribe();
             TokenService.getApi()
                     .getWebsocketUrl(user.getAuthToken())
@@ -85,13 +79,11 @@ public class WebSocketManager {
         @Override
         public void onNext(final WebSocketConnectionDetails webSocketConnectionDetails) {
             this.unsubscribe();
-            Log.d(TAG, "onNext: SOCKET INIT");
             init(webSocketConnectionDetails.getUrl());
         }
     };
 
     public void requestWebsocketConnection(){
-        Log.d(TAG, "reconnect socket ");
         if(!webSocketConnection.isConnected()) {
             BaseApplication.get().getUserManager().getObservable().subscribe(new OnNextSubscriber<User>() {
                 @Override

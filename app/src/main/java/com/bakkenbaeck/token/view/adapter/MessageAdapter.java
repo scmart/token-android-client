@@ -60,7 +60,6 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         } else {
             addAndRenderMessage(chatMessage);
         }
-        notifyDataSetChanged();
     }
 
     public interface OnVerifyClicklistener{
@@ -74,7 +73,9 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     private void addAndRenderMessage(final ChatMessage chatMessage) {
+        Log.d(TAG, "addAndRenderMessage: ");
         this.chatMessages.add(chatMessage);
+        notifyItemChanged(this.chatMessages.size() - 2);
         notifyItemInserted(this.chatMessages.size() - 1);
     }
 

@@ -1,11 +1,14 @@
 package com.bakkenbaeck.token.network.ws.model;
 
 
+import android.util.Log;
+
 import com.bakkenbaeck.token.model.jsonadapter.BigIntegerAdapter;
 import com.bakkenbaeck.token.network.rest.model.TransactionSent;
 import com.bakkenbaeck.token.network.rest.model.VerificationSent;
 import com.bakkenbaeck.token.network.ws.SocketObservables;
 import com.bakkenbaeck.token.util.LogUtil;
+import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
@@ -23,6 +26,7 @@ public class SocketToPojo {
     private final JsonAdapter<VerificationSent> verificationSentAdapter;
     private final JsonAdapter<VerificationSuccess> verificationSuccessAdapter;
     private final JsonAdapter<WebSocketError> errorAdapter;
+    private final JsonAdapter<PaymentRequest> paymentRequestAdapter;
     private final SocketObservables socketObservables;
 
     public SocketToPojo(final SocketObservables socketObservables) {
@@ -38,6 +42,7 @@ public class SocketToPojo {
         this.verificationSentAdapter = this.moshi.adapter(VerificationSent.class);
         this.verificationSuccessAdapter = this.moshi.adapter(VerificationSuccess.class);
         this.errorAdapter = this.moshi.adapter(WebSocketError.class);
+        this.paymentRequestAdapter = this.moshi.adapter(PaymentRequest.class);
     }
 
     public void handleNewMessage(final String json) {
@@ -62,7 +67,7 @@ public class SocketToPojo {
                 LogUtil.i(getClass(), "Ignoring websocket event -- hello");
                 break;
             case "message":
-
+                Log.d(TAG, "convertAndEmitPojo: message");
                 if(!webSocketType.getSenderId().equals(AD_BOT_ID)){
                     LogUtil.i(getClass(), "convertAndEmitPojo: UNKNOWN SENDER ID");
                     break;
@@ -80,13 +85,21 @@ public class SocketToPojo {
                 this.socketObservables.emitTransactionConfirmation(confirmation);
                 break;
             case "verification_sent":
+                Log.d(TAG, "convertAndEmitPojo: verification_sent");
                 final VerificationSent verificationSent = this.verificationSentAdapter.fromJson(json);
                 this.socketObservables.emitVerificationSent(verificationSent);
                 break;
             case "verification_success":
+                Log.d(TAG, "convertAndEmitPojo: verification_success");
                 final VerificationSuccess verificationMessage = this.verificationSuccessAdapter.fromJson(json);
                 this.socketObservables.emitVerificationSuccess(verificationMessage);
+
+                paymentRequest();
+                
                 break;
+            case "message_sent":
+                final PaymentRequest paymentRequest = paymentRequestAdapter.fromJson(json);
+                Log.d(TAG, "convertAndEmitPojo: message succesfuly sent!");
             case "error":
                 WebSocketError error;
                 try {
@@ -100,6 +113,15 @@ public class SocketToPojo {
             default:
                 LogUtil.e(getClass(), "Unrecognised websocket event - " + webSocketType.get());
         }
+    }
+
+    private void paymentRequest(){
+        Moshi moshi = new Moshi.Builder().build();
+        JsonAdapter<PaymentRequest> jsonAdapter = moshi.adapter(PaymentRequest.class);
+        PaymentRequest paymentRequest = new PaymentRequest(AD_BOT_ID);
+        String json = jsonAdapter.toJson(paymentRequest);
+        BaseApplication.get().sendWebSocketMessage(json);
+        Log.d(TAG, "paymentRequest: ");
     }
 
     private WebSocketType getWebSocketMessageFromJson(final String message) {

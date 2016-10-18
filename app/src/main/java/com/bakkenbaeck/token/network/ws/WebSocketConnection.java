@@ -103,6 +103,7 @@ import java.util.Map;
     }
 
     public void sendMessage(final String message) {
+        Log.d(TAG, "sendMessage: ");
         this.webSocket.sendText(message);
     }
 }

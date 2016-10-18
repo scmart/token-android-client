@@ -2,28 +2,29 @@ package com.bakkenbaeck.token.view.activity;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.PathInterpolator;
 
-import com.bakkenbaeck.token.BuildConfig;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.databinding.ActivityChatBinding;
 import com.bakkenbaeck.token.model.ActivityResultHolder;
 import com.bakkenbaeck.token.presenter.ChatPresenter;
 import com.bakkenbaeck.token.presenter.PresenterLoader;
 import com.bakkenbaeck.token.presenter.factory.ChatPresenterFactory;
-import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.adapter.viewholder.BottomOffsetDecoration;
+import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 import com.bakkenbaeck.token.view.dialog.PhoneInputDialog;
 import com.bakkenbaeck.token.view.dialog.VerificationCodeDialog;
 import com.crashlytics.android.Crashlytics;
+
 import io.fabric.sdk.android.Fabric;
 
 public final class ChatActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ChatPresenter>, PhoneInputDialog.Listener,
@@ -50,8 +51,19 @@ public final class ChatActivity extends AppCompatActivity implements LoaderManag
         getSupportLoaderManager().initLoader(UNIQUE_ACTIVITY_ID, null, this);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_chat);
 
-        final RecyclerView.LayoutManager recyclerLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        this.binding.messagesList.setLayoutManager(recyclerLayoutManager);
+        SpeedyLinearLayoutManager linearLayoutManager = new SpeedyLinearLayoutManager(this);
+        this.binding.messagesList.setLayoutManager(linearLayoutManager);
+
+        SlideUpAnimator anim;
+
+        if(Build.VERSION.SDK_INT >= 21){
+            anim = new SlideUpAnimator(new PathInterpolator(0.33f, 0.78f, 0.3f, 1));
+        }else{
+            anim = new SlideUpAnimator(new DecelerateInterpolator());
+        }
+
+        anim.setAddDuration(400);
+        this.binding.messagesList.setItemAnimator(anim);
 
         float offsetPx = getResources().getDimension(R.dimen.bottom_offset_dp);
         BottomOffsetDecoration bottomOffsetDecoration = new BottomOffsetDecoration((int) offsetPx);

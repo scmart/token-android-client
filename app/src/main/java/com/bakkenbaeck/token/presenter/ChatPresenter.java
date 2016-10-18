@@ -1,5 +1,6 @@
 package com.bakkenbaeck.token.presenter;
 
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
@@ -54,7 +55,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
     private boolean isShowingAnotherOneButton;
     private ChatMessageStore chatMessageStore;
     private Snackbar networkStateSnackbar;
-    private boolean recycleViewInitiated = false;
 
     @Override
     public void onViewAttached(final ChatActivity activity) {
@@ -167,7 +167,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
     }
 
     private void showAVideo(ChatMessage message) {
-        displayMessage(message, 700);
+        displayMessage(message, 500);
     }
 
     private void showVideoRequestMessage() {
@@ -189,7 +189,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
     }
 
     private void displayMessage(final ChatMessage chatMessage) {
-        displayMessage(chatMessage, 200);
+        displayMessage(chatMessage, 0);
     }
 
     private final OnNextObserver<LocalBalance> newBalanceSubscriber = new OnNextObserver<LocalBalance>() {
@@ -234,7 +234,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
                 response = new ChatMessage().makeRemoteMessageWithText(message.toString());
             }
 
-            displayMessage(response, 500);
+            displayMessage(response, 0);
         }
     };
 
@@ -258,7 +258,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
     private void withdrawAmountFromAddress(final BigDecimal amount, final String walletAddress) {
         final String message = String.format(this.activity.getResources().getString(R.string.chat__withdraw_to_address), amount.toString(), walletAddress);
         final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message);
-        displayMessage(response, 500);
+        displayMessage(response, 0);
         // TODO
         // offlineBalance.subtract(amount);
     }
@@ -280,7 +280,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
                 messageAdapter.unPauseRendering();
                 scrollToBottom(true);
             }
-        }, 500);
+        }, 0);
     }
 
     private void refreshAnotherOneButtonState() {
