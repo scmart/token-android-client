@@ -16,8 +16,8 @@ android {
         applicationId "com.bakkenbaeck.token"
         minSdkVersion 16
         targetSdkVersion 24
-        versionCode 10004
-        versionName "100004"
+        versionCode 10005
+        versionName "100005"
         vectorDrawables.useSupportLibrary = true
     }
 
@@ -60,7 +60,7 @@ dependencies {
             // Support
             'com.android.support:appcompat-v7:24.2.1',
             'com.android.support:recyclerview-v7:24.2.1',
-            'com.android.support:gridlayout-v7:24.2.1',
+            //'com.android.support:gridlayout-v7:24.2.1',
             'com.android.support:design:24.2.1',
             'com.google.android.gms:play-services-ads:9.4.0',
             'com.android.support:multidex:1.0.0',
@@ -78,7 +78,7 @@ dependencies {
             // Images
             'de.hdodenhof:circleimageview:2.1.0',
             // Animations / custom views
-            'com.robinhood.ticker:ticker:1.1.0',
+            //'com.robinhood.ticker:ticker:1.1.0',
             'com.github.ybq:Android-SpinKit:1.1.0',
             'com.hbb20:ccp:1.5.1',
             // Reading barcodes
