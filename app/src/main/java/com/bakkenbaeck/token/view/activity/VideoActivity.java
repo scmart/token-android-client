@@ -5,7 +5,6 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 
@@ -65,7 +64,6 @@ public class VideoActivity extends AppCompatActivity implements LoaderManager.Lo
 
     public void showErrorSnackbar() {
         errorSnackbar = Snackbar.make(findViewById(content), R.string.error__supersonic, Snackbar.LENGTH_INDEFINITE);
-        errorSnackbar.getView().setBackgroundColor(ContextCompat.getColor(VideoActivity.this, R.color.generalBg));
         errorSnackbar.show();
     }
 

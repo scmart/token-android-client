@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -29,14 +30,10 @@ import com.bakkenbaeck.token.util.KeyboardUtil;
 import com.bakkenbaeck.token.util.LocaleUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
-import com.bakkenbaeck.token.util.SnackbarUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.hbb20.CountryCodePicker;
 
 import java.util.Locale;
-
-import rx.Observable;
-import rx.subjects.PublishSubject;
 
 public class PhoneInputDialog extends DialogFragment {
     private static final String TAG = "PhoneInputDialog";
@@ -102,6 +99,7 @@ public class PhoneInputDialog extends DialogFragment {
         };
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle state) {
         Dialog dialog = super.onCreateDialog(state);

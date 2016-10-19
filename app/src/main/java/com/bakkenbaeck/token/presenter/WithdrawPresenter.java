@@ -163,8 +163,9 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         @Override
         public void onNext(final LocalBalance newBalance) {
             if (activity != null && newBalance != null) {
-                Log.d(TAG, "onNext: " + newBalance);
+                Log.d(TAG, "onNext: balance subscriber1 " + newBalance);
                 currentBalance = newBalance.getConfirmedBalanceAsEthMinusTransferFee();
+                Log.d(TAG, "onNext: balance subscriber2 " + currentBalance);
                 activity.getBinding().balanceBar.setBalance(newBalance.unconfirmedBalanceString());
                 tryPopulateAmountField(currentBalance, newBalance.confirmedBalanceStringMinusTransferFee());
             }
@@ -181,6 +182,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     };
 
     private void tryPopulateAmountField(final BigDecimal previousBalance, final String newBalanceAsEthString) {
+        Log.d(TAG, "tryPopulateAmountField: 1");
         try {
             String s = this.activity.getBinding().amount.getText().toString();
             if (new BigDecimal(s).equals(previousBalance)) {
@@ -190,7 +192,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         } catch (final Exception ex) {
             // Do nothing -- user is editing the field
         }
-
+        Log.d(TAG, "tryPopulateAmountField: 2");
     }
 
     @Override
@@ -225,7 +227,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                 activityResultHolder.getRequestCode(),
                 activityResultHolder.getResultCode(),
                 activityResultHolder.getIntent());
-        if(result == null || result.getContents() == null) {
+        if(result == null || result.getContents() == null || result.getContents().length() <= 0) {
             return;
         }
 
@@ -314,7 +316,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
-                                //Toast.makeText(activity, R.string.error__withdrawing, Toast.LENGTH_LONG).show();
                                 progressDialog.dismiss();
                             }
                         });
@@ -348,7 +349,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                         intent.putExtra(INTENT_WITHDRAW_AMOUNT, new BigDecimal(parsedInput));
                         activity.setResult(RESULT_OK, intent);
                         activity.finish();
-                        activity.overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right);
+                        activity.overridePendingTransition(R.anim.enter_fade_in, R.anim.exit_fade_out);
                     }
                 };
             }
@@ -398,6 +399,8 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             String parsedInput = inputtedText.replace(".", ",");
             final BigDecimal amountRequested = new BigDecimal(nf.parse(parsedInput).toString());
 
+            Log.d(TAG, "validate: amount requested " + amountRequested + " current balance " + currentBalance);
+
             final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
             this.activity.getBinding().walletAddress.setText(toAddress.replaceFirst("ethereum:", ""));
 
@@ -408,7 +411,14 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             LogUtil.e(getClass(), ex.toString());
         }
 
-        String errorMessage = this.activity.getResources().getString(R.string.withdraw__amount_error);
+        String errorMessage;
+
+        if(this.currentBalance.compareTo(BigDecimal.ZERO) == 0){
+            errorMessage = this.activity.getResources().getString(R.string.withdraw__amount_error_zero);
+        }else{
+            errorMessage = this.activity.getResources().getString(R.string.withdraw__amount_error);
+        }
+
         showBalanceError(true, errorMessage);
 
         this.activity.getBinding().amount.requestFocus();

@@ -6,7 +6,7 @@ public class PaymentRequest {
     private Payload payload;
 
     public PaymentRequest(String recipient_id){
-        this.type = "message";
+        this.type = "payment_request";
         this.recipient_id = recipient_id;
         if(payload == null){
             payload = new Payload("all");

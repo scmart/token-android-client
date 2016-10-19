@@ -37,7 +37,6 @@ import java.util.Map;
     }
 
     public void init(final String url) {
-        Log.d(TAG, "init: " + connected);
         if(!connected) {
             try {
                 if(this.webSocket != null){
@@ -103,7 +102,6 @@ import java.util.Map;
     }
 
     public void sendMessage(final String message) {
-        Log.d(TAG, "sendMessage: ");
         this.webSocket.sendText(message);
     }
 }

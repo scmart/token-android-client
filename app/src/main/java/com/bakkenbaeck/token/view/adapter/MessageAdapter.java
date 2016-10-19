@@ -152,7 +152,7 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 final RemoteVideoViewHolder vh = (RemoteVideoViewHolder) holder;
                 if (!chatMessage.hasBeenWatched()) {
                     vh.videoBackground.setBackground(ContextCompat.getDrawable(activity, R.drawable.background_video));
-                    vh.videoState.setImageResource(R.drawable.play);
+                    vh.videoState.setImageResource(R.drawable.play_vec);
                     vh.title.setText(chatMessage.getText());
                     vh.watched.setVisibility(View.GONE);
                     holder.itemView.setOnClickListener(new OnSingleClickListener() {

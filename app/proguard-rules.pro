@@ -1,3 +1,4 @@
+-dontobfuscate
 # Platform calls Class.forName on types which do not exist on Android to determine platform.
 -dontnote retrofit2.Platform
 # Platform used when running on RoboVM on iOS. Will not be used at runtime.
@@ -35,4 +36,12 @@
 -keep class com.squareup.moshi.** { *; }
 -keep interface com.squareup.moshi.** { *; }
 -dontwarn com.squareup.moshi.**
+-keepclassmembers class ** {
+    @com.squareup.moshi.FromJson *;
+    @com.squareup.moshi.ToJson *;
+}
+
+-keepattributes Annotation
+-keepattributes Signature
+
 -keep public class com.bakkenbaeck.toshi.model.jsonadapter.BigIntegerAdapter { *; }

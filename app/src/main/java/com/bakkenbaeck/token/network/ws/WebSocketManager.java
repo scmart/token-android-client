@@ -89,7 +89,6 @@ public class WebSocketManager {
                 @Override
                 public void onNext(User user) {
                     if (user != null) {
-                        Log.d(TAG, "onNext: NEW USER -> " + user.getAuthToken());
                         TokenService.getApi()
                                 .getWebsocketUrl(user.getAuthToken())
                                 .retryWhen(new RetryWithBackoff(10))

@@ -121,7 +121,6 @@ public class SocketToPojo {
         PaymentRequest paymentRequest = new PaymentRequest(AD_BOT_ID);
         String json = jsonAdapter.toJson(paymentRequest);
         BaseApplication.get().sendWebSocketMessage(json);
-        Log.d(TAG, "paymentRequest: ");
     }
 
     private WebSocketType getWebSocketMessageFromJson(final String message) {

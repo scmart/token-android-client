@@ -3,6 +3,6 @@
 
     <style name="ScannerTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:homeAsUpIndicator">@drawable/ic_close</item>
+        <item name="android:homeAsUpIndicator">@drawable/close_vec</item>
     </style>
 </resources>

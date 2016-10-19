@@ -2,6 +2,7 @@ package com.bakkenbaeck.token.view;
 
 
 import android.support.multidex.MultiDexApplication;
+import android.util.Log;
 
 import com.bakkenbaeck.token.manager.LocalBalanceManager;
 import com.bakkenbaeck.token.manager.UserManager;
@@ -12,7 +13,7 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
 public class BaseApplication extends MultiDexApplication {
-
+    private static final String TAG = "BaseApplication";
     private static BaseApplication instance;
     public static BaseApplication get() { return instance; }
 

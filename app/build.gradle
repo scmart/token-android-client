@@ -16,25 +16,27 @@ android {
         applicationId "com.bakkenbaeck.token"
         minSdkVersion 16
         targetSdkVersion 24
-        versionCode 10003
-        versionName "100003"
+        versionCode 10004
+        versionName "100004"
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
         debug {
             multiDexEnabled true
             debuggable true
+            minifyEnabled false
         }
         release {
             multiDexEnabled true
-            minifyEnabled false
-            //shrinkResources true
+            minifyEnabled true
+            shrinkResources true
             debuggable false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
-    /*splits {
+    splits {
         abi {
             enable true
             reset()
@@ -50,7 +52,7 @@ android {
             output.versionCodeOverride =
                     project.ext.versionCodes.get(output.getFilter(com.android.build.OutputFile.ABI), 0) * 1000000 + android.defaultConfig.versionCode
         }
-    }*/
+    }
 }
 
 dependencies {
