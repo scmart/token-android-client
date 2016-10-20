@@ -207,7 +207,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
                         balanceBar.disableClickEvents(true);
                         //if reputation is 0, set verifies to false so the user can click the verify button
                         SharedPrefsUtil.saveVerified(false);
-                        activity.getBinding().messagesList.invalidate();
+                        messageAdapter.notifyDataSetChanged();
                     }else{
                         balanceBar.disableClickEvents(false);
                     }
@@ -429,9 +429,11 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
                 if (networkStateSnackbar.isShownOrQueued()) {
                     return;
                 }
-                networkStateSnackbar.show();
+                Log.d(TAG, "onNext: connecting");
+                //networkStateSnackbar.show();
             } else {
-                networkStateSnackbar.dismiss();
+                Log.d(TAG, "onNext: connected");
+                //networkStateSnackbar.dismiss();
             }
         }
     };
@@ -442,15 +444,11 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         vcDialog.show(this.activity.getSupportFragmentManager(), "dialog");
     }
 
-    public void onVerificationSuccess(int reputationGained) {
+    public void onVerificationSuccess() {
         if(activity != null && messageAdapter != null) {
             messageAdapter.disableVerifyButton(activity);
         }
 
         SharedPrefsUtil.saveVerified(true);
-
-        String resourceMessage = this.activity.getString(R.string.verification_success_message);
-        ChatMessage message = new ChatMessage().makeRemoteVerificationMessageSuccess(resourceMessage, reputationGained);
-        displayMessage(message);
     }
 }

@@ -1,4 +1,3 @@
--dontobfuscate
 # Platform calls Class.forName on types which do not exist on Android to determine platform.
 -dontnote retrofit2.Platform
 # Platform used when running on RoboVM on iOS. Will not be used at runtime.
@@ -11,6 +10,9 @@
 -keepattributes Exceptions
 -keepattributes EnclosingMethod
 
+-keepattributes Annotation
+
+-keep enum com.bakkenbaeck.token.network.ws.model.** { *; }
 
 -keepclassmembers class com.supersonicads.sdk.controller.SupersonicWebView$JSInterface {
     public *;
@@ -20,14 +22,12 @@
 }
 -keep,includedescriptorclasses public class com.google.android.gms.ads.** {
    public *;
-}
--keep,includedescriptorclasses class com.supersonic.adapters.** { *;
-}
 
--keep class com.bakkenbaeck.toshi.model.** { *;
 }
--keep class com.bakkenbaeck.toshi.network.** { *;
-}
+-keep,includedescriptorclasses class com.supersonic.adapters.** { *; }
+
+-keep class com.bakkenbaeck.token.model.** { *; }
+-keep class com.bakkenbaeck.token.network.** { *; }
 
 -keep class org.spongycastle.** {*;}
 
@@ -41,7 +41,4 @@
     @com.squareup.moshi.ToJson *;
 }
 
--keepattributes Annotation
--keepattributes Signature
-
--keep public class com.bakkenbaeck.toshi.model.jsonadapter.BigIntegerAdapter { *; }
+-keep public class com.bakkenbaeck.token.model.jsonadapter.BigIntegerAdapter { *; }

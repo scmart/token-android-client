@@ -17,7 +17,8 @@ import java.io.IOException;
 public class SocketToPojo {
     private static final String TAG = "SocketToPojo";
     private static final String AD_BOT_ID = "32a2299bd8dc405da979471275db2a5e";
-    
+    private static final String TOKEN_ID = "token";
+
     private final Moshi moshi;
     private final JsonAdapter<WebSocketType> jsonAdapter;
     private final JsonAdapter<Message> messageAdapter;
@@ -67,15 +68,20 @@ public class SocketToPojo {
                 LogUtil.i(getClass(), "Ignoring websocket event -- hello");
                 break;
             case "message":
-                Log.d(TAG, "convertAndEmitPojo: message");
-                if(!webSocketType.getSenderId().equals(AD_BOT_ID)){
+                if(webSocketType.getSenderId().equals(AD_BOT_ID) || webSocketType.getSenderId().equals(TOKEN_ID)) {
+                    final Message message = this.messageAdapter.fromJson(json);
+
+                    //Why is type null when receiving verification success?????????? Working with other messages
+                    if(message.getType() == null){
+                        message.setType(webSocketType.get());
+                    }
+
+                    this.socketObservables.emitMessage(message);
+                    break;
+                }else {
                     LogUtil.i(getClass(), "convertAndEmitPojo: UNKNOWN SENDER ID");
                     break;
                 }
-
-                final Message message = this.messageAdapter.fromJson(json);
-                this.socketObservables.emitMessage(message);
-                break;
             case "transaction_sent":
                 final TransactionSent transactionSent = this.transactionSentAdapter.fromJson(json);
                 this.socketObservables.emitTransactionSent(transactionSent);
@@ -97,9 +103,13 @@ public class SocketToPojo {
                 paymentRequest();
                 
                 break;
-            case "message_sent":
+                case "message_sent":
                 final PaymentRequest paymentRequest = paymentRequestAdapter.fromJson(json);
-                Log.d(TAG, "convertAndEmitPojo: message succesfuly sent!");
+                //Do nothing
+                break;
+            case "payment_request_sent":
+                //Do nothing
+                break;
             case "error":
                 WebSocketError error;
                 try {

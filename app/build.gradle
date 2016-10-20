@@ -16,8 +16,8 @@ android {
         applicationId "com.bakkenbaeck.token"
         minSdkVersion 16
         targetSdkVersion 24
-        versionCode 10005
-        versionName "100005"
+        versionCode 10007
+        versionName "100007"
         vectorDrawables.useSupportLibrary = true
     }
 

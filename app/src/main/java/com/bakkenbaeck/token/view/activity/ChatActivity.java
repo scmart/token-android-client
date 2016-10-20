@@ -15,6 +15,7 @@ import android.view.animation.PathInterpolator;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.databinding.ActivityChatBinding;
 import com.bakkenbaeck.token.model.ActivityResultHolder;
+import com.bakkenbaeck.token.network.ws.model.VerificationSuccess;
 import com.bakkenbaeck.token.presenter.ChatPresenter;
 import com.bakkenbaeck.token.presenter.PresenterLoader;
 import com.bakkenbaeck.token.presenter.factory.ChatPresenterFactory;
@@ -139,10 +140,10 @@ public final class ChatActivity extends AppCompatActivity implements LoaderManag
     }
 
     @Override
-    public void onVerificationCodeSuccess(VerificationCodeDialog dialog, int reputationGained) {
+    public void onVerificationCodeSuccess(VerificationCodeDialog dialog) {
         if (this.presenter == null) {
             return;
         }
-        this.presenter.onVerificationSuccess(reputationGained);
+        this.presenter.onVerificationSuccess();
     }
 }

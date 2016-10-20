@@ -5,6 +5,7 @@ import android.support.annotation.IntDef;
 import com.bakkenbaeck.token.network.ws.model.Action;
 import com.bakkenbaeck.token.network.ws.model.Detail;
 import com.bakkenbaeck.token.network.ws.model.Message;
+import com.bakkenbaeck.token.network.ws.model.VerificationSuccess;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,11 +136,13 @@ public class ChatMessage extends RealmObject {
         return this;
     }
 
-    public ChatMessage makeRemoteVerificationMessageSuccess(String message, int reputationGained){
+    public ChatMessage makeRemoteVerificationMessageSuccess(VerificationSuccess verificationSuccess){
         setType(TYPE_REMOTE_VERIFICATION);
 
         List<Detail> details = new ArrayList<Detail>();
-        details.add(new Detail("reputation_gained", reputationGained));
+        details.add(new Detail("level_gained", verificationSuccess.getLevel()));
+
+        String message = verificationSuccess.getMessage();
 
         setDetails(details);
         setText(message);

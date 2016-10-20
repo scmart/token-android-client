@@ -39,8 +39,11 @@ import com.google.zxing.integration.android.IntentResult;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.Locale;
 
 import retrofit2.Response;
 import rx.Subscriber;
@@ -243,15 +246,21 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         showBalanceError(false, "");
 
         try {
-            final NumberFormat nf = NumberFormat.getInstance(LocaleUtil.getLocale());
+            final DecimalFormat nf = (DecimalFormat) DecimalFormat.getInstance(Locale.ENGLISH);
+            nf.setParseBigDecimal(true);
             final String inputtedText = this.activity.getBinding().amount.getText().toString();
-            String parsedInput = inputtedText.replace(".", ",");
-            final BigDecimal amountInEth = new BigDecimal(nf.parse(parsedInput).toString());
+            final String checkSepators = inputtedText.replace("," , ".");
+
+            Log.d(TAG, "handleSendClicked: " + checkSepators);
+
+            final BigDecimal amountInEth = (BigDecimal) nf.parse(checkSepators);
+
+            Log.d(TAG, "handleSendClicked: " + amountInEth);
 
             final BigInteger amountInWei = EthUtil.ethToWei(amountInEth);
             final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
-
             final WithdrawalRequest withdrawalRequest = new WithdrawalRequest(amountInWei, toAddress);
+
             TokenService.getApi()
                     .postWithdrawalRequest(this.currentUser.getAuthToken(), withdrawalRequest)
                     .subscribe(generateSigningSubscriber());
@@ -328,7 +337,9 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
-                                progressDialog.dismiss();
+                                if(progressDialog != null) {
+                                    progressDialog.dismiss();
+                                }
                             }
                         });
 
@@ -394,11 +405,11 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
     private boolean validate() {
         try {
-            final NumberFormat nf = NumberFormat.getInstance(LocaleUtil.getLocale());
+            final DecimalFormat nf = (DecimalFormat) DecimalFormat.getInstance(Locale.ENGLISH);
+            nf.setParseBigDecimal(true);
             final String inputtedText = this.activity.getBinding().amount.getText().toString();
-            String parsedInput = inputtedText.replace(".", ",");
-            final BigDecimal amountRequested = new BigDecimal(nf.parse(parsedInput).toString());
-
+            String checkSepators = inputtedText.replace("," , ".");
+            BigDecimal amountRequested = (BigDecimal) nf.parse(checkSepators);
             Log.d(TAG, "validate: amount requested " + amountRequested + " current balance " + currentBalance);
 
             final String toAddress = this.activity.getBinding().walletAddress.getText().toString();

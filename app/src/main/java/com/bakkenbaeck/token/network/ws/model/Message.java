@@ -35,6 +35,10 @@ public class Message {
         return this.payload.type;
     }
 
+    public void setType(String type){
+        this.payload.type = type;
+    }
+
     public List<Action> getActions(){
         return payload.actions;
     }
