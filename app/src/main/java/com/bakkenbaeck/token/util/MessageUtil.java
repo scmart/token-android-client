@@ -4,8 +4,7 @@ import java.util.Random;
 
 public class MessageUtil {
     private static final String[] videoMessages = new String[]{
-            "Great! Here you go!",
-            "You’re getting the hang of it! Here’s your earnings after watching that video."
+            "Great! Here you go!"
     };
 
     public static String[] getVideoMessages(){

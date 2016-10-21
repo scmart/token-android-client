@@ -4,6 +4,7 @@ package com.bakkenbaeck.token.presenter;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Handler;
+import android.util.Log;
 
 import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.util.LogUtil;
@@ -19,7 +20,7 @@ import com.supersonic.mediationsdk.sdk.Supersonic;
 import com.supersonic.mediationsdk.sdk.SupersonicFactory;
 
 public class VideoPresenter implements Presenter<VideoActivity> {
-
+    private static final String TAG = "VideoPresenter";
     public final static String INTENT_CLICKED_POSITION = "clickedPosition";
     private final String adZone = "DefaultRewardedVideo";
     private final String mAppKey = "527a318d";
@@ -140,13 +141,19 @@ public class VideoPresenter implements Presenter<VideoActivity> {
 
     @Override
     public void onViewDetached() {
+        Log.d(TAG, "onViewDetached: ");
         this.activity = null;
     }
 
     @Override
     public void onViewDestroyed() {
-        this.activity = null;
+        Log.d(TAG, "onViewDestroyed: ");
+        if(this.activity != null) {
+            this.mMediationAgent.release(this.activity);
+        }
         this.mMediationAgent.removeRewardedVideoListener();
+        this.mMediationAgent.setRewardedVideoListener(null);
+        this.activity = null;
     }
 
     public void onVideoCompleted() {

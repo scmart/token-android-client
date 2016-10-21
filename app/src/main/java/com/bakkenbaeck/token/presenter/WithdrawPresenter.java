@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.ActivityResultHolder;
@@ -26,8 +28,10 @@ import com.bakkenbaeck.token.network.ws.model.TransactionConfirmation;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextObserver;
+import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.RetryWithBackoff;
+import com.bakkenbaeck.token.util.SnackbarUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.BarcodeScannerActivity;
 import com.bakkenbaeck.token.view.activity.WithdrawActivity;
@@ -85,6 +89,19 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             @Override
             public void onSingleClick(final View v) {
                 showBarcodeActivity();
+            }
+        });
+
+        this.activity.getBinding().maxButton.setOnClickListener(new OnSingleClickListener() {
+            @Override
+            public void onSingleClick(View v) {
+                BaseApplication.get().getLocalBalanceManager().getObservable().subscribe(new OnNextSubscriber<LocalBalance>() {
+                    @Override
+                    public void onNext(LocalBalance localBalance) {
+                        this.unsubscribe();
+                        tryPopulateAmountField(localBalance);
+                    }
+                });
             }
         });
 
@@ -168,7 +185,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                 currentBalance = newBalance.getConfirmedBalanceAsEthMinusTransferFee();
                 currentUnconfirmedBalance = newBalance.getUnconfirmedBalanceAsEthMinusTransferFee();
                 activity.getBinding().balanceBar.setBalance(newBalance.unconfirmedBalanceString());
-                tryPopulateAmountField(newBalance);
             }
         }
     };
@@ -182,35 +198,42 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         }
     };
 
-    private void tryPopulateAmountField(final LocalBalance newBalance) {
+    private void tryPopulateAmountField(LocalBalance localBalance) {
         Log.d(TAG, "tryPopulateAmountField: 1");
 
-        final BigDecimal unconfirmedBalance = newBalance.getUnconfirmedBalanceAsEth();
-        final BigDecimal confirmedBalance = newBalance.getConfirmedBalanceAsEth();
+        final BigDecimal unconfirmedBalance = localBalance.getUnconfirmedBalanceAsEth();
+        final BigDecimal confirmedBalance = localBalance.getConfirmedBalanceAsEth();
         final String amount;
 
-        Log.d(TAG, "tryPopulateAmountField: confirmed balance " + newBalance.getConfirmedBalance());
-        Log.d(TAG, "tryPopulateAmountField: unconfirmed balance " + newBalance.getUnconfirmedBalance());
+        Log.d(TAG, "tryPopulateAmountField: confirmed balance " + localBalance.getConfirmedBalance());
+        Log.d(TAG, "tryPopulateAmountField: unconfirmed balance " + localBalance.getUnconfirmedBalance());
+
+        if(localBalance.getConfirmedBalance().equals(BigInteger.ZERO)){
+            SnackbarUtil.make(activity.getBinding().root, "Your balance is 0").show();
+            return;
+        }
 
         try {
 
             if(unconfirmedBalance.compareTo(confirmedBalance) == -1){
                 Log.d(TAG, "tryPopulateAmountField: use unconfirmedBalance is smallest ");
-                amount = newBalance.unconfirmedBalanceStringMinusTransferFee();
+                amount = localBalance.unconfirmedBalanceStringMinusTransferFee();
             }else if(confirmedBalance.compareTo(unconfirmedBalance) == -1){
                 Log.d(TAG, "tryPopulateAmountField: use confirmedBalance is smallest ");
-                amount = newBalance.confirmedBalanceStringMinusTransferFee();
+                amount = localBalance.confirmedBalanceStringMinusTransferFee();
             }else{
                 Log.d(TAG, "tryPopulateAmountField: ");
-                amount = newBalance.confirmedBalanceStringMinusTransferFee().replace(",", ".");
+                amount = localBalance.confirmedBalanceStringMinusTransferFee().replace(",", ".");
             }
 
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    activity.getBinding().amount.setText(amount);
-                    activity.getBinding().amount.setSelection(activity.getBinding().amount.getText().length());
+                    if(activity != null) {
+                        activity.getBinding().amount.setText(amount);
+                        activity.getBinding().amount.setSelection(activity.getBinding().amount.getText().length());
+                    }
                 }
             });
         }catch (IndexOutOfBoundsException e){
@@ -309,6 +332,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
             @Override
             public void onNext(final Response<SignatureRequest> signatureRequest) {
+                Log.d(TAG, "onNext: 1");
                 if(signatureRequest.code() == 400 || signatureRequest.code() == 500){
                     //Getting null when trying to parse when error
                     showAddressError(true, "Enter a valid address");
@@ -349,6 +373,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
                     @Override
                     public void onNext(final Response<TransactionSent> transactionSent) {
+                        Log.d(TAG, "onNext: 2");
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {

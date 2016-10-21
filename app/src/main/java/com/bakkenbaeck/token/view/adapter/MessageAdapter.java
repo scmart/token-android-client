@@ -118,7 +118,6 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
                 //Verify button
                 if(chatMessage.getAction() != null && chatMessage.getAction().size() > 0){
-                    Log.d(TAG, "onBindViewHolder: verifyBtn");
                     verifyButton = vh.verificationButton;
 
                     SharedPrefsUtil.isVerified().subscribe(new OnNextSubscriber<Boolean>() {

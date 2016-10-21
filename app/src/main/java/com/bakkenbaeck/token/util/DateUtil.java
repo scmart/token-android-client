@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class DateUtil {
+    public static final long ONE_DAY = 86400000;
 
     public static String getDate(String format, Date d){
         Calendar date = Calendar.getInstance();

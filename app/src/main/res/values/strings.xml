@@ -56,4 +56,5 @@
     <string name="unsupported_phone_number">Unsupported phone number. Please try a different mobile number.</string>
     <string name="unexpected_error">Unexpected error. Please try again later</string>
     <string name="each_transfer_costs_0_00042_eth_in_fees">Each transfer costs 0.00042 ETH in fees</string>
+    <string name="max">MAX</string>
 </resources>
