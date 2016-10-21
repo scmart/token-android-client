@@ -166,9 +166,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         @Override
         public void onNext(final LocalBalance newBalance) {
             if (activity != null && newBalance != null) {
-                Log.d(TAG, "onNext: balance subscriber1 " + newBalance);
                 currentBalance = newBalance.getConfirmedBalanceAsEthMinusTransferFee();
-                Log.d(TAG, "onNext: balance subscriber2 " + currentBalance);
                 activity.getBinding().balanceBar.setBalance(newBalance.unconfirmedBalanceString());
                 tryPopulateAmountField(currentBalance, newBalance.confirmedBalanceStringMinusTransferFee());
             }
@@ -185,7 +183,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     };
 
     private void tryPopulateAmountField(final BigDecimal previousBalance, final String newBalanceAsEthString) {
-        Log.d(TAG, "tryPopulateAmountField: 1");
         try {
             String s = this.activity.getBinding().amount.getText().toString();
             if (new BigDecimal(s).equals(previousBalance)) {
@@ -195,7 +192,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         } catch (final Exception ex) {
             // Do nothing -- user is editing the field
         }
-        Log.d(TAG, "tryPopulateAmountField: 2");
     }
 
     @Override
@@ -251,11 +247,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             final String inputtedText = this.activity.getBinding().amount.getText().toString();
             final String checkSepators = inputtedText.replace("," , ".");
 
-            Log.d(TAG, "handleSendClicked: " + checkSepators);
-
             final BigDecimal amountInEth = (BigDecimal) nf.parse(checkSepators);
-
-            Log.d(TAG, "handleSendClicked: " + amountInEth);
 
             final BigInteger amountInWei = EthUtil.ethToWei(amountInEth);
             final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
@@ -290,8 +282,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
             @Override
             public void onNext(final Response<SignatureRequest> signatureRequest) {
-                Log.d(TAG, "onNext: 1 " + signatureRequest.code());
-
                 if(signatureRequest.code() == 400 || signatureRequest.code() == 500){
                     //Getting null when trying to parse when error
                     showAddressError(true, "Enter a valid address");
@@ -321,7 +311,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
                     @Override
                     public void onError(final Throwable ex) {
-                        Log.d(TAG, "onError: 2 " + ex);
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
@@ -333,7 +322,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
                     @Override
                     public void onNext(final Response<TransactionSent> transactionSent) {
-                        Log.d(TAG, "onNext: 2 " + transactionSent.code());
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
