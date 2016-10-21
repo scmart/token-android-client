@@ -192,14 +192,45 @@ public class PhoneInputDialog extends DialogFragment {
         final EditText phoneNumberField = (EditText) this.view.findViewById(R.id.phone_number);
         phoneNumberField.requestFocus();
 
-        if (error != null && error.getCode().equals(WebSocketErrors.phone_number_already_in_use)) {
-            String errorMessage = getContext().getResources().getString(R.string.error__phone_number_in_use);
-            showError(true, errorMessage);
-
-        } else {
-            String errorMessage = getContext().getResources().getString(R.string.error__invalid_phone_number);
-            showError(true, errorMessage);
-            phoneNumberField.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.edit_text_underline_error_state));
+        if(error != null){
+            switch (error.getCode()){
+                case invalid_phone_number: {
+                    String errorMessage = getContext().getResources().getString(R.string.invalid_phone_number);
+                    showError(true, errorMessage);
+                    phoneNumberField.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.edit_text_underline_error_state));
+                    break;
+                }
+                case unsupported_phone_number_voip: {
+                    String errorMessage = getContext().getResources().getString(R.string.unsupported_phone_number_voip);
+                    showError(true, errorMessage);
+                    phoneNumberField.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.edit_text_underline_error_state));
+                    break;
+                }
+                case unsupported_phone_number_landline: {
+                    String errorMessage = getContext().getResources().getString(R.string.unsupported_phone_number_landline);
+                    showError(true, errorMessage);
+                    phoneNumberField.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.edit_text_underline_error_state));
+                    break;
+                }
+                case unsupported_phone_number: {
+                    String errorMessage = getContext().getResources().getString(R.string.unsupported_phone_number);
+                    showError(true, errorMessage);
+                    phoneNumberField.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.edit_text_underline_error_state));
+                    break;
+                }
+                case unexpected_error: {
+                    String errorMessage = getContext().getResources().getString(R.string.unexpected_error);
+                    showError(true, errorMessage);
+                    phoneNumberField.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.edit_text_underline_error_state));
+                    break;
+                }
+                default: {
+                    String errorMessage = getContext().getResources().getString(R.string.unexpected_error);
+                    showError(true, errorMessage);
+                    phoneNumberField.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.edit_text_underline_error_state));
+                    break;
+                }
+            }
         }
     }
 

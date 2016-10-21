@@ -221,11 +221,11 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         public void onNext(final Message message) {
             ChatMessage response;
 
-            if(message.getType().equals(ChatMessage.VERIFICATION_TYPE)){
-                response = new ChatMessage().makeRemoteVerificationMessage(message);
-            }else if(message.getType().equals(ChatMessage.REWARD_EARNED_TYPE)){
+            if(message.getType().equals(ChatMessage.REWARD_EARNED_TYPE)){
+                Log.d(TAG, "onNext: " + ChatMessage.REWARD_EARNED_TYPE);
                 response = new ChatMessage().makeRemoteRewardMessage(message);
             }else{
+                Log.d(TAG, "onNext: message type");
                 response = new ChatMessage().makeRemoteMessageWithText(message.toString());
             }
 

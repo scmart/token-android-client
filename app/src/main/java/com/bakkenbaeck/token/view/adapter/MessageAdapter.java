@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.ChatMessage;
-import com.bakkenbaeck.token.network.ws.model.Detail;
 import com.bakkenbaeck.token.util.DateUtil;
 import com.bakkenbaeck.token.util.MessageUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
@@ -21,7 +20,6 @@ import com.bakkenbaeck.token.util.SharedPrefsUtil;
 import com.bakkenbaeck.token.view.adapter.viewholder.DayViewHolder;
 import com.bakkenbaeck.token.view.adapter.viewholder.LocalTextViewHolder;
 import com.bakkenbaeck.token.view.adapter.viewholder.RemoteTextViewHolder;
-import com.bakkenbaeck.token.view.adapter.viewholder.RemoteVerificationViewHolder;
 import com.bakkenbaeck.token.view.adapter.viewholder.RemoteVideoViewHolder;
 
 import java.util.ArrayList;
@@ -33,7 +31,6 @@ import rx.subjects.PublishSubject;
 import static com.bakkenbaeck.token.model.ChatMessage.TYPE_DAY;
 import static com.bakkenbaeck.token.model.ChatMessage.TYPE_LOCAL_TEXT;
 import static com.bakkenbaeck.token.model.ChatMessage.TYPE_REMOTE_TEXT;
-import static com.bakkenbaeck.token.model.ChatMessage.TYPE_REMOTE_VERIFICATION;
 import static com.bakkenbaeck.token.model.ChatMessage.TYPE_REMOTE_VIDEO;
 
 public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -96,10 +93,7 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__remote_video_message, parent, false);
                 return new RemoteVideoViewHolder(v);
             }
-            case TYPE_REMOTE_VERIFICATION: {
-                final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__verification_message, parent, false);
-                return new RemoteVerificationViewHolder(v);
-            }
+
             case TYPE_DAY: {
                 final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__day_message, parent, false);
                 return new DayViewHolder(v);
@@ -121,7 +115,28 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 final RemoteTextViewHolder vh = (RemoteTextViewHolder) holder;
                 String parsedMessage = MessageUtil.parseString(chatMessage.getText());
                 vh.messageText.setText(parsedMessage);
-                if(chatMessage.getDetails() != null && chatMessage.getDetails().size() > 0) {
+
+                //Verify button
+                if(chatMessage.getAction() != null && chatMessage.getAction().size() > 0){
+                    Log.d(TAG, "onBindViewHolder: verifyBtn");
+                    verifyButton = vh.verificationButton;
+
+                    SharedPrefsUtil.isVerified().subscribe(new OnNextSubscriber<Boolean>() {
+                        @Override
+                        public void onNext(Boolean isVerified) {
+                            if(isVerified) {
+                                disableVerifyButton(activity);
+                            }
+                        }
+                    });
+
+                    vh.verificationButton.setVisibility(View.VISIBLE);
+                    vh.bind(verifyClicklistener);
+                }
+
+                //Details reward
+                else if(chatMessage.getDetails() != null && chatMessage.getDetails().size() > 0) {
+                    Log.d(TAG, "onBindViewHolder: reward");
                     vh.details.setVisibility(View.VISIBLE);
 
                     //Earned
@@ -143,8 +158,6 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         vh.earnedTotal.setText(chatMessage.getDetails().get(1).getTitle());
                         vh.earnedTotalValue.setText(subString2);
                     }
-                }else{
-                    vh.details.setVisibility(View.GONE);
                 }
                 break;
             }
@@ -167,39 +180,6 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     vh.title.setText(chatMessage.getText());
                     vh.watched.setVisibility(View.VISIBLE);
                     vh.videoState.setImageResource(0);
-                }
-
-                break;
-            }
-            case TYPE_REMOTE_VERIFICATION: {
-                final RemoteVerificationViewHolder vh = (RemoteVerificationViewHolder) holder;
-                if(chatMessage.getAction().size() > 0 && chatMessage.getAction().get(0).getAction().equals("verify_phone_number")) {
-                    String parsedString = MessageUtil.parseString(chatMessage.getText());
-                    vh.message.setText(parsedString);
-                    verifyButton = vh.verificationButton;
-
-                    SharedPrefsUtil.isVerified().subscribe(new OnNextSubscriber<Boolean>() {
-                        @Override
-                        public void onNext(Boolean isVerified) {
-                            if(isVerified) {
-                                disableVerifyButton(activity);
-                            }
-                        }
-                    });
-
-                    vh.verificationButton.setVisibility(View.VISIBLE);
-                    vh.bind(verifyClicklistener);
-                }else{
-                    String message = chatMessage.getText();
-                    if(chatMessage.getDetails() != null){
-                        List<Detail> details = chatMessage.getDetails();
-                        if(details.size() > 0 && details.get(0) != null){
-                            Detail detail = details.get(0);
-                            message +=  " " + (int)detail.getValue();
-                        }
-                    }
-                    vh.message.setText(message);
-                    vh.verificationButton.setVisibility(View.GONE);
                 }
 
                 break;

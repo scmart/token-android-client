@@ -82,22 +82,6 @@ public class WithdrawActivity extends AppCompatActivity implements
         return true;
     }
 
-    /*@Override
-    public void onPhoneInputSuccess(final PhoneInputDialog dialog) {
-        if (this.presenter == null) {
-            return;
-        }
-        this.presenter.onPhoneInputSuccess(dialog);
-    }
-
-    @Override
-    public void onVerificationCodeSuccess(VerificationCodeDialog dialog) {
-        if (this.presenter == null) {
-            return;
-        }
-        this.presenter.onVerificationSuccess();
-    }*/
-
     @Override
     public void onBackPressed() {
         super.onBackPressed();

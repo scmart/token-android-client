@@ -24,7 +24,6 @@ import com.bakkenbaeck.token.network.rest.model.TransactionSent;
 import com.bakkenbaeck.token.network.rest.model.WithdrawalRequest;
 import com.bakkenbaeck.token.network.ws.model.TransactionConfirmation;
 import com.bakkenbaeck.token.util.EthUtil;
-import com.bakkenbaeck.token.util.LocaleUtil;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextObserver;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
@@ -40,8 +39,6 @@ import com.google.zxing.integration.android.IntentResult;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 
@@ -59,6 +56,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     private User currentUser;
     private boolean firstTimeAttaching = true;
     private BigDecimal currentBalance = BigDecimal.ZERO;
+    private BigDecimal currentUnconfirmedBalance = BigDecimal.ZERO;
     private ProgressDialog progressDialog;
     private final BigDecimal minWithdrawLimit = new BigDecimal("0.0000000001");
 
@@ -131,6 +129,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     }
 
     private void updateSendButtonEnabledState() {
+        Log.d(TAG, "updateSendButtonEnabledState: ");
         final Editable walletAddress = this.activity.getBinding().walletAddress.getText();
         String amount = this.activity.getBinding().amount.getText().toString();
         final boolean shouldEnableButton = walletAddress.length() > 0 && userHasEnoughReputationScore() && amount.length() > 0;
@@ -167,8 +166,9 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         public void onNext(final LocalBalance newBalance) {
             if (activity != null && newBalance != null) {
                 currentBalance = newBalance.getConfirmedBalanceAsEthMinusTransferFee();
+                currentUnconfirmedBalance = newBalance.getUnconfirmedBalanceAsEthMinusTransferFee();
                 activity.getBinding().balanceBar.setBalance(newBalance.unconfirmedBalanceString());
-                tryPopulateAmountField(currentBalance, newBalance.confirmedBalanceStringMinusTransferFee());
+                tryPopulateAmountField(newBalance);
             }
         }
     };
@@ -182,20 +182,47 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         }
     };
 
-    private void tryPopulateAmountField(final BigDecimal previousBalance, final String newBalanceAsEthString) {
+    private void tryPopulateAmountField(final LocalBalance newBalance) {
+        Log.d(TAG, "tryPopulateAmountField: 1");
+
+        final BigDecimal unconfirmedBalance = newBalance.getUnconfirmedBalanceAsEth();
+        final BigDecimal confirmedBalance = newBalance.getConfirmedBalanceAsEth();
+        final String amount;
+
+        Log.d(TAG, "tryPopulateAmountField: confirmed balance " + newBalance.getConfirmedBalance());
+        Log.d(TAG, "tryPopulateAmountField: unconfirmed balance " + newBalance.getUnconfirmedBalance());
+
         try {
-            String s = this.activity.getBinding().amount.getText().toString();
-            if (new BigDecimal(s).equals(previousBalance)) {
-                this.activity.getBinding().amount.setText(newBalanceAsEthString);
-                this.activity.getBinding().amount.setSelection(this.activity.getBinding().amount.getText().length());
+
+            if(unconfirmedBalance.compareTo(confirmedBalance) == -1){
+                Log.d(TAG, "tryPopulateAmountField: use unconfirmedBalance is smallest ");
+                amount = newBalance.unconfirmedBalanceStringMinusTransferFee();
+            }else if(confirmedBalance.compareTo(unconfirmedBalance) == -1){
+                Log.d(TAG, "tryPopulateAmountField: use confirmedBalance is smallest ");
+                amount = newBalance.confirmedBalanceStringMinusTransferFee();
+            }else{
+                Log.d(TAG, "tryPopulateAmountField: ");
+                amount = newBalance.confirmedBalanceStringMinusTransferFee().replace(",", ".");
             }
-        } catch (final Exception ex) {
-            // Do nothing -- user is editing the field
+
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    activity.getBinding().amount.setText(amount);
+                    activity.getBinding().amount.setSelection(activity.getBinding().amount.getText().length());
+                }
+            });
+        }catch (IndexOutOfBoundsException e){
+            LogUtil.d(getClass(), e.getMessage());
         }
     }
 
     @Override
     public void onViewDetached() {
+        String walletAddress = this.activity.getBinding().walletAddress.getText().toString();
+        previousWalletAddress.setAddress(walletAddress);
+
         this.activity = null;
     }
 
@@ -383,8 +410,9 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                     balanceError.setText(errorMassage);
                     balanceError.setVisibility(View.VISIBLE);
                     balanceLine.setBackgroundColor(ContextCompat.getColor(activity, R.color.errorState));
+                    balanceError.setTextColor(ContextCompat.getColor(activity, R.color.errorState));
                 }else{
-                    balanceError.setVisibility(View.INVISIBLE);
+                    balanceError.setTextColor(ContextCompat.getColor(activity, R.color.hintText));
                     balanceLine.setBackgroundColor(ContextCompat.getColor(activity, R.color.divider));
                 }
             }
@@ -392,12 +420,14 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     }
 
     private boolean validate() {
+        BigDecimal amountRequested = BigDecimal.ZERO;
+
         try {
             final DecimalFormat nf = (DecimalFormat) DecimalFormat.getInstance(Locale.ENGLISH);
             nf.setParseBigDecimal(true);
             final String inputtedText = this.activity.getBinding().amount.getText().toString();
             String checkSepators = inputtedText.replace("," , ".");
-            BigDecimal amountRequested = (BigDecimal) nf.parse(checkSepators);
+            amountRequested = (BigDecimal) nf.parse(checkSepators);
             Log.d(TAG, "validate: amount requested " + amountRequested + " current balance " + currentBalance);
 
             final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
@@ -412,8 +442,12 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
         String errorMessage;
 
+        Log.d(TAG, "validate: unconfirmed " + currentUnconfirmedBalance + " confirmed " + currentBalance);
+
         if(this.currentBalance.compareTo(BigDecimal.ZERO) == 0){
             errorMessage = this.activity.getResources().getString(R.string.withdraw__amount_error_zero);
+        }else if(amountRequested != null && amountRequested.compareTo(currentBalance) == 1){
+            errorMessage = this.activity.getResources().getString(R.string.withdraw__amount_error_bigger);
         }else{
             errorMessage = this.activity.getResources().getString(R.string.withdraw__amount_error);
         }

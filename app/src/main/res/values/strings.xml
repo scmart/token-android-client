@@ -16,6 +16,9 @@
     <string name="withdraw__amount">AMOUNT</string>
     <string name="withdraw__amount_error">Enter a valid amount for withdrawal</string>
     <string name="withdraw__amount_error_zero">Enter a valid amount for withdrawal, balance is 0</string>
+    <string name="withdraw__amount_error_bigger">Enter a valid amount for withdrawal, amount requested is to high</string>
+    <string name="withdraw__amount_error_unconfirmed_bigger">Enter a valid amount for withdrawal, unconfirmed balance is larger than confirmed</string>
+    <string name="withdraw__amount_error_unconfirmed_equal">Enter a valid amount for withdrawal, unconfirmed balance is equal to confirmed</string>
     <string name="eth_symbol">Ξ</string>
     <string name="withdraw__button">Send</string>
     <string name="socket__connecting_state">&lt;font color=\"#ffffff\"&gt;Connecting…&lt;\/font\&gt;</string>
@@ -26,7 +29,6 @@
     <string name="dialog_phone_input__hint">Phone number</string>
     <string name="button__cancel">Cancel</string>
     <string name="button__continue">Continue</string>
-    <string name="error__invalid_phone_number">This phone number is invalid</string>
     <string name="dialog_verification_code__instruction">Enter the code we just sent to your phone below</string>
     <string name="dialog_verification_code__hint">Confirmation code</string>
     <string name="error__invalid_verification_code">The confirmation code you entered is wrong</string>
@@ -46,4 +48,12 @@
     <string name="enter_amount_to_transfer">Enter amount to transfer</string>
     <string name="verify_phone_number">Verify phone number</string>
     <string name="eth">ETH</string>
+    <string name="error__invalid_phone_number">This phone number is invalid</string>
+    <!-- Dialog errors -->
+    <string name="invalid_phone_number">This phone number is invalid</string>
+    <string name="unsupported_phone_number_voip">VOIP numbers not supported. Please try a different mobile number.</string>
+    <string name="unsupported_phone_number_landline">Landline numbers not supported. Please try a different mobile number.</string>
+    <string name="unsupported_phone_number">Unsupported phone number. Please try a different mobile number.</string>
+    <string name="unexpected_error">Unexpected error. Please try again later</string>
+    <string name="each_transfer_costs_0_00042_eth_in_fees">Each transfer costs 0.00042 ETH in fees</string>
 </resources>

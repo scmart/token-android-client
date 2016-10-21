@@ -6,6 +6,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.view.adapter.MessageAdapter;
 
 public final class RemoteTextViewHolder extends RecyclerView.ViewHolder {
     public TextView messageText;
@@ -16,6 +17,8 @@ public final class RemoteTextViewHolder extends RecyclerView.ViewHolder {
     public TextView earnedTotalValue;
     public LinearLayout earnedTotalWrapper;
     public LinearLayout earnedWrapper;
+    public TextView verificationButton;
+
 
     public RemoteTextViewHolder(final View v) {
         super(v);
@@ -27,5 +30,16 @@ public final class RemoteTextViewHolder extends RecyclerView.ViewHolder {
         this.earnedTotalValue = (TextView) v.findViewById(R.id.earnedTotalValue);
         this.earnedTotalWrapper = (LinearLayout) v.findViewById(R.id.earnedTotalWrapper);
         this.earnedWrapper = (LinearLayout) v.findViewById(R.id.earnedWrapper);
+        this.verificationButton = (TextView) v.findViewById(R.id.verifyBtn);
+    }
+
+    public void bind(final MessageAdapter.OnVerifyClicklistener listener) {
+        verificationButton.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                if(listener != null) {
+                    listener.onVerifyClicked();
+                }
+            }
+        });
     }
 }

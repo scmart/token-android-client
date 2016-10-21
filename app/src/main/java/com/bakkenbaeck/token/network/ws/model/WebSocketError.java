@@ -14,7 +14,7 @@ public class WebSocketError {
 
     private static class Internals {
         private Internals() {
-            this.code = WebSocketErrors.unknown_error;
+            this.code = WebSocketErrors.unexpected_error;
         }
         private WebSocketErrors code;
     }
