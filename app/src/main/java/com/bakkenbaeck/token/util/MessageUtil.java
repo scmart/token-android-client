@@ -1,7 +1,5 @@
 package com.bakkenbaeck.token.util;
 
-import java.util.Random;
-
 public class MessageUtil {
     private static final String[] videoMessages = new String[]{
             "Great! Here you go!"
@@ -16,9 +14,10 @@ public class MessageUtil {
     }
 
     public static String getRandomMessage(){
-        Random r = new Random();
+        /*Random r = new Random();
         int ranNur = r.nextInt(2);
-        return videoMessages[ranNur];
+        return videoMessages[ranNur];*/
+        return videoMessages[0];
     }
 
     public static String parseString(String s){

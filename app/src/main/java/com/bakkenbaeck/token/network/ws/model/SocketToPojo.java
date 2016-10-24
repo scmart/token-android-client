@@ -72,15 +72,9 @@ public class SocketToPojo {
                 if(webSocketType.getSenderId().equals(AD_BOT_ID) || webSocketType.getSenderId().equals(TOKEN_ID)) {
                     final Message message = this.messageAdapter.fromJson(json);
 
-                    //Why is type null when receiving verification success?????????? Working with other messages
-                    if(message.getType() == null){
-                        message.setType(webSocketType.get());
-                    }
-
                     if(message.getType().equals("daily_limit_reached") && message.getActions().size() > 0){
                         Action action = message.getActions().get(0);
                         if(action.getAction().equals("enable_rate_limit")) {
-                            Log.d(TAG, "convertAndEmitPojo: DAILY_LIMIT_REACHED");
                             SharedPrefsUtil.saveNextDateEnabled(action.getReset_time());
                         }
                     }
@@ -113,7 +107,6 @@ public class SocketToPojo {
                 
                 break;
                 case "message_sent":
-                final PaymentRequest paymentRequest = paymentRequestAdapter.fromJson(json);
                 //Do nothing
                 break;
             case "payment_request_sent":

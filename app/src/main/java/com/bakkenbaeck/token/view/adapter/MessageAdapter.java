@@ -51,7 +51,6 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public final void addMessage(final ChatMessage chatMessage) {
-        Log.d(TAG, "addMessage: ");
         if (isRenderingPaused) {
             this.chatMessagesWhilstPaused.add(chatMessage);
         } else {
@@ -70,7 +69,6 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     private void addAndRenderMessage(final ChatMessage chatMessage) {
-        Log.d(TAG, "addAndRenderMessage: ");
         this.chatMessages.add(chatMessage);
         notifyItemChanged(this.chatMessages.size() - 2);
         notifyItemInserted(this.chatMessages.size() - 1);
@@ -111,7 +109,6 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         final ChatMessage chatMessage = this.chatMessages.get(position);
         switch (holder.getItemViewType()) {
             case TYPE_REMOTE_TEXT: {
-                Log.d(TAG, "onBindViewHolder: REMOTE_TEXT");
                 final RemoteTextViewHolder vh = (RemoteTextViewHolder) holder;
                 String parsedMessage = MessageUtil.parseString(chatMessage.getText());
                 vh.messageText.setText(parsedMessage);
@@ -135,7 +132,6 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
                 //Details reward
                 else if(chatMessage.getDetails() != null && chatMessage.getDetails().size() > 0) {
-                    Log.d(TAG, "onBindViewHolder: reward");
                     vh.details.setVisibility(View.VISIBLE);
 
                     //Earned

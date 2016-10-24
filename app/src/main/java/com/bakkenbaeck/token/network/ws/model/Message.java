@@ -8,6 +8,7 @@ public class Message {
     // private String recipient_id;
     // private String sender_id;
     private MessageInternals payload;
+    private String type;
 
     private static class Internals {
         private MessageInternals message;
@@ -41,5 +42,9 @@ public class Message {
 
     public List<Action> getActions(){
         return payload.actions;
+    }
+
+    public String getMessageType(){
+        return type;
     }
 }

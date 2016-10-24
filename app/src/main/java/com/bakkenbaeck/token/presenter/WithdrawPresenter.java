@@ -146,7 +146,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     }
 
     private void updateSendButtonEnabledState() {
-        Log.d(TAG, "updateSendButtonEnabledState: ");
         final Editable walletAddress = this.activity.getBinding().walletAddress.getText();
         String amount = this.activity.getBinding().amount.getText().toString();
         final boolean shouldEnableButton = walletAddress.length() > 0 && userHasEnoughReputationScore() && amount.length() > 0;
@@ -199,14 +198,9 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     };
 
     private void tryPopulateAmountField(LocalBalance localBalance) {
-        Log.d(TAG, "tryPopulateAmountField: 1");
-
         final BigDecimal unconfirmedBalance = localBalance.getUnconfirmedBalanceAsEth();
         final BigDecimal confirmedBalance = localBalance.getConfirmedBalanceAsEth();
         final String amount;
-
-        Log.d(TAG, "tryPopulateAmountField: confirmed balance " + localBalance.getConfirmedBalance());
-        Log.d(TAG, "tryPopulateAmountField: unconfirmed balance " + localBalance.getUnconfirmedBalance());
 
         if(localBalance.getConfirmedBalance().equals(BigInteger.ZERO)){
             SnackbarUtil.make(activity.getBinding().root, "Your balance is 0").show();
@@ -216,13 +210,10 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         try {
 
             if(unconfirmedBalance.compareTo(confirmedBalance) == -1){
-                Log.d(TAG, "tryPopulateAmountField: use unconfirmedBalance is smallest ");
                 amount = localBalance.unconfirmedBalanceStringMinusTransferFee();
             }else if(confirmedBalance.compareTo(unconfirmedBalance) == -1){
-                Log.d(TAG, "tryPopulateAmountField: use confirmedBalance is smallest ");
                 amount = localBalance.confirmedBalanceStringMinusTransferFee();
             }else{
-                Log.d(TAG, "tryPopulateAmountField: ");
                 amount = localBalance.confirmedBalanceStringMinusTransferFee().replace(",", ".");
             }
 
@@ -345,7 +336,11 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                 }else if(signatureRequest.code() == 200) {
 
                     final String unsignedTransaction = signatureRequest.body().getTransaction();
+                    Log.d(TAG, "onNext: -> unsignedTransaction " + unsignedTransaction);
                     final String signature = BaseApplication.get().getUserManager().signTransaction(unsignedTransaction);
+
+                    Log.d(TAG, "onNext: -> " + signature);
+
                     final SignedWithdrawalRequest request = new SignedWithdrawalRequest(unsignedTransaction, signature);
 
                     TokenService.getApi()
