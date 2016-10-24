@@ -30,7 +30,7 @@
     <color name="accent3">#50D08B</color>
     <color name="accent4">#F6C44C</color>
     <color name="input_underline">#565A64</color>
-    <color name="statusbarBackgroundColor">#FFFFFF</color>
+    <color name="statusbarBackgroundColor">#DEDEDE</color>
     <color name="dividerColor">#0D4E525D</color>
     <color name="tile_color">#FFFFFF</color>
     <color name="textColorPri">#CC4E525D</color>
