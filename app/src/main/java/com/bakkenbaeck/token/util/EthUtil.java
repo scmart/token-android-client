@@ -18,6 +18,9 @@ public class EthUtil {
     }
 
     public static BigDecimal weiToEth(final BigInteger wei) {
+        if (wei == null) {
+            return BigDecimal.ZERO;
+        }
         return new BigDecimal(wei).divide(weiToEthRatio);
     }
 
