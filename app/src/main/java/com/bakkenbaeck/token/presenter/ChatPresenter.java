@@ -193,7 +193,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         @Override
         public void onNext(final LocalBalance newBalance) {
             if (activity != null && newBalance != null) {
-                activity.getBinding().balanceBar.setBalance(newBalance.unconfirmedBalanceString());
+                activity.getBinding().balanceBar.setBalance(newBalance);
             }
         }
     };

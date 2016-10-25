@@ -8,6 +8,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.model.LocalBalance;
+
+import java.math.BigDecimal;
 
 public class BalanceBar extends LinearLayout {
     private static final String TAG = "BalanceBar";
@@ -34,24 +37,6 @@ public class BalanceBar extends LinearLayout {
 
     private void init() {
         inflate(getContext(), R.layout.view__balance_bar, this);
-
-        /*findViewById(R.id.textView).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(clickListener != null){
-                    clickListener.onClickListener();
-                }
-            }
-        });
-
-        findViewById(R.id.level).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(clickListener != null){
-                    clickListener.onClickListener();
-                }
-            }
-        });*/
     }
 
     public void disableClickEvents(boolean disable){
@@ -81,16 +66,12 @@ public class BalanceBar extends LinearLayout {
 
     }
 
-    public void setBalance(final String balance) {
+    public void setBalance(final LocalBalance balance) {
         this.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if(balance.length() > 6) {
-                    String shortBalance = balance.substring(0, 6).replace(",", ".");
-                    ((TextView) findViewById(R.id.balance)).setText(shortBalance);
-                }else{
-                    ((TextView) findViewById(R.id.balance)).setText(balance);
-                }
+                final String newBalance = balance.getUnconfirmedBalanceAsEth().setScale(4, BigDecimal.ROUND_DOWN).toString();
+                ((TextView) findViewById(R.id.balance)).setText(newBalance);
             }
         }, 200);
     }

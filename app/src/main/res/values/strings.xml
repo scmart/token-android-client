@@ -58,4 +58,5 @@
     <string name="each_transfer_costs_0_00042_eth_in_fees">Each transfer costs 0.00042 ETH in fees</string>
     <string name="max">MAX</string>
     <string name="user_manager_pref_filename">usm</string>
+    <string name="error__insufficient_balance">Your balance is less than the transaction fee</string>
 </resources>
