@@ -202,7 +202,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         final BigDecimal confirmedBalance = localBalance.getConfirmedBalanceAsEth();
         final String amount;
 
-        if(localBalance.getConfirmedBalance().equals(BigInteger.ZERO)){
+        if(localBalance.getConfirmedBalance().equals(BigInteger.ZERO) || localBalance.getUnconfirmedBalance().equals(BigInteger.ZERO)){
             SnackbarUtil.make(activity.getBinding().root, "Your balance is 0").show();
             return;
         }
@@ -325,7 +325,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             public void onNext(final Response<SignatureRequest> signatureRequest) {
                 Log.d(TAG, "onNext: 1");
                 if(signatureRequest.code() == 400 || signatureRequest.code() == 500){
-                    //Getting null when trying to parse when error
                     showAddressError(true, "Enter a valid address");
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
@@ -338,8 +337,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                     final String unsignedTransaction = signatureRequest.body().getTransaction();
                     Log.d(TAG, "onNext: -> unsignedTransaction " + unsignedTransaction);
                     final String signature = BaseApplication.get().getUserManager().signTransaction(unsignedTransaction);
-
-                    Log.d(TAG, "onNext: -> " + signature);
 
                     final SignedWithdrawalRequest request = new SignedWithdrawalRequest(unsignedTransaction, signature);
 
