@@ -8,7 +8,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -25,7 +24,6 @@ import com.bakkenbaeck.token.network.rest.model.WithdrawalRequest;
 import com.bakkenbaeck.token.network.ws.model.TransactionConfirmation;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LogUtil;
-import com.bakkenbaeck.token.util.NetworkStateUtil;
 import com.bakkenbaeck.token.util.OnNextObserver;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
@@ -41,6 +39,7 @@ import com.google.zxing.integration.android.IntentResult;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.Locale;
@@ -183,7 +182,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                 currentBalance = newBalance.getConfirmedBalanceAsEthMinusTransferFee();
                 currentUnconfirmedBalance = newBalance.getUnconfirmedBalanceAsEthMinusTransferFee();
                 activity.getBinding().balanceBar.setBalance(newBalance.unconfirmedBalanceString());
-                activity.getBinding().balanceBar.setEthValue(newBalance.getEth_value(), newBalance.getUnconfirmedBalanceAsEth());
+                activity.getBinding().balanceBar.setEthValue(newBalance.getEthValue(), newBalance.getUnconfirmedBalanceAsEth());
             }
         }
     };
@@ -282,11 +281,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     }
 
     private void handleSendClicked() {
-        if(!NetworkStateUtil.isNetworkAvailable(this.activity)){
-            SnackbarUtil.make(this.activity.getBinding().root, this.activity.getString(R.string.networkStateNotConnected)).show();
-            return;
-        }
-
         if (!validate()) {
             return;
         }
@@ -323,7 +317,10 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
             @Override
             public void onError(final Throwable ex) {
-                Log.d(TAG, "onError: 1 " + ex);
+                if(ex instanceof UnknownHostException){
+                    SnackbarUtil.make(activity.getBinding().root, activity.getString(R.string.networkStateNotConnected)).show();
+                }
+
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
@@ -365,6 +362,10 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
                     @Override
                     public void onError(final Throwable ex) {
+                        if(ex instanceof UnknownHostException){
+                            SnackbarUtil.make(activity.getBinding().root, activity.getString(R.string.networkStateNotConnected)).show();
+                        }
+
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {

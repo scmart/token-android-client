@@ -1,8 +1,6 @@
 package com.bakkenbaeck.token.manager;
 
 
-import android.util.Log;
-
 import com.bakkenbaeck.token.model.LocalBalance;
 import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.network.rest.model.TransactionSent;
@@ -65,7 +63,7 @@ public class LocalBalanceManager {
     private void setBalance(final User user) {
         this.localBalance.setUnconfirmedBalance(user.getUnconfirmedBalance());
         this.localBalance.setConfirmedBalance(user.getConfirmedBalance());
-        this.localBalance.setEth_value(user.getEth_value());
+        this.localBalance.setEthValue(user.getEthValue());
         emitNewBalance();
     }
 

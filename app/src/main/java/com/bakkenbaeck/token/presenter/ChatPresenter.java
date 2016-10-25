@@ -3,7 +3,6 @@ package com.bakkenbaeck.token.presenter;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -195,7 +194,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         public void onNext(final LocalBalance newBalance) {
             if (activity != null && newBalance != null) {
                 activity.getBinding().balanceBar.setBalance(newBalance.unconfirmedBalanceString());
-                activity.getBinding().balanceBar.setEthValue(newBalance.getEth_value(), newBalance.getUnconfirmedBalanceAsEth());
+                activity.getBinding().balanceBar.setEthValue(newBalance.getEthValue(), newBalance.getUnconfirmedBalanceAsEth());
             }
         }
     };

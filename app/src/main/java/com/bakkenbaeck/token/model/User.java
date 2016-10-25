@@ -49,7 +49,7 @@ public class User {
         return this.level;
     }
 
-    public double getEth_value(){
+    public double getEthValue(){
         return eth_value;
     }
 }
