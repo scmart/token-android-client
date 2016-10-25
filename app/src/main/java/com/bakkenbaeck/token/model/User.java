@@ -10,6 +10,7 @@ public class User {
     private String auth_token;
     private String bcrypt_salt;
     private int level;
+    private double eth_value;
 
     public String getId() {
         return id;
@@ -46,5 +47,9 @@ public class User {
 
     public int getLevel() {
         return this.level;
+    }
+
+    public double getEthValue(){
+        return eth_value;
     }
 }

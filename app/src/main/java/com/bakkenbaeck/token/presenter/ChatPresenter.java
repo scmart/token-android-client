@@ -3,7 +3,6 @@ package com.bakkenbaeck.token.presenter;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -17,6 +16,7 @@ import com.bakkenbaeck.token.model.LocalBalance;
 import com.bakkenbaeck.token.network.ws.model.ConnectionState;
 import com.bakkenbaeck.token.network.ws.model.Message;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
+import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.MessageUtil;
 import com.bakkenbaeck.token.util.OnCompletedObserver;
 import com.bakkenbaeck.token.util.OnNextObserver;
@@ -193,6 +193,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         @Override
         public void onNext(final LocalBalance newBalance) {
             if (activity != null && newBalance != null) {
+                activity.getBinding().balanceBar.setEthValue(newBalance.getEthValue(), newBalance.getUnconfirmedBalanceAsEth());
                 activity.getBinding().balanceBar.setBalance(newBalance);
             }
         }
@@ -443,10 +444,10 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
                 if (networkStateSnackbar.isShownOrQueued()) {
                     return;
                 }
-                Log.d(TAG, "onNext: connecting");
+                LogUtil.e(getClass(), "Connecting");
                 //networkStateSnackbar.show();
             } else {
-                Log.d(TAG, "onNext: connected");
+                LogUtil.e(getClass(), "Connecting");
                 //networkStateSnackbar.dismiss();
             }
         }

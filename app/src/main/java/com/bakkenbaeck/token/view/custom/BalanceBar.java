@@ -11,9 +11,9 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.LocalBalance;
 
 import java.math.BigDecimal;
+import java.util.Locale;
 
 public class BalanceBar extends LinearLayout {
-    private static final String TAG = "BalanceBar";
 
     public interface OnLevelClicked{
         void onClickListener();
@@ -63,7 +63,6 @@ public class BalanceBar extends LinearLayout {
                 }
             });
         }
-
     }
 
     public void setBalance(final LocalBalance balance) {
@@ -81,6 +80,17 @@ public class BalanceBar extends LinearLayout {
             @Override
             public void run() {
                 ((TextView)findViewById(R.id.level)).setText(String.valueOf(level));
+            }
+        }, 200);
+    }
+
+    public void setEthValue(final double ethValue, final BigDecimal unconfirmedBalance){
+        final double usd = ethValue * unconfirmedBalance.doubleValue();
+        final String substring = String.format(Locale.getDefault(), "%.4f", usd);
+        this.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ((TextView)findViewById(R.id.eth_value)).setText(substring);
             }
         }, 200);
     }
