@@ -15,11 +15,11 @@ import android.view.animation.PathInterpolator;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.databinding.ActivityChatBinding;
 import com.bakkenbaeck.token.model.ActivityResultHolder;
-import com.bakkenbaeck.token.network.ws.model.VerificationSuccess;
 import com.bakkenbaeck.token.presenter.ChatPresenter;
 import com.bakkenbaeck.token.presenter.PresenterLoader;
 import com.bakkenbaeck.token.presenter.factory.ChatPresenterFactory;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
+import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.adapter.viewholder.BottomOffsetDecoration;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 import com.bakkenbaeck.token.view.dialog.PhoneInputDialog;
@@ -145,5 +145,13 @@ public final class ChatActivity extends AppCompatActivity implements LoaderManag
             return;
         }
         this.presenter.onVerificationSuccess();
+    }
+    
+    @Override
+    public void onDestroy(){
+
+        BaseApplication.get().disconnectWebSocket();
+
+        super.onDestroy();
     }
 }

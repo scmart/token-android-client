@@ -2,7 +2,6 @@ package com.bakkenbaeck.token.network.ws;
 
 
 import android.os.Handler;
-import android.util.Log;
 
 import com.bakkenbaeck.token.util.LogUtil;
 import com.neovisionaries.ws.client.WebSocket;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 /* package */ class WebSocketConnection {
-        private static final String TAG = "WebSocketConnection";
     /* package */ interface Listener {
         void onJsonMessage(final String json);
         void onReconnecting();
@@ -77,6 +75,15 @@ import java.util.Map;
                 LogUtil.e(getClass(), "Connect failed. " + e);
                 listener.onReconnecting();
             }
+        }
+    }
+
+    public void disconnect(){
+        LogUtil.e(getClass(), "disconnect");
+        if(webSocket != null){
+            connected = false;
+            webSocket.disconnect();
+            webSocket.clearListeners();
         }
     }
 

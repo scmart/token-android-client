@@ -55,7 +55,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
 
     @Override
     public void onViewAttached(final ChatActivity activity) {
-        Log.d(TAG, "onViewAttached: ");
         this.activity = activity;
         initToolbar();
 
@@ -362,6 +361,9 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
 
     @Override
     public void onViewDetached() {
+        if(connectionStateSubscriber != null) {
+            connectionStateSubscriber.unsubscribe();
+        }
         this.messageAdapter.pauseRendering();
         this.activity = null;
     }
@@ -437,9 +439,11 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         this.activity.overridePendingTransition(R.anim.enter_fade_in, R.anim.exit_fade_out);
     }
 
-    private final OnNextObserver<ConnectionState> connectionStateSubscriber = new OnNextObserver<ConnectionState>() {
+    private final OnNextSubscriber<ConnectionState> connectionStateSubscriber = new OnNextSubscriber<ConnectionState>() {
         @Override
-        public void onNext(final ConnectionState connectionState) {
+        public void onNext(ConnectionState connectionState) {
+            LogUtil.e(getClass(), "connectionStateSubscriber");
+
             if (connectionState == ConnectionState.CONNECTING) {
                 if (networkStateSnackbar.isShownOrQueued()) {
                     return;
