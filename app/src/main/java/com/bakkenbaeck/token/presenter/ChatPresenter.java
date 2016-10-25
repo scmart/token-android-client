@@ -3,7 +3,6 @@ package com.bakkenbaeck.token.presenter;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -17,6 +16,7 @@ import com.bakkenbaeck.token.model.LocalBalance;
 import com.bakkenbaeck.token.network.ws.model.ConnectionState;
 import com.bakkenbaeck.token.network.ws.model.Message;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
+import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.MessageUtil;
 import com.bakkenbaeck.token.util.OnCompletedObserver;
 import com.bakkenbaeck.token.util.OnNextObserver;
@@ -55,7 +55,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
 
     @Override
     public void onViewAttached(final ChatActivity activity) {
-        Log.d(TAG, "onViewAttached: ");
         this.activity = activity;
         initToolbar();
 
@@ -361,6 +360,9 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
 
     @Override
     public void onViewDetached() {
+        if(connectionStateSubscriber != null) {
+            connectionStateSubscriber.unsubscribe();
+        }
         this.messageAdapter.pauseRendering();
         this.activity = null;
     }
@@ -436,9 +438,11 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         this.activity.overridePendingTransition(R.anim.enter_fade_in, R.anim.exit_fade_out);
     }
 
-    private final OnNextObserver<ConnectionState> connectionStateSubscriber = new OnNextObserver<ConnectionState>() {
+    private final OnNextSubscriber<ConnectionState> connectionStateSubscriber = new OnNextSubscriber<ConnectionState>() {
         @Override
-        public void onNext(final ConnectionState connectionState) {
+        public void onNext(ConnectionState connectionState) {
+            LogUtil.e(getClass(), "connectionStateSubscriber");
+
             if (connectionState == ConnectionState.CONNECTING) {
                 if (networkStateSnackbar.isShownOrQueued()) {
                     return;

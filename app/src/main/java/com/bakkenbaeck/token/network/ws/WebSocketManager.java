@@ -50,6 +50,12 @@ public class WebSocketManager {
             socketObservables.emitNewConnectionState(ConnectionState.CONNECTED);
         }
     };
+
+    public void disconnect(){
+        if(webSocketConnection != null){
+            webSocketConnection.disconnect();
+        }
+    }
     
     private void tryToReconnect(){
         if(!webSocketConnection.isConnected()){

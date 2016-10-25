@@ -68,6 +68,10 @@ public class BaseApplication extends MultiDexApplication {
         this.webSocketManager.requestWebsocketConnection();
     }
 
+    public void disconnectWebSocket(){
+        this.webSocketManager.disconnect();
+    }
+
     @Override
     public void onTerminate() {
         super.onTerminate();
