@@ -1,9 +1,10 @@
 package com.bakkenbaeck.token.util;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.view.BaseApplication;
-import com.securepreferences.SecurePreferences;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -18,8 +19,8 @@ public class SharedPrefsUtil {
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
-                SharedPreferences prefs = new SecurePreferences(BaseApplication.get(), "", "um");
-                boolean b = prefs.getBoolean(IS_VERIFIED, false);
+                final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
+                final boolean b = prefs.getBoolean(IS_VERIFIED, false);
                 subscriber.onNext(b);
             }
         }).subscribeOn(Schedulers.io())
@@ -27,17 +28,17 @@ public class SharedPrefsUtil {
     }
 
     public static void saveVerified(boolean b){
-        SharedPreferences prefs = new SecurePreferences(BaseApplication.get(), "", "um");
+        final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
         prefs.edit().putBoolean(IS_VERIFIED, b).commit();
     }
 
     public static void saveNextDateEnabled(long date){
-        SharedPreferences prefs = new SecurePreferences(BaseApplication.get(), "", "um");
+        final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
         prefs.edit().putLong(ENABLED_DATE, date * 1000).apply();
     }
 
     public static long getNextDateEnabled(){
-        SharedPreferences prefs = new SecurePreferences(BaseApplication.get(), "", "um");
+        final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
         return prefs.getLong(ENABLED_DATE, 0);
     }
 }

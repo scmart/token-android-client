@@ -1,12 +1,12 @@
 package com.bakkenbaeck.token.crypto;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.google.android.gms.tasks.RuntimeExecutionException;
-import com.securepreferences.SecurePreferences;
 
 import org.mindrot.jbcrypt.BCrypt;
 import org.spongycastle.util.encoders.Hex;
@@ -64,7 +64,7 @@ public class Wallet {
     }
 
     private void initAes() {
-        this.prefs = new SecurePreferences(BaseApplication.get(), "", "w");
+        this.prefs = BaseApplication.get().getSharedPreferences("wa", Context.MODE_PRIVATE);
         this.aes = new Aes();
     }
 

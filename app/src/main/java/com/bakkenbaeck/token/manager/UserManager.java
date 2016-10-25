@@ -1,8 +1,10 @@
 package com.bakkenbaeck.token.manager;
 
 
+import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.Wallet;
 import com.bakkenbaeck.token.model.CryptoDetails;
 import com.bakkenbaeck.token.model.User;
@@ -11,7 +13,6 @@ import com.bakkenbaeck.token.util.OnCompletedObserver;
 import com.bakkenbaeck.token.util.OnNextObserver;
 import com.bakkenbaeck.token.util.RetryWithBackoff;
 import com.bakkenbaeck.token.view.BaseApplication;
-import com.securepreferences.SecurePreferences;
 
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -57,7 +58,7 @@ public class UserManager {
     }
 
     private void initUser() {
-        this.prefs = new SecurePreferences(BaseApplication.get(), "", "um");
+        this.prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
         this.userWallet = new Wallet();
         if (!userExistsInPrefs()) {
             requestNewUser();

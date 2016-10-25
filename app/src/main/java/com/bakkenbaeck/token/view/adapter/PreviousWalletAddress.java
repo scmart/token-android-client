@@ -1,9 +1,9 @@
 package com.bakkenbaeck.token.view.adapter;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.bakkenbaeck.token.view.BaseApplication;
-import com.securepreferences.SecurePreferences;
 
 public final class PreviousWalletAddress {
 
@@ -13,7 +13,7 @@ public final class PreviousWalletAddress {
     private final SharedPreferences prefs;
 
     public PreviousWalletAddress() {
-        this.prefs = new SecurePreferences(BaseApplication.get(), "", "waa");
+        this.prefs = BaseApplication.get().getSharedPreferences("pwa", Context.MODE_PRIVATE);
         loadFromPreferences();
     }
 
