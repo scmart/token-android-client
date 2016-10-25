@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.model.LocalBalance;
 
 import java.math.BigDecimal;
 import java.util.Locale;
@@ -64,12 +65,12 @@ public class BalanceBar extends LinearLayout {
         }
     }
 
-    public void setBalance(final String balance) {
+    public void setBalance(final LocalBalance balance) {
         this.postDelayed(new Runnable() {
             @Override
             public void run() {
-                final String substring = String.format(Locale.getDefault(), "%.6s", balance);
-                ((TextView) findViewById(R.id.balance)).setText(substring);
+                final String newBalance = balance.getUnconfirmedBalanceAsEth().setScale(4, BigDecimal.ROUND_DOWN).toString();
+                ((TextView) findViewById(R.id.balance)).setText(newBalance);
             }
         }, 200);
     }

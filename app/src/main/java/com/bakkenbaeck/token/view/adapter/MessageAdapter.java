@@ -112,6 +112,7 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 final RemoteTextViewHolder vh = (RemoteTextViewHolder) holder;
                 String parsedMessage = MessageUtil.parseString(chatMessage.getText());
                 vh.messageText.setText(parsedMessage);
+                vh.verificationButton.setVisibility(View.GONE);
 
                 //Verify button
                 if(chatMessage.getAction() != null && chatMessage.getAction().size() > 0){
@@ -136,9 +137,9 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
                     //Earned
                     vh.earnedTotalWrapper.setVisibility(View.GONE);
-                    if(chatMessage.getDetails().size() == 1){
+                    if (chatMessage.getDetails().size() == 1) {
                         vh.earnedWrapper.setBackground(ContextCompat.getDrawable(activity, R.drawable.reward_background));
-                    }else{
+                    } else {
                         vh.earnedWrapper.setBackground(ContextCompat.getDrawable(activity, R.drawable.top_radius_background));
                     }
                     vh.earnedWrapper.setVisibility(View.VISIBLE);

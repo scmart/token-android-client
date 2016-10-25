@@ -1,10 +1,10 @@
 package com.bakkenbaeck.token.crypto;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Base64;
 
 import com.bakkenbaeck.token.view.BaseApplication;
-import com.securepreferences.SecurePreferences;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
@@ -32,7 +32,7 @@ public class Aes
     private AlgorithmParameterSpec spec;
 
     public Aes() {
-        this.preferences = new SecurePreferences(BaseApplication.get(), "", "a");
+        this.preferences = BaseApplication.get().getSharedPreferences("ae", Context.MODE_PRIVATE);
     }
 
     public String encrypt(final String plainText, final String password) {

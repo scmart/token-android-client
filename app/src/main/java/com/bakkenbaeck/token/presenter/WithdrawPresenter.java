@@ -50,7 +50,6 @@ import rx.Subscriber;
 import static android.app.Activity.RESULT_OK;
 
 public class WithdrawPresenter implements Presenter<WithdrawActivity> {
-    private static final String TAG = "WithdrawPresenter";
     static final String INTENT_WALLET_ADDRESS = "wallet_address";
     static final String INTENT_WITHDRAW_AMOUNT = "withdraw_amount";
 
@@ -95,7 +94,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             public void onSingleClick(View v) {
                 BaseApplication.get().getLocalBalanceManager().getObservable().subscribe(new OnNextSubscriber<LocalBalance>() {
                     @Override
-                    public void onNext(LocalBalance localBalance) {
+                    public void onNext(final LocalBalance localBalance) {
                         this.unsubscribe();
                         tryPopulateAmountField(localBalance);
                     }
@@ -181,8 +180,8 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             if (activity != null && newBalance != null) {
                 currentBalance = newBalance.getConfirmedBalanceAsEthMinusTransferFee();
                 currentUnconfirmedBalance = newBalance.getUnconfirmedBalanceAsEthMinusTransferFee();
-                activity.getBinding().balanceBar.setBalance(newBalance.unconfirmedBalanceString());
                 activity.getBinding().balanceBar.setEthValue(newBalance.getEthValue(), newBalance.getUnconfirmedBalanceAsEth());
+                activity.getBinding().balanceBar.setBalance(newBalance);
             }
         }
     };
@@ -196,46 +195,34 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         }
     };
 
-    private void tryPopulateAmountField(LocalBalance localBalance) {
-        final BigDecimal unconfirmedBalance = localBalance.getUnconfirmedBalanceAsEth();
-        final BigDecimal confirmedBalance = localBalance.getConfirmedBalanceAsEth();
-        final String amount;
+    private void tryPopulateAmountField(final LocalBalance localBalance) {
 
-        int biggerThanTxFeeConfirmed = localBalance.getConfirmedBalanceAsEthMinusTransferFee().compareTo(new BigDecimal("0.00042"));
-        int biggerThanTxFeeUnconfirmed = localBalance.getUnconfirmedBalanceAsEthMinusTransferFee().compareTo(new BigDecimal("0.00042"));
-
-        if(biggerThanTxFeeConfirmed == -1 || biggerThanTxFeeUnconfirmed == -1){
+        if(localBalance.getConfirmedBalanceAsEthMinusTransferFee().equals(BigDecimal.ZERO) || localBalance.getUnconfirmedBalanceAsEthMinusTransferFee().equals(BigDecimal.ZERO)) {
             SnackbarUtil.make(activity.getBinding().root, this.activity.getString(R.string.balanceErrorLessTxFee)).show();
-        }
-
-        if(localBalance.getConfirmedBalance().equals(BigInteger.ZERO) || localBalance.getUnconfirmedBalance().equals(BigInteger.ZERO)){
-            SnackbarUtil.make(activity.getBinding().root, this.activity.getString(R.string.balanceErrorZero)).show();
             return;
         }
 
-        try {
-
-            if(unconfirmedBalance.compareTo(confirmedBalance) == -1){
-                amount = localBalance.unconfirmedBalanceStringMinusTransferFee();
-            }else if(confirmedBalance.compareTo(unconfirmedBalance) == -1){
-                amount = localBalance.confirmedBalanceStringMinusTransferFee();
-            }else{
-                amount = localBalance.confirmedBalanceStringMinusTransferFee().replace(",", ".");
-            }
-
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if(activity != null) {
-                        activity.getBinding().amount.setText(amount);
-                        activity.getBinding().amount.setSelection(activity.getBinding().amount.getText().length());
-                    }
+        final String amount = generateMaxAmountFromBalance(localBalance);
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if(activity != null) {
+                    activity.getBinding().amount.setText(amount);
+                    activity.getBinding().amount.setSelection(activity.getBinding().amount.getText().length());
                 }
-            });
-        }catch (IndexOutOfBoundsException e){
-            LogUtil.d(getClass(), e.getMessage());
+            }
+        });
+    }
+
+    private String generateMaxAmountFromBalance(final LocalBalance localBalance) {
+        final BigInteger unconfirmedBalance = localBalance.getUnconfirmedBalance();
+        final BigInteger confirmedBalance = localBalance.getConfirmedBalance();
+        if (unconfirmedBalance.compareTo(confirmedBalance) == -1) {
+            return localBalance.unconfirmedBalanceStringMinusTransferFee();
+        } else if(confirmedBalance.compareTo(unconfirmedBalance) == -1) {
+            return localBalance.confirmedBalanceStringMinusTransferFee();
         }
+        return localBalance.confirmedBalanceStringMinusTransferFee();
     }
 
     @Override
@@ -320,7 +307,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                 if(ex instanceof UnknownHostException){
                     SnackbarUtil.make(activity.getBinding().root, activity.getString(R.string.networkStateNotConnected)).show();
                 }
-
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
@@ -398,7 +384,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                         TransactionConfirmation t = new TransactionConfirmation(t1.toString(), t2.toString());
                         BaseApplication.get().getSocketObservables().emitTransactionConfirmation(t);
                         BaseApplication.get().getSocketObservables().emitTransactionSent(transactionSent.body());
-                        String parsedInput = activity.getBinding().amount.getText().toString().replace(",", ".");
+                        String parsedInput = activity.getBinding().amount.getText().toString();
 
                         final Intent intent = new Intent();
                         intent.putExtra(INTENT_WALLET_ADDRESS, activity.getBinding().walletAddress.getText().toString());

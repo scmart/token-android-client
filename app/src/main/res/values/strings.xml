@@ -63,4 +63,6 @@
     <string name="networkStateNotConnected">Could not find a network connection</string>
     <string name="invalidEthAddress">Enter a valid address</string>
     <string name="notEnoughFunds">Not enough funds to transfer the requested amount</string>
+    <string name="user_manager_pref_filename">usm</string>
+    <string name="error__insufficient_balance">Your balance is less than the transaction fee</string>
 </resources>

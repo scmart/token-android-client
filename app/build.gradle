@@ -80,13 +80,10 @@ dependencies {
             // Images
             'de.hdodenhof:circleimageview:2.1.0',
             // Animations / custom views
-            //'com.robinhood.ticker:ticker:1.1.0',
             'com.github.ybq:Android-SpinKit:1.1.0',
             'com.hbb20:ccp:1.5.1',
             // Reading barcodes
             'com.journeyapps:zxing-android-embedded:3.3.0',
-            // I/O
-            'com.scottyab:secure-preferences-lib:0.1.4',
             // Crypto
             'com.madgag.spongycastle:core:1.54.0.0',
             'com.madgag.spongycastle:prov:1.54.0.0',
