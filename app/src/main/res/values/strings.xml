@@ -9,7 +9,7 @@
     <string name="withdraw__title">Send Ethereum</string>
     <string name="ethereum_address">Ethereum Address</string>
     <string name="button_send">Send</string>
-    <string name="my_balance">Eth</string>
+    <string name="my_balance">ETH</string>
     <string name="withdraw__to">TO</string>
     <string name="another_one">WATCH ANOTHER</string>
     <string name="barcode__title">Scan QR code</string>
@@ -57,4 +57,10 @@
     <string name="unexpected_error">Unexpected error. Please try again later</string>
     <string name="each_transfer_costs_0_00042_eth_in_fees">Each transfer costs 0.00042 ETH in fees</string>
     <string name="max">MAX</string>
+    <string name="dollar">$</string>
+    <string name="balanceErrorLessTxFee">Your balance is less than the transaction fee</string>
+    <string name="balanceErrorZero">Your balance is 0</string>
+    <string name="networkStateNotConnected">Could not find a network connection</string>
+    <string name="invalidEthAddress">Enter a valid address</string>
+    <string name="notEnoughFunds">Not enough funds to transfer the requested amount</string>
 </resources>

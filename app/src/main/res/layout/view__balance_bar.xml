@@ -19,22 +19,38 @@
             android:layout_height="match_parent"
             android:layout_gravity="left"
             android:gravity="center_vertical">
-
+            
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/textColorSec"
-                android:textSize="@dimen/balance_bar_text_size"
-                android:text="@string/my_balance" />
+                android:textColor="@color/textColorPri"
+                android:textSize="@dimen/subTitleSize"
+                android:text="@string/dollar"/>
+
+            <TextView
+                android:id="@+id/eth_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/textColorPri"
+                android:textSize="@dimen/subTitleSize"
+                android:text="0"/>
 
             <TextView
                 android:id="@+id/balance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/textColorPri"
+                android:textColor="@color/textColorSec"
                 android:textSize="@dimen/balance_bar_text_size"
                 android:layout_marginLeft="8dp"
                 android:text="0"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/textColorSec"
+                android:layout_marginLeft="4dp"
+                android:textSize="@dimen/balance_bar_text_size"
+                android:text="@string/my_balance" />
 
         </LinearLayout>
 

@@ -4,16 +4,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.ActivityResultHolder;
@@ -42,6 +39,7 @@ import com.google.zxing.integration.android.IntentResult;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.Locale;
@@ -184,6 +182,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                 currentBalance = newBalance.getConfirmedBalanceAsEthMinusTransferFee();
                 currentUnconfirmedBalance = newBalance.getUnconfirmedBalanceAsEthMinusTransferFee();
                 activity.getBinding().balanceBar.setBalance(newBalance.unconfirmedBalanceString());
+                activity.getBinding().balanceBar.setEthValue(newBalance.getEthValue(), newBalance.getUnconfirmedBalanceAsEth());
             }
         }
     };
@@ -202,17 +201,15 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         final BigDecimal confirmedBalance = localBalance.getConfirmedBalanceAsEth();
         final String amount;
 
-        Log.d(TAG, "tryPopulateAmountField: " + confirmedBalance + " " + unconfirmedBalance);
-
         int biggerThanTxFeeConfirmed = localBalance.getConfirmedBalanceAsEthMinusTransferFee().compareTo(new BigDecimal("0.00042"));
         int biggerThanTxFeeUnconfirmed = localBalance.getUnconfirmedBalanceAsEthMinusTransferFee().compareTo(new BigDecimal("0.00042"));
 
         if(biggerThanTxFeeConfirmed == -1 || biggerThanTxFeeUnconfirmed == -1){
-            SnackbarUtil.make(activity.getBinding().root, "Your balance is less than the transaction fee").show();
+            SnackbarUtil.make(activity.getBinding().root, this.activity.getString(R.string.balanceErrorLessTxFee)).show();
         }
 
         if(localBalance.getConfirmedBalance().equals(BigInteger.ZERO) || localBalance.getUnconfirmedBalance().equals(BigInteger.ZERO)){
-            SnackbarUtil.make(activity.getBinding().root, "Your balance is 0").show();
+            SnackbarUtil.make(activity.getBinding().root, this.activity.getString(R.string.balanceErrorZero)).show();
             return;
         }
 
@@ -320,7 +317,10 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
             @Override
             public void onError(final Throwable ex) {
-                Log.d(TAG, "onError: 1 " + ex);
+                if(ex instanceof UnknownHostException){
+                    SnackbarUtil.make(activity.getBinding().root, activity.getString(R.string.networkStateNotConnected)).show();
+                }
+
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
@@ -332,9 +332,10 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
             @Override
             public void onNext(final Response<SignatureRequest> signatureRequest) {
-                Log.d(TAG, "onNext: 1");
                 if(signatureRequest.code() == 400 || signatureRequest.code() == 500){
-                    showAddressError(true, "Enter a valid address");
+                    if(activity != null) {
+                        showAddressError(true, activity.getString(R.string.invalidEthAddress));
+                    }
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
@@ -344,9 +345,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                 }else if(signatureRequest.code() == 200) {
 
                     final String unsignedTransaction = signatureRequest.body().getTransaction();
-                    Log.d(TAG, "onNext: -> unsignedTransaction " + unsignedTransaction);
                     final String signature = BaseApplication.get().getUserManager().signTransaction(unsignedTransaction);
-
                     final SignedWithdrawalRequest request = new SignedWithdrawalRequest(unsignedTransaction, signature);
 
                     TokenService.getApi()
@@ -363,6 +362,10 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
                     @Override
                     public void onError(final Throwable ex) {
+                        if(ex instanceof UnknownHostException){
+                            SnackbarUtil.make(activity.getBinding().root, activity.getString(R.string.networkStateNotConnected)).show();
+                        }
+
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
@@ -374,7 +377,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
                     @Override
                     public void onNext(final Response<TransactionSent> transactionSent) {
-                        Log.d(TAG, "onNext: 2");
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
@@ -385,7 +387,9 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                         });
 
                         if(transactionSent.code() == 400){
-                            showBalanceError(true, "Not enough funds to transfer the requested amount");
+                            if(activity != null) {
+                                showBalanceError(true, activity.getString(R.string.notEnoughFunds));
+                            }
                             return;
                         }
 
@@ -454,7 +458,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             final String inputtedText = this.activity.getBinding().amount.getText().toString();
             String checkSepators = inputtedText.replace("," , ".");
             amountRequested = (BigDecimal) nf.parse(checkSepators);
-            Log.d(TAG, "validate: amount requested " + amountRequested + " current balance " + currentBalance);
 
             final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
             this.activity.getBinding().walletAddress.setText(toAddress.replaceFirst("ethereum:", ""));
@@ -467,8 +470,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         }
 
         String errorMessage;
-
-        Log.d(TAG, "validate: unconfirmed " + currentUnconfirmedBalance + " confirmed " + currentBalance);
 
         if(this.currentBalance.compareTo(BigDecimal.ZERO) == 0){
             errorMessage = this.activity.getResources().getString(R.string.withdraw__amount_error_zero);

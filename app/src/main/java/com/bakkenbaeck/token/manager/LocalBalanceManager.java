@@ -63,6 +63,7 @@ public class LocalBalanceManager {
     private void setBalance(final User user) {
         this.localBalance.setUnconfirmedBalance(user.getUnconfirmedBalance());
         this.localBalance.setConfirmedBalance(user.getConfirmedBalance());
+        this.localBalance.setEthValue(user.getEthValue());
         emitNewBalance();
     }
 
