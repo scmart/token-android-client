@@ -3,11 +3,14 @@ package com.bakkenbaeck.token.view.custom;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
+
+import java.math.BigDecimal;
 
 public class BalanceBar extends LinearLayout {
     private static final String TAG = "BalanceBar";
@@ -34,24 +37,6 @@ public class BalanceBar extends LinearLayout {
 
     private void init() {
         inflate(getContext(), R.layout.view__balance_bar, this);
-
-        /*findViewById(R.id.textView).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(clickListener != null){
-                    clickListener.onClickListener();
-                }
-            }
-        });
-
-        findViewById(R.id.level).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(clickListener != null){
-                    clickListener.onClickListener();
-                }
-            }
-        });*/
     }
 
     public void disableClickEvents(boolean disable){
@@ -78,11 +63,10 @@ public class BalanceBar extends LinearLayout {
                 }
             });
         }
-
     }
 
     public void setBalance(final String balance) {
-        this.postDelayed(new Runnable() {
+        this.post(new Runnable() {
             @Override
             public void run() {
                 if(balance.length() > 6) {
@@ -92,15 +76,27 @@ public class BalanceBar extends LinearLayout {
                     ((TextView) findViewById(R.id.balance)).setText(balance);
                 }
             }
-        }, 200);
+        });
     }
 
     public void setReputation(final int level){
-        this.postDelayed(new Runnable() {
+        this.post(new Runnable() {
             @Override
             public void run() {
                 ((TextView)findViewById(R.id.level)).setText(String.valueOf(level));
             }
-        }, 200);
+        });
+
+    }
+
+    public void setEthValue(final double ethValue, BigDecimal unconfirmedBalance){
+        final double usd = ethValue * unconfirmedBalance.doubleValue();
+        final String substring = String.valueOf(usd).substring(0,6);
+        this.post(new Runnable() {
+            @Override
+            public void run() {
+                ((TextView)findViewById(R.id.eth_value)).setText(substring);
+            }
+        });
     }
 }

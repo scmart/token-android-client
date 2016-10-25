@@ -14,6 +14,7 @@ public class LocalBalance {
     private BigInteger confirmedBalance = BigInteger.ZERO;
     private BigInteger unconfirmedBalance = BigInteger.ZERO;
     private BigInteger transferFee = new BigInteger("420000000000000");
+    private double eth_value;
 
     public BigInteger getConfirmedBalance() {
         return confirmedBalance;
@@ -81,4 +82,12 @@ public class LocalBalance {
         return EthUtil.weiToEthString(this.unconfirmedBalance);
     }
 
+
+    public void setEth_value(double eth_value){
+        this.eth_value = eth_value;
+    }
+
+    public double getEth_value(){
+        return this.eth_value;
+    }
 }

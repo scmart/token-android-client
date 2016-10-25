@@ -17,6 +17,7 @@ import com.bakkenbaeck.token.model.LocalBalance;
 import com.bakkenbaeck.token.network.ws.model.ConnectionState;
 import com.bakkenbaeck.token.network.ws.model.Message;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
+import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.MessageUtil;
 import com.bakkenbaeck.token.util.OnCompletedObserver;
 import com.bakkenbaeck.token.util.OnNextObserver;
@@ -194,6 +195,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         public void onNext(final LocalBalance newBalance) {
             if (activity != null && newBalance != null) {
                 activity.getBinding().balanceBar.setBalance(newBalance.unconfirmedBalanceString());
+                activity.getBinding().balanceBar.setEthValue(newBalance.getEth_value(), newBalance.getUnconfirmedBalanceAsEth());
             }
         }
     };
@@ -443,10 +445,10 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
                 if (networkStateSnackbar.isShownOrQueued()) {
                     return;
                 }
-                Log.d(TAG, "onNext: connecting");
+                LogUtil.e(getClass(), "Connecting");
                 //networkStateSnackbar.show();
             } else {
-                Log.d(TAG, "onNext: connected");
+                LogUtil.e(getClass(), "Connecting");
                 //networkStateSnackbar.dismiss();
             }
         }
