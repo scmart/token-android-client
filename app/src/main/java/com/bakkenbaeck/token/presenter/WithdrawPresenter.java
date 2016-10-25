@@ -202,6 +202,15 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         final BigDecimal confirmedBalance = localBalance.getConfirmedBalanceAsEth();
         final String amount;
 
+        Log.d(TAG, "tryPopulateAmountField: " + confirmedBalance + " " + unconfirmedBalance);
+
+        int biggerThanTxFeeConfirmed = localBalance.getConfirmedBalanceAsEthMinusTransferFee().compareTo(new BigDecimal("0.00042"));
+        int biggerThanTxFeeUnconfirmed = localBalance.getUnconfirmedBalanceAsEthMinusTransferFee().compareTo(new BigDecimal("0.00042"));
+
+        if(biggerThanTxFeeConfirmed == -1 || biggerThanTxFeeUnconfirmed == -1){
+            SnackbarUtil.make(activity.getBinding().root, "Your balance is less than the transaction fee").show();
+        }
+
         if(localBalance.getConfirmedBalance().equals(BigInteger.ZERO) || localBalance.getUnconfirmedBalance().equals(BigInteger.ZERO)){
             SnackbarUtil.make(activity.getBinding().root, "Your balance is 0").show();
             return;
