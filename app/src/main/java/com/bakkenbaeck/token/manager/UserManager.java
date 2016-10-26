@@ -102,7 +102,7 @@ public class UserManager {
             prefs.edit()
                     .putString(USER_ID, currentUser.getId())
                     .putString(AUTH_TOKEN, userResponse.getAuthToken())
-                    .putString(BCRYPT_SALT, userResponse.getBcryptSalt())
+                    .putString(BCRYPT_SALT, userResponse.getPasswordSalt())
                     .putString(WALLET_PASSWORD, BCrypt.gensalt(16))
                     .apply();
         }
@@ -121,7 +121,7 @@ public class UserManager {
             final String authToken = prefs.getString(AUTH_TOKEN, null);
             final String bCryptSalt = prefs.getString(BCRYPT_SALT, null);
             currentUser.setAuthToken(authToken);
-            currentUser.setBcryptSalt(bCryptSalt);
+            currentUser.setPasswordSalt(bCryptSalt);
         }
     };
 

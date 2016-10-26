@@ -8,7 +8,7 @@ public class User {
     private BigInteger balance;
     private BigInteger confirmed_balance;
     private String auth_token;
-    private String bcrypt_salt;
+    private String password_salt;
     private int level;
     private double eth_value;
 
@@ -33,16 +33,16 @@ public class User {
         return this.auth_token;
     }
 
-    public String getBcryptSalt() {
-        return this.bcrypt_salt;
+    public String getPasswordSalt() {
+        return this.password_salt;
     }
 
     public void setAuthToken(final String auth_token) {
         this.auth_token = auth_token;
     }
 
-    public void setBcryptSalt(final String bcrypt_salt) {
-        this.bcrypt_salt = bcrypt_salt;
+    public void setPasswordSalt(final String passwordSalt) {
+        this.password_salt = passwordSalt;
     }
 
     public int getLevel() {
