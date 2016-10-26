@@ -81,10 +81,10 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
     }
 
     private void initBalanceBar(){
-        BalanceBar balanceBar = this.activity.getBinding().balanceBar;
-        balanceBar.setOnLevelClicked(new BalanceBar.OnLevelClicked() {
+        final BalanceBar balanceBar = this.activity.getBinding().balanceBar;
+        balanceBar.setOnLevelClicked(new View.OnClickListener() {
             @Override
-            public void onClickListener() {
+            public void onClick(final View v) {
                 showPhoneInputDialog();
             }
         });

@@ -3,7 +3,6 @@ package com.bakkenbaeck.token.view.custom;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -15,13 +14,9 @@ import java.util.Locale;
 
 public class BalanceBar extends LinearLayout {
 
-    public interface OnLevelClicked {
-        void onClickListener();
-    }
+    private OnClickListener clickListener;
 
-    private OnLevelClicked clickListener;
-
-    public void setOnLevelClicked(final OnLevelClicked listener){
+    public void setOnLevelClicked(final OnClickListener listener){
         clickListener = listener;
     }
 
@@ -45,23 +40,8 @@ public class BalanceBar extends LinearLayout {
     }
 
     public void enableClickEvents() {
-        findViewById(R.id.textView).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                if (clickListener != null) {
-                    clickListener.onClickListener();
-                }
-            }
-        });
-
-        findViewById(R.id.level).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                if (clickListener != null) {
-                    clickListener.onClickListener();
-                }
-            }
-        });
+        findViewById(R.id.textView).setOnClickListener(this.clickListener);
+        findViewById(R.id.level).setOnClickListener(this.clickListener);
     }
 
     public void setBalance(final LocalBalance balance) {
