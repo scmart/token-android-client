@@ -206,12 +206,12 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
                 if (balanceBar != null) {
                     balanceBar.setReputation(reputationScore);
                     if (reputationScore == 0) {
-                        balanceBar.disableClickEvents(true);
+                        balanceBar.enableClickEvents();
                         //if reputation is 0, set verifies to false so the user can click the verify button
                         SharedPrefsUtil.saveVerified(false);
                         messageAdapter.notifyDataSetChanged();
-                    }else{
-                        balanceBar.disableClickEvents(false);
+                    } else {
+                        balanceBar.disableClickEvents();
                     }
                 }
             }

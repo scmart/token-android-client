@@ -15,13 +15,13 @@ import java.util.Locale;
 
 public class BalanceBar extends LinearLayout {
 
-    public interface OnLevelClicked{
+    public interface OnLevelClicked {
         void onClickListener();
     }
 
     private OnLevelClicked clickListener;
 
-    public void setOnLevelClicked(OnLevelClicked listener){
+    public void setOnLevelClicked(final OnLevelClicked listener){
         clickListener = listener;
     }
 
@@ -39,30 +39,29 @@ public class BalanceBar extends LinearLayout {
         inflate(getContext(), R.layout.view__balance_bar, this);
     }
 
-    public void disableClickEvents(boolean disable){
-        if(!disable){
-            findViewById(R.id.textView).setOnClickListener(null);
+    public void disableClickEvents() {
+        findViewById(R.id.textView).setOnClickListener(null);
+        findViewById(R.id.level).setOnClickListener(null);
+    }
 
-            findViewById(R.id.level).setOnClickListener(null);
-        }else{
-            findViewById(R.id.textView).setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(clickListener != null){
-                        clickListener.onClickListener();
-                    }
+    public void enableClickEvents() {
+        findViewById(R.id.textView).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                if (clickListener != null) {
+                    clickListener.onClickListener();
                 }
-            });
+            }
+        });
 
-            findViewById(R.id.level).setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(clickListener != null){
-                        clickListener.onClickListener();
-                    }
+        findViewById(R.id.level).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                if (clickListener != null) {
+                    clickListener.onClickListener();
                 }
-            });
-        }
+            }
+        });
     }
 
     public void setBalance(final LocalBalance balance) {
