@@ -2,8 +2,10 @@ package com.bakkenbaeck.token.network.rest;
 
 
 import com.bakkenbaeck.token.BuildConfig;
+import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.jsonadapter.BigIntegerAdapter;
 import com.bakkenbaeck.token.util.LogUtil;
+import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.Moshi;
 
 import java.io.IOException;
@@ -20,7 +22,6 @@ import rx.schedulers.Schedulers;
 
 public class TokenService {
 
-    private static final String BASE_URL = "https://toshi-app.herokuapp.com";
     private static TokenService instance;
 
     private final TokenInterface tokenInterface;
@@ -56,7 +57,7 @@ public class TokenService {
                                     .build();
 
         final Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(BaseApplication.get().getResources().getString(R.string.backend_url))
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .addCallAdapterFactory(rxAdapter)
                 .client(client.build())

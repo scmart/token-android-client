@@ -1,0 +1,3 @@
+<resources>
+    <string name="backend_url">https://toshi-app.herokuapp.com</string>
+</resources>
