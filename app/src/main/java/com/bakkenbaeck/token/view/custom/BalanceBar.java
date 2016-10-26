@@ -86,7 +86,7 @@ public class BalanceBar extends LinearLayout {
 
     public void setEthValue(final double ethValue, final BigDecimal unconfirmedBalance){
         final double usd = ethValue * unconfirmedBalance.doubleValue();
-        final String substring = String.format(Locale.getDefault(), "%.4f", usd);
+        final String substring = String.format(Locale.getDefault(), "%.2f", usd);
         this.postDelayed(new Runnable() {
             @Override
             public void run() {
