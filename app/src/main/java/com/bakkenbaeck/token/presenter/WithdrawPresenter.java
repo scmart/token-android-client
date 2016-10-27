@@ -10,7 +10,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.ActivityResultHolder;
@@ -23,6 +22,7 @@ import com.bakkenbaeck.token.network.rest.model.TransactionSent;
 import com.bakkenbaeck.token.network.rest.model.WithdrawalRequest;
 import com.bakkenbaeck.token.network.ws.model.TransactionConfirmation;
 import com.bakkenbaeck.token.util.EthUtil;
+import com.bakkenbaeck.token.util.LocaleUtil;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
@@ -276,9 +276,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             return;
         }
 
-        showAddressError(false, "");
-        showBalanceError(false, "");
-
         try {
             final DecimalFormat nf = (DecimalFormat) DecimalFormat.getInstance(Locale.ENGLISH);
             nf.setParseBigDecimal(true);
@@ -323,8 +320,8 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             @Override
             public void onNext(final Response<SignatureRequest> signatureRequest) {
                 if(signatureRequest.code() == 400 || signatureRequest.code() == 500){
-                    if(activity != null) {
-                        showAddressError(true, activity.getString(R.string.invalidEthAddress));
+                    if (activity != null) {
+                        showAddressError(activity.getString(R.string.invalidEthAddress));
                     }
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
@@ -378,7 +375,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
                         if(transactionSent.code() == 400){
                             if(activity != null) {
-                                showBalanceError(true, activity.getString(R.string.notEnoughFunds));
+                                showBalanceError(activity.getString(R.string.notEnoughFunds));
                             }
                             return;
                         }
@@ -402,39 +399,24 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         };
     }
 
-    private void showAddressError(final boolean show, final String errorMessage){
+    private void showAddressError(final String errorMessage){
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                TextView addressError = activity.getBinding().ethErrorMessage;
-                View addressLine = activity.getBinding().addressLine;
-                if(show){
-                    addressError.setText(errorMessage);
-                    addressError.setVisibility(View.VISIBLE);
-                    addressLine.setBackgroundColor(ContextCompat.getColor(activity, R.color.errorState));
-                }else{
-                    addressError.setVisibility(View.INVISIBLE);
-                    addressLine.setBackgroundColor(ContextCompat.getColor(activity, R.color.divider));
-                }
+                final EditText address = activity.getBinding().walletAddress;
+                address.requestFocus();
+                address.setError(errorMessage, null);
             }
         });
     }
 
-    private void showBalanceError(final boolean show, final String errorMassage){
+    private void showBalanceError(final String errorMessage) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                TextView balanceError = activity.getBinding().balanceErrorMessage;
-                View balanceLine = activity.getBinding().balanceLine;
-                if(show){
-                    balanceError.setText(errorMassage);
-                    balanceError.setVisibility(View.VISIBLE);
-                    balanceLine.setBackgroundColor(ContextCompat.getColor(activity, R.color.errorState));
-                    balanceError.setTextColor(ContextCompat.getColor(activity, R.color.errorState));
-                }else{
-                    balanceError.setTextColor(ContextCompat.getColor(activity, R.color.hintText));
-                    balanceLine.setBackgroundColor(ContextCompat.getColor(activity, R.color.divider));
-                }
+                final EditText amount = activity.getBinding().amount;
+                amount.requestFocus();
+                amount.setError(errorMessage, null);
             }
         });
     }
@@ -443,32 +425,27 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         BigDecimal amountRequested = BigDecimal.ZERO;
 
         try {
-            final DecimalFormat nf = (DecimalFormat) DecimalFormat.getInstance(Locale.ENGLISH);
+            final DecimalFormat nf = (DecimalFormat) DecimalFormat.getInstance(LocaleUtil.getLocale());
             nf.setParseBigDecimal(true);
             final String inputtedText = this.activity.getBinding().amount.getText().toString();
-            String checkSepators = inputtedText.replace("," , ".");
-            amountRequested = (BigDecimal) nf.parse(checkSepators);
+            amountRequested = (BigDecimal) nf.parse(inputtedText);
 
             if (amountRequested.compareTo(minWithdrawLimit) > 0 && amountRequested.compareTo(this.currentBalance) <= 0) {
                 return true;
             }
         } catch (final NumberFormatException | ParseException ex) {
             LogUtil.e(getClass(), ex.toString());
+            showBalanceError(this.activity.getResources().getString(R.string.withdraw__amount_error));
         }
-
-        String errorMessage;
 
         if (this.currentBalance.compareTo(BigDecimal.ZERO) == 0) {
-            errorMessage = this.activity.getResources().getString(R.string.withdraw__amount_error_zero);
+            showBalanceError(this.activity.getResources().getString(R.string.withdraw__amount_error_zero));
         } else if(amountRequested != null && amountRequested.compareTo(currentBalance) == 1) {
-            errorMessage = this.activity.getResources().getString(R.string.withdraw__amount_error_bigger);
+            showBalanceError(this.activity.getResources().getString(R.string.withdraw__amount_error_bigger));
         } else {
-            errorMessage = this.activity.getResources().getString(R.string.withdraw__amount_error);
+            showBalanceError(this.activity.getResources().getString(R.string.withdraw__amount_error));
         }
 
-        showBalanceError(true, errorMessage);
-
-        this.activity.getBinding().amount.requestFocus();
         return false;
     }
 
