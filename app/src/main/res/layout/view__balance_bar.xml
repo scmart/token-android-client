@@ -23,17 +23,28 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/textColorPri"
+                android:textColor="@color/black"
                 android:textSize="@dimen/subTitleSize"
+                android:textStyle="bold"
                 android:text="@string/dollar"/>
 
             <TextView
                 android:id="@+id/eth_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/textColorPri"
+                android:textColor="@color/black"
                 android:textSize="@dimen/subTitleSize"
+                android:textStyle="bold"
                 android:text="0"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:layout_marginLeft="4dp"
+                android:textStyle="bold"
+                android:textSize="@dimen/subTitleSize"
+                android:text="@string/fiat_iso__usd" />
 
             <TextView
                 android:id="@+id/balance"

@@ -64,4 +64,5 @@
     <string name="notEnoughFunds">Not enough funds to transfer the requested amount</string>
     <string name="user_manager_pref_filename">usm</string>
     <string name="error__insufficient_balance">Your balance is less than the transaction fee</string>
+    <string name="fiat_iso__usd">USD</string>
 </resources>
