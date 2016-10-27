@@ -15,7 +15,7 @@
     <string name="withdraw__amount">AMOUNT</string>
     <string name="withdraw__amount_error">Enter a valid amount for withdrawal</string>
     <string name="withdraw__amount_error_zero">Enter a valid amount for withdrawal, balance is 0</string>
-    <string name="withdraw__amount_error_bigger">Enter a valid amount for withdrawal, amount requested is to high</string>
+    <string name="withdraw__amount_error_bigger">Enter a valid amount for withdrawal, amount requested is too high</string>
     <string name="withdraw__amount_error_unconfirmed_bigger">Enter a valid amount for withdrawal, unconfirmed balance is larger than confirmed</string>
     <string name="withdraw__amount_error_unconfirmed_equal">Enter a valid amount for withdrawal, unconfirmed balance is equal to confirmed</string>
     <string name="eth_symbol">Ξ</string>
@@ -43,7 +43,7 @@
     <string name="watched">Watched</string>
     <string name="sending_ether_info">It may take a few minutes before the Ether appears in the receiver’s wallet.</string>
     <string name="verification_success_message">That’s it! Your phone number is verified. We’ve deposited your earnings in your wallet, and you reached level</string>
-    <string name="sending">Sending...</string>
+    <string name="sending">Sending…</string>
     <string name="enter_amount_to_transfer">Enter amount to transfer</string>
     <string name="verify_phone_number">Verify phone number</string>
     <string name="eth">ETH</string>
