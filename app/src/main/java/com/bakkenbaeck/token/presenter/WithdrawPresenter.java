@@ -24,7 +24,6 @@ import com.bakkenbaeck.token.network.rest.model.WithdrawalRequest;
 import com.bakkenbaeck.token.network.ws.model.TransactionConfirmation;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LogUtil;
-import com.bakkenbaeck.token.util.OnNextObserver;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.RetryWithBackoff;
@@ -59,6 +58,9 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     private BigDecimal currentBalance = BigDecimal.ZERO;
     private ProgressDialog progressDialog;
     private final BigDecimal minWithdrawLimit = new BigDecimal("0.0000000001");
+    private OnNextSubscriber<LocalBalance> newBalanceSubscriber;
+    private OnNextSubscriber<User> userSubscriber;
+    private OnNextSubscriber<Integer> newReputationSubscriber;
 
     private final PreviousWalletAddress previousWalletAddress = new PreviousWalletAddress();
 
@@ -173,25 +175,29 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         walletAddress.setSelection(walletAddress.getText().length());
     }
 
-    private final OnNextObserver<LocalBalance> newBalanceSubscriber = new OnNextObserver<LocalBalance>() {
-        @Override
-        public void onNext(final LocalBalance newBalance) {
-            if (activity != null && newBalance != null) {
-                currentBalance = newBalance.getConfirmedBalanceAsEthMinusTransferFee();
-                activity.getBinding().balanceBar.setEthValue(newBalance.getEthValue(), newBalance.getUnconfirmedBalanceAsEth());
-                activity.getBinding().balanceBar.setBalance(newBalance);
+    private OnNextSubscriber<LocalBalance> generateNewBalanceSubscriber() {
+        return new OnNextSubscriber<LocalBalance>() {
+            @Override
+            public void onNext(final LocalBalance newBalance) {
+                if (activity != null && newBalance != null) {
+                    currentBalance = newBalance.getConfirmedBalanceAsEthMinusTransferFee();
+                    activity.getBinding().balanceBar.setEthValue(newBalance.getEthValue(), newBalance.getUnconfirmedBalanceAsEth());
+                    activity.getBinding().balanceBar.setBalance(newBalance);
+                }
             }
-        }
-    };
+        };
+    }
 
-    private final OnNextObserver<Integer> newReputationSubscriber = new OnNextObserver<Integer>() {
-        @Override
-        public void onNext(Integer reputationScore) {
-            if(activity != null){
-                activity.getBinding().balanceBar.setReputation(reputationScore);
+    private OnNextSubscriber<Integer> generateNewReputationSubscriber() {
+        return new OnNextSubscriber<Integer>() {
+            @Override
+            public void onNext(Integer reputationScore) {
+                if (activity != null) {
+                    activity.getBinding().balanceBar.setReputation(reputationScore);
+                }
             }
-        }
-    };
+        };
+    }
 
     private void tryPopulateAmountField(final LocalBalance localBalance) {
 
@@ -227,7 +233,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     public void onViewDetached() {
         String walletAddress = this.activity.getBinding().walletAddress.getText().toString();
         previousWalletAddress.setAddress(walletAddress);
-
+        unregisterObservables();
         this.activity = null;
     }
 
@@ -478,19 +484,35 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     }
 
     private void registerObservables() {
+        this.newBalanceSubscriber = generateNewBalanceSubscriber();
+        this.userSubscriber = generateUserSubscriber();
+        this.newReputationSubscriber = generateNewReputationSubscriber();
+
         BaseApplication.get().getLocalBalanceManager().getObservable().subscribe(this.newBalanceSubscriber);
         BaseApplication.get().getUserManager().getObservable().subscribe(this.userSubscriber);
         BaseApplication.get().getLocalBalanceManager().getLevelObservable().subscribe(this.newReputationSubscriber);
     }
 
-    private final OnNextObserver<User> userSubscriber = new OnNextObserver<User>() {
-        @Override
-        public void onNext(final User user) {
-            currentUser = user;
-            refreshButtonStates();
-            this.onCompleted();
-        }
-    };
+    private void unregisterObservables() {
+        this.newBalanceSubscriber.unsubscribe();
+        this.userSubscriber.unsubscribe();
+        this.newReputationSubscriber.unsubscribe();
+
+        this.newBalanceSubscriber = null;
+        this.userSubscriber = null;
+        this.newReputationSubscriber = null;
+    }
+
+    private OnNextSubscriber<User> generateUserSubscriber() {
+        return new OnNextSubscriber<User>() {
+            @Override
+            public void onNext(final User user) {
+                currentUser = user;
+                refreshButtonStates();
+                this.onCompleted();
+            }
+        };
+    }
 
     private void refreshButtonStates() {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
