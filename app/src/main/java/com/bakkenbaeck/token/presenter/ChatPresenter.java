@@ -40,7 +40,7 @@ import rx.Subscriber;
 
 import static android.app.Activity.RESULT_OK;
 
-public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapter.OnVerifyClicklistener {
+public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClickListener {
     private static final String TAG = "ChatPresenter";
     private final int VIDEO_REQUEST_CODE = 1;
     private final int WITHDRAW_REQUEST_CODE = 2;
@@ -233,7 +233,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
     };
 
     @Override
-    public void onVerifyClicked() {
+    public void onClick(final View view) {
         showPhoneInputDialog();
     }
 

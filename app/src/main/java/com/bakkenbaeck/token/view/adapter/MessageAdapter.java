@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +33,6 @@ import static com.bakkenbaeck.token.model.ChatMessage.TYPE_REMOTE_TEXT;
 import static com.bakkenbaeck.token.model.ChatMessage.TYPE_REMOTE_VIDEO;
 
 public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private static final String TAG = "MessageAdapter";
     private List<ChatMessage> chatMessages;
     private List<ChatMessage> chatMessagesWhilstPaused;
 
@@ -58,14 +56,10 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
     }
 
-    public interface OnVerifyClicklistener{
-        void onVerifyClicked();
-    }
+    private View.OnClickListener onVerifyClickListener;
 
-    private OnVerifyClicklistener verifyClicklistener;
-
-    public void setOnVerifyClickListener(OnVerifyClicklistener listener){
-        verifyClicklistener = listener;
+    public void setOnVerifyClickListener(final View.OnClickListener onVerifyClickListener) {
+        this.onVerifyClickListener = onVerifyClickListener;
     }
 
     private void addAndRenderMessage(final ChatMessage chatMessage) {
@@ -121,14 +115,14 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     SharedPrefsUtil.isVerified().subscribe(new OnNextSubscriber<Boolean>() {
                         @Override
                         public void onNext(Boolean isVerified) {
-                            if(isVerified) {
-                                disableVerifyButton(activity);
+                            if(!isVerified) {
+                                enableVerifyButton(activity);
                             }
                         }
                     });
 
                     vh.verificationButton.setVisibility(View.VISIBLE);
-                    vh.bind(verifyClicklistener);
+                    vh.verificationButton.setOnClickListener(onVerifyClickListener);
                 }
 
                 //Details reward
@@ -196,8 +190,8 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
     }
 
-    public void disableVerifyButton(Activity activity){
-        if(verifyButton != null) {
+    public void disableVerifyButton(final Activity activity) {
+        if (verifyButton != null) {
             verifyButton.setTextColor(Color.parseColor("#33565A64"));
             verifyButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.disabled_background));
             verifyButton.setEnabled(false);
@@ -205,11 +199,11 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
     }
 
-    public void enableVerifyButton(Activity activity){
-        verifyButton.setTextColor(Color.parseColor("#33565A64"));
-        verifyButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.disabled_background));
-        verifyButton.setEnabled(false);
-        verifyButton.setOnClickListener(null);
+    private void enableVerifyButton(final Activity activity){
+        verifyButton.setTextColor(activity.getResources().getColor(R.color.buttonTextColor));
+        verifyButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.btn_with_radius));
+        verifyButton.setEnabled(true);
+        verifyButton.setOnClickListener(this.onVerifyClickListener);
     }
 
     @Override

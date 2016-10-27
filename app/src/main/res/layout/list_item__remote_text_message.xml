@@ -33,24 +33,27 @@
             android:textSize="@dimen/defaultTextSize"
             android:textColor="@color/textColorSec"
             android:lineSpacingExtra="2dp"
-            tools:text="We are the robots!" />
+            tools:text="Sent 0.00002 ETH to 0xf1dd18252bdfd94ebf0630f2f12aa99dfa7fe5f8"
+            />
 
         <TextView
             android:id="@+id/verifyBtn"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:background="@drawable/btn_with_radius"
+            android:background="@drawable/disabled_background"
             android:layout_marginTop="@dimen/textBubblePadding"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
             android:gravity="center"
             android:textAllCaps="true"
-            android:textColor="@color/buttonTextColor"
+            android:textColor="#33565A64"
             android:fontFamily="sans-serif-medium"
             android:textSize="@dimen/buttonTextSize"
             android:text="@string/verify_phone_number"
             android:lineSpacingExtra="2dp"
-            android:visibility="gone"/>
+            android:enabled="false"
+            android:visibility="gone"
+            tools:visibility="visible"/>
 
         <LinearLayout
             android:id="@+id/details"
