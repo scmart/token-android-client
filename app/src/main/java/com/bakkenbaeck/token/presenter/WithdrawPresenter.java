@@ -268,7 +268,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             return;
         }
 
-        this.activity.getBinding().walletAddress.setText(result.getContents());
+        this.activity.getBinding().walletAddress.setText(result.getContents().replaceFirst("ethereum:", ""));
     }
 
     private void handleSendClicked() {
@@ -448,9 +448,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
             final String inputtedText = this.activity.getBinding().amount.getText().toString();
             String checkSepators = inputtedText.replace("," , ".");
             amountRequested = (BigDecimal) nf.parse(checkSepators);
-
-            final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
-            this.activity.getBinding().walletAddress.setText(toAddress.replaceFirst("ethereum:", ""));
 
             if (amountRequested.compareTo(minWithdrawLimit) > 0 && amountRequested.compareTo(this.currentBalance) <= 0) {
                 return true;

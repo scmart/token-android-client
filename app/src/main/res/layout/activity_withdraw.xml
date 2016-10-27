@@ -76,7 +76,7 @@
                                 android:paddingBottom="5dp"
                                 android:paddingLeft="0dp"
                                 android:maxLines="1"
-                                android:inputType="text"
+                                android:inputType="textNoSuggestions"
                                 android:textColor="@color/inputText"
                                 android:textColorHint="@color/hintText"
                                 android:textSize="@dimen/defaultTextSize"
