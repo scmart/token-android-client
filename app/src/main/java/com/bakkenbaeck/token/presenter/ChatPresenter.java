@@ -33,7 +33,6 @@ import com.bakkenbaeck.token.view.custom.BalanceBar;
 import com.bakkenbaeck.token.view.dialog.PhoneInputDialog;
 import com.bakkenbaeck.token.view.dialog.VerificationCodeDialog;
 
-import java.math.BigDecimal;
 import java.util.Calendar;
 
 import io.realm.Realm;
@@ -250,14 +249,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         phoneInputDialog.show(activity.getSupportFragmentManager(), "dialog");
     }
 
-    private void withdrawAmountFromAddress(final BigDecimal amount, final String walletAddress) {
-        final String message = String.format(this.activity.getResources().getString(R.string.chat__withdraw_to_address), amount.toString(), walletAddress);
-        final ChatMessage response = new ChatMessage().makeRemoteMessageWithText(message);
-        displayMessage(response, 0);
-        // TODO
-        // offlineBalance.subtract(amount);
-    }
-
     private void scrollToBottom(final boolean animate) {
         if (this.activity != null && this.messageAdapter.getItemCount() > 0) {
             if (animate) {
@@ -410,12 +401,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>,MessageAdapt
         if (activityResultHolder.getRequestCode() == VIDEO_REQUEST_CODE) {
             handleVideoCompleted(activityResultHolder);
             return;
-        }
-
-        if (activityResultHolder.getRequestCode() == WITHDRAW_REQUEST_CODE) {
-            final String address = activityResultHolder.getIntent().getStringExtra(WithdrawPresenter.INTENT_WALLET_ADDRESS);
-            final BigDecimal amount = (BigDecimal) activityResultHolder.getIntent().getSerializableExtra(WithdrawPresenter.INTENT_WITHDRAW_AMOUNT);
-            withdrawAmountFromAddress(amount, address);
         }
     }
 

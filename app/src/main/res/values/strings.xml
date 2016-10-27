@@ -5,7 +5,6 @@
     <string name="balance__current_balance">%1$.5f</string>
     <string name="chat__request_video_message">Hit me with another video!</string>
     <string name="menu__withdraw">Send Ether</string>
-    <string name="chat__withdraw_to_address">Withdrew %1$s ETH to wallet with address %2$s</string>
     <string name="withdraw__title">Send Ethereum</string>
     <string name="ethereum_address">Ethereum Address</string>
     <string name="button_send">Send</string>
