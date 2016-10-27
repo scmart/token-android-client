@@ -57,7 +57,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
     private User currentUser;
     private boolean firstTimeAttaching = true;
     private BigDecimal currentBalance = BigDecimal.ZERO;
-    private BigDecimal currentUnconfirmedBalance = BigDecimal.ZERO;
     private ProgressDialog progressDialog;
     private final BigDecimal minWithdrawLimit = new BigDecimal("0.0000000001");
 
@@ -69,15 +68,15 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         initButtons();
         initToolbar();
         initPreviousAddress();
+        registerObservables();
 
         if (firstTimeAttaching) {
             firstTimeAttaching = false;
-            registerObservables();
-            initProgressDialog2();
+            initProgressDialog();
         }
     }
 
-    private void initProgressDialog2(){
+    private void initProgressDialog(){
         progressDialog = ProgressDialog.newInstance();
     }
 
@@ -179,7 +178,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         public void onNext(final LocalBalance newBalance) {
             if (activity != null && newBalance != null) {
                 currentBalance = newBalance.getConfirmedBalanceAsEthMinusTransferFee();
-                currentUnconfirmedBalance = newBalance.getUnconfirmedBalanceAsEthMinusTransferFee();
                 activity.getBinding().balanceBar.setEthValue(newBalance.getEthValue(), newBalance.getUnconfirmedBalanceAsEth());
                 activity.getBinding().balanceBar.setBalance(newBalance);
             }
@@ -457,11 +455,11 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
         String errorMessage;
 
-        if(this.currentBalance.compareTo(BigDecimal.ZERO) == 0){
+        if (this.currentBalance.compareTo(BigDecimal.ZERO) == 0) {
             errorMessage = this.activity.getResources().getString(R.string.withdraw__amount_error_zero);
-        }else if(amountRequested != null && amountRequested.compareTo(currentBalance) == 1){
+        } else if(amountRequested != null && amountRequested.compareTo(currentBalance) == 1) {
             errorMessage = this.activity.getResources().getString(R.string.withdraw__amount_error_bigger);
-        }else{
+        } else {
             errorMessage = this.activity.getResources().getString(R.string.withdraw__amount_error);
         }
 
