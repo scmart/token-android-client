@@ -9,7 +9,7 @@ import rx.functions.Func1;
 public class RetryWithBackoff implements Func1<Observable<? extends Throwable>, Observable<?>> {
 
     private final int retryDelayMillis = 1000;
-    private final int maxRetryDelayMillis = 15000;
+    private final int maxRetryDelayMillis = 5000;
     private final int maxRetries;
     private int retryCount;
 
