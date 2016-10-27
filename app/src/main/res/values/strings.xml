@@ -13,15 +13,15 @@
     <string name="another_one">WATCH ANOTHER</string>
     <string name="barcode__title">Scan QR code</string>
     <string name="withdraw__amount">AMOUNT</string>
-    <string name="withdraw__amount_error">Enter a valid amount for withdrawal</string>
-    <string name="withdraw__amount_error_zero">Enter a valid amount for withdrawal, balance is 0</string>
-    <string name="withdraw__amount_error_bigger">Enter a valid amount for withdrawal, amount requested is too high</string>
-    <string name="withdraw__amount_error_unconfirmed_bigger">Enter a valid amount for withdrawal, unconfirmed balance is larger than confirmed</string>
-    <string name="withdraw__amount_error_unconfirmed_equal">Enter a valid amount for withdrawal, unconfirmed balance is equal to confirmed</string>
+    <string name="withdraw__amount_error">Enter a valid amount for sending</string>
+    <string name="withdraw__amount_error_zero">Enter a valid amount for sending, balance is 0</string>
+    <string name="withdraw__amount_error_bigger">Enter a valid amount for sending, amount requested is too high</string>
+    <string name="withdraw__amount_error_unconfirmed_bigger">Enter a valid amount for sending, unconfirmed balance is larger than confirmed</string>
+    <string name="withdraw__amount_error_unconfirmed_equal">Enter a valid amount for sending, unconfirmed balance is equal to confirmed</string>
     <string name="eth_symbol">Ξ</string>
     <string name="withdraw__button">Send</string>
     <string name="socket__connecting_state">&lt;font color=\"#ffffff\"&gt;Connecting…&lt;\/font\&gt;</string>
-    <string name="error__withdrawing">There was a problem withdrawing, please try again later.</string>
+    <string name="error__withdrawing">There was a problem sending, please try again later.</string>
     <string name="error__supersonic">Having trouble connecting…</string>
     <string name="dialog_phone_input__title">Verification Needed</string>
     <string name="dialog_phone_input__instruction">Please enter your phone number to verify your account</string>
