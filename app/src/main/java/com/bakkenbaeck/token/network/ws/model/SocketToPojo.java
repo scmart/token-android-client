@@ -6,7 +6,6 @@ import com.bakkenbaeck.token.network.rest.model.TransactionSent;
 import com.bakkenbaeck.token.network.rest.model.VerificationSent;
 import com.bakkenbaeck.token.network.ws.SocketObservables;
 import com.bakkenbaeck.token.util.LogUtil;
-import com.bakkenbaeck.token.util.SharedPrefsUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
@@ -64,16 +63,8 @@ public class SocketToPojo {
                 LogUtil.i(getClass(), "Ignoring websocket event -- hello");
                 break;
             case "message":
-                if(webSocketType.getSenderId().equals(AD_BOT_ID) || webSocketType.getSenderId().equals(TOKEN_ID)) {
+                if (webSocketType.getSenderId().equals(AD_BOT_ID) || webSocketType.getSenderId().equals(TOKEN_ID)) {
                     final Message message = this.messageAdapter.fromJson(json);
-
-                    if (message.getType().equals("daily_limit_reached") && message.getActions().size() > 0) {
-                        final Action action = message.getActions().get(0);
-                        if(action.getAction().equals("enable_rate_limit")) {
-                            SharedPrefsUtil.saveNextDateEnabled(action.getReset_time());
-                        }
-                    }
-
                     this.socketObservables.emitMessage(message);
                     break;
                 } else {

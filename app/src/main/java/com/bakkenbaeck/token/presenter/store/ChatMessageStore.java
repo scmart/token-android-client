@@ -13,14 +13,9 @@ public class ChatMessageStore extends RealmStore<ChatMessage> {
     private final PublishSubject<Void> emptySetObservable = PublishSubject.create();
     private final PublishSubject<ChatMessage> newMessageObservable = PublishSubject.create();
     private final AsyncSubject<Boolean> unwatchedVideoObservable = AsyncSubject.create();
-    private final PublishSubject<ChatMessage> newDateObservable = PublishSubject.create();
 
     public void load() {
         this.load(ChatMessage.class);
-    }
-
-    public void checkDate(){
-        this.loadByDates(ChatMessage.class);
     }
 
     public PublishSubject<Void> getEmptySetObservable() {
@@ -33,15 +28,6 @@ public class ChatMessageStore extends RealmStore<ChatMessage> {
 
     public AsyncSubject<Boolean> getUnwatchedVideoObservable() {
         return this.unwatchedVideoObservable;
-    }
-
-    public PublishSubject<ChatMessage> getNewDateObservable(){
-        return this.newDateObservable;
-    }
-
-    @Override
-    void onNewDate(ChatMessage message) {
-        this.newDateObservable.onNext(message);
     }
 
     @Override

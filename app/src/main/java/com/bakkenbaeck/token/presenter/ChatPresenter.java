@@ -31,10 +31,7 @@ import com.bakkenbaeck.token.view.custom.BalanceBar;
 import com.bakkenbaeck.token.view.dialog.PhoneInputDialog;
 import com.bakkenbaeck.token.view.dialog.VerificationCodeDialog;
 
-import java.util.Calendar;
-
 import io.realm.Realm;
-import rx.Subscriber;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -98,7 +95,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
         this.chatMessageStore.getEmptySetObservable().subscribe(this.noStoredChatMessages);
         this.chatMessageStore.getNewMessageObservable().subscribe(this.newChatMessage);
         this.chatMessageStore.getUnwatchedVideoObservable().subscribe(this.unwatchedVideo);
-        this.chatMessageStore.getNewDateObservable().subscribe(this.newDateMessage);
         BaseApplication.get().getSocketObservables().getMessageObservable().subscribe(this.newMessageSubscriber);
         BaseApplication.get().getSocketObservables().getConnectionObservable().subscribe(this.connectionStateSubscriber);
 
@@ -152,7 +148,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
     };
 
     private void showWelcomeMessage() {
-        ChatMessage message = new ChatMessage().makeDayMessage();
+        final ChatMessage message = new ChatMessage().makeDayMessage();
         displayMessage(message);
 
         final ChatMessage response = new ChatMessage().makeRemoteVideoMessage(this.activity.getResources().getString(R.string.chat__welcome_message));
@@ -205,7 +201,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
                     if (reputationScore == 0) {
                         balanceBar.enableClickEvents();
                         //if reputation is 0, set verifies to false so the user can click the verify button
-                        SharedPrefsUtil.saveVerified(false);
+                        SharedPrefsUtil.saveIsVerified(false);
                         messageAdapter.notifyDataSetChanged();
                     } else {
                         balanceBar.disableClickEvents();
@@ -278,18 +274,12 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
             this.activity.getBinding().buttonAnotherVideo.setOnClickListener(new OnSingleClickListener() {
                 @Override
                 public void onSingleClick(final View view) {
-                    long nextDateEnabled = SharedPrefsUtil.getNextDateEnabled();
-                    long currentDate = System.currentTimeMillis();
-
-                    final Handler handler = new Handler(Looper.getMainLooper());
-                    if (nextDateEnabled == 0 || currentDate >= nextDateEnabled) {
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                chatMessageStore.checkDate();
-                            }
-                        });
-                    }
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            watchAnotherVideo();
+                        }
+                    });
                 }
             });
         }
@@ -310,40 +300,9 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
         refreshAnotherOneButtonState();
     }
 
-    //Subscriber to the date database call. Checking if the last message has a different date than today
-    private final Subscriber<ChatMessage> newDateMessage = new Subscriber<ChatMessage>() {
-        @Override
-        public void onCompleted() {
-
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            watchAnotherVideo();
-        }
-
-        @Override
-        public void onNext(ChatMessage chatMessage) {
-            if(chatMessage != null) {
-                Calendar today = Calendar.getInstance();
-                Calendar anotherDay = Calendar.getInstance();
-                anotherDay.setTimeInMillis(chatMessage.getCreationTime());
-
-                if (today.get(Calendar.DAY_OF_YEAR) != anotherDay.get(Calendar.DAY_OF_YEAR)) {
-                    ChatMessage message = new ChatMessage().makeDayMessage();
-                    displayMessage(message);
-                }
-            }
-
-            watchAnotherVideo();
-        }
-    };
-
     @Override
     public void onViewDetached() {
-        if(connectionStateSubscriber != null) {
-            connectionStateSubscriber.unsubscribe();
-        }
+        connectionStateSubscriber.unsubscribe();
         this.messageAdapter.pauseRendering();
         this.activity = null;
     }
@@ -442,6 +401,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
             messageAdapter.disableVerifyButton(activity);
         }
 
-        SharedPrefsUtil.saveVerified(true);
+        SharedPrefsUtil.saveIsVerified(true);
     }
 }

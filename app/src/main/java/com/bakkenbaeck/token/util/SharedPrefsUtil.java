@@ -13,7 +13,6 @@ import rx.schedulers.Schedulers;
 
 public class SharedPrefsUtil {
     public static final String IS_VERIFIED = "SharedPrefsUtil";
-    public static final String ENABLED_DATE = "ENABLED_DATE";
 
     public static Observable<Boolean> isVerified(){
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
@@ -27,18 +26,8 @@ public class SharedPrefsUtil {
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public static void saveVerified(boolean b){
+    public static void saveIsVerified(final boolean isVerified){
         final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
-        prefs.edit().putBoolean(IS_VERIFIED, b).commit();
-    }
-
-    public static void saveNextDateEnabled(long date){
-        final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
-        prefs.edit().putLong(ENABLED_DATE, date * 1000).apply();
-    }
-
-    public static long getNextDateEnabled(){
-        final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
-        return prefs.getLong(ENABLED_DATE, 0);
+        prefs.edit().putBoolean(IS_VERIFIED, isVerified).apply();
     }
 }
