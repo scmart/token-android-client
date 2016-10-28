@@ -148,9 +148,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
     };
 
     private void showWelcomeMessage() {
-        final ChatMessage message = new ChatMessage().makeDayHeader();
-        displayMessage(message);
-
         final ChatMessage videoMessage = new ChatMessage().makeRemoteVideoMessage(this.activity.getResources().getString(R.string.chat__welcome_message));
         displayMessage(videoMessage, 500);
     }
