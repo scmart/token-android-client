@@ -1,3 +1,4 @@
 <resources>
     <string name="backend_url">https://token-service.herokuapp.com</string>
+    <string name="supersonic_app_key">583337c5</string>
 </resources>

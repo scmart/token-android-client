@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 
+import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
@@ -23,7 +24,6 @@ public class VideoPresenter implements Presenter<VideoActivity> {
     private static final String TAG = "VideoPresenter";
     public final static String INTENT_CLICKED_POSITION = "clickedPosition";
     private final String adZone = "DefaultRewardedVideo";
-    private final String mAppKey = "527a318d";
 
     private VideoActivity activity;
     private Supersonic mMediationAgent;
@@ -71,7 +71,8 @@ public class VideoPresenter implements Presenter<VideoActivity> {
     };
 
     private void initAdNetworkWithUserId(final String userId) {
-        mMediationAgent.initRewardedVideo(this.activity, mAppKey, userId);
+        final String appKey = this.activity.getResources().getString(R.string.supersonic_app_key);
+        mMediationAgent.initRewardedVideo(this.activity, appKey, userId);
         if (mMediationAgent.isRewardedVideoAvailable()) {
             new Handler().postDelayed(new Runnable() {
                 @Override
