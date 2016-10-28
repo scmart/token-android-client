@@ -168,7 +168,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
                     final ChatMessage dayMessage = new ChatMessage().makeDayHeader();
                     chatMessageStore.save(dayMessage);
                 }
-                
+
                 chatMessageStore.save(chatMessage);
                 scrollToBottom(true);
             }
@@ -218,6 +218,9 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
             } else if (message.shouldShowVideo()) {
                 displayMessage(new ChatMessage().makeRemoteVideoMessage(message.toString()), 0);
             } else {
+                if (message.getType() != null && message.getType().equals(ChatMessage.DAILY_LIMIT_REACHED)) {
+                    promptNewVideo();
+                }
                 displayMessage(new ChatMessage().makeRemoteMessageWithText(message.toString()), 0);
             }
         }
@@ -261,25 +264,30 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
     }
 
     private void refreshAnotherOneButtonState() {
-        this.activity.getBinding().buttonAnotherVideo.setVisibility(
-                this.isShowingAnotherOneButton
-                        ? View.VISIBLE
-                        : View.INVISIBLE
-        );
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                activity.getBinding().buttonAnotherVideo.setVisibility(
+                        isShowingAnotherOneButton
+                                ? View.VISIBLE
+                                : View.INVISIBLE
+                );
 
-        if (this.isShowingAnotherOneButton) {
-            this.activity.getBinding().buttonAnotherVideo.setOnClickListener(new OnSingleClickListener() {
-                @Override
-                public void onSingleClick(final View view) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                if (isShowingAnotherOneButton) {
+                    activity.getBinding().buttonAnotherVideo.setOnClickListener(new OnSingleClickListener() {
                         @Override
-                        public void run() {
-                            requestAnotherVideo();
+                        public void onSingleClick(final View view) {
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    requestAnotherVideo();
+                                }
+                            });
                         }
                     });
                 }
-            });
-        }
+            }
+        });
     }
 
     private void requestAnotherVideo() {
