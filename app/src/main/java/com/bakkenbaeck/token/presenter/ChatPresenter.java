@@ -6,7 +6,6 @@ import android.os.Looper;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
-import android.util.Log;
 import android.view.View;
 
 import com.bakkenbaeck.token.R;
@@ -23,7 +22,6 @@ import com.bakkenbaeck.token.util.OnNextObserver;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SharedPrefsUtil;
-import com.bakkenbaeck.token.util.SnackbarUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.VideoActivity;
@@ -283,21 +281,12 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
                     long nextDateEnabled = SharedPrefsUtil.getNextDateEnabled();
                     long currentDate = System.currentTimeMillis();
 
-                    Log.d(TAG, "onSingleClick: currentDate: " + currentDate + " nextDateEnabled: " + nextDateEnabled);
-
                     final Handler handler = new Handler(Looper.getMainLooper());
-                    if(nextDateEnabled == 0 || currentDate >= nextDateEnabled) {
+                    if (nextDateEnabled == 0 || currentDate >= nextDateEnabled) {
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
                                 chatMessageStore.checkDate();
-                            }
-                        });
-                    }else{
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                SnackbarUtil.make(activity.getBinding().balanceBar, "You have watched too many ads, come back tomorrow").show();
                             }
                         });
                     }

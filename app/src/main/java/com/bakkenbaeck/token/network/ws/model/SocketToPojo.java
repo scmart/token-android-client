@@ -1,8 +1,6 @@
 package com.bakkenbaeck.token.network.ws.model;
 
 
-import android.util.Log;
-
 import com.bakkenbaeck.token.model.jsonadapter.BigIntegerAdapter;
 import com.bakkenbaeck.token.network.rest.model.TransactionSent;
 import com.bakkenbaeck.token.network.rest.model.VerificationSent;
@@ -16,7 +14,6 @@ import com.squareup.moshi.Moshi;
 import java.io.IOException;
 
 public class SocketToPojo {
-    private static final String TAG = "SocketToPojo";
     private static final String AD_BOT_ID = "32a2299bd8dc405da979471275db2a5e";
     private static final String TOKEN_ID = "token";
 
@@ -28,7 +25,6 @@ public class SocketToPojo {
     private final JsonAdapter<VerificationSent> verificationSentAdapter;
     private final JsonAdapter<VerificationSuccess> verificationSuccessAdapter;
     private final JsonAdapter<WebSocketError> errorAdapter;
-    private final JsonAdapter<PaymentRequest> paymentRequestAdapter;
     private final SocketObservables socketObservables;
 
     public SocketToPojo(final SocketObservables socketObservables) {
@@ -44,7 +40,6 @@ public class SocketToPojo {
         this.verificationSentAdapter = this.moshi.adapter(VerificationSent.class);
         this.verificationSuccessAdapter = this.moshi.adapter(VerificationSuccess.class);
         this.errorAdapter = this.moshi.adapter(WebSocketError.class);
-        this.paymentRequestAdapter = this.moshi.adapter(PaymentRequest.class);
     }
 
     public void handleNewMessage(final String json) {
@@ -72,8 +67,8 @@ public class SocketToPojo {
                 if(webSocketType.getSenderId().equals(AD_BOT_ID) || webSocketType.getSenderId().equals(TOKEN_ID)) {
                     final Message message = this.messageAdapter.fromJson(json);
 
-                    if(message.getType().equals("daily_limit_reached") && message.getActions().size() > 0){
-                        Action action = message.getActions().get(0);
+                    if (message.getType().equals("daily_limit_reached") && message.getActions().size() > 0) {
+                        final Action action = message.getActions().get(0);
                         if(action.getAction().equals("enable_rate_limit")) {
                             SharedPrefsUtil.saveNextDateEnabled(action.getReset_time());
                         }
@@ -81,7 +76,7 @@ public class SocketToPojo {
 
                     this.socketObservables.emitMessage(message);
                     break;
-                }else {
+                } else {
                     LogUtil.i(getClass(), "convertAndEmitPojo: UNKNOWN SENDER ID");
                     break;
                 }
@@ -94,12 +89,12 @@ public class SocketToPojo {
                 this.socketObservables.emitTransactionConfirmation(confirmation);
                 break;
             case "verification_sent":
-                Log.d(TAG, "convertAndEmitPojo: verification_sent");
+                LogUtil.i(getClass(), "convertAndEmitPojo: verification_sent");
                 final VerificationSent verificationSent = this.verificationSentAdapter.fromJson(json);
                 this.socketObservables.emitVerificationSent(verificationSent);
                 break;
             case "verification_success":
-                Log.d(TAG, "convertAndEmitPojo: verification_success");
+                LogUtil.i(getClass(),  "convertAndEmitPojo: verification_success");
                 final VerificationSuccess verificationMessage = this.verificationSuccessAdapter.fromJson(json);
                 this.socketObservables.emitVerificationSuccess(verificationMessage);
 

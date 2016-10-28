@@ -5,8 +5,6 @@ import java.util.List;
 
 public class Message {
 
-    // private String recipient_id;
-    // private String sender_id;
     private MessageInternals payload;
     private String type;
 
@@ -15,8 +13,6 @@ public class Message {
     }
 
     private static class MessageInternals {
-        // private BigInteger rewards;
-        // private BigInteger new_balance;
         private String text;
         private List<Detail> details;
         private List<Action> actions;
@@ -42,9 +38,5 @@ public class Message {
 
     public List<Action> getActions(){
         return payload.actions;
-    }
-
-    public String getMessageType(){
-        return type;
     }
 }
