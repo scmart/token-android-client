@@ -24,8 +24,6 @@ public class SocketObservables {
     private final PublishSubject<WebSocketError> errorSubject = PublishSubject.create();
     private final BehaviorSubject<ConnectionState> connectionObservable = BehaviorSubject.create(ConnectionState.CONNECTING);
 
-    private final PublishSubject<Boolean> disconnectObservable = PublishSubject.create();
-
     public Observable<TransactionConfirmation> getTransactionConfirmationObservable() {
         return this.transactionConfirmationSubject.asObservable();
     }

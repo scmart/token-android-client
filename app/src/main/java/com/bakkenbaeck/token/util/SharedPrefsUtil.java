@@ -13,7 +13,8 @@ import rx.schedulers.Schedulers;
 
 public class SharedPrefsUtil {
     public static final String IS_VERIFIED = "SharedPrefsUtil";
-    public static final String ENABLED_DATE = "ENABLED_DATE";
+    private static final String STORED_TIME_KEY = "stk";
+    private static long storedTimeValue = -1;
 
     public static Observable<Boolean> isVerified(){
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
@@ -27,18 +28,28 @@ public class SharedPrefsUtil {
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public static void saveVerified(boolean b){
+    public static void saveIsVerified(final boolean isVerified){
         final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
-        prefs.edit().putBoolean(IS_VERIFIED, b).commit();
+        prefs.edit().putBoolean(IS_VERIFIED, isVerified).apply();
     }
 
-    public static void saveNextDateEnabled(long date){
+    // Check if the day has changed.
+    // Returns true if the day has changed since the last time this was called
+    // Returns false if the day has not changed since this was last called
+    // Note. Works between app instantiations.
+    public static boolean hasDayChanged() {
         final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
-        prefs.edit().putLong(ENABLED_DATE, date * 1000).apply();
-    }
+        if (storedTimeValue == -1) {
+            storedTimeValue = prefs.getLong(STORED_TIME_KEY, 0);
+        }
 
-    public static long getNextDateEnabled(){
-        final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
-        return prefs.getLong(ENABLED_DATE, 0);
+        final long currentTime = System.currentTimeMillis();
+        final boolean areSameDay = DateUtil.areSameDay(currentTime, storedTimeValue);
+        if (!areSameDay) {
+            storedTimeValue = currentTime;
+            prefs.edit().putLong(STORED_TIME_KEY, currentTime).apply();
+        }
+
+        return !areSameDay;
     }
 }

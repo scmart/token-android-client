@@ -5,9 +5,7 @@ import android.support.annotation.IntDef;
 import com.bakkenbaeck.token.network.ws.model.Action;
 import com.bakkenbaeck.token.network.ws.model.Detail;
 import com.bakkenbaeck.token.network.ws.model.Message;
-import com.bakkenbaeck.token.network.ws.model.VerificationSuccess;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.RealmList;
@@ -29,6 +27,7 @@ public class ChatMessage extends RealmObject {
     @Ignore public static final int TYPE_DAY = 4;
 
     @Ignore public static final String REWARD_EARNED_TYPE = "rewards_earned";
+    @Ignore public static final String DAILY_LIMIT_REACHED = "daily_limit_reached";
 
     private long creationTime;
     private @Type int type;
@@ -55,12 +54,12 @@ public class ChatMessage extends RealmObject {
         return this.details;
     }
 
-    public List<Action> getAction(){
-        return actions;
+    public boolean shouldShowVerifyButton(){
+        return actions.size() == 1 && actions.get(0).getAction().equals("verify_phone_number");
     }
 
-    public ChatMessage setActions(List<Action> actions){
-        if(this.actions == null){
+    public ChatMessage setActions(final List<Action> actions){
+        if (this.actions == null) {
             this.actions = new RealmList<>();
         }
         this.actions.clear();
@@ -113,7 +112,7 @@ public class ChatMessage extends RealmObject {
         return this;
     }
 
-    public ChatMessage makeRemoteVideoMessage(String text) {
+    public ChatMessage makeRemoteVideoMessage(final String text) {
         setType(TYPE_REMOTE_VIDEO);
         setText(text);
         return this;
@@ -127,7 +126,7 @@ public class ChatMessage extends RealmObject {
         return this;
     }
 
-    public ChatMessage makeDayMessage(){
+    public ChatMessage makeDayHeader(){
         setType(TYPE_DAY);
         return this;
     }

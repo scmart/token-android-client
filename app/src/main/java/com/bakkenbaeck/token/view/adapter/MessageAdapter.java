@@ -104,12 +104,12 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         switch (holder.getItemViewType()) {
             case TYPE_REMOTE_TEXT: {
                 final RemoteTextViewHolder vh = (RemoteTextViewHolder) holder;
-                String parsedMessage = MessageUtil.parseString(chatMessage.getText());
+                final String parsedMessage = MessageUtil.parseString(chatMessage.getText());
                 vh.messageText.setText(parsedMessage);
                 vh.verificationButton.setVisibility(View.GONE);
 
                 //Verify button
-                if(chatMessage.getAction() != null && chatMessage.getAction().size() > 0){
+                if(chatMessage.shouldShowVerifyButton()) {
                     verifyButton = vh.verificationButton;
 
                     SharedPrefsUtil.isVerified().subscribe(new OnNextSubscriber<Boolean>() {
@@ -142,7 +142,7 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     vh.earnedValue.setText(subString1);
 
                     //Total
-                    if(chatMessage.getDetails().size() > 1) {
+                    if (chatMessage.getDetails().size() > 1) {
                         vh.earnedTotalWrapper.setVisibility(View.VISIBLE);
                         String subString2 = String.valueOf(chatMessage.getDetails().get(1).getValue());
                         vh.earnedTotal.setText(chatMessage.getDetails().get(1).getTitle());
@@ -177,8 +177,8 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             case TYPE_DAY: {
                 final DayViewHolder vh = (DayViewHolder) holder;
                 chatMessage.getCreationTime();
-                String d = DateUtil.getDate("EEEE", chatMessage.getCreationTime());
-                vh.date.setText(d);
+                final String formattedDate = DateUtil.getDate("EEEE", chatMessage.getCreationTime());
+                vh.date.setText(formattedDate);
                 break;
             }
             case TYPE_LOCAL_TEXT:
