@@ -41,7 +41,6 @@ import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.util.Locale;
 
 import retrofit2.Response;
 import rx.Subscriber;
@@ -277,7 +276,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         }
 
         try {
-            final DecimalFormat nf = (DecimalFormat) DecimalFormat.getInstance(Locale.ENGLISH);
+            final DecimalFormat nf = (DecimalFormat) DecimalFormat.getInstance(LocaleUtil.getLocale());
             nf.setParseBigDecimal(true);
             final String inputtedText = this.activity.getBinding().amount.getText().toString();
             final String checkSepators = inputtedText.replace("," , ".");

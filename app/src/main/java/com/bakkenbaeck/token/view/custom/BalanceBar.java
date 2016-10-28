@@ -8,9 +8,10 @@ import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.LocalBalance;
+import com.bakkenbaeck.token.util.LocaleUtil;
 
 import java.math.BigDecimal;
-import java.util.Locale;
+import java.text.NumberFormat;
 
 public class BalanceBar extends LinearLayout {
 
@@ -32,6 +33,12 @@ public class BalanceBar extends LinearLayout {
 
     private void init() {
         inflate(getContext(), R.layout.view__balance_bar, this);
+        setEmptyValues();
+    }
+
+    private void setEmptyValues() {
+        setBalanceFromBigDecimal(BigDecimal.ZERO);
+        setEthValueFromDouble(0);
     }
 
     public void disableClickEvents() {
@@ -45,11 +52,17 @@ public class BalanceBar extends LinearLayout {
     }
 
     public void setBalance(final LocalBalance balance) {
+        final BigDecimal unconfirmedBalance = balance.getUnconfirmedBalanceAsEth();
+        setBalanceFromBigDecimal(unconfirmedBalance);
+    }
+
+    private void setBalanceFromBigDecimal(final BigDecimal unconfirmedBalance) {
         this.postDelayed(new Runnable() {
             @Override
             public void run() {
-                final String newBalance = balance.getUnconfirmedBalanceAsEth().setScale(4, BigDecimal.ROUND_DOWN).toString();
-                ((TextView) findViewById(R.id.balance)).setText(newBalance);
+                final NumberFormat formatter = NumberFormat.getNumberInstance(LocaleUtil.getLocale());
+                final String substring = String.format(LocaleUtil.getLocale(), "%.4f", unconfirmedBalance.setScale(4, BigDecimal.ROUND_DOWN));
+                ((TextView) findViewById(R.id.balance)).setText(substring);
             }
         }, 200);
     }
@@ -65,7 +78,11 @@ public class BalanceBar extends LinearLayout {
 
     public void setEthValue(final double ethValue, final BigDecimal unconfirmedBalance){
         final double usd = ethValue * unconfirmedBalance.doubleValue();
-        final String substring = String.format(Locale.getDefault(), "%.2f", usd);
+        setEthValueFromDouble(usd);
+    }
+
+    private void setEthValueFromDouble(final double usd) {
+        final String substring = String.format(LocaleUtil.getLocale(), "%.2f", usd);
         this.postDelayed(new Runnable() {
             @Override
             public void run() {

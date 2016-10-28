@@ -2,7 +2,6 @@ package com.bakkenbaeck.token.util;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 
 public class DateUtil {
     public static String getDate(final String format, final long d){
@@ -14,7 +13,7 @@ public class DateUtil {
                 && date.get(Calendar.YEAR) == today.get(Calendar.YEAR)) {
             return "Today";
         }else{
-            SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
+            SimpleDateFormat sdf = new SimpleDateFormat(format, LocaleUtil.getLocale());
             String s = sdf.format(date.getTime());
             return s.substring(0,1).toUpperCase() + s.substring(1).toLowerCase();
         }
