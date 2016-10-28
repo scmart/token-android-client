@@ -111,7 +111,7 @@ public class ChatMessage extends RealmObject {
         return this;
     }
 
-    public ChatMessage makeRemoteVideoMessage(String text) {
+    public ChatMessage makeRemoteVideoMessage(final String text) {
         setType(TYPE_REMOTE_VIDEO);
         setText(text);
         return this;

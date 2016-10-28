@@ -151,12 +151,8 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
         final ChatMessage message = new ChatMessage().makeDayMessage();
         displayMessage(message);
 
-        final ChatMessage response = new ChatMessage().makeRemoteVideoMessage(this.activity.getResources().getString(R.string.chat__welcome_message));
-        showAVideo(response);
-    }
-
-    private void showAVideo(ChatMessage message) {
-        displayMessage(message, 500);
+        final ChatMessage videoMessage = new ChatMessage().makeRemoteVideoMessage(this.activity.getResources().getString(R.string.chat__welcome_message));
+        displayMessage(videoMessage, 500);
     }
 
     private void showVideoRequestMessage() {
@@ -166,6 +162,11 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
 
     private void displayMessage(final ChatMessage chatMessage, final int delay) {
         final Handler handler = new Handler(Looper.getMainLooper());
+
+        if (SharedPrefsUtil.hasDayChanged()) {
+            final ChatMessage dayMessage = new ChatMessage().makeDayMessage();
+            chatMessageStore.save(dayMessage);
+        }
 
         handler.postDelayed(new Runnable() {
             @Override
@@ -214,15 +215,13 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
     private final OnNextObserver<Message> newMessageSubscriber = new OnNextObserver<Message>() {
         @Override
         public void onNext(final Message message) {
-            ChatMessage response;
-
-            if(message.getType() != null && message.getType().equals(ChatMessage.REWARD_EARNED_TYPE)){
-                response = new ChatMessage().makeRemoteRewardMessage(message);
-            }else{
-                response = new ChatMessage().makeRemoteMessageWithText(message.toString());
+            if (message.getType() != null && message.getType().equals(ChatMessage.REWARD_EARNED_TYPE)) {
+                displayMessage(new ChatMessage().makeRemoteRewardMessage(message), 0);
+            } else if (message.shouldShowVideo()) {
+                displayMessage(new ChatMessage().makeRemoteVideoMessage(message.toString()), 0);
+            } else {
+                displayMessage(new ChatMessage().makeRemoteMessageWithText(message.toString()), 0);
             }
-
-            displayMessage(response, 0);
         }
     };
 
