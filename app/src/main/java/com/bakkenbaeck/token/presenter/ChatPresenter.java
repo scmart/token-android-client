@@ -161,16 +161,14 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
     }
 
     private void displayMessage(final ChatMessage chatMessage, final int delay) {
-        final Handler handler = new Handler(Looper.getMainLooper());
-
-        if (SharedPrefsUtil.hasDayChanged()) {
-            final ChatMessage dayMessage = new ChatMessage().makeDayHeader();
-            chatMessageStore.save(dayMessage);
-        }
-
-        handler.postDelayed(new Runnable() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
+                if (SharedPrefsUtil.hasDayChanged()) {
+                    final ChatMessage dayMessage = new ChatMessage().makeDayHeader();
+                    chatMessageStore.save(dayMessage);
+                }
+                
                 chatMessageStore.save(chatMessage);
                 scrollToBottom(true);
             }
