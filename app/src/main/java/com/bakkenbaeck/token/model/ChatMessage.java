@@ -125,7 +125,7 @@ public class ChatMessage extends RealmObject {
         return this;
     }
 
-    public ChatMessage makeDayMessage(){
+    public ChatMessage makeDayHeader(){
         setType(TYPE_DAY);
         return this;
     }
