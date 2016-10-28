@@ -41,6 +41,8 @@ public class Message {
     }
 
     public boolean shouldShowVideo(){
-        return getActions().size() == 1 && getActions().get(0).getAction().equals("show_video");
+        return     getActions() != null
+                && getActions().size() == 1
+                && getActions().get(0).getAction().equals("show_video");
     }
 }
