@@ -35,7 +35,7 @@
                 android:textColor="@color/black"
                 android:textSize="@dimen/subTitleSize"
                 android:textStyle="bold"
-                android:text="0"/>
+                android:text="0.00"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -53,7 +53,7 @@
                 android:textColor="@color/textColorSec"
                 android:textSize="@dimen/balance_bar_text_size"
                 android:layout_marginLeft="8dp"
-                android:text="0"/>
+                android:text="0.0000"/>
 
             <TextView
                 android:layout_width="wrap_content"
