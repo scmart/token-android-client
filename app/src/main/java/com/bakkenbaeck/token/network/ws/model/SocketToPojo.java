@@ -5,6 +5,7 @@ import com.bakkenbaeck.token.model.jsonadapter.BigIntegerAdapter;
 import com.bakkenbaeck.token.network.rest.model.TransactionSent;
 import com.bakkenbaeck.token.network.rest.model.VerificationSent;
 import com.bakkenbaeck.token.network.ws.SocketObservables;
+import com.bakkenbaeck.token.network.ws.WebSocketManager;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.JsonAdapter;
@@ -13,7 +14,6 @@ import com.squareup.moshi.Moshi;
 import java.io.IOException;
 
 public class SocketToPojo {
-    private static final String AD_BOT_ID = "32a2299bd8dc405da979471275db2a5e";
     private static final String TOKEN_ID = "token";
 
     private final Moshi moshi;
@@ -63,7 +63,7 @@ public class SocketToPojo {
                 LogUtil.i(getClass(), "Ignoring websocket event -- hello");
                 break;
             case "message":
-                if (webSocketType.getSenderId().equals(AD_BOT_ID) || webSocketType.getSenderId().equals(TOKEN_ID)) {
+                if (webSocketType.getSenderId().equals(WebSocketManager.AD_BOT_ID) || webSocketType.getSenderId().equals(TOKEN_ID)) {
                     final Message message = this.messageAdapter.fromJson(json);
                     this.socketObservables.emitMessage(message);
                     break;
@@ -116,7 +116,7 @@ public class SocketToPojo {
     private void paymentRequest(){
         Moshi moshi = new Moshi.Builder().build();
         JsonAdapter<PaymentRequest> jsonAdapter = moshi.adapter(PaymentRequest.class);
-        PaymentRequest paymentRequest = new PaymentRequest(AD_BOT_ID);
+        PaymentRequest paymentRequest = new PaymentRequest(WebSocketManager.AD_BOT_ID);
         String json = jsonAdapter.toJson(paymentRequest);
         BaseApplication.get().sendWebSocketMessage(json);
     }

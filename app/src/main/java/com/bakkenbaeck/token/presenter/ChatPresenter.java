@@ -14,9 +14,9 @@ import com.bakkenbaeck.token.model.ChatMessage;
 import com.bakkenbaeck.token.model.LocalBalance;
 import com.bakkenbaeck.token.network.ws.model.ConnectionState;
 import com.bakkenbaeck.token.network.ws.model.Message;
+import com.bakkenbaeck.token.network.ws.model.VideoRequest;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.LogUtil;
-import com.bakkenbaeck.token.util.MessageUtil;
 import com.bakkenbaeck.token.util.OnCompletedObserver;
 import com.bakkenbaeck.token.util.OnNextObserver;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
@@ -277,7 +277,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
-                            watchAnotherVideo();
+                            requestAnotherVideo();
                         }
                     });
                 }
@@ -285,14 +285,13 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
         }
     }
 
-    private void watchAnotherVideo(){
+    private void requestAnotherVideo() {
         isShowingAnotherOneButton = false;
         refreshAnotherOneButtonState();
         showVideoRequestMessage();
 
-        String s = MessageUtil.getRandomMessage();
-        ChatMessage message = new ChatMessage().makeRemoteVideoMessage(s);
-        showAVideo(message);
+        final VideoRequest vrFrame = new VideoRequest();
+        BaseApplication.get().sendWebSocketMessage(vrFrame.toString());
     }
 
     private void promptNewVideo() {
@@ -382,10 +381,8 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
                     return;
                 }
                 LogUtil.e(getClass(), "Connecting");
-                //networkStateSnackbar.show();
             } else {
                 LogUtil.e(getClass(), "Connecting");
-                //networkStateSnackbar.dismiss();
             }
         }
     };

@@ -14,6 +14,8 @@ import com.bakkenbaeck.token.util.RetryWithBackoff;
 import com.bakkenbaeck.token.view.BaseApplication;
 
 public class WebSocketManager {
+    public static final String AD_BOT_ID = "32a2299bd8dc405da979471275db2a5e";
+
     private SocketObservables socketObservables;
     private WebSocketConnection webSocketConnection;
     private SocketToPojo socketToPojo;

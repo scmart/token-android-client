@@ -104,7 +104,7 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         switch (holder.getItemViewType()) {
             case TYPE_REMOTE_TEXT: {
                 final RemoteTextViewHolder vh = (RemoteTextViewHolder) holder;
-                String parsedMessage = MessageUtil.parseString(chatMessage.getText());
+                final String parsedMessage = MessageUtil.parseString(chatMessage.getText());
                 vh.messageText.setText(parsedMessage);
                 vh.verificationButton.setVisibility(View.GONE);
 
