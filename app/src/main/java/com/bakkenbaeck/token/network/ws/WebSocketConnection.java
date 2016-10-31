@@ -109,6 +109,10 @@ import java.util.Map;
     }
 
     public void sendMessage(final String message) {
+        if (this.webSocket == null) {
+            // TODO: Should messages be cached and then re-sent when webSocket is not null?
+            return;
+        }
         this.webSocket.sendText(message);
     }
 }
