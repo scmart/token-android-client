@@ -152,7 +152,7 @@
                                     android:background="@null"
                                     android:paddingLeft="0dp"
                                     android:maxLines="1"
-                                    android:inputType="numberDecimal|numberSigned"
+                                    android:inputType="numberDecimal"
                                     android:textColor="@color/inputText"
                                     android:textColorHint="@color/hintText"
                                     android:textSize="@dimen/defaultTextSize"
