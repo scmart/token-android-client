@@ -18,4 +18,6 @@
     <dimen name="smallSubSize">12sp</dimen>
     <dimen name="inputSize">16sp</dimen>
     <dimen name="bottom_offset_dp">60dp</dimen>
+    <dimen name="qr_code_size">170dp</dimen>
+    <dimen name="qr_code_clear_zone">2dp</dimen>
 </resources>

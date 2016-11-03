@@ -4,6 +4,7 @@ package com.bakkenbaeck.token.view.activity;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +15,7 @@ import com.bakkenbaeck.token.model.ActivityResultHolder;
 import com.bakkenbaeck.token.presenter.PresenterLoader;
 import com.bakkenbaeck.token.presenter.WithdrawPresenter;
 import com.bakkenbaeck.token.presenter.factory.WithdrawPresenterFactory;
+import com.bakkenbaeck.token.view.Fragment.QrFragment;
 
 public class WithdrawActivity extends AppCompatActivity implements
                                                             LoaderManager.LoaderCallbacks<WithdrawPresenter>{
@@ -84,8 +86,15 @@ public class WithdrawActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        this.overridePendingTransition(R.anim.enter_fade_in, R.anim.exit_fade_out);
-        finish();
+        FragmentManager fm = getSupportFragmentManager();
+        QrFragment qrFragment = (QrFragment) fm.findFragmentByTag(QrFragment.TAG);
+
+        if(qrFragment != null){
+            this.presenter.removeQrFragment();
+        }else{
+            super.onBackPressed();
+            this.overridePendingTransition(R.anim.enter_fade_in, R.anim.exit_fade_out);
+            finish();
+        }
     }
 }

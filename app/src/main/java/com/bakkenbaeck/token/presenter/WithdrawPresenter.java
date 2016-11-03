@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -29,6 +32,7 @@ import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.RetryWithBackoff;
 import com.bakkenbaeck.token.util.SnackbarUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.view.Fragment.QrFragment;
 import com.bakkenbaeck.token.view.activity.BarcodeScannerActivity;
 import com.bakkenbaeck.token.view.activity.WithdrawActivity;
 import com.bakkenbaeck.token.view.adapter.PreviousWalletAddress;
@@ -47,7 +51,7 @@ import rx.Subscriber;
 
 import static android.app.Activity.RESULT_OK;
 
-public class WithdrawPresenter implements Presenter<WithdrawActivity> {
+public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragment.OnFragmentClosed {
     static final String INTENT_WALLET_ADDRESS = "wallet_address";
     static final String INTENT_WITHDRAW_AMOUNT = "withdraw_amount";
 
@@ -77,7 +81,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         }
     }
 
-    private void initProgressDialog(){
+    private void initProgressDialog() {
         progressDialog = ProgressDialog.newInstance();
     }
 
@@ -88,6 +92,16 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                 showBarcodeActivity();
             }
         });
+
+        this.activity.getBinding().balanceBar.setOnBalanceClicked(new View.OnClickListener() {
+
+            @Override
+            public void onClick(final View v) {
+                showQrFragment();
+            }
+        });
+
+        reEnableDialogListeners();
 
         this.activity.getBinding().maxButton.setOnClickListener(new OnSingleClickListener() {
             @Override
@@ -150,11 +164,11 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         activity.getBinding().sendButton.setEnabled(shouldEnableButton);
     }
 
-    private void enableSendButton(boolean enabled){
-        if(enabled){
+    private void enableSendButton(boolean enabled) {
+        if (enabled) {
             activity.getBinding().sendButton.setTextColor(Color.parseColor("#FFFFFF"));
             activity.getBinding().sendButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.btn_with_radius));
-        }else{
+        } else {
             activity.getBinding().sendButton.setTextColor(Color.parseColor("#33565A64"));
             activity.getBinding().sendButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.disabled_background));
         }
@@ -304,7 +318,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
             @Override
             public void onError(final Throwable ex) {
-                if(ex instanceof UnknownHostException){
+                if(ex instanceof UnknownHostException) {
                     SnackbarUtil.make(activity.getBinding().root, activity.getString(R.string.networkStateNotConnected)).show();
                 }
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -318,7 +332,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
 
             @Override
             public void onNext(final Response<SignatureRequest> signatureRequest) {
-                if(signatureRequest.code() == 400 || signatureRequest.code() == 500){
+                if(signatureRequest.code() == 400 || signatureRequest.code() == 500) {
                     if (activity != null) {
                         showAddressError(activity.getString(R.string.invalidEthAddress));
                     }
@@ -372,7 +386,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                             }
                         });
 
-                        if(transactionSent.code() == 400){
+                        if(transactionSent.code() == 400) {
                             if(activity != null) {
                                 showBalanceError(activity.getString(R.string.notEnoughFunds));
                             }
@@ -398,7 +412,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
         };
     }
 
-    private void showAddressError(final String errorMessage){
+    private void showAddressError(final String errorMessage) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -497,5 +511,38 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity> {
                 updateSendButtonEnabledState();
             }
         });
+    }
+
+    private void showQrFragment() {
+        FragmentManager fm = this.activity.getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.setCustomAnimations(R.anim.enter_fade_in, R.anim.exit_fade_out);
+        QrFragment qrFragment = QrFragment.newInstance();
+        ft.add(R.id.fragmentRoot, qrFragment, QrFragment.TAG).addToBackStack(QrFragment.TAG).commit();
+        qrFragment.setOnFragmentClosed(this);
+    }
+
+    public void removeQrFragment() {
+        FragmentManager fm = this.activity.getSupportFragmentManager();
+        Fragment qrFragment = fm.findFragmentByTag(QrFragment.TAG);
+
+        if(qrFragment != null) {
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.setCustomAnimations(R.anim.enter_fade_in, R.anim.exit_fade_out);
+            ft.remove(qrFragment).commit();
+            fm.popBackStackImmediate(QrFragment.TAG,  FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
+    }
+
+    private void reEnableDialogListeners() {
+        QrFragment durationDialog = (QrFragment) this.activity.getSupportFragmentManager().findFragmentByTag(QrFragment.TAG);
+        if(durationDialog != null) {
+            durationDialog.setOnFragmentClosed(this);
+        }
+    }
+
+    @Override
+    public void onClose() {
+        removeQrFragment();
     }
 }

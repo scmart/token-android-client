@@ -166,4 +166,9 @@ public class UserManager {
     private void emitUser() {
         this.subject.onNext(this.currentUser);
     }
+
+    public String getWalletAddress(){
+        return userWallet.getAddress();
+    }
+
 }

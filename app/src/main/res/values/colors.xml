@@ -37,4 +37,5 @@
     <color name="disabledState">#1A565A64</color>
     <color name="defaultBackground">#EFF3F6</color>
     <color name="errorState">#FF3333</color>
+    <color name="qr_dialog_background">#FFFFFF</color>
 </resources>

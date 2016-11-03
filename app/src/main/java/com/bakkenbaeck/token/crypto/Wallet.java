@@ -2,6 +2,7 @@ package com.bakkenbaeck.token.crypto;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.bakkenbaeck.token.util.LogUtil;
@@ -91,7 +92,11 @@ public class Wallet {
     }
 
     public String getAddress() {
-        return TypeConverter.toJsonHex(this.ecKey.getAddress());
+        if(ecKey != null) {
+            return TypeConverter.toJsonHex(this.ecKey.getAddress());
+        }
+
+        return null;
     }
 
     @Override

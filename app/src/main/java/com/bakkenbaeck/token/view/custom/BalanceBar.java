@@ -11,14 +11,19 @@ import com.bakkenbaeck.token.model.LocalBalance;
 import com.bakkenbaeck.token.util.LocaleUtil;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
 
 public class BalanceBar extends LinearLayout {
 
-    private OnClickListener clickListener;
+    private OnClickListener onLevelClicked;
+    private OnClickListener onBalanceClicked;
 
-    public void setOnLevelClicked(final OnClickListener listener){
-        clickListener = listener;
+    public void setOnBalanceClicked(final OnClickListener listener) {
+        onBalanceClicked = listener;
+        findViewById(R.id.balanceWrapper).setOnClickListener(this.onBalanceClicked);
+    }
+
+    public void setOnLevelClicked(final OnClickListener listener) {
+        onLevelClicked = listener;
     }
 
     public BalanceBar(final Context context) {
@@ -47,8 +52,8 @@ public class BalanceBar extends LinearLayout {
     }
 
     public void enableClickEvents() {
-        findViewById(R.id.textView).setOnClickListener(this.clickListener);
-        findViewById(R.id.level).setOnClickListener(this.clickListener);
+        findViewById(R.id.textView).setOnClickListener(this.onLevelClicked);
+        findViewById(R.id.level).setOnClickListener(this.onLevelClicked);
     }
 
     public void setBalance(final LocalBalance balance) {
@@ -60,7 +65,6 @@ public class BalanceBar extends LinearLayout {
         this.postDelayed(new Runnable() {
             @Override
             public void run() {
-                final NumberFormat formatter = NumberFormat.getNumberInstance(LocaleUtil.getLocale());
                 final String substring = String.format(LocaleUtil.getLocale(), "%.4f", unconfirmedBalance.setScale(4, BigDecimal.ROUND_DOWN));
                 ((TextView) findViewById(R.id.balance)).setText(substring);
             }
