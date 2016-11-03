@@ -11,8 +11,10 @@ import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 /* package */ class WebSocketConnection {
     /* package */ interface Listener {
@@ -27,6 +29,7 @@ import java.util.Map;
     private boolean connected = false;
 
     private WebSocket webSocket;
+    private Queue<String> messageQueue = new LinkedList<>();
 
     public WebSocketConnection(final Listener listener) {
         this.wsFactory = new WebSocketFactory();
@@ -48,6 +51,7 @@ import java.util.Map;
                         LogUtil.i(getClass(), "Connected");
                         listener.onConnected();
                         connected = true;
+                        sendQueuedMessages();
                         websocket.setPingInterval(15 * 1000);
                     }
 
@@ -108,9 +112,18 @@ import java.util.Map;
         return connected;
     }
 
+    private void sendQueuedMessages(){
+        if(this.messageQueue.size() > 0 && this.webSocket != null){
+            for(String message : messageQueue){
+                this.webSocket.sendText(message);
+            }
+            this.messageQueue.clear();
+        }
+    }
+
     public void sendMessage(final String message) {
         if (this.webSocket == null) {
-            // TODO: Should messages be cached and then re-sent when webSocket is not null?
+            messageQueue.add(message);
             return;
         }
         this.webSocket.sendText(message);
