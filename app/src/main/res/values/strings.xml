@@ -65,5 +65,5 @@
     <string name="error__insufficient_balance">Your balance is less than the transaction fee</string>
     <string name="fiat_iso__usd">USD</string>
     <string name="qr_code">QR Code</string>
-    <string name="ethereumAppend">ethereum:</string>
+    <string name="prefixEth">ethereum:</string>
 </resources>
