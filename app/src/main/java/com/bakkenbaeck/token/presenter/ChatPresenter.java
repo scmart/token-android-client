@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.view.View;
@@ -23,6 +26,7 @@ import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SharedPrefsUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.view.Fragment.QrFragment;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.VideoActivity;
 import com.bakkenbaeck.token.view.activity.WithdrawActivity;
@@ -35,7 +39,7 @@ import io.realm.Realm;
 
 import static android.app.Activity.RESULT_OK;
 
-public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClickListener {
+public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClickListener, QrFragment.OnFragmentClosed {
     private static final String TAG = "ChatPresenter";
     private final int VIDEO_REQUEST_CODE = 1;
     private final int WITHDRAW_REQUEST_CODE = 2;
@@ -70,11 +74,27 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
         initView();
     }
 
-    private void initView(){
+    private void initView() {
         this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
+        this.activity.getBinding().balanceBar.setOnBalanceClicked(new View.OnClickListener() {
+
+            @Override
+            public void onClick(final View v) {
+                showQrFragment();
+            }
+        });
+
+        reEnableDialogListeners();
     }
 
-    private void initBalanceBar(){
+    private void reEnableDialogListeners() {
+        QrFragment durationDialog = (QrFragment) this.activity.getSupportFragmentManager().findFragmentByTag(QrFragment.TAG);
+        if(durationDialog != null) {
+            durationDialog.setOnFragmentClosed(this);
+        }
+    }
+
+    private void initBalanceBar() {
         final BalanceBar balanceBar = this.activity.getBinding().balanceBar;
         balanceBar.setOnLevelClicked(new View.OnClickListener() {
             @Override
@@ -230,9 +250,9 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
 
     private PhoneInputDialog phoneInputDialog;
 
-    private void showPhoneInputDialog(){
-        if(phoneInputDialog != null){
-            if(phoneInputDialog.isVisible2()){
+    private void showPhoneInputDialog() {
+        if(phoneInputDialog != null) {
+            if(phoneInputDialog.isVisible2()) {
                 return;
             }
         }
@@ -334,7 +354,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
 
     @Override
     public void onViewDestroyed() {
-        if(messageAdapter != null){
+        if(messageAdapter != null) {
             messageAdapter.clean();
             messageAdapter = null;
         }
@@ -401,5 +421,31 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
         }
 
         SharedPrefsUtil.saveIsVerified(true);
+    }
+
+    private void showQrFragment() {
+        FragmentManager fm = this.activity.getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.setCustomAnimations(R.anim.enter_fade_in, R.anim.exit_fade_out);
+        QrFragment qrFragment = QrFragment.newInstance();
+        ft.add(R.id.root, qrFragment, QrFragment.TAG).addToBackStack(QrFragment.TAG).commit();
+        qrFragment.setOnFragmentClosed(this);
+    }
+
+    public void removeQrFragment() {
+        FragmentManager fm = this.activity.getSupportFragmentManager();
+        Fragment qrFragment = fm.findFragmentByTag(QrFragment.TAG);
+
+        if(qrFragment != null) {
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.setCustomAnimations(R.anim.enter_fade_in, R.anim.exit_fade_out);
+            ft.remove(qrFragment).commit();
+            fm.popBackStackImmediate(QrFragment.TAG,  FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
+    }
+
+    @Override
+    public void onClose() {
+        removeQrFragment();
     }
 }

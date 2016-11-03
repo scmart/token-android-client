@@ -15,6 +15,7 @@
         android:paddingRight="@dimen/activity_horizontal_margin">
 
         <LinearLayout
+            android:id="@+id/balanceWrapper"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="left"

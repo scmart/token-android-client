@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +22,7 @@ import com.bakkenbaeck.token.presenter.PresenterLoader;
 import com.bakkenbaeck.token.presenter.factory.ChatPresenterFactory;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.view.Fragment.QrFragment;
 import com.bakkenbaeck.token.view.adapter.viewholder.BottomOffsetDecoration;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 import com.bakkenbaeck.token.view.dialog.PhoneInputDialog;
@@ -146,7 +148,19 @@ public final class ChatActivity extends AppCompatActivity implements LoaderManag
         }
         this.presenter.onVerificationSuccess();
     }
-    
+
+    @Override
+    public void onBackPressed() {
+        FragmentManager fm = getSupportFragmentManager();
+        QrFragment qrFragment = (QrFragment) fm.findFragmentByTag(QrFragment.TAG);
+
+        if(qrFragment != null){
+            this.presenter.removeQrFragment();
+        }else{
+            super.onBackPressed();
+        }
+    }
+
     @Override
     public void onDestroy(){
 

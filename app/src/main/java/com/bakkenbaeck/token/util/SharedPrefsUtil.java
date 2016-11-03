@@ -2,6 +2,7 @@ package com.bakkenbaeck.token.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Base64;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -15,6 +16,7 @@ public class SharedPrefsUtil {
     public static final String IS_VERIFIED = "SharedPrefsUtil";
     private static final String STORED_TIME_KEY = "stk";
     private static long storedTimeValue = -1;
+    private static final String STORED_QR_CODE = "STORED_QR_CODE";
 
     public static Observable<Boolean> isVerified(){
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
@@ -51,5 +53,23 @@ public class SharedPrefsUtil {
         }
 
         return !areSameDay;
+    }
+
+    public static byte[] getQrCode(){
+        final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
+        final String byteString = prefs.getString(STORED_QR_CODE, null);
+
+        if(byteString == null){
+            return null;
+        }
+
+        byte[] array = Base64.decode(byteString, Base64.DEFAULT);
+        return array;
+    }
+
+    public static void saveQrCode(final byte[] array){
+        final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
+        final String byteString = Base64.encodeToString(array, Base64.DEFAULT);
+        prefs.edit().putString(STORED_QR_CODE, byteString).apply();
     }
 }

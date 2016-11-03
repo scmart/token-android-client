@@ -2,227 +2,233 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
-        android:id="@+id/root"
+    <FrameLayout
+        android:id="@+id/fragmentRoot"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/defaultBackground"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:minHeight="?attr/actionBarSize"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/ToolbarTheme"
-            app:contentInsetStartWithNavigation="0dp"
-            app:titleTextAppearance="@style/Toolbar.TitleText">
-        </android.support.v7.widget.Toolbar>
-
-
-        <com.bakkenbaeck.token.view.custom.BalanceBar
-            android:id="@+id/balance_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <include layout="@layout/horizontal_divider"/>
-
-        <ScrollView
+        <LinearLayout
+            android:id="@+id/root"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fillViewport="true">
+            android:background="@color/defaultBackground"
+            android:orientation="vertical">
 
-            <LinearLayout
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:minHeight="?attr/actionBarSize"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:theme="@style/ToolbarTheme"
+                app:contentInsetStartWithNavigation="0dp"
+                app:titleTextAppearance="@style/Toolbar.TitleText">
+            </android.support.v7.widget.Toolbar>
+
+
+            <com.bakkenbaeck.token.view.custom.BalanceBar
+                android:id="@+id/balance_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <include layout="@layout/horizontal_divider"/>
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="true">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginTop="15dp">
-
-                    <include layout="@layout/horizontal_divider"/>
+                    android:orientation="vertical">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:gravity="center_vertical"
-                        android:padding="@dimen/activity_horizontal_margin"
-                        android:background="@color/tile_color">
+                        android:layout_marginTop="15dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/textColorPrimary"
-                            android:textSize="@dimen/defaultTextSize"
-                            android:text="@string/to"/>
+                        <include layout="@layout/horizontal_divider"/>
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:weightSum="10">
+                            android:orientation="vertical"
+                            android:gravity="center_vertical"
+                            android:padding="@dimen/activity_horizontal_margin"
+                            android:background="@color/tile_color">
 
-                            <EditText
-                                android:id="@+id/wallet_address"
-                                android:layout_width="0dp"
-                                android:layout_weight="9"
+                            <TextView
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:background="@null"
-                                android:layout_marginTop="10dp"
-                                android:paddingBottom="5dp"
-                                android:paddingLeft="0dp"
-                                android:maxLines="1"
-                                android:inputType="textNoSuggestions"
-                                android:textColor="@color/inputText"
-                                android:textColorHint="@color/hintText"
+                                android:textColor="@color/textColorPrimary"
                                 android:textSize="@dimen/defaultTextSize"
-                                android:hint="@string/ethereum_address"/>
+                                android:text="@string/to"/>
 
-                            <FrameLayout
-                                android:id="@+id/barcode_button"
-                                android:layout_width="0dp"
-                                android:layout_weight="1"
-                                android:layout_height="match_parent"
-                                android:layout_gravity="right|center_vertical">
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:weightSum="10">
 
-                                <ImageView
-                                    android:layout_width="17dp"
-                                    android:layout_height="17dp"
-                                    android:layout_gravity="right|center_vertical"
-                                    android:background="@android:color/transparent"
-                                    app:srcCompat="@drawable/qr_vec"/>
+                                <EditText
+                                    android:id="@+id/wallet_address"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="9"
+                                    android:layout_height="wrap_content"
+                                    android:background="@null"
+                                    android:layout_marginTop="10dp"
+                                    android:paddingBottom="5dp"
+                                    android:paddingLeft="0dp"
+                                    android:maxLines="1"
+                                    android:inputType="textNoSuggestions"
+                                    android:textColor="@color/inputText"
+                                    android:textColorHint="@color/hintText"
+                                    android:textSize="@dimen/defaultTextSize"
+                                    android:hint="@string/ethereum_address"/>
 
-                            </FrameLayout>
+                                <FrameLayout
+                                    android:id="@+id/barcode_button"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_height="match_parent"
+                                    android:layout_gravity="right|center_vertical">
+
+                                    <ImageView
+                                        android:layout_width="17dp"
+                                        android:layout_height="17dp"
+                                        android:layout_gravity="right|center_vertical"
+                                        android:background="@android:color/transparent"
+                                        app:srcCompat="@drawable/qr_vec"/>
+
+                                </FrameLayout>
+
+                            </LinearLayout>
+
+                            <View android:id="@+id/addressLine"
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/divider"/>
 
                         </LinearLayout>
 
-                        <View android:id="@+id/addressLine"
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="@color/divider"/>
+                        <include layout="@layout/horizontal_divider"/>
 
                     </LinearLayout>
-
-                    <include layout="@layout/horizontal_divider"/>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginTop="15dp">
-
-                    <include layout="@layout/horizontal_divider"/>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:gravity="center_vertical"
-                        android:padding="@dimen/activity_horizontal_margin"
-                        android:background="@color/tile_color">
+                        android:layout_marginTop="15dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/textColorPrimary"
-                            android:textSize="@dimen/defaultTextSize"
-                            android:text="@string/amount"/>
+                        <include layout="@layout/horizontal_divider"/>
 
-                        <FrameLayout
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <EditText
-                                android:id="@+id/amount"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="10dp"
-                                android:paddingBottom="5dp"
-                                android:background="@null"
-                                android:paddingLeft="0dp"
-                                android:maxLines="1"
-                                android:inputType="numberDecimal|numberSigned"
-                                android:textColor="@color/inputText"
-                                android:textColorHint="@color/hintText"
-                                android:textSize="@dimen/defaultTextSize"
-                                android:hint="@string/enter_amount_to_transfer"
-                                android:text="0"/>
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center_vertical"
+                            android:padding="@dimen/activity_horizontal_margin"
+                            android:background="@color/tile_color">
 
                             <TextView
                                 android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/textColorPrimary"
                                 android:textSize="@dimen/defaultTextSize"
-                                android:gravity="center_vertical"
+                                android:text="@string/amount"/>
+
+                            <FrameLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+
+                                <EditText
+                                    android:id="@+id/amount"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="10dp"
+                                    android:paddingBottom="5dp"
+                                    android:background="@null"
+                                    android:paddingLeft="0dp"
+                                    android:maxLines="1"
+                                    android:inputType="numberDecimal|numberSigned"
+                                    android:textColor="@color/inputText"
+                                    android:textColorHint="@color/hintText"
+                                    android:textSize="@dimen/defaultTextSize"
+                                    android:hint="@string/enter_amount_to_transfer"
+                                    android:text="0"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:textSize="@dimen/defaultTextSize"
+                                    android:gravity="center_vertical"
+                                    android:textColor="@color/hintText"
+                                    android:layout_gravity="right|center_vertical"
+                                    android:text="@string/eth"/>
+
+                            </FrameLayout>
+
+                            <View android:id="@+id/balanceLine"
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/divider"/>
+
+                            <TextView
+                                android:id="@+id/feeInstruction"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="5dp"
+                                android:textSize="@dimen/smallSubSize"
                                 android:textColor="@color/hintText"
-                                android:layout_gravity="right|center_vertical"
-                                android:text="@string/eth"/>
+                                android:text="@string/each_transfer_costs_0_00042_eth_in_fees"
+                                android:visibility="visible"/>
 
-                        </FrameLayout>
+                        </LinearLayout>
 
-                        <View android:id="@+id/balanceLine"
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="@color/divider"/>
-
-                        <TextView
-                            android:id="@+id/feeInstruction"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp"
-                            android:textSize="@dimen/smallSubSize"
-                            android:textColor="@color/hintText"
-                            android:text="@string/each_transfer_costs_0_00042_eth_in_fees"
-                            android:visibility="visible"/>
+                        <include layout="@layout/horizontal_divider"/>
 
                     </LinearLayout>
 
-                    <include layout="@layout/horizontal_divider"/>
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
 
+                        <TextView
+                            android:id="@+id/max_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:background="@drawable/max_button_background"
+                            android:paddingLeft="20dp"
+                            android:paddingRight="20dp"
+                            android:layout_gravity="start"
+                            android:layout_margin="16dp"
+                            android:gravity="center"
+                            android:textAllCaps="true"
+                            android:textColor="@color/buttonTextColor"
+                            android:textSize="@dimen/buttonTextSize"
+                            android:text="@string/max" />
+
+                        <TextView
+                            android:id="@+id/send_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:background="@drawable/btn_with_radius"
+                            android:paddingLeft="20dp"
+                            android:paddingRight="20dp"
+                            android:layout_gravity="end"
+                            android:layout_margin="16dp"
+                            android:gravity="center"
+                            android:textAllCaps="true"
+                            android:textColor="@color/buttonTextColor"
+                            android:textSize="@dimen/buttonTextSize"
+                            android:text="@string/send" />
+
+                    </FrameLayout>
                 </LinearLayout>
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:id="@+id/max_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="40dp"
-                        android:background="@drawable/max_button_background"
-                        android:paddingLeft="20dp"
-                        android:paddingRight="20dp"
-                        android:layout_gravity="start"
-                        android:layout_margin="16dp"
-                        android:gravity="center"
-                        android:textAllCaps="true"
-                        android:textColor="@color/buttonTextColor"
-                        android:textSize="@dimen/buttonTextSize"
-                        android:text="@string/max" />
-
-                    <TextView
-                        android:id="@+id/send_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="40dp"
-                        android:background="@drawable/btn_with_radius"
-                        android:paddingLeft="20dp"
-                        android:paddingRight="20dp"
-                        android:layout_gravity="end"
-                        android:layout_margin="16dp"
-                        android:gravity="center"
-                        android:textAllCaps="true"
-                        android:textColor="@color/buttonTextColor"
-                        android:textSize="@dimen/buttonTextSize"
-                        android:text="@string/send" />
-
-                </FrameLayout>
-            </LinearLayout>
-        </ScrollView>
-    </LinearLayout>
+            </ScrollView>
+        </LinearLayout>
+    </FrameLayout>
 </layout>
 
