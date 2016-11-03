@@ -293,9 +293,8 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
             final DecimalFormat nf = (DecimalFormat) DecimalFormat.getInstance(LocaleUtil.getLocale());
             nf.setParseBigDecimal(true);
             final String inputtedText = this.activity.getBinding().amount.getText().toString();
-            final String checkSepators = inputtedText.replace("," , ".");
 
-            final BigDecimal amountInEth = (BigDecimal) nf.parse(checkSepators);
+            final BigDecimal amountInEth = (BigDecimal) nf.parse(inputtedText);
 
             final BigInteger amountInWei = EthUtil.ethToWei(amountInEth);
             final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
@@ -398,11 +397,23 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
                         TransactionConfirmation t = new TransactionConfirmation(t1.toString(), t2.toString());
                         BaseApplication.get().getSocketObservables().emitTransactionConfirmation(t);
                         BaseApplication.get().getSocketObservables().emitTransactionSent(transactionSent.body());
+
+                        final DecimalFormat nf = (DecimalFormat) DecimalFormat.getInstance(LocaleUtil.getLocale());
+                        nf.setParseBigDecimal(true);
                         String parsedInput = activity.getBinding().amount.getText().toString();
+                        final BigDecimal amountInEth;
+
+                        try {
+                            amountInEth = (BigDecimal) nf.parse(parsedInput);
+                        }catch (ParseException e){
+                            LogUtil.e(getClass(), e.toString());
+                            return;
+                        }
 
                         final Intent intent = new Intent();
                         intent.putExtra(INTENT_WALLET_ADDRESS, activity.getBinding().walletAddress.getText().toString());
-                        intent.putExtra(INTENT_WITHDRAW_AMOUNT, new BigDecimal(parsedInput));
+                        intent.putExtra(INTENT_WITHDRAW_AMOUNT, amountInEth);
+
                         activity.setResult(RESULT_OK, intent);
                         activity.finish();
                         activity.overridePendingTransition(R.anim.enter_fade_in, R.anim.exit_fade_out);
