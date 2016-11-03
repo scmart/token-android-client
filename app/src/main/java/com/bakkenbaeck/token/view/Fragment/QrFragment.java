@@ -129,16 +129,14 @@ public class QrFragment extends Fragment{
 
                 SharedPrefsUtil.saveQrCode(ImageUtil.compressBitmap(bitmap));
 
-                String eth = getResources().getString(R.string.ethereumAppend);
-                String appendedString = eth + content;
-
-                qrCodeText.setText(appendedString);
+                qrCodeText.setText(content);
                 qrCodeText.animate().alpha(1f).setDuration(200).start();
             }
         });
     }
 
     private Observable<Bitmap> generateqrBitmap(final String content) {
+        final String prefix = getResources().getString(R.string.prefixEth);
         return Observable.create(new Observable.OnSubscribe<Bitmap>() {
             @Override
             public void call(Subscriber<? super Bitmap> subscriber) {
@@ -148,7 +146,7 @@ public class QrFragment extends Fragment{
                     Map<EncodeHintType, Integer> map = new HashMap<EncodeHintType, Integer>();
                     map.put(EncodeHintType.MARGIN, 0);
 
-                    BitMatrix bitMatrix = writer.encode(content, BarcodeFormat.QR_CODE, size, size, map);
+                    BitMatrix bitMatrix = writer.encode(prefix + content, BarcodeFormat.QR_CODE, size, size, map);
                     int width = bitMatrix.getWidth();
                     int height = bitMatrix.getHeight();
                     Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);

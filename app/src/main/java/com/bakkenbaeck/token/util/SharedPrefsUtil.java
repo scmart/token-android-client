@@ -32,7 +32,7 @@ public class SharedPrefsUtil {
 
     public static void saveIsVerified(final boolean isVerified){
         final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
-        prefs.edit().putBoolean(IS_VERIFIED, isVerified).apply();
+        prefs.edit().putBoolean(IS_VERIFIED, isVerified).commit();
     }
 
     // Check if the day has changed.
