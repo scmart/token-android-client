@@ -284,6 +284,11 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
+                if (activity == null) {
+                    LogUtil.print(getClass(), "Attempt to refreshAnotherOneButtonState but activity is null");
+                    return;
+                }
+
                 activity.getBinding().buttonAnotherVideo.setVisibility(
                         isShowingAnotherOneButton
                                 ? View.VISIBLE
