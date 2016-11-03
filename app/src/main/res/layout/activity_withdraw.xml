@@ -153,6 +153,7 @@
                                     android:paddingLeft="0dp"
                                     android:maxLines="1"
                                     android:inputType="numberDecimal"
+                                    android:digits="0123456789,."
                                     android:textColor="@color/inputText"
                                     android:textColorHint="@color/hintText"
                                     android:textSize="@dimen/defaultTextSize"
