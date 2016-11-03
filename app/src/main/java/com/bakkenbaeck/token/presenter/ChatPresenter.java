@@ -421,11 +421,10 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
     }
 
     public void onVerificationSuccess() {
+        SharedPrefsUtil.saveIsVerified(true);
         if(activity != null && messageAdapter != null) {
             messageAdapter.disableVerifyButton(activity);
         }
-
-        SharedPrefsUtil.saveIsVerified(true);
     }
 
     private void showQrFragment() {
