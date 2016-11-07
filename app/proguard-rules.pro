@@ -42,3 +42,7 @@
 }
 
 -keep public class com.bakkenbaeck.token.model.jsonadapter.BigIntegerAdapter { *; }
+
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}

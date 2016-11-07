@@ -132,7 +132,9 @@ public class VideoPresenter implements Presenter<VideoActivity> {
         }
 
         @Override
-        public void onVideoEnd() {}
+        public void onVideoEnd() {
+            onVideoCompleted();
+        }
 
         @Override
         public void onRewardedVideoAdRewarded(final Placement placement) {
@@ -149,9 +151,6 @@ public class VideoPresenter implements Presenter<VideoActivity> {
     @Override
     public void onViewDestroyed() {
         Log.d(TAG, "onViewDestroyed: ");
-        if(this.activity != null) {
-            this.mMediationAgent.release(this.activity);
-        }
         this.mMediationAgent.removeRewardedVideoListener();
         this.mMediationAgent.setRewardedVideoListener(null);
         this.activity = null;

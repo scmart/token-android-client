@@ -69,7 +69,9 @@ dependencies {
             'com.neovisionaries:nv-websocket-client:1.30',
             'com.artemzin.rxjava:proguard-rules:1.1.9.0',
             // Advertising
-            'com.supersonic.sdk:mediationsdk:6.4.13@jar',
+            'com.supersonic.sdk:mediationsdk:6.4.18@jar',
+            'com.supersonic.adapters:adcolonyadapter:2.1.2@jar',
+            'com.adcolony:sdk:3.0.4',
             // Reactive
             'io.reactivex:rxandroid:1.2.1',
             // Images

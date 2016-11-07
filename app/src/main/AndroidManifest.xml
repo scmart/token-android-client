@@ -43,6 +43,7 @@
                   android:theme="@style/ScannerTheme"
                   android:windowSoftInputMode="stateAlwaysHidden" />
 
+        <!-- Supersonic -->
         <activity
             android:name="com.supersonicads.sdk.controller.ControllerActivity"
             android:configChanges="orientation|screenSize"
@@ -57,6 +58,16 @@
             android:configChanges="orientation|screenSize"
             android:hardwareAccelerated="true"
             android:theme="@android:style/Theme.Translucent" />
+
+        <!-- AdColony -->
+        <activity android:name="com.adcolony.sdk.AdColonyInterstitialActivity"
+                  android:configChanges="keyboardHidden|orientation|screenSize"
+                  android:hardwareAccelerated="true"/>
+        <activity android:name="com.adcolony.sdk.AdColonyAdViewActivity"
+                  android:configChanges="keyboardHidden|orientation|screenSize"
+                  android:hardwareAccelerated="true"/>
+
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="d6f421ea196993dc3048f7ba96ef27a75a55b2a2" />
