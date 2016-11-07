@@ -22,8 +22,8 @@
 }
 -keep,includedescriptorclasses public class com.google.android.gms.ads.** {
    public *;
-
 }
+
 -keep,includedescriptorclasses class com.supersonic.adapters.** { *; }
 
 -keep class com.bakkenbaeck.token.model.** { *; }
@@ -46,3 +46,7 @@
 -keepclassmembers class * {
     @android.webkit.JavascriptInterface <methods>;
 }
+
+-dontwarn android.webkit.**
+-dontwarn com.google.android.**
+-dontwarn com.adcolony.sdk.**
