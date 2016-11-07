@@ -12,10 +12,16 @@ public class LocaleUtil {
 
     @TargetApi(Build.VERSION_CODES.N)
     public static Locale getLocale() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-            return BaseApplication.get().getResources().getConfiguration().getLocales().get(0);
-        } else {
-            return BaseApplication.get().getResources().getConfiguration().locale;
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                return BaseApplication.get().getResources().getConfiguration().getLocales().get(0);
+            } else {
+                return BaseApplication.get().getResources().getConfiguration().locale;
+            }
+        } catch (final NullPointerException ex) {
+            LogUtil.e(LocaleUtil.class, "NPE when getting locale. " + ex);
+            // Default to something!
+            return Locale.ENGLISH;
         }
     }
 }
