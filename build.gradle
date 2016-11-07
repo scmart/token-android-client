@@ -17,6 +17,7 @@ allprojects {
         maven { url 'https://maven.fabric.io/public' }
         maven { url "https://dl.bintray.com/supersonic/android-sdk" }
         maven { url "https://dl.bintray.com/supersonic/android-adapters" }
+        maven { url "https://adcolony.bintray.com/AdColony" }
     }
 }
 
