@@ -121,7 +121,9 @@ public class VideoPresenter implements Presenter<VideoActivity> {
             if (available) {
                 mMediationAgent.showRewardedVideo(adZone);
             } else {
-                activity.showErrorSnackbar();
+                if (activity != null) {
+                    activity.showErrorSnackbar();
+                }
             }
         }
 
