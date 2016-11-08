@@ -25,6 +25,7 @@ import com.bakkenbaeck.token.util.OnNextObserver;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SharedPrefsUtil;
+import com.bakkenbaeck.token.util.SnackbarUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.Fragment.QrFragment;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
@@ -368,6 +369,11 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
     }
 
     public void handleActivityResult(final ActivityResultHolder activityResultHolder) {
+        if(activityResultHolder.getResultCode() == VideoPresenter.NO_ADS_AVAILABLE){
+            showErrorMessage();
+            return;
+        }
+
         if (activityResultHolder.getResultCode() != RESULT_OK) {
             return;
         }
@@ -376,6 +382,10 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
             handleVideoCompleted(activityResultHolder);
             return;
         }
+    }
+
+    private void showErrorMessage(){
+        SnackbarUtil.make(this.activity.getBinding().root, activity.getString(R.string.no_more_ads_available));
     }
 
     private void handleVideoCompleted(final ActivityResultHolder activityResultHolder) {

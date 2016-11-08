@@ -66,4 +66,5 @@
     <string name="fiat_iso__usd">USD</string>
     <string name="qr_code">QR Code</string>
     <string name="prefixEth">ethereum:</string>
+    <string name="no_more_ads_available">No more ads available right now, please try again later</string>
 </resources>
