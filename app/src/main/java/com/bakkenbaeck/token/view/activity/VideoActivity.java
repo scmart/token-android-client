@@ -62,8 +62,8 @@ public class VideoActivity extends AppCompatActivity implements LoaderManager.Lo
         this.presenter = null;
     }
 
-    public void showErrorSnackbar() {
-        errorSnackbar = Snackbar.make(findViewById(content), R.string.error__supersonic, Snackbar.LENGTH_INDEFINITE);
+    public void showNoAdsSnackbar() {
+        errorSnackbar = Snackbar.make(findViewById(content), R.string.error__no_more_ads_available, Snackbar.LENGTH_INDEFINITE);
         errorSnackbar.show();
     }
 

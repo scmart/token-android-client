@@ -24,8 +24,6 @@ public class VideoPresenter implements Presenter<VideoActivity> {
     private static final String TAG = "VideoPresenter";
     public final static String INTENT_CLICKED_POSITION = "clickedPosition";
     private final String adZone = "DefaultRewardedVideo";
-    public static final int NO_ADS_AVAILABLE = 100001;
-    public static final String NO_ADS_AVAILABLE_NAME = "NO_ADS_AVAILABLE_KEY";
 
     private VideoActivity activity;
     private Supersonic mMediationAgent;
@@ -88,7 +86,7 @@ public class VideoPresenter implements Presenter<VideoActivity> {
             @Override
             public void run() {
                 if (!startedPlaying && activity != null) {
-                    activity.showErrorSnackbar();
+                    activity.showNoAdsSnackbar();
                 }
             }
         }, 10000);
@@ -124,17 +122,9 @@ public class VideoPresenter implements Presenter<VideoActivity> {
                 mMediationAgent.showRewardedVideo(adZone);
             } else {
                 if (activity != null) {
-                    activity.showErrorSnackbar();
-                    sendErrorMessage();
+                    activity.showNoAdsSnackbar();
                 }
             }
-        }
-
-        private void sendErrorMessage(){
-            Intent intent = new Intent();
-            intent.putExtra(NO_ADS_AVAILABLE_NAME, true);
-            activity.setResult(NO_ADS_AVAILABLE , intent);
-            activity.finish();
         }
 
         @Override
