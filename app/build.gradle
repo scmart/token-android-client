@@ -57,7 +57,6 @@ dependencies {
             // Support
             'com.android.support:appcompat-v7:24.2.1',
             'com.android.support:recyclerview-v7:24.2.1',
-            //'com.android.support:gridlayout-v7:24.2.1',
             'com.android.support:design:24.2.1',
             'com.google.android.gms:play-services-ads:9.4.0',
             'com.android.support:multidex:1.0.0',
@@ -82,6 +81,7 @@ dependencies {
             // Reading barcodes
             'com.journeyapps:zxing-android-embedded:3.3.0',
             // Crypto
+            'org.bitcoinj:bitcoinj-core:0.14.3',
             'com.madgag.spongycastle:core:1.54.0.0',
             'com.madgag.spongycastle:prov:1.54.0.0',
             'org.mindrot:jbcrypt:0.3m'
