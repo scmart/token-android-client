@@ -50,3 +50,15 @@
 -dontwarn android.webkit.**
 -dontwarn com.google.android.**
 -dontwarn com.adcolony.sdk.**
+
+
+# bitcoinj
+-keep,includedescriptorclasses class org.bitcoinj.wallet.Protos$** { *; }
+-keepclassmembers class org.bitcoinj.wallet.Protos { com.google.protobuf.Descriptors$FileDescriptor descriptor; }
+-keep,includedescriptorclasses class org.bitcoin.protocols.payments.Protos$** { *; }
+-keepclassmembers class org.bitcoin.protocols.payments.Protos { com.google.protobuf.Descriptors$FileDescriptor descriptor; }
+-dontwarn org.bitcoinj.store.WindowsMMapHack
+-dontwarn org.bitcoinj.store.LevelDBBlockStore
+-dontnote org.bitcoinj.crypto.DRMWorkaround
+-dontnote org.bitcoinj.crypto.TrustStoreLoader$DefaultTrustStoreLoader
+-dontwarn org.bitcoinj.store.LevelDBFullPrunedBlockStore**

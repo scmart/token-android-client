@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.crypto.Wallet;
+import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.CryptoDetails;
 import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.network.rest.TokenService;
@@ -22,16 +22,14 @@ import rx.subjects.BehaviorSubject;
 
 public class UserManager {
 
-    private final static String BCRYPT_SALT = "b";
     private final static String USER_ID = "u";
     private final static String AUTH_TOKEN = "t";
-    private final static String WALLET_PASSWORD = "w";
     private final static String HAVE_REGISTERED = "r";
 
     private final BehaviorSubject<User> subject = BehaviorSubject.create();
 
     private User currentUser;
-    private Wallet userWallet;
+    private HDWallet userHDWallet;
     private SharedPreferences prefs;
 
     public final Observable<User> getObservable() {
@@ -50,7 +48,7 @@ public class UserManager {
     }
 
     public String signTransaction(final String transaction) {
-        return this.userWallet.sign(transaction);
+        return this.userHDWallet.sign(transaction);
     }
 
     public void refresh() {
@@ -59,7 +57,7 @@ public class UserManager {
 
     private void initUser() {
         this.prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
-        this.userWallet = new Wallet();
+        this.userHDWallet = new HDWallet();
         if (!userExistsInPrefs()) {
             requestNewUser();
         }
@@ -102,8 +100,6 @@ public class UserManager {
             prefs.edit()
                     .putString(USER_ID, currentUser.getId())
                     .putString(AUTH_TOKEN, userResponse.getAuthToken())
-                    .putString(BCRYPT_SALT, userResponse.getPasswordSalt())
-                    .putString(WALLET_PASSWORD, BCrypt.gensalt(16))
                     .apply();
         }
     };
@@ -119,24 +115,23 @@ public class UserManager {
 
         private void loadUserDetailsFromStorage() {
             final String authToken = prefs.getString(AUTH_TOKEN, null);
-            final String bCryptSalt = prefs.getString(BCRYPT_SALT, null);
             currentUser.setAuthToken(authToken);
-            currentUser.setPasswordSalt(bCryptSalt);
         }
     };
 
-    private Observer<Wallet> walletCreatedSubscriber = new OnNextObserver<Wallet>() {
+    private Observer<HDWallet> walletCreatedSubscriber = new OnNextObserver<HDWallet>() {
         @Override
-        public void onNext(final Wallet wallet) {
+        public void onNext(final HDWallet HDWallet) {
             final boolean hasRegisteredWithBackend = prefs.getBoolean(HAVE_REGISTERED, false);
             if (hasRegisteredWithBackend) {
                 return;
             }
 
+            // To do - don't sent these deprecated values
             final CryptoDetails cryptoDetails = new CryptoDetails()
-                    .setAesEncodedPrivateKey(wallet.getEncryptedPrivateKey())
-                    .setBCryptedPassword(wallet.getBCryptedPassword())
-                    .setEthAddress(wallet.getAddress());
+                    .setAesEncodedPrivateKey("deprecated")
+                    .setBCryptedPassword("deprecated")
+                    .setEthAddress(HDWallet.getAddress());
             TokenService.getApi().putUserCryptoDetails(
                         currentUser.getAuthToken(),
                         currentUser.getId(),
@@ -153,14 +148,8 @@ public class UserManager {
         }
     };
 
-    private Observable<Wallet> initUserWallet() {
-        final String walletPassword = this.prefs.getString(WALLET_PASSWORD, null);
-        final String salt = prefs.getString(BCRYPT_SALT, null);
-        if (walletPassword == null) {
-            throw new RuntimeException("Not yet implemented user inputted password");
-        }
-
-        return this.userWallet.initWallet(walletPassword, salt);
+    private Observable<HDWallet> initUserWallet() {
+        return this.userHDWallet.initWallet();
     }
 
     private void emitUser() {
@@ -168,7 +157,7 @@ public class UserManager {
     }
 
     public String getWalletAddress(){
-        return userWallet.getAddress();
+        return userHDWallet.getAddress();
     }
 
 }
