@@ -1,8 +1,10 @@
 package com.bakkenbaeck.token.crypto.signal;
 
 
-import com.bakkenbaeck.token.BuildConfig;
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.crypto.signal.store.SignalIdentityKeyStore;
+import com.bakkenbaeck.token.crypto.signal.store.SignalPreKeyStore;
+import com.bakkenbaeck.token.crypto.signal.store.SignalSessionStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 
@@ -20,9 +22,9 @@ import org.whispersystems.libsignal.protocol.PreKeySignalMessage;
 import org.whispersystems.libsignal.state.PreKeyRecord;
 import org.whispersystems.libsignal.state.SignedPreKeyRecord;
 import org.whispersystems.libsignal.util.KeyHelper;
-import org.whispersystems.signalservice.api.SignalServiceAccountManager;
 import org.whispersystems.signalservice.api.push.TrustStore;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -41,8 +43,7 @@ public class SignalManager {
     private SignalPreKeyStore preKeyStore;
     private SignalSessionStore sessionStore;
     private SignalIdentityKeyStore identityStore;
-    private TrustStore trustStore;
-    private SignalServiceAccountManager accountManager;
+    private SignalAccountManager accountManager;
 
     public SignalManager init() {
 
@@ -65,7 +66,7 @@ public class SignalManager {
         this.preKeyStore = new SignalPreKeyStore();
         this.sessionStore = new SignalSessionStore();
         this.identityStore = new SignalIdentityKeyStore();
-        this.trustStore = new TrustStore() {
+        final TrustStore trustStore = new TrustStore() {
             @Override
             public InputStream getKeyStoreInputStream() {
                 return BaseApplication.get().getResources().openRawResource(R.raw.whisper);
@@ -76,16 +77,7 @@ public class SignalManager {
                 return "whisper";
             }
         };
-        createAccount();
-    }
-
-    private void createAccount() {
-        this.accountManager = new SignalServiceAccountManager(
-                BaseApplication.get().getResources().getString(R.string.signal_url),
-                this.trustStore,
-                "unused",
-                "unused",
-                generateUserAgent());
+        this.accountManager = new SignalAccountManager(trustStore);
     }
 
     private void loadOrGenerateKeys() {
@@ -95,32 +87,21 @@ public class SignalManager {
             } else {
                 generateKeys();
             }
+
+            register();
         } catch (final InvalidKeyException | InvalidKeyIdException ex) {
             throw new RuntimeException(ex);
         }
     }
 
-    private String generateUserAgent() {
-        return "Android " +
-                BuildConfig.APPLICATION_ID +
-                " - " +
-                BuildConfig.VERSION_NAME +
-                ":" +
-                BuildConfig.VERSION_CODE;
-    }
-/*
     private void register() {
         try {
-            accountManager.requestSmsVerificationCode();
-            final String smsCode = "920144";
-            accountManager.verifyAccountWithCode(smsCode, "signallingKey", 1, false);
-            accountManager.setGcmId(Optional.of("gcm_id"));
-            accountManager.setPreKeys(this.identityKeyPair.getPublicKey(), this.preKeys.get(0), this.signedPreKey, this.preKeys);
-        } catch (IOException e) {
+            this.accountManager.registerKeys(this.identityKeyPair.getPublicKey(), this.preKeys.get(0), this.signedPreKey, this.preKeys);
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }
-*/
+
     private boolean keysAlreadyCreated() {
         return SignalPreferences.getLocalRegistrationId() != -1;
     }

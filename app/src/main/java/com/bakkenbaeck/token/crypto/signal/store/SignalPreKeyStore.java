@@ -1,4 +1,4 @@
-package com.bakkenbaeck.token.crypto.signal;
+package com.bakkenbaeck.token.crypto.signal.store;
 
 
 import android.content.Context;

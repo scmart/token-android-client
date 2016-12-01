@@ -48,7 +48,11 @@ public class UserManager {
     }
 
     public String signTransaction(final String transaction) {
-        return this.userHDWallet.sign(transaction);
+        return this.userHDWallet.signHexString(transaction);
+    }
+
+    public String signPayload(final String payload) {
+        return this.userHDWallet.signString(payload);
     }
 
     public void refresh() {

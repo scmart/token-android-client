@@ -17,7 +17,6 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
 import java.security.Security;
-import java.util.Arrays;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -117,15 +116,23 @@ public class HDWallet {
         return ECKey.fromPrivate(key.getPrivKey());
     }
 
-    public String sign(final String hexString) {
+    public String signHexString(final String hexString) {
         try {
-            final byte[] msgHash = sha3(TypeConverter.StringHexToByteArray(hexString));
-            final ECKey.ECDSASignature signature = this.receivingKey.sign(msgHash);
-            return signature.toHex();
-        } catch (final Exception e) {
-            LogUtil.error(getClass(), e.toString());
+            return sign(TypeConverter.StringHexToByteArray(hexString));
+        } catch (final Exception ex) {
+            LogUtil.e(getClass(), "Unable to sign. " + ex);
         }
         return null;
+    }
+
+    public String signString(final String data) {
+        return sign(data.getBytes());
+    }
+
+    public String sign(final byte[] bytes) {
+        final byte[] msgHash = sha3(bytes);
+        final ECKey.ECDSASignature signature = this.receivingKey.sign(msgHash);
+        return signature.toHex();
     }
 
     public String getMasterSeed() {

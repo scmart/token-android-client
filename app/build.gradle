@@ -90,7 +90,7 @@ dependencies {
             'com.journeyapps:zxing-android-embedded:3.3.0',
             // Crypto
             'org.bitcoinj:bitcoinj-core:0.14.3',
-            'org.whispersystems:signal-service-android:2.4.0',
+            'com.github.toshiapp:libsignal-service-java:59389ef',
             'com.madgag.spongycastle:core:1.54.0.0',
             'com.madgag.spongycastle:prov:1.54.0.0',
             'org.mindrot:jbcrypt:0.3m',

@@ -1,7 +1,8 @@
-package com.bakkenbaeck.token.crypto.signal;
+package com.bakkenbaeck.token.crypto.signal.store;
 
 import android.content.Context;
 
+import com.bakkenbaeck.token.crypto.signal.SignalPreferences;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 
