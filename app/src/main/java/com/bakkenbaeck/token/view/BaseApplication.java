@@ -4,6 +4,7 @@ package com.bakkenbaeck.token.view;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
+import com.bakkenbaeck.token.crypto.signal.SignalManager;
 import com.bakkenbaeck.token.manager.LocalBalanceManager;
 import com.bakkenbaeck.token.manager.UserManager;
 import com.bakkenbaeck.token.network.ws.SocketObservables;
@@ -20,6 +21,7 @@ public class BaseApplication extends MultiDexApplication {
     private UserManager userManager;
     private WebSocketManager webSocketManager;
     private LocalBalanceManager localBalanceManager;
+    private SignalManager signalManager;
 
     @Override
     public void onCreate() {
@@ -29,12 +31,13 @@ public class BaseApplication extends MultiDexApplication {
         initUserManager();
         initWebsocketManager();
         initRealm();
-        this.localBalanceManager = new LocalBalanceManager();
+        initLocalBalanceManager();
+        initSignalManager();
     }
 
     private void initUserManager() {
         this.userManager = new UserManager().init();
-    }
+}
 
     private void initWebsocketManager() {
         this.webSocketManager = new WebSocketManager();
@@ -46,6 +49,14 @@ public class BaseApplication extends MultiDexApplication {
                 .deleteRealmIfMigrationNeeded()
                 .build();
         Realm.setDefaultConfiguration(config);
+    }
+
+    private void initLocalBalanceManager() {
+        this.localBalanceManager = new LocalBalanceManager();
+    }
+
+    private void initSignalManager() {
+        this.signalManager = new SignalManager().init();
     }
 
     public UserManager getUserManager() {

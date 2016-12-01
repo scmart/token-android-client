@@ -19,6 +19,9 @@ import com.supersonic.mediationsdk.model.Placement;
 import com.supersonic.mediationsdk.sdk.RewardedVideoListener;
 import com.supersonic.mediationsdk.sdk.Supersonic;
 import com.supersonic.mediationsdk.sdk.SupersonicFactory;
+import org.whispersystems.libsignal.SessionBuilder;
+import org.whispersystems.libsignal.SessionCipher;
+import org.whispersystems.libsignal.state.SignalProtocolStore;
 
 public class VideoPresenter implements Presenter<VideoActivity> {
     private static final String TAG = "VideoPresenter";
