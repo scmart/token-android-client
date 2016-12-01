@@ -1,9 +1,11 @@
 package com.bakkenbaeck.token.crypto.signal;
 
 
+import com.bakkenbaeck.token.BuildConfig;
+import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.util.LogUtil;
+import com.bakkenbaeck.token.view.BaseApplication;
 
-import org.spongycastle.util.encoders.Base64;
 import org.whispersystems.libsignal.DuplicateMessageException;
 import org.whispersystems.libsignal.IdentityKeyPair;
 import org.whispersystems.libsignal.InvalidKeyException;
@@ -11,20 +13,17 @@ import org.whispersystems.libsignal.InvalidKeyIdException;
 import org.whispersystems.libsignal.InvalidMessageException;
 import org.whispersystems.libsignal.InvalidVersionException;
 import org.whispersystems.libsignal.LegacyMessageException;
-import org.whispersystems.libsignal.SessionBuilder;
 import org.whispersystems.libsignal.SessionCipher;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 import org.whispersystems.libsignal.UntrustedIdentityException;
-import org.whispersystems.libsignal.ecc.Curve;
-import org.whispersystems.libsignal.ecc.ECPublicKey;
-import org.whispersystems.libsignal.protocol.CiphertextMessage;
 import org.whispersystems.libsignal.protocol.PreKeySignalMessage;
-import org.whispersystems.libsignal.protocol.SignalMessage;
-import org.whispersystems.libsignal.state.PreKeyBundle;
 import org.whispersystems.libsignal.state.PreKeyRecord;
 import org.whispersystems.libsignal.state.SignedPreKeyRecord;
 import org.whispersystems.libsignal.util.KeyHelper;
+import org.whispersystems.signalservice.api.SignalServiceAccountManager;
+import org.whispersystems.signalservice.api.push.TrustStore;
 
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +41,8 @@ public class SignalManager {
     private SignalPreKeyStore preKeyStore;
     private SignalSessionStore sessionStore;
     private SignalIdentityKeyStore identityStore;
+    private TrustStore trustStore;
+    private SignalServiceAccountManager accountManager;
 
     public SignalManager init() {
 
@@ -64,6 +65,27 @@ public class SignalManager {
         this.preKeyStore = new SignalPreKeyStore();
         this.sessionStore = new SignalSessionStore();
         this.identityStore = new SignalIdentityKeyStore();
+        this.trustStore = new TrustStore() {
+            @Override
+            public InputStream getKeyStoreInputStream() {
+                return BaseApplication.get().getResources().openRawResource(R.raw.whisper);
+            }
+
+            @Override
+            public String getKeyStorePassword() {
+                return "whisper";
+            }
+        };
+        createAccount();
+    }
+
+    private void createAccount() {
+        this.accountManager = new SignalServiceAccountManager(
+                BaseApplication.get().getResources().getString(R.string.signal_url),
+                this.trustStore,
+                "unused",
+                "unused",
+                generateUserAgent());
     }
 
     private void loadOrGenerateKeys() {
@@ -73,13 +95,32 @@ public class SignalManager {
             } else {
                 generateKeys();
             }
-
-            createSession();
         } catch (final InvalidKeyException | InvalidKeyIdException ex) {
             throw new RuntimeException(ex);
         }
     }
 
+    private String generateUserAgent() {
+        return "Android " +
+                BuildConfig.APPLICATION_ID +
+                " - " +
+                BuildConfig.VERSION_NAME +
+                ":" +
+                BuildConfig.VERSION_CODE;
+    }
+/*
+    private void register() {
+        try {
+            accountManager.requestSmsVerificationCode();
+            final String smsCode = "920144";
+            accountManager.verifyAccountWithCode(smsCode, "signallingKey", 1, false);
+            accountManager.setGcmId(Optional.of("gcm_id"));
+            accountManager.setPreKeys(this.identityKeyPair.getPublicKey(), this.preKeys.get(0), this.signedPreKey, this.preKeys);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+*/
     private boolean keysAlreadyCreated() {
         return SignalPreferences.getLocalRegistrationId() != -1;
     }

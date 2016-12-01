@@ -14,7 +14,6 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
 public class BaseApplication extends MultiDexApplication {
-    private static final String TAG = "BaseApplication";
     private static BaseApplication instance;
     public static BaseApplication get() { return instance; }
 

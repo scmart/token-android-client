@@ -42,6 +42,14 @@ android {
         }
     }
 
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+
     // Give each APK in the API split a different versionCode and versionName
     project.ext.versionCodes = ['armeabi': 1, 'armeabi-v7a': 2, 'arm64-v8a': 3, 'x86': 4]
     android.applicationVariants.all { variant ->
@@ -82,13 +90,11 @@ dependencies {
             'com.journeyapps:zxing-android-embedded:3.3.0',
             // Crypto
             'org.bitcoinj:bitcoinj-core:0.14.3',
-            'org.whispersystems:signal-protocol-android:2.4.0',
+            'org.whispersystems:signal-service-android:2.4.0',
             'com.madgag.spongycastle:core:1.54.0.0',
             'com.madgag.spongycastle:prov:1.54.0.0',
             'org.mindrot:jbcrypt:0.3m',
     )
-
-    compile fileTree(include: '*.jar', dir: 'libs')
 
     compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {
         transitive = true;
