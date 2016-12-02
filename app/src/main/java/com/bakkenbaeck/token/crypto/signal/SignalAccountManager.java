@@ -48,6 +48,7 @@ import java.util.List;
     /* package */ void registerKeys(
              final IdentityKey identityKey,
              final PreKeyRecord lastResortKey,
+             final String password,
              final int registrationId,
              final String signalingKey,
              final SignedPreKeyRecord signedPreKey,
@@ -75,6 +76,7 @@ import java.util.List;
         final PreKeyStateWithTimestamp payload = new PreKeyStateWithTimestamp(
                 entities,
                 lastResortEntity,
+                password,
                 registrationId,
                 signalingKey,
                 signedPreKeyEntity,

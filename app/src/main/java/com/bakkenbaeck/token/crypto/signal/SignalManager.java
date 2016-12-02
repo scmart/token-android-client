@@ -40,6 +40,7 @@ public class SignalManager {
 
     private IdentityKeyPair identityKeyPair;
     private int registrationId;
+    private String password;
     private String signalingKey;
     private List<PreKeyRecord> preKeys;
     private SignedPreKeyRecord signedPreKey;
@@ -104,6 +105,7 @@ public class SignalManager {
             this.accountManager.registerKeys(
                     this.identityKeyPair.getPublicKey(),
                     this.lastResortKey,
+                    this.password,
                     this.registrationId,
                     this.signalingKey,
                     this.signedPreKey,
@@ -120,6 +122,7 @@ public class SignalManager {
     private void loadKeys() throws InvalidKeyException, InvalidKeyIdException, IOException {
         this.registrationId = SignalPreferences.getLocalRegistrationId();
         this.signalingKey = SignalPreferences.getSignalingKey();
+        this.password = SignalPreferences.getPassword();
 
         final byte[] serializedKey = SignalPreferences.getSerializedIdentityKeyPair();
         this.identityKeyPair = new IdentityKeyPair(serializedKey);
@@ -144,6 +147,7 @@ public class SignalManager {
         this.registrationId = KeyHelper.generateRegistrationId(false);
         this.signedPreKey = KeyHelper.generateSignedPreKey(identityKeyPair, SIGNED_PREKEY_ID);
         this.signalingKey = HashUtil.getSecret(52);
+        this.password = HashUtil.getSecret(18);
 
         storeGeneratedKeys();
         saveToPreferences();
@@ -162,6 +166,7 @@ public class SignalManager {
         SignalPreferences.setSerializedLastResortKey(this.lastResortKey.serialize());
         SignalPreferences.setSignalingKey(this.signalingKey);
         SignalPreferences.setSignedPreKeyId(this.signedPreKey.getId());
+        SignalPreferences.setPassword(this.password);
     }
 
     private void createSession() throws InvalidKeyIdException {

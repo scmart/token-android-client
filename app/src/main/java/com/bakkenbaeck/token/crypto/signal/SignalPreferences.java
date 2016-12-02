@@ -13,6 +13,7 @@ public class SignalPreferences {
     private static final String SERIALIZED_LAST_RESORT_KEY_PREF = "serialized_last_resort_key_pref";
     private static final String SIGNALING_KEY_PREF = "signaling_key_pref";
     private static final String SIGNED_PRE_KEY_ID_PREF = "signed_pre_key_id";
+    private static final String PASSWORD_PREF = "password_pref";
 
 
     public static int getLocalRegistrationId() {
@@ -29,6 +30,14 @@ public class SignalPreferences {
 
     public static void setSignalingKey(final String signalingKey) {
         setStringPreference(SIGNALING_KEY_PREF, signalingKey);
+    }
+
+    public static String getPassword() {
+        return getStringPreference(PASSWORD_PREF, null);
+    }
+
+    public static void setPassword(final String password) {
+        setStringPreference(PASSWORD_PREF, password);
     }
 
     public static byte[] getSerializedIdentityKeyPair() {
@@ -54,7 +63,6 @@ public class SignalPreferences {
     public static void setSignedPreKeyId(final int signedPreKeyId) {
         setIntegerPreference(SIGNED_PRE_KEY_ID_PREF, signedPreKeyId);
     }
-
 
     private static void setByteArrayPreference(final String key, final byte[] value) {
         final String encoded = Base64.encodeToString(value, Base64.NO_WRAP);

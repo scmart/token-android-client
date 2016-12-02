@@ -25,6 +25,9 @@ public class PreKeyStateWithTimestamp {
     private final PreKeyEntity lastResortKey;
 
     @JsonProperty
+    private final String password;
+
+    @JsonProperty
     private final int registrationId;
 
     @JsonProperty
@@ -40,6 +43,7 @@ public class PreKeyStateWithTimestamp {
     public PreKeyStateWithTimestamp(
             final List<PreKeyEntity> preKeys,
             final PreKeyEntity lastResortKey,
+            final String password,
             final int registrationId,
             final String signalingKey,
             final SignedPreKeyEntity signedPreKey,
@@ -47,6 +51,7 @@ public class PreKeyStateWithTimestamp {
             final long timestamp) {
         this.preKeys = preKeys;
         this.lastResortKey = lastResortKey;
+        this.password = password;
         this.registrationId = registrationId;
         this.signalingKey = signalingKey;
         this.signedPreKey = signedPreKey;
