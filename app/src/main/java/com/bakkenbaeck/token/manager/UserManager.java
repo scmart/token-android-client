@@ -6,25 +6,22 @@ import android.content.SharedPreferences;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
-import com.bakkenbaeck.token.model.CryptoDetails;
 import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.network.rest.TokenService;
-import com.bakkenbaeck.token.util.OnCompletedObserver;
 import com.bakkenbaeck.token.util.OnNextObserver;
 import com.bakkenbaeck.token.util.RetryWithBackoff;
 import com.bakkenbaeck.token.view.BaseApplication;
 
-import org.mindrot.jbcrypt.BCrypt;
+import java.util.concurrent.Callable;
 
 import rx.Observable;
-import rx.Observer;
+import rx.Single;
 import rx.subjects.BehaviorSubject;
 
 public class UserManager {
 
     private final static String USER_ID = "u";
     private final static String AUTH_TOKEN = "t";
-    private final static String HAVE_REGISTERED = "r";
 
     private final BehaviorSubject<User> subject = BehaviorSubject.create();
 
@@ -36,23 +33,19 @@ public class UserManager {
         return this.subject.asObservable();
     }
 
-    public UserManager init() {
-        new Thread(new Runnable() {
+    public Single<UserManager> init() {
+        return Single.fromCallable(new Callable<UserManager>() {
             @Override
-            public void run() {
+            public UserManager call() throws Exception {
                 initUser();
+                userHDWallet = new HDWallet();
+                return UserManager.this;
             }
-        }).start();
-
-        return this;
+        });
     }
 
     public String signTransaction(final String transaction) {
         return this.userHDWallet.signHexString(transaction);
-    }
-
-    public String signPayload(final String payload) {
-        return this.userHDWallet.signString(payload);
     }
 
     public void refresh() {
@@ -61,7 +54,6 @@ public class UserManager {
 
     private void initUser() {
         this.prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
-        this.userHDWallet = new HDWallet();
         if (!userExistsInPrefs()) {
             requestNewUser();
         }
@@ -96,7 +88,6 @@ public class UserManager {
         public void onNext(final User userResponse) {
             currentUser = userResponse;
             storeReturnedUser(userResponse);
-            initUserWallet().subscribe(walletCreatedSubscriber);
             emitUser();
         }
 
@@ -113,7 +104,6 @@ public class UserManager {
         public void onNext(final User userResponse) {
             currentUser = userResponse;
             loadUserDetailsFromStorage();
-            initUserWallet().subscribe(walletCreatedSubscriber);
             emitUser();
         }
 
@@ -123,39 +113,6 @@ public class UserManager {
         }
     };
 
-    private Observer<HDWallet> walletCreatedSubscriber = new OnNextObserver<HDWallet>() {
-        @Override
-        public void onNext(final HDWallet HDWallet) {
-            final boolean hasRegisteredWithBackend = prefs.getBoolean(HAVE_REGISTERED, false);
-            if (hasRegisteredWithBackend) {
-                return;
-            }
-
-            // To do - don't sent these deprecated values
-            final CryptoDetails cryptoDetails = new CryptoDetails()
-                    .setAesEncodedPrivateKey("deprecated")
-                    .setBCryptedPassword("deprecated")
-                    .setEthAddress(HDWallet.getAddress());
-            TokenService.getApi().putUserCryptoDetails(
-                        currentUser.getAuthToken(),
-                        currentUser.getId(),
-                        cryptoDetails)
-                    .retryWhen(new RetryWithBackoff())
-                    .subscribe(storedCryptoSubscriber);
-        }
-    };
-
-    private OnCompletedObserver storedCryptoSubscriber = new OnCompletedObserver() {
-        @Override
-        public void onCompleted() {
-            prefs.edit().putBoolean(HAVE_REGISTERED, true).apply();
-        }
-    };
-
-    private Observable<HDWallet> initUserWallet() {
-        return this.userHDWallet.initWallet();
-    }
-
     private void emitUser() {
         this.subject.onNext(this.currentUser);
     }
@@ -164,4 +121,7 @@ public class UserManager {
         return userHDWallet.getAddress();
     }
 
+    public HDWallet getWallet() {
+        return this.userHDWallet;
+    }
 }

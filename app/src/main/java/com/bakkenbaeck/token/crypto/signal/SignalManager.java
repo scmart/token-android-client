@@ -2,9 +2,11 @@ package com.bakkenbaeck.token.crypto.signal;
 
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.crypto.signal.store.SignalIdentityKeyStore;
 import com.bakkenbaeck.token.crypto.signal.store.SignalPreKeyStore;
 import com.bakkenbaeck.token.crypto.signal.store.SignalSessionStore;
+import com.bakkenbaeck.token.crypto.util.HashUtil;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 
@@ -38,15 +40,18 @@ public class SignalManager {
 
     private IdentityKeyPair identityKeyPair;
     private int registrationId;
+    private String signalingKey;
     private List<PreKeyRecord> preKeys;
     private SignedPreKeyRecord signedPreKey;
+    private PreKeyRecord lastResortKey;
     private SignalPreKeyStore preKeyStore;
     private SignalSessionStore sessionStore;
     private SignalIdentityKeyStore identityStore;
     private SignalAccountManager accountManager;
+    private HDWallet wallet;
 
-    public SignalManager init() {
-
+    public SignalManager init(final HDWallet wallet) {
+        this.wallet = wallet;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -77,7 +82,7 @@ public class SignalManager {
                 return "whisper";
             }
         };
-        this.accountManager = new SignalAccountManager(trustStore);
+        this.accountManager = new SignalAccountManager(trustStore, this.wallet);
     }
 
     private void loadOrGenerateKeys() {
@@ -89,14 +94,20 @@ public class SignalManager {
             }
 
             register();
-        } catch (final InvalidKeyException | InvalidKeyIdException ex) {
+        } catch (final InvalidKeyException | InvalidKeyIdException | IOException ex) {
             throw new RuntimeException(ex);
         }
     }
 
     private void register() {
         try {
-            this.accountManager.registerKeys(this.identityKeyPair.getPublicKey(), this.preKeys.get(0), this.signedPreKey, this.preKeys);
+            this.accountManager.registerKeys(
+                    this.identityKeyPair.getPublicKey(),
+                    this.lastResortKey,
+                    this.registrationId,
+                    this.signalingKey,
+                    this.signedPreKey,
+                    this.preKeys);
         } catch (final IOException e) {
             e.printStackTrace();
         }
@@ -106,11 +117,15 @@ public class SignalManager {
         return SignalPreferences.getLocalRegistrationId() != -1;
     }
 
-    private void loadKeys() throws InvalidKeyException, InvalidKeyIdException {
+    private void loadKeys() throws InvalidKeyException, InvalidKeyIdException, IOException {
         this.registrationId = SignalPreferences.getLocalRegistrationId();
+        this.signalingKey = SignalPreferences.getSignalingKey();
 
         final byte[] serializedKey = SignalPreferences.getSerializedIdentityKeyPair();
         this.identityKeyPair = new IdentityKeyPair(serializedKey);
+
+        final byte[] serializedLastResortKey = SignalPreferences.getSerializedLastResortKey();
+        this.lastResortKey = new PreKeyRecord(serializedLastResortKey);
 
         this.preKeys = new ArrayList<>(PREKEY_COUNT);
         for (int i = PREKEY_START; i < PREKEY_START + PREKEY_COUNT; i++) {
@@ -123,10 +138,12 @@ public class SignalManager {
     }
 
     private void generateKeys() throws InvalidKeyException {
-        this.registrationId = KeyHelper.generateRegistrationId(false);
         this.identityKeyPair = KeyHelper.generateIdentityKeyPair();
+        this.lastResortKey = KeyHelper.generateLastResortPreKey();
         this.preKeys = KeyHelper.generatePreKeys(PREKEY_START, PREKEY_COUNT);
+        this.registrationId = KeyHelper.generateRegistrationId(false);
         this.signedPreKey = KeyHelper.generateSignedPreKey(identityKeyPair, SIGNED_PREKEY_ID);
+        this.signalingKey = HashUtil.getSecret(52);
 
         storeGeneratedKeys();
         saveToPreferences();
@@ -140,8 +157,10 @@ public class SignalManager {
     }
 
     private void saveToPreferences() {
-        SignalPreferences.setLocalRegistrationId(this.registrationId);
         SignalPreferences.setSerializedIdentityKeyPair(this.identityKeyPair.serialize());
+        SignalPreferences.setLocalRegistrationId(this.registrationId);
+        SignalPreferences.setSerializedLastResortKey(this.lastResortKey.serialize());
+        SignalPreferences.setSignalingKey(this.signalingKey);
         SignalPreferences.setSignedPreKeyId(this.signedPreKey.getId());
     }
 

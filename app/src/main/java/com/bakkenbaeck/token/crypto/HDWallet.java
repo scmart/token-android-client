@@ -18,9 +18,6 @@ import org.spongycastle.util.encoders.Hex;
 import java.io.IOException;
 import java.security.Security;
 
-import rx.Observable;
-import rx.Subscriber;
-
 import static com.bakkenbaeck.token.crypto.util.HashUtil.sha3;
 
 public class HDWallet {
@@ -37,29 +34,19 @@ public class HDWallet {
 
 
     public HDWallet() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                initPreferences();
-            }
-        }).start();
+        init();
+    }
+
+    private void init() {
+        initPreferences();
+        initWallet();
     }
 
     private void initPreferences() {
         this.prefs = BaseApplication.get().getSharedPreferences("wa", Context.MODE_PRIVATE);
     }
 
-    public Observable<HDWallet> initWallet() {
-        return Observable.create(new Observable.OnSubscribe<HDWallet>() {
-            @Override
-            public void call(final Subscriber<? super HDWallet> subscriber) {
-                subscriber.onNext(initWalletSync());
-                subscriber.onCompleted();
-            }
-        });
-    }
-
-    private HDWallet initWalletSync() {
+    private HDWallet initWallet() {
         this.masterSeed = readMasterSeedFromStorage();
         final Wallet wallet = this.masterSeed == null
                 ? generateNewWallet()

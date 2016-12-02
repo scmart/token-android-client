@@ -16,29 +16,39 @@ public class PreKeyStateWithTimestamp {
     @JsonProperty
     @JsonSerialize(using = JsonUtil.IdentityKeySerializer.class)
     @JsonDeserialize(using = JsonUtil.IdentityKeyDeserializer.class)
-    private IdentityKey identityKey;
+    private final IdentityKey identityKey;
 
     @JsonProperty
-    private List<PreKeyEntity> preKeys;
+    private final List<PreKeyEntity> preKeys;
 
     @JsonProperty
-    private PreKeyEntity       lastResortKey;
+    private final PreKeyEntity lastResortKey;
 
     @JsonProperty
-    private SignedPreKeyEntity signedPreKey;
+    private final int registrationId;
 
     @JsonProperty
-    private long timestamp;
+    private final String signalingKey;
+
+    @JsonProperty
+    private final SignedPreKeyEntity signedPreKey;
+
+    @JsonProperty
+    private final long timestamp;
 
 
     public PreKeyStateWithTimestamp(
             final List<PreKeyEntity> preKeys,
             final PreKeyEntity lastResortKey,
+            final int registrationId,
+            final String signalingKey,
             final SignedPreKeyEntity signedPreKey,
             final IdentityKey identityKey,
             final long timestamp) {
         this.preKeys = preKeys;
         this.lastResortKey = lastResortKey;
+        this.registrationId = registrationId;
+        this.signalingKey = signalingKey;
         this.signedPreKey = signedPreKey;
         this.identityKey = identityKey;
         this.timestamp = timestamp;

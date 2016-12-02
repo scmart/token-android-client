@@ -9,7 +9,9 @@ import com.bakkenbaeck.token.view.BaseApplication;
 public class SignalPreferences {
 
     private static final String LOCAL_REGISTRATION_ID_PREF = "pref_local_registration_id";
-    private static final String SERIALIZED_IDENTITY_KEY_PAIR_PREF = "serilized_identity_key_pair_pref";
+    private static final String SERIALIZED_IDENTITY_KEY_PAIR_PREF = "serialized_identity_key_pair_pref";
+    private static final String SERIALIZED_LAST_RESORT_KEY_PREF = "serialized_last_resort_key_pref";
+    private static final String SIGNALING_KEY_PREF = "signaling_key_pref";
     private static final String SIGNED_PRE_KEY_ID_PREF = "signed_pre_key_id";
 
 
@@ -21,12 +23,28 @@ public class SignalPreferences {
         setIntegerPreference(LOCAL_REGISTRATION_ID_PREF, registrationId);
     }
 
+    public static String getSignalingKey() {
+        return getStringPreference(SIGNALING_KEY_PREF, null);
+    }
+
+    public static void setSignalingKey(final String signalingKey) {
+        setStringPreference(SIGNALING_KEY_PREF, signalingKey);
+    }
+
     public static byte[] getSerializedIdentityKeyPair() {
         return getByteArrayPreference(SERIALIZED_IDENTITY_KEY_PAIR_PREF);
     }
 
     public static void setSerializedIdentityKeyPair(final byte[] serializedIdentityKeyPair) {
         setByteArrayPreference(SERIALIZED_IDENTITY_KEY_PAIR_PREF, serializedIdentityKeyPair);
+    }
+
+    public static byte[] getSerializedLastResortKey() {
+        return getByteArrayPreference(SERIALIZED_LAST_RESORT_KEY_PREF);
+    }
+
+    public static void setSerializedLastResortKey(final byte[] serializedLastResortKey) {
+        setByteArrayPreference(SERIALIZED_LAST_RESORT_KEY_PREF, serializedLastResortKey);
     }
 
     public static int getSignedPreKeyId() {
@@ -67,4 +85,6 @@ public class SignalPreferences {
     private static void setIntegerPreference(final String key, final int value) {
         PreferenceManager.getDefaultSharedPreferences(BaseApplication.get()).edit().putInt(key, value).apply();
     }
+
+
 }
