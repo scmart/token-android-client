@@ -23,7 +23,7 @@ import java.util.List;
 
 /* package */ class SignalAccountManager extends SignalServiceAccountManager {
 
-    private static final String PREKEY_PATH = "/keys/";
+    private static final String PREKEY_PATH = "v1/accounts/bootstrap/";
     private final HDWallet wallet;
 
     /* package */ SignalAccountManager(final TrustStore trustStore, final HDWallet wallet) {

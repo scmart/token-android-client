@@ -75,7 +75,7 @@ public class SignalManager {
         final TrustStore trustStore = new TrustStore() {
             @Override
             public InputStream getKeyStoreInputStream() {
-                return BaseApplication.get().getResources().openRawResource(R.raw.whisper);
+                return BaseApplication.get().getResources().openRawResource(R.raw.heroku);
             }
 
             @Override
