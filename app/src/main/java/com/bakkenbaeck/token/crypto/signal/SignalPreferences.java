@@ -14,7 +14,16 @@ public class SignalPreferences {
     private static final String SIGNALING_KEY_PREF = "signaling_key_pref";
     private static final String SIGNED_PRE_KEY_ID_PREF = "signed_pre_key_id";
     private static final String PASSWORD_PREF = "password_pref";
+    private static final String REGISTERED_WITH_SERVER_PREF = "registered_with_server_pref";
 
+
+    public static boolean getRegisteredWithServer() {
+        return getBooleanPreference(REGISTERED_WITH_SERVER_PREF, false);
+    }
+
+    public static void setRegisteredWithServer() {
+        setBooleanPreference(REGISTERED_WITH_SERVER_PREF, true);
+    }
 
     public static int getLocalRegistrationId() {
         return getIntegerPreference(LOCAL_REGISTRATION_ID_PREF, -1);
@@ -92,6 +101,14 @@ public class SignalPreferences {
 
     private static void setIntegerPreference(final String key, final int value) {
         PreferenceManager.getDefaultSharedPreferences(BaseApplication.get()).edit().putInt(key, value).apply();
+    }
+
+    private static boolean getBooleanPreference(final String key, final boolean defaultValue) {
+        return PreferenceManager.getDefaultSharedPreferences(BaseApplication.get()).getBoolean(key, defaultValue);
+    }
+
+    private static void setBooleanPreference(final String key, final boolean value) {
+        PreferenceManager.getDefaultSharedPreferences(BaseApplication.get()).edit().putBoolean(key, value).apply();
     }
 
 
