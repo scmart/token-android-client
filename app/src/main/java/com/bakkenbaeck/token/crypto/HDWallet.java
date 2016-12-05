@@ -17,10 +17,6 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
 import java.security.Security;
-import java.util.Arrays;
-
-import rx.Observable;
-import rx.Subscriber;
 
 import static com.bakkenbaeck.token.crypto.util.HashUtil.sha3;
 
@@ -38,29 +34,19 @@ public class HDWallet {
 
 
     public HDWallet() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                initPreferences();
-            }
-        }).start();
+        init();
+    }
+
+    private void init() {
+        initPreferences();
+        initWallet();
     }
 
     private void initPreferences() {
         this.prefs = BaseApplication.get().getSharedPreferences("wa", Context.MODE_PRIVATE);
     }
 
-    public Observable<HDWallet> initWallet() {
-        return Observable.create(new Observable.OnSubscribe<HDWallet>() {
-            @Override
-            public void call(final Subscriber<? super HDWallet> subscriber) {
-                subscriber.onNext(initWalletSync());
-                subscriber.onCompleted();
-            }
-        });
-    }
-
-    private HDWallet initWalletSync() {
+    private HDWallet initWallet() {
         this.masterSeed = readMasterSeedFromStorage();
         final Wallet wallet = this.masterSeed == null
                 ? generateNewWallet()
@@ -117,15 +103,23 @@ public class HDWallet {
         return ECKey.fromPrivate(key.getPrivKey());
     }
 
-    public String sign(final String hexString) {
+    public String signHexString(final String hexString) {
         try {
-            final byte[] msgHash = sha3(TypeConverter.StringHexToByteArray(hexString));
-            final ECKey.ECDSASignature signature = this.receivingKey.sign(msgHash);
-            return signature.toHex();
-        } catch (final Exception e) {
-            LogUtil.error(getClass(), e.toString());
+            return sign(TypeConverter.StringHexToByteArray(hexString));
+        } catch (final Exception ex) {
+            LogUtil.e(getClass(), "Unable to sign. " + ex);
         }
         return null;
+    }
+
+    public String signString(final String data) {
+        return sign(data.getBytes());
+    }
+
+    public String sign(final byte[] bytes) {
+        final byte[] msgHash = sha3(bytes);
+        final ECKey.ECDSASignature signature = this.receivingKey.sign(msgHash);
+        return signature.toHex();
     }
 
     public String getMasterSeed() {

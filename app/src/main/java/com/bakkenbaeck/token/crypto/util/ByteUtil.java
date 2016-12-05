@@ -219,6 +219,20 @@ public class ByteUtil {
         return new BigInteger(1, b).longValue();
     }
 
+    public static byte[] intToByteArray(int value) {
+        byte[] bytes = new byte[4];
+        intToByteArray(bytes, 0, value);
+        return bytes;
+    }
+
+    private static int intToByteArray(byte[] bytes, int offset, int value) {
+        bytes[offset + 3] = (byte)value;
+        bytes[offset + 2] = (byte)(value >> 8);
+        bytes[offset + 1] = (byte)(value >> 16);
+        bytes[offset]     = (byte)(value >> 24);
+        return 4;
+    }
+
 
     /**
      * Turn nibbles to a pretty looking output string

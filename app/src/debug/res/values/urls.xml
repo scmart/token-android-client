@@ -1,4 +1,5 @@
 <resources>
     <string name="backend_url">https://toshi-app.herokuapp.com</string>
     <string name="supersonic_app_key">527a318d</string>
+    <string name="signal_url">https://token-chat-service.herokuapp.com/</string>
 </resources>
