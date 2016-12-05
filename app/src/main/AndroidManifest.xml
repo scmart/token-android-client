@@ -30,8 +30,6 @@
         </activity>
 
         <activity android:name="com.bakkenbaeck.token.view.activity.ChatActivity" />
-        <activity android:name="com.bakkenbaeck.token.view.activity.VideoActivity"
-            android:theme="@style/FullscreenAppTheme"/>
 
         <activity android:name="com.bakkenbaeck.token.view.activity.WithdrawActivity"
                   android:windowSoftInputMode="stateHidden"/>
