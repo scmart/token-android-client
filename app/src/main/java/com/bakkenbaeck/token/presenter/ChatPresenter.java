@@ -28,20 +28,13 @@ import com.bakkenbaeck.token.util.SharedPrefsUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.Fragment.QrFragment;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
-import com.bakkenbaeck.token.view.activity.VideoActivity;
 import com.bakkenbaeck.token.view.activity.WithdrawActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
 import com.bakkenbaeck.token.view.custom.BalanceBar;
 import com.bakkenbaeck.token.view.dialog.PhoneInputDialog;
 import com.bakkenbaeck.token.view.dialog.VerificationCodeDialog;
 
-import io.realm.Realm;
-
-import static android.app.Activity.RESULT_OK;
-
 public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClickListener, QrFragment.OnFragmentClosed {
-    private static final String TAG = "ChatPresenter";
-    private final int VIDEO_REQUEST_CODE = 1;
     private final int WITHDRAW_REQUEST_CODE = 2;
 
     private ChatActivity activity;
@@ -120,7 +113,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
 
         this.messageAdapter = new MessageAdapter(activity);
         this.messageAdapter.setOnVerifyClickListener(this);
-        registerMessageClickedObservable();
 
         this.chatMessageStore.load();
     }
@@ -333,30 +325,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
         this.activity = null;
     }
 
-    private void registerMessageClickedObservable() {
-        this.messageAdapter.getPositionClicks().subscribe(this.clicksSubscriber);
-    }
-
-    private void unregisterMessageClickedObservable() {
-        if (this.clicksSubscriber.isUnsubscribed()) {
-            return;
-        }
-        this.clicksSubscriber.unsubscribe();
-    }
-
-    private final OnNextSubscriber<Integer> clicksSubscriber = new OnNextSubscriber<Integer>() {
-        @Override
-        public void onNext(final Integer clickedPosition) {
-            showVideoActivity(clickedPosition);
-        }
-
-        private void showVideoActivity(final int clickedPosition) {
-            final Intent intent = new Intent(activity, VideoActivity.class);
-            intent.putExtra(VideoPresenter.INTENT_CLICKED_POSITION, clickedPosition);
-            activity.startActivityForResult(intent, VIDEO_REQUEST_CODE);
-        }
-    };
-
     @Override
     public void onViewDestroyed() {
         if(messageAdapter != null) {
@@ -364,32 +332,10 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
             messageAdapter = null;
         }
         this.activity = null;
-        unregisterMessageClickedObservable();
     }
 
     public void handleActivityResult(final ActivityResultHolder activityResultHolder) {
-        if (activityResultHolder.getResultCode() != RESULT_OK) {
-            return;
-        }
 
-        if (activityResultHolder.getRequestCode() == VIDEO_REQUEST_CODE) {
-            handleVideoCompleted(activityResultHolder);
-            return;
-        }
-    }
-
-    private void handleVideoCompleted(final ActivityResultHolder activityResultHolder) {
-        markVideoAsWatched(activityResultHolder);
-        promptNewVideo();
-    }
-
-    private void markVideoAsWatched(final ActivityResultHolder activityResultHolder) {
-        final int clickedPosition = activityResultHolder.getIntent().getIntExtra(VideoPresenter.INTENT_CLICKED_POSITION, 0);
-        final ChatMessage clickedMessage = this.messageAdapter.getItemAt(clickedPosition);
-        Realm.getDefaultInstance().beginTransaction();
-        clickedMessage.markAsWatched();
-        Realm.getDefaultInstance().commitTransaction();
-        this.messageAdapter.notifyItemChanged(clickedPosition);
     }
 
     public void handleWithdrawClicked() {
