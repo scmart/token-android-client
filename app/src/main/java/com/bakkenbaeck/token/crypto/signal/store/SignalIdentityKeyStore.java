@@ -24,6 +24,9 @@ public class SignalIdentityKeyStore implements IdentityKeyStore {
     public IdentityKeyPair getIdentityKeyPair() {
         try {
             final byte[] serializedKey = SignalPreferences.getSerializedIdentityKeyPair();
+            if (serializedKey == null) {
+                return null;
+            }
             return new IdentityKeyPair(serializedKey);
         } catch (final InvalidKeyException ex) {
             throw new RuntimeException(ex);
