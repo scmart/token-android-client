@@ -25,15 +25,18 @@ import java.util.List;
 
 /* package */ class SignalAccountManager extends SignalServiceAccountManager {
 
-    private static final String PREKEY_PATH = "v1/accounts/bootstrap/";
+    private static final String PREKEY_PATH = "/v1/accounts/bootstrap/";
     private final HDWallet wallet;
 
-    /* package */ SignalAccountManager(final TrustStore trustStore, final HDWallet wallet) {
+    /* package */ SignalAccountManager(
+            final TrustStore trustStore,
+            final HDWallet wallet,
+            final ProtocolStore protocolStore) {
         this(BaseApplication.get().getResources().getString(R.string.signal_url),
                 trustStore,
                 wallet,
-                "unused",
-                "unused",
+                wallet.getAddress(),
+                protocolStore.getPassword(),
                 "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME +  ":" + BuildConfig.VERSION_CODE);
     }
 

@@ -118,7 +118,7 @@ public class UserManager {
     }
 
     public String getWalletAddress(){
-        return userHDWallet.getAddress();
+        return userHDWallet.getAddressAsHex();
     }
 
     public HDWallet getWallet() {
