@@ -6,9 +6,11 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.crypto.signal.model.OutgoingSignedPreKeyState;
 import com.bakkenbaeck.token.crypto.signal.model.PreKeyStateWithTimestamp;
+import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
 import com.bakkenbaeck.token.view.BaseApplication;
 
 import org.whispersystems.libsignal.IdentityKey;
+import org.whispersystems.libsignal.InvalidKeyIdException;
 import org.whispersystems.libsignal.state.PreKeyRecord;
 import org.whispersystems.libsignal.state.SignedPreKeyRecord;
 import org.whispersystems.signalservice.api.SignalServiceAccountManager;
@@ -23,15 +25,18 @@ import java.util.List;
 
 /* package */ class SignalAccountManager extends SignalServiceAccountManager {
 
-    private static final String PREKEY_PATH = "v1/accounts/bootstrap/";
+    private static final String PREKEY_PATH = "/v1/accounts/bootstrap/";
     private final HDWallet wallet;
 
-    /* package */ SignalAccountManager(final TrustStore trustStore, final HDWallet wallet) {
+    /* package */ SignalAccountManager(
+            final TrustStore trustStore,
+            final HDWallet wallet,
+            final ProtocolStore protocolStore) {
         this(BaseApplication.get().getResources().getString(R.string.signal_url),
                 trustStore,
                 wallet,
-                "unused",
-                "unused",
+                wallet.getAddress(),
+                protocolStore.getPassword(),
                 "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME +  ":" + BuildConfig.VERSION_CODE);
     }
 
@@ -43,6 +48,22 @@ import java.util.List;
                                  final String userAgent) {
         super(url, trustStore, user, password, userAgent);
         this.wallet = wallet;
+    }
+
+    /* package */ void registerKeys(final ProtocolStore protocolStore) {
+        try {
+            registerKeys(
+                    protocolStore.getIdentityKeyPair().getPublicKey(),
+                    protocolStore.getLastResortKey(),
+                    protocolStore.getPassword(),
+                    protocolStore.getLocalRegistrationId(),
+                    protocolStore.getSignalingKey(),
+                    protocolStore.getSignedPreKey(),
+                    protocolStore.getPreKeys()
+            );
+        } catch (final IOException | InvalidKeyIdException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     /* package */ void registerKeys(
