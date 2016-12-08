@@ -1,8 +1,8 @@
-Toshi For Android
-========================
-Android app for getting free ethereum.
+Token for Android
+=================
+The android client for connecting to the [Token platform](https://www.tokenbrowser.com)
 
-<img src="./app/src/main/ic_launcher-web.png?raw=true" width="350">
+<img src="./app/src/main/res/mipmap-xhdpi/launcher.png?raw=true">
 
 Getting Started
 ===============
