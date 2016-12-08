@@ -1,6 +1,6 @@
 Token for Android
 =================
-The android client for connecting to the [Token platform](tokenbrowser.com)
+The android client for connecting to the [Token platform](https://www.tokenbrowser.com)
 
 <img src="./app/src/main/res/mipmap-xhdpi/launcher.png?raw=true">
 
