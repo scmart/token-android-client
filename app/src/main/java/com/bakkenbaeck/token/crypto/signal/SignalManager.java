@@ -107,7 +107,7 @@ public class SignalManager {
         );
         try {
             messageSender.sendMessage(
-                    new SignalServiceAddress("43737354d47935d79f6ee51a5a6ab0ce5ef277db"),
+                    new SignalServiceAddress("4b09a87901985e902f4f9a7089640fa5343c91d0"),
                         SignalServiceDataMessage.newBuilder()
                             .withBody("Hello, world!")
                             .build());
