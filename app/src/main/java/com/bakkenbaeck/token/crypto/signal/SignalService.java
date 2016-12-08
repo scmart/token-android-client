@@ -1,7 +1,6 @@
 package com.bakkenbaeck.token.crypto.signal;
 
 
-import com.bakkenbaeck.token.BuildConfig;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.crypto.signal.model.OutgoingSignedPreKeyState;
@@ -31,13 +30,14 @@ import java.util.List;
     /* package */ SignalService(
             final TrustStore trustStore,
             final HDWallet wallet,
-            final ProtocolStore protocolStore) {
+            final ProtocolStore protocolStore,
+            final String userAgent) {
         this(BaseApplication.get().getResources().getString(R.string.signal_url),
                 trustStore,
                 wallet,
                 wallet.getAddress(),
                 protocolStore.getPassword(),
-                "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME +  ":" + BuildConfig.VERSION_CODE);
+                userAgent);
     }
 
     private SignalService(final String url,

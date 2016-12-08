@@ -1,6 +1,7 @@
 package com.bakkenbaeck.token.crypto.signal;
 
 
+import com.bakkenbaeck.token.BuildConfig;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
@@ -35,9 +36,11 @@ public class SignalManager {
     private HDWallet wallet;
     private SignalTrustStore trustStore;
     private ProtocolStore protocolStore;
+    private String userAgent;
 
     public SignalManager init(final HDWallet wallet) {
         this.wallet = wallet;
+        this.userAgent = "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME +  ":" + BuildConfig.VERSION_CODE;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -51,7 +54,6 @@ public class SignalManager {
     private void initSignalManager() {
         generateStores();
         registerIfNeeded();
-        sendMessage();
     }
 
     private void receiveMessage() {
@@ -61,7 +63,7 @@ public class SignalManager {
                 this.wallet.getAddress(),
                 this.protocolStore.getPassword(),
                 this.protocolStore.getSignalingKey(),
-                "userAgent");
+                this.userAgent);
         SignalServiceMessagePipe messagePipe = null;
 
         try {
@@ -86,7 +88,7 @@ public class SignalManager {
     private void generateStores() {
         this.protocolStore = new ProtocolStore().init();
         this.trustStore = new SignalTrustStore();
-        this.signalService = new SignalService(this.trustStore, this.wallet, this.protocolStore);
+        this.signalService = new SignalService(this.trustStore, this.wallet, this.protocolStore, this.userAgent);
     }
 
     private void registerIfNeeded() {
@@ -95,19 +97,19 @@ public class SignalManager {
         }
     }
 
-    private void sendMessage() {
+    public void sendMessage(final String remoteAddress) {
         final SignalServiceMessageSender messageSender = new SignalServiceMessageSender(
                 BaseApplication.get().getResources().getString(R.string.signal_url),
                 this.trustStore,
                 this.wallet.getAddress(),
                 this.protocolStore.getPassword(),
                 this.protocolStore,
-                "Android v0.1",
+                this.userAgent,
                 null
         );
         try {
             messageSender.sendMessage(
-                    new SignalServiceAddress("43737354d47935d79f6ee51a5a6ab0ce5ef277db"),
+                    new SignalServiceAddress(remoteAddress),
                         SignalServiceDataMessage.newBuilder()
                             .withBody("Hello, world!")
                             .build());

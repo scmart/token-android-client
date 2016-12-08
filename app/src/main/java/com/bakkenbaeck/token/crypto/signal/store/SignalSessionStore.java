@@ -12,6 +12,7 @@ import org.whispersystems.libsignal.SignalProtocolAddress;
 import org.whispersystems.libsignal.state.SessionRecord;
 import org.whispersystems.libsignal.state.SessionState;
 import org.whispersystems.libsignal.state.SessionStore;
+import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,7 +43,7 @@ public class SignalSessionStore implements SessionStore {
     }
 
     @Override
-    public SessionRecord loadSession(@NonNull SignalProtocolAddress address) {
+    public SessionRecord loadSession(@NonNull final SignalProtocolAddress address) {
         synchronized (FILE_LOCK) {
             try {
                 FileInputStream in            = new FileInputStream(getSessionFile(address));
@@ -76,7 +77,7 @@ public class SignalSessionStore implements SessionStore {
     }
 
     @Override
-    public void storeSession(@NonNull SignalProtocolAddress address, @NonNull SessionRecord record) {
+    public void storeSession(@NonNull final SignalProtocolAddress address, @NonNull final SessionRecord record) {
         synchronized (FILE_LOCK) {
             try {
                 RandomAccessFile sessionFile  = new RandomAccessFile(getSessionFile(address), "rw");
@@ -95,18 +96,18 @@ public class SignalSessionStore implements SessionStore {
     }
 
     @Override
-    public boolean containsSession(SignalProtocolAddress address) {
+    public boolean containsSession(final SignalProtocolAddress address) {
         return getSessionFile(address).exists() &&
                 loadSession(address).getSessionState().hasSenderChain();
     }
 
     @Override
-    public void deleteSession(SignalProtocolAddress address) {
+    public void deleteSession(final SignalProtocolAddress address) {
         getSessionFile(address).delete();
     }
 
     @Override
-    public void deleteAllSessions(String name) {
+    public void deleteAllSessions(final String name) {
         List<Integer> devices = getSubDeviceSessions(name);
 
         deleteSession(new SignalProtocolAddress(name, DEFAULT_DEVICE_ID));
@@ -117,9 +118,27 @@ public class SignalSessionStore implements SessionStore {
     }
 
     @Override
-    public List<Integer> getSubDeviceSessions(String name) {
-        // ToDo
-        return new LinkedList<>();
+    public List<Integer> getSubDeviceSessions(final String name) {
+        final String recipientId = name.split(":")[0];
+
+        final List<Integer> results = new LinkedList<>();
+        final File parent = getSessionDirectory();
+        final String[] children = parent.list();
+
+        if (children == null) {
+            return results;
+        }
+
+        for (final String child : children) {
+            final String[] parts = child.split("[.]", 2);
+            final String sessionRecipientId = parts[0];
+
+            if (sessionRecipientId.equals(recipientId) && parts.length > 1) {
+                results.add(Integer.parseInt(parts[1]));
+            }
+        }
+
+        return results;
     }
 
     public void migrateSessions() {
@@ -139,7 +158,7 @@ public class SignalSessionStore implements SessionStore {
         }
     }
 
-    private File getSessionFile(SignalProtocolAddress address) {
+    private File getSessionFile(final SignalProtocolAddress address) {
         return new File(getSessionDirectory(), getSessionName(address));
     }
 
@@ -155,17 +174,26 @@ public class SignalSessionStore implements SessionStore {
         return directory;
     }
 
-    private String getSessionName(SignalProtocolAddress axolotlAddress) {
-        // ToDo
-        return "sessionName";
+    private String getSessionName(final SignalProtocolAddress address) {
+        final String recipientId = address.getName();
+        final int deviceId = address.getDeviceId();
+
+        return recipientId + (deviceId == SignalServiceAddress.DEFAULT_DEVICE_ID ? "" : "." + deviceId);
     }
 
-    private @Nullable SignalProtocolAddress getAddressName(File sessionFile) {
-        // ToDo
-        return new SignalProtocolAddress("name", 1);
+    private @Nullable SignalProtocolAddress getAddressName(final File sessionFile) {
+        final String[] parts = sessionFile.getName().split("[.]");
+        final String recipientId = parts[0];
+
+        final int deviceId
+            = parts.length > 1
+                ? Integer.parseInt(parts[1])
+                : SignalServiceAddress.DEFAULT_DEVICE_ID;
+
+        return new SignalProtocolAddress(recipientId, deviceId);
     }
 
-    private byte[] readBlob(FileInputStream in) throws IOException {
+    private byte[] readBlob(final FileInputStream in) throws IOException {
         int length       = readInteger(in);
         byte[] blobBytes = new byte[length];
 
@@ -173,18 +201,18 @@ public class SignalSessionStore implements SessionStore {
         return blobBytes;
     }
 
-    private void writeBlob(byte[] blobBytes, FileChannel out) throws IOException {
+    private void writeBlob(final byte[] blobBytes, final FileChannel out) throws IOException {
         writeInteger(blobBytes.length, out);
         out.write(ByteBuffer.wrap(blobBytes));
     }
 
-    private int readInteger(FileInputStream in) throws IOException {
+    private int readInteger(final FileInputStream in) throws IOException {
         byte[] integer = new byte[4];
         in.read(integer, 0, integer.length);
         return ByteUtil.byteArrayToInt(integer);
     }
 
-    private void writeInteger(int value, FileChannel out) throws IOException {
+    private void writeInteger(final int value, final FileChannel out) throws IOException {
         byte[] valueBytes = ByteUtil.intToByteArray(value);
         out.write(ByteBuffer.wrap(valueBytes));
     }
