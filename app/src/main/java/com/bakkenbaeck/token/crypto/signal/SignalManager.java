@@ -31,7 +31,7 @@ import java.util.concurrent.TimeoutException;
 
 public class SignalManager {
 
-    private SignalAccountManager accountManager;
+    private SignalService signalService;
     private HDWallet wallet;
     private SignalTrustStore trustStore;
     private ProtocolStore protocolStore;
@@ -51,6 +51,7 @@ public class SignalManager {
     private void initSignalManager() {
         generateStores();
         registerIfNeeded();
+        sendMessage();
     }
 
     private void receiveMessage() {
@@ -85,7 +86,7 @@ public class SignalManager {
     private void generateStores() {
         this.protocolStore = new ProtocolStore().init();
         this.trustStore = new SignalTrustStore();
-        this.accountManager = new SignalAccountManager(this.trustStore, this.wallet, this.protocolStore);
+        this.signalService = new SignalService(this.trustStore, this.wallet, this.protocolStore);
     }
 
     private void registerIfNeeded() {
@@ -117,7 +118,7 @@ public class SignalManager {
     }
 
     private void registerWithServer() {
-        this.accountManager.registerKeys(this.protocolStore);
+        this.signalService.registerKeys(this.protocolStore);
         SignalPreferences.setRegisteredWithServer();
     }
 

@@ -23,12 +23,12 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-/* package */ class SignalAccountManager extends SignalServiceAccountManager {
+/* package */ class SignalService extends SignalServiceAccountManager {
 
     private static final String PREKEY_PATH = "/v1/accounts/bootstrap/";
     private final HDWallet wallet;
 
-    /* package */ SignalAccountManager(
+    /* package */ SignalService(
             final TrustStore trustStore,
             final HDWallet wallet,
             final ProtocolStore protocolStore) {
@@ -40,12 +40,12 @@ import java.util.List;
                 "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME +  ":" + BuildConfig.VERSION_CODE);
     }
 
-    private SignalAccountManager(final String url,
-                                 final TrustStore trustStore,
-                                 final HDWallet wallet,
-                                 final String user,
-                                 final String password,
-                                 final String userAgent) {
+    private SignalService(final String url,
+                          final TrustStore trustStore,
+                          final HDWallet wallet,
+                          final String user,
+                          final String password,
+                          final String userAgent) {
         super(url, trustStore, user, password, userAgent);
         this.wallet = wallet;
     }
