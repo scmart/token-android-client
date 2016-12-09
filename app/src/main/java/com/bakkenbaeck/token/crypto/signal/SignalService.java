@@ -105,7 +105,7 @@ import java.util.List;
                 timestamp);
         final String payloadForSigning = JsonUtil.toJson(payload);
         final String signature = this.wallet.signString(payloadForSigning);
-        final OutgoingSignedPreKeyState outgoingEvent = new OutgoingSignedPreKeyState(payload, signature);
+        final OutgoingSignedPreKeyState outgoingEvent = new OutgoingSignedPreKeyState(payload, signature, this.wallet.getAddress());
 
         super.setPreKeysWithSignature(PREKEY_PATH, JsonUtil.toJson(outgoingEvent));
     }

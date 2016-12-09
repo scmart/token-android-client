@@ -8,14 +8,19 @@ public class OutgoingSignedPreKeyState {
     private PreKeyStateWithTimestamp payload;
 
     @JsonProperty
+    private String ethAddress;
+
+    @JsonProperty
     private String signature;
 
 
     public OutgoingSignedPreKeyState(
             final PreKeyStateWithTimestamp payload,
-            final String signature) {
+            final String signature,
+            final String expectedAddress) {
         this.payload = payload;
         this.signature = signature;
+        this.ethAddress = expectedAddress;
     }
 
 }

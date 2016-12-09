@@ -105,7 +105,7 @@ public class ProtocolStore implements SignalProtocolStore {
     }
 
     private boolean preKeysHaveBeenGenerated() {
-        return this.preKeyStore.containsPreKey(PREKEY_START);
+        return this.preKeyStore.containsPreKey(PREKEY_START) && this.preKeyStore.containsPreKey(PREKEY_START + PREKEY_COUNT - 1);
     }
 
     private void generatePreKeys() {
