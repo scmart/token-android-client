@@ -3,7 +3,7 @@ package com.bakkenbaeck.token.view;
 
 import android.support.multidex.MultiDexApplication;
 
-import com.bakkenbaeck.token.crypto.signal.SignalManager;
+import com.bakkenbaeck.token.manager.SignalManager;
 import com.bakkenbaeck.token.manager.LocalBalanceManager;
 import com.bakkenbaeck.token.manager.UserManager;
 import com.bakkenbaeck.token.network.ws.SocketObservables;

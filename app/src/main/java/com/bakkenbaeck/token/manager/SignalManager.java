@@ -1,9 +1,11 @@
-package com.bakkenbaeck.token.crypto.signal;
+package com.bakkenbaeck.token.manager;
 
 
 import com.bakkenbaeck.token.BuildConfig;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
+import com.bakkenbaeck.token.crypto.signal.SignalPreferences;
+import com.bakkenbaeck.token.crypto.signal.SignalService;
 import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
 import com.bakkenbaeck.token.crypto.signal.store.SignalTrustStore;
 import com.bakkenbaeck.token.util.LogUtil;

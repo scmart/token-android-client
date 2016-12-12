@@ -19,7 +19,6 @@ import org.whispersystems.signalservice.internal.util.JsonUtil;
 import java.util.concurrent.Callable;
 
 import retrofit2.adapter.rxjava.HttpException;
-import rx.Observable;
 import rx.Single;
 import rx.SingleSubscriber;
 import rx.subjects.BehaviorSubject;
@@ -34,8 +33,16 @@ public class UserManager {
     private HDWallet userHDWallet;
     private SharedPreferences prefs;
 
-    public final Observable<User> getObservable() {
-        return this.subject.asObservable();
+    public final Single<User> getObservable() {
+        return Single.fromCallable(new Callable<User>() {
+            @Override
+            public User call() throws Exception {
+                while(currentUser == null) {
+                    Thread.sleep(500);
+                }
+                return currentUser;
+            }
+        });
     }
 
     public Single<UserManager> init() {
@@ -61,6 +68,8 @@ public class UserManager {
         this.prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
         if (!userExistsInPrefs()) {
             registerNewUser();
+        } else {
+            getExistingUser();
         }
     }
 

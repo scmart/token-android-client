@@ -30,6 +30,7 @@ import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.RetryWithBackoff;
+import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.util.SnackbarUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.Fragment.QrFragment;
@@ -48,6 +49,7 @@ import java.text.ParseException;
 
 import retrofit2.Response;
 import rx.Subscriber;
+import rx.schedulers.Schedulers;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -62,7 +64,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
     private ProgressDialog progressDialog;
     private final BigDecimal minWithdrawLimit = new BigDecimal("0.0000000001");
     private OnNextSubscriber<LocalBalance> newBalanceSubscriber;
-    private OnNextSubscriber<User> userSubscriber;
     private OnNextSubscriber<Integer> newReputationSubscriber;
 
     private final PreviousWalletAddress previousWalletAddress = new PreviousWalletAddress();
@@ -483,34 +484,33 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
 
     private void registerObservables() {
         this.newBalanceSubscriber = generateNewBalanceSubscriber();
-        this.userSubscriber = generateUserSubscriber();
         this.newReputationSubscriber = generateNewReputationSubscriber();
 
         BaseApplication.get().getLocalBalanceManager().getObservable().subscribe(this.newBalanceSubscriber);
-        BaseApplication.get().getUserManager().getObservable().subscribe(this.userSubscriber);
+        BaseApplication.get()
+                .getUserManager()
+                .getObservable()
+                .subscribeOn(Schedulers.io())
+                .subscribe(this.userSubscriber);
         BaseApplication.get().getLocalBalanceManager().getLevelObservable().subscribe(this.newReputationSubscriber);
     }
 
     private void unregisterObservables() {
         this.newBalanceSubscriber.unsubscribe();
-        this.userSubscriber.unsubscribe();
         this.newReputationSubscriber.unsubscribe();
 
         this.newBalanceSubscriber = null;
-        this.userSubscriber = null;
         this.newReputationSubscriber = null;
     }
 
-    private OnNextSubscriber<User> generateUserSubscriber() {
-        return new OnNextSubscriber<User>() {
-            @Override
-            public void onNext(final User user) {
-                currentUser = user;
-                refreshButtonStates();
-                this.onCompleted();
-            }
-        };
-    }
+    private final SingleSuccessSubscriber<User> userSubscriber = new SingleSuccessSubscriber<User>() {
+        @Override
+        public void onSuccess(final User user) {
+            currentUser = user;
+            refreshButtonStates();
+            this.unsubscribe();
+        }
+    };
 
     private void refreshButtonStates() {
         new Handler(Looper.getMainLooper()).post(new Runnable() {

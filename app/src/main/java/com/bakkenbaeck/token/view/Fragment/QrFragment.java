@@ -17,8 +17,8 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.OnNextObserver;
-import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.SharedPrefsUtil;
+import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -64,14 +64,19 @@ public class QrFragment extends Fragment{
 
         //If you show the dialog before the user is initiated, the wallet address is null.
         //Subscribe to the user observable and wait until it's ready
-        BaseApplication.get().getUserManager().getObservable().subscribe(new OnNextSubscriber<User>() {
-            @Override
-            public void onNext(User user) {
-                this.unsubscribe();
-                walletAddress = BaseApplication.get().getUserManager().getWalletAddress();
-                initView(inState);
-            }
-        });
+        BaseApplication.get()
+                .getUserManager()
+                .getObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleSuccessSubscriber<User>() {
+                    @Override
+                    public void onSuccess(final User user) {
+                        walletAddress = BaseApplication.get().getUserManager().getWalletAddress();
+                        initView(inState);
+                        this.unsubscribe();
+                    }
+                });
 
         return v;
     }

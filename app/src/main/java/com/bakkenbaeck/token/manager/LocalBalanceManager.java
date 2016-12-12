@@ -6,10 +6,12 @@ import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.network.rest.model.TransactionSent;
 import com.bakkenbaeck.token.network.ws.model.TransactionConfirmation;
 import com.bakkenbaeck.token.util.OnNextObserver;
+import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 
 public class LocalBalanceManager {
@@ -25,16 +27,20 @@ public class LocalBalanceManager {
     }
 
     private void initBalanceListeners() {
-        BaseApplication.get().getUserManager().getObservable().subscribe(this.currentUserSubscriber);
+        BaseApplication.get().getUserManager()
+                .getObservable()
+                .subscribeOn(Schedulers.io())
+                .subscribe(this.currentUserSubscriber);
         BaseApplication.get().getSocketObservables().getTransactionConfirmationObservable().subscribe(this.newTransactionConfirmationSubscriber);
         BaseApplication.get().getSocketObservables().getTransactionSentObservable().subscribe(this.newTransactionSentSubscriber);
     }
 
-    private final OnNextObserver<User> currentUserSubscriber = new OnNextObserver<User>() {
+    private final SingleSuccessSubscriber<User> currentUserSubscriber = new SingleSuccessSubscriber<User>() {
         @Override
-        public void onNext(final User user) {
+        public void onSuccess(final User user) {
             emitNewLevel(user.getLevel());
             setBalance(user);
+            this.unsubscribe();
         }
     };
 
