@@ -12,7 +12,6 @@ import com.bakkenbaeck.token.network.rest.model.ServerTime;
 import com.bakkenbaeck.token.network.rest.model.SignedUserDetails;
 import com.bakkenbaeck.token.network.rest.model.UserDetails;
 import com.bakkenbaeck.token.util.LogUtil;
-import com.bakkenbaeck.token.util.OnNextObserver;
 import com.bakkenbaeck.token.view.BaseApplication;
 
 import org.whispersystems.signalservice.internal.util.JsonUtil;
@@ -26,9 +25,9 @@ import rx.subjects.BehaviorSubject;
 
 public class UserManager {
 
-    private final static String USER_ID= "u";
-
     private final BehaviorSubject<User> subject = BehaviorSubject.create();
+    private final static String USER_ID = "uid";
+    private final static String USER_NAME = "un";
 
     private User currentUser;
     private HDWallet userHDWallet;
@@ -99,25 +98,26 @@ public class UserManager {
                 .subscribe(newUserSubscriber);
     }
 
-    private final OnNextObserver<User> newUserSubscriber = new OnNextObserver<User>() {
+    private final SingleSubscriber<User> newUserSubscriber = new SingleSubscriber<User>() {
 
         @Override
-        public void onNext(final User userResponse) {
-            currentUser = userResponse;
-            storeReturnedUser(userResponse);
-            emitUser();
+        public void onSuccess(final User user) {
+            currentUser = user;
+            storeReturnedUser(user);
         }
 
-        private void storeReturnedUser(final User userResponse) {
+        private void storeReturnedUser(final User user) {
             prefs.edit()
-                    .putString(USER_ID, currentUser.getId())
+                    .putString(USER_ID, user.getOwnerAddress())
+                    .putString(USER_NAME, user.getUsername())
                     .apply();
         }
-    };
 
-    private void emitUser() {
-        this.subject.onNext(this.currentUser);
-    }
+        @Override
+        public void onError(final Throwable error) {
+            LogUtil.error(getClass(), error.toString());
+        }
+    };
 
     public String getWalletAddress(){
         return userHDWallet.getAddressAsHex();

@@ -4,46 +4,45 @@ package com.bakkenbaeck.token.model;
 import java.math.BigInteger;
 
 public class User {
-    private String id;
-    private BigInteger balance;
-    private BigInteger confirmed_balance;
-    private String auth_token;
-    private int level;
-    private double eth_value;
 
     private String owner_address;
     private String username;
 
-    public String getId() {
-        return id;
+    public String getUsername() {
+        return username;
     }
 
-    public User setId(final String id) {
-        this.id = id;
+    public User setUsername(final String username) {
+        this.username = username;
+        return this;
+    }
+
+    public String getOwnerAddress() {
+        return owner_address;
+    }
+
+    public User setOwnerAddress(final String ownerAddress) {
+        this.owner_address = ownerAddress;
         return this;
     }
 
     public BigInteger getUnconfirmedBalance() {
-        return this.balance;
+        // Todo
+        return BigInteger.ZERO;
     }
 
     public BigInteger getConfirmedBalance() {
-        return this.confirmed_balance;
-    }
-
-    public String getAuthToken() {
-        return this.auth_token;
-    }
-
-    public void setAuthToken(final String auth_token) {
-        this.auth_token = auth_token;
+        // Todo
+        return BigInteger.ZERO;
     }
 
     public int getLevel() {
-        return this.level;
+        // Todo
+        return 1;
     }
 
-    public double getEthValue(){
-        return eth_value;
+    public double getEthValue() {
+        // Todo
+        return 1;
     }
 }

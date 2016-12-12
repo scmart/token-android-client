@@ -94,10 +94,6 @@ public class BaseApplication extends MultiDexApplication {
         this.webSocketManager.sendMessage(message);
     }
 
-    public void reconnectWebsocket(){
-        this.webSocketManager.requestWebsocketConnection();
-    }
-
     public void disconnectWebSocket(){
         this.webSocketManager.disconnect();
     }

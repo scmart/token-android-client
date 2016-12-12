@@ -301,7 +301,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
             final WithdrawalRequest withdrawalRequest = new WithdrawalRequest(amountInWei, toAddress);
 
             TokenService.getApi()
-                    .postWithdrawalRequest(this.currentUser.getAuthToken(), withdrawalRequest)
+                    .postWithdrawalRequest(withdrawalRequest)
                     .subscribe(generateSigningSubscriber());
             progressDialog.show(this.activity.getSupportFragmentManager(), "progressDialog");
             this.previousWalletAddress.setAddress(toAddress);
@@ -348,7 +348,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
                     final SignedWithdrawalRequest request = new SignedWithdrawalRequest(unsignedTransaction, signature);
 
                     TokenService.getApi()
-                            .postSignedWithdrawal(currentUser.getAuthToken(), request)
+                            .postSignedWithdrawal(request)
                             .retryWhen(new RetryWithBackoff(5))
                             .subscribe(generateSignedWithdrawalSubscriber());
                 }

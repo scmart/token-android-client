@@ -61,8 +61,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
         refreshAnotherOneButtonState();
         scrollToBottom(false);
 
-        BaseApplication.get().reconnectWebsocket();
-
         initBalanceBar();
         initView();
     }
