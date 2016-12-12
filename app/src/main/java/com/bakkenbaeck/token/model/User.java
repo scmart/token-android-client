@@ -11,6 +11,9 @@ public class User {
     private int level;
     private double eth_value;
 
+    private String owner_address;
+    private String username;
+
     public String getId() {
         return id;
     }

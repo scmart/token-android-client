@@ -57,7 +57,7 @@ public class TokenService {
                                     .build();
 
         final Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BaseApplication.get().getResources().getString(R.string.backend_url))
+                .baseUrl(BaseApplication.get().getResources().getString(R.string.id_url))
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .addCallAdapterFactory(rxAdapter)
                 .client(client.build())
@@ -66,12 +66,13 @@ public class TokenService {
     }
 
     private void addUserAgentHeader() {
+        final String userAgent = "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME +  ":" + BuildConfig.VERSION_CODE;
         final Interceptor userAgentInterceptor = new Interceptor() {
             @Override
             public Response intercept(Interceptor.Chain chain) throws IOException {
                 final Request original = chain.request();
                 final Request request = original.newBuilder()
-                        .header("User-Agent", String.valueOf(BuildConfig.VERSION_CODE))
+                        .header("User-Agent", userAgent)
                         .method(original.method(), original.body())
                         .build();
                 return chain.proceed(request);

@@ -58,7 +58,7 @@ public class SignalManager {
 
     private void receiveMessage() {
         SignalServiceMessageReceiver messageReciever = new SignalServiceMessageReceiver(
-                BaseApplication.get().getResources().getString(R.string.signal_url),
+                BaseApplication.get().getResources().getString(R.string.chat_url),
                 this.trustStore,
                 this.wallet.getAddress(),
                 this.protocolStore.getPassword(),
@@ -99,7 +99,7 @@ public class SignalManager {
 
     public void sendMessage(final String remoteAddress) {
         final SignalServiceMessageSender messageSender = new SignalServiceMessageSender(
-                BaseApplication.get().getResources().getString(R.string.signal_url),
+                BaseApplication.get().getResources().getString(R.string.chat_url),
                 this.trustStore,
                 this.wallet.getAddress(),
                 this.protocolStore.getPassword(),

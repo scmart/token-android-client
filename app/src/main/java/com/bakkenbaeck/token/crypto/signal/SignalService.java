@@ -32,7 +32,7 @@ import java.util.List;
             final HDWallet wallet,
             final ProtocolStore protocolStore,
             final String userAgent) {
-        this(BaseApplication.get().getResources().getString(R.string.signal_url),
+        this(BaseApplication.get().getResources().getString(R.string.chat_url),
                 trustStore,
                 wallet,
                 wallet.getAddress(),
@@ -92,7 +92,7 @@ import java.util.List;
                 signedPreKey.getKeyPair().getPublicKey(),
                 signedPreKey.getSignature());
 
-        final long timestamp = System.currentTimeMillis();
+        final long timestamp = System.currentTimeMillis() / 1000;
 
         final PreKeyStateWithTimestamp payload = new PreKeyStateWithTimestamp(
                 entities,
