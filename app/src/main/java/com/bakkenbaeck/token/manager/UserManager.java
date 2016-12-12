@@ -18,6 +18,7 @@ import org.whispersystems.signalservice.internal.util.JsonUtil;
 
 import java.util.concurrent.Callable;
 
+import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
 import rx.Single;
 import rx.SingleSubscriber;
@@ -81,7 +82,6 @@ public class UserManager {
                 LogUtil.e(getClass(), error.toString());
             }
         });
-
     }
 
     private void registerNewUserWithTimestamp(final long timestamp) {
@@ -116,8 +116,17 @@ public class UserManager {
         @Override
         public void onError(final Throwable error) {
             LogUtil.error(getClass(), error.toString());
+            if (((HttpException)error).code() == 400) {
+                getExistingUser();
+            }
         }
     };
+
+    private void getExistingUser() {
+        TokenService.getApi()
+                .getUser(this.userHDWallet.getAddressAsHex())
+                .subscribe(this.newUserSubscriber);
+    }
 
     public String getWalletAddress(){
         return userHDWallet.getAddressAsHex();

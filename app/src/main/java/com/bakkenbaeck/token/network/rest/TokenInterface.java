@@ -26,10 +26,8 @@ public interface TokenInterface {
     Single<User> registerUser(@Body SignedUserDetails details);
 
 
-    @GET("/user/{id}")
-    Observable<User> getUser(@Path("id") String userId);
-
-
+    @GET("/v1/user/{id}")
+    Single<User> getUser(@Path("id") String userId);
 
     @POST("/message")
     Observable<Response<SignatureRequest>> postWithdrawalRequest(@Body WithdrawalRequest withdrawalRequest);
