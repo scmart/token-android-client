@@ -1,5 +1,5 @@
 <resources>
     <string name="id_url">https://token-id-service.herokuapp.com</string>
-    <string name="supersonic_app_key">527a318d</string>
+    <string name="balance_url">https://token-eth-service.herokuapp.com/</string>
     <string name="chat_url">https://token-chat-service.herokuapp.com</string>
 </resources>

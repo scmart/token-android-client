@@ -1,10 +1,8 @@
 package com.bakkenbaeck.token.presenter;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -14,24 +12,20 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.ActivityResultHolder;
 import com.bakkenbaeck.token.model.LocalBalance;
-import com.bakkenbaeck.token.network.rest.TokenService;
-import com.bakkenbaeck.token.network.rest.model.SignatureRequest;
-import com.bakkenbaeck.token.network.rest.model.SignedTransactionRequest;
+import com.bakkenbaeck.token.network.rest.BalanceService;
+import com.bakkenbaeck.token.network.rest.model.SentTransaction;
+import com.bakkenbaeck.token.network.rest.model.SignedTransaction;
 import com.bakkenbaeck.token.network.rest.model.TransactionRequest;
-import com.bakkenbaeck.token.network.rest.model.TransactionSent;
-import com.bakkenbaeck.token.network.ws.model.TransactionConfirmation;
+import com.bakkenbaeck.token.network.rest.model.UnsignedTransaction;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LocaleUtil;
 import com.bakkenbaeck.token.util.LogUtil;
-import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
-import com.bakkenbaeck.token.util.RetryWithBackoff;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.util.SnackbarUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -45,26 +39,22 @@ import com.google.zxing.integration.android.IntentResult;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 
-import retrofit2.Response;
-import rx.Subscriber;
+import rx.SingleSubscriber;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 import static android.app.Activity.RESULT_OK;
 
 public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragment.OnFragmentClosed {
-    static final String INTENT_WALLET_ADDRESS = "wallet_address";
-    static final String INTENT_WITHDRAW_AMOUNT = "withdraw_amount";
 
     private WithdrawActivity activity;
     private boolean firstTimeAttaching = true;
     private BigDecimal currentBalance = BigDecimal.ZERO;
     private ProgressDialog progressDialog;
     private final BigDecimal minWithdrawLimit = new BigDecimal("0.0000000001");
-    private OnNextSubscriber<LocalBalance> newBalanceSubscriber;
 
     private final PreviousWalletAddress previousWalletAddress = new PreviousWalletAddress();
 
@@ -249,157 +239,84 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
             return;
         }
 
-        try {
-            final DecimalFormat nf = (DecimalFormat) DecimalFormat.getInstance(LocaleUtil.getLocale());
-            nf.setParseBigDecimal(true);
-            final String inputtedText = this.activity.getBinding().amount.getText().toString();
-
-            final BigDecimal amountInEth = (BigDecimal) nf.parse(inputtedText);
-
-            final BigInteger amountInWei = EthUtil.ethToWei(amountInEth);
-            final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
-            final TransactionRequest transactionRequest = new TransactionRequest(amountInWei, toAddress);
-
-            TokenService.getApi()
-                    .postTransactionRequest(transactionRequest)
-                    .subscribe(generateSigningSubscriber());
-            progressDialog.show(this.activity.getSupportFragmentManager(), "progressDialog");
-            this.previousWalletAddress.setAddress(toAddress);
-        } catch (final ParseException ex) {
-            LogUtil.e(getClass(), ex.toString());
-        }
-    }
-
-    private Subscriber<Response<SignatureRequest>> generateSigningSubscriber() {
-        return new Subscriber<Response<SignatureRequest>>() {
-            @Override
-            public void onCompleted() {}
-
-            @Override
-            public void onError(final Throwable ex) {
-                if(ex instanceof UnknownHostException) {
-                    SnackbarUtil.make(activity.getBinding().root, activity.getString(R.string.networkStateNotConnected)).show();
-                }
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
+        BaseApplication.get()
+                .getTokenManager().getWallet()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleSuccessSubscriber<HDWallet>() {
                     @Override
-                    public void run() {
-                        progressDialog.dismiss();
+                    public void onSuccess(final HDWallet wallet) {
+                        sendTransaction(wallet);
                     }
                 });
-                LogUtil.e(getClass(), "postTransactionRequest: " + ex);
-            }
+    }
 
-            @Override
-            public void onNext(final Response<SignatureRequest> signatureRequest) {
-                if(signatureRequest.code() == 400 || signatureRequest.code() == 500) {
-                    if (activity != null) {
-                        showAddressError(activity.getString(R.string.invalidEthAddress));
+    private BigInteger parseInputtedAmount() throws ParseException {
+        final DecimalFormat nf = (DecimalFormat) DecimalFormat.getInstance(LocaleUtil.getLocale());
+        nf.setParseBigDecimal(true);
+        final String inputtedText = this.activity.getBinding().amount.getText().toString();
+
+        final BigDecimal amountInEth = (BigDecimal) nf.parse(inputtedText);
+        return EthUtil.ethToWei(amountInEth);
+    }
+
+    private void sendTransaction(final HDWallet wallet) {
+
+        final BigInteger amountInWei;
+        try {
+            amountInWei = parseInputtedAmount();
+        } catch (final ParseException ex) {
+            LogUtil.e(getClass(), ex.toString());
+            return;
+        }
+
+        final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
+        final TransactionRequest transactionRequest = new TransactionRequest()
+                .setAmount(amountInWei)
+                .setFromAddress(wallet.getAddress())
+                .setToAddress(toAddress);
+
+        BalanceService.getApi()
+                .createTransaction(transactionRequest)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(new SingleSuccessSubscriber<UnsignedTransaction>() {
+                    @Override
+                    public void onSuccess(final UnsignedTransaction unsignedTransaction) {
+                        signAndSendTransaction(unsignedTransaction, wallet);
                     }
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            progressDialog.dismiss();
-                        }
-                    });
-                } else if(signatureRequest.code() == 200) {
-                    generateAndSendSignedTransaction(signatureRequest);
-                }
-            }
+                });
 
-            private void generateAndSendSignedTransaction(final Response<SignatureRequest> signatureRequest) {
-                BaseApplication.get()
-                        .getTokenManager().getWallet()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io())
-                        .subscribe(new SingleSuccessSubscriber<HDWallet>() {
-                            @Override
-                            public void onSuccess(final HDWallet wallet) {
-                                final SignedTransactionRequest request = generateSignedTransaction(wallet);
-                                sendSignedTransaction(request);
-                            }
+        progressDialog.show(this.activity.getSupportFragmentManager(), "progressDialog");
+        this.previousWalletAddress.setAddress(toAddress);
 
-                            @NonNull
-                            private SignedTransactionRequest generateSignedTransaction(final HDWallet wallet) {
-                                final String unsignedTransaction = signatureRequest.body().getTransaction();
-                                final String signature = wallet.signString(unsignedTransaction);
-                                return new SignedTransactionRequest(unsignedTransaction, signature);
-                            }
+    }
 
-                            private void sendSignedTransaction(final SignedTransactionRequest request) {
-                                TokenService.getApi()
-                                        .postSignedTransaction(request)
-                                        .retryWhen(new RetryWithBackoff(5))
-                                        .subscribe(generateSignedWithdrawalSubscriber());
-                            }
-                        });
-            }
+    private void signAndSendTransaction(final UnsignedTransaction unsignedTransaction, final HDWallet wallet) {
 
-            private Subscriber<Response<TransactionSent>> generateSignedWithdrawalSubscriber() {
-                return new Subscriber<Response<TransactionSent>>() {
+        final String transaction = unsignedTransaction.getTransaction();
+        final String signature = wallet.signString(transaction);
+
+        final SignedTransaction signedTransaction = new SignedTransaction()
+                .setEncodedTransaction(transaction)
+                .setSignature(signature);
+
+        BalanceService.getApi()
+                .sendSignedTransaction(signedTransaction)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(new SingleSubscriber<SentTransaction>() {
                     @Override
-                    public void onCompleted() {}
-
-                    @Override
-                    public void onError(final Throwable ex) {
-                        if(ex instanceof UnknownHostException){
-                            SnackbarUtil.make(activity.getBinding().root, activity.getString(R.string.networkStateNotConnected)).show();
-                        }
-
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                progressDialog.dismiss();
-                            }
-                        });
-                        LogUtil.e(getClass(), "postSignedTransaction: " + ex);
+                    public void onSuccess(final SentTransaction value) {
+                        showBalanceError("It worked!");
                     }
 
                     @Override
-                    public void onNext(final Response<TransactionSent> transactionSent) {
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(progressDialog != null) {
-                                    progressDialog.dismiss();
-                                }
-                            }
-                        });
-
-                        if(transactionSent.code() == 400) {
-                            if(activity != null) {
-                                showBalanceError(activity.getString(R.string.notEnoughFunds));
-                            }
-                            return;
-                        }
-
-                        BigInteger t1 = transactionSent.body().getConfirmedBalance();
-                        BigInteger t2 = transactionSent.body().getUnconfirmedBalance();
-                        TransactionConfirmation t = new TransactionConfirmation(t1.toString(), t2.toString());
-                        Toast.makeText(BaseApplication.get(), "Not yet implemented", Toast.LENGTH_SHORT).show();
-
-                        final DecimalFormat nf = (DecimalFormat) DecimalFormat.getInstance(LocaleUtil.getLocale());
-                        nf.setParseBigDecimal(true);
-                        String parsedInput = activity.getBinding().amount.getText().toString();
-                        final BigDecimal amountInEth;
-
-                        try {
-                            amountInEth = (BigDecimal) nf.parse(parsedInput);
-                        }catch (ParseException e){
-                            LogUtil.e(getClass(), e.toString());
-                            return;
-                        }
-
-                        final Intent intent = new Intent();
-                        intent.putExtra(INTENT_WALLET_ADDRESS, activity.getBinding().walletAddress.getText().toString());
-                        intent.putExtra(INTENT_WITHDRAW_AMOUNT, amountInEth);
-
-                        activity.setResult(RESULT_OK, intent);
-                        activity.finish();
-                        activity.overridePendingTransition(R.anim.enter_fade_in, R.anim.exit_fade_out);
+                    public void onError(final Throwable error) {
+                        LogUtil.e(getClass(), error.getMessage());
+                        showBalanceError(error.getMessage());
                     }
-                };
-            }
-        };
+                });
     }
 
     private void showAddressError(final String errorMessage) {

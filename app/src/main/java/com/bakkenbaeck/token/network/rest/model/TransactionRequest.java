@@ -1,25 +1,26 @@
 package com.bakkenbaeck.token.network.rest.model;
 
 
-import com.bakkenbaeck.token.crypto.util.TypeConverter;
-
 import java.math.BigInteger;
 
 public class TransactionRequest {
 
-    private final String type = "transaction_create";
-    private final WithdrawalInternals payload;
+    private BigInteger amount;
+    private String from;
+    private String to;
 
-    public TransactionRequest(final BigInteger amountInWei, final String toHexAddress) {
-        this.payload = new WithdrawalInternals(amountInWei, toHexAddress);
+    public TransactionRequest setAmount(final BigInteger amountInWei) {
+        this.amount = amountInWei;
+        return this;
     }
 
-    private static class WithdrawalInternals {
-        private String amount;
-        private String to;
-        private WithdrawalInternals(final BigInteger amountInWei, final String toHexAddress) {
-            this.amount = TypeConverter.toJsonHex(amountInWei.toByteArray());
-            this.to = toHexAddress.trim();
-        }
+    public TransactionRequest setToAddress(final String addressInHex) {
+        this.to = addressInHex;
+        return this;
+    }
+
+    public TransactionRequest setFromAddress(final String addressInHex) {
+        this.from = addressInHex;
+        return this;
     }
 }

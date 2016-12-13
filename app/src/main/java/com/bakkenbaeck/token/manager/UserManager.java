@@ -7,7 +7,7 @@ import android.content.SharedPreferences;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.User;
-import com.bakkenbaeck.token.network.rest.TokenService;
+import com.bakkenbaeck.token.network.rest.IdService;
 import com.bakkenbaeck.token.network.rest.model.ServerTime;
 import com.bakkenbaeck.token.network.rest.model.SignedUserDetails;
 import com.bakkenbaeck.token.network.rest.model.UserDetails;
@@ -66,7 +66,7 @@ public class UserManager {
     }
 
     private void registerNewUser() {
-        TokenService.getApi().getTimestamp().subscribe(new SingleSubscriber<ServerTime>() {
+        IdService.getApi().getTimestamp().subscribe(new SingleSubscriber<ServerTime>() {
             @Override
             public void onSuccess(final ServerTime serverTime) {
                 final long timestamp = serverTime.get();
@@ -89,7 +89,7 @@ public class UserManager {
                 .setUserDetails(ud)
                 .setSignature(signature);
 
-        TokenService.getApi()
+        IdService.getApi()
                 .registerUser(sud)
                 .subscribe(newUserSubscriber);
     }
@@ -119,7 +119,7 @@ public class UserManager {
     };
 
     private void getExistingUser() {
-        TokenService.getApi()
+        IdService.getApi()
                 .getUser(this.wallet.getAddress())
                 .subscribe(this.newUserSubscriber);
     }
