@@ -1,7 +1,6 @@
 package com.bakkenbaeck.token.view.adapter;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,9 +12,7 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.ChatMessage;
 import com.bakkenbaeck.token.util.DateUtil;
 import com.bakkenbaeck.token.util.MessageUtil;
-import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
-import com.bakkenbaeck.token.util.SharedPrefsUtil;
 import com.bakkenbaeck.token.view.adapter.viewholder.DayViewHolder;
 import com.bakkenbaeck.token.view.adapter.viewholder.LocalTextViewHolder;
 import com.bakkenbaeck.token.view.adapter.viewholder.RemoteTextViewHolder;
@@ -24,7 +21,6 @@ import com.bakkenbaeck.token.view.adapter.viewholder.RemoteVideoViewHolder;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.Observable;
 import rx.subjects.PublishSubject;
 
 import static com.bakkenbaeck.token.model.ChatMessage.TYPE_DAY;
@@ -54,12 +50,6 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         } else {
             addAndRenderMessage(chatMessage);
         }
-    }
-
-    private View.OnClickListener onVerifyClickListener;
-
-    public void setOnVerifyClickListener(final View.OnClickListener onVerifyClickListener) {
-        this.onVerifyClickListener = onVerifyClickListener;
     }
 
     private void addAndRenderMessage(final ChatMessage chatMessage) {
@@ -108,25 +98,8 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 vh.messageText.setText(parsedMessage);
                 vh.verificationButton.setVisibility(View.GONE);
 
-                //Verify button
-                if(chatMessage.shouldShowVerifyButton()) {
-                    verifyButton = vh.verificationButton;
-
-                    SharedPrefsUtil.isVerified().subscribe(new OnNextSubscriber<Boolean>() {
-                        @Override
-                        public void onNext(Boolean isVerified) {
-                            if(!isVerified) {
-                                enableVerifyButton(activity);
-                            }
-                        }
-                    });
-
-                    vh.verificationButton.setVisibility(View.VISIBLE);
-                    vh.verificationButton.setOnClickListener(onVerifyClickListener);
-                }
-
                 //Details reward
-                else if(chatMessage.getDetails() != null && chatMessage.getDetails().size() > 0) {
+                if(chatMessage.getDetails() != null && chatMessage.getDetails().size() > 0) {
                     vh.details.setVisibility(View.VISIBLE);
 
                     //Earned
@@ -153,24 +126,16 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             }
             case TYPE_REMOTE_VIDEO: {
                 final RemoteVideoViewHolder vh = (RemoteVideoViewHolder) holder;
-                if (!chatMessage.hasBeenWatched()) {
-                    vh.videoBackground.setBackground(ContextCompat.getDrawable(activity, R.drawable.background_video));
-                    vh.videoState.setImageResource(R.drawable.play_vec);
-                    vh.title.setText(chatMessage.getText());
-                    vh.watched.setVisibility(View.GONE);
-                    holder.itemView.setOnClickListener(new OnSingleClickListener() {
-                        @Override
-                        public void onSingleClick(View v) {
-                            onClickSubject.onNext(holder.getAdapterPosition());
-                        }
-                    });
-                } else {
-                    holder.itemView.setOnClickListener(null);
-                    vh.videoBackground.setBackground(ContextCompat.getDrawable(activity, R.drawable.background_video_watched));
-                    vh.title.setText(chatMessage.getText());
-                    vh.watched.setVisibility(View.VISIBLE);
-                    vh.videoState.setImageResource(0);
-                }
+                vh.videoBackground.setBackground(ContextCompat.getDrawable(activity, R.drawable.background_video));
+                vh.videoState.setImageResource(R.drawable.play_vec);
+                vh.title.setText(chatMessage.getText());
+                vh.watched.setVisibility(View.GONE);
+                holder.itemView.setOnClickListener(new OnSingleClickListener() {
+                    @Override
+                    public void onSingleClick(View v) {
+                        onClickSubject.onNext(holder.getAdapterPosition());
+                    }
+                });
 
                 break;
             }
@@ -190,33 +155,9 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
     }
 
-    public void disableVerifyButton(final Activity activity) {
-        if (verifyButton != null) {
-            verifyButton.setTextColor(Color.parseColor("#33565A64"));
-            verifyButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.disabled_background));
-            verifyButton.setEnabled(false);
-            verifyButton.setOnClickListener(null);
-        }
-    }
-
-    private void enableVerifyButton(final Activity activity){
-        verifyButton.setTextColor(activity.getResources().getColor(R.color.buttonTextColor));
-        verifyButton.setBackground(ContextCompat.getDrawable(activity, R.drawable.btn_with_radius));
-        verifyButton.setEnabled(true);
-        verifyButton.setOnClickListener(this.onVerifyClickListener);
-    }
-
     @Override
     public final int getItemCount() {
         return this.chatMessages.size();
-    }
-
-    public Observable<Integer> getPositionClicks(){
-        return this.onClickSubject.asObservable();
-    }
-
-    public ChatMessage getItemAt(final int clickedPosition) {
-        return this.chatMessages.get(clickedPosition);
     }
 
     public void pauseRendering() {

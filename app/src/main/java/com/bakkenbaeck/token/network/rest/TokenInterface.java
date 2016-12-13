@@ -1,45 +1,37 @@
 package com.bakkenbaeck.token.network.rest;
 
 
-import com.bakkenbaeck.token.model.CryptoDetails;
 import com.bakkenbaeck.token.model.User;
+import com.bakkenbaeck.token.network.rest.model.ServerTime;
 import com.bakkenbaeck.token.network.rest.model.SignatureRequest;
-import com.bakkenbaeck.token.network.rest.model.SignedWithdrawalRequest;
+import com.bakkenbaeck.token.network.rest.model.SignedUserDetails;
+import com.bakkenbaeck.token.network.rest.model.SignedTransactionRequest;
 import com.bakkenbaeck.token.network.rest.model.TransactionSent;
-import com.bakkenbaeck.token.network.rest.model.WebSocketConnectionDetails;
-import com.bakkenbaeck.token.network.rest.model.WithdrawalRequest;
+import com.bakkenbaeck.token.network.rest.model.TransactionRequest;
 
 import retrofit2.Response;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
-import retrofit2.http.Header;
 import retrofit2.http.POST;
-import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import rx.Observable;
+import rx.Single;
 
 public interface TokenInterface {
 
-    @POST("/user")
-    Observable<User> requestUserId();
+    @GET("/v1/timestamp")
+    Single<ServerTime> getTimestamp();
 
-    @GET("/user/{id}")
-    Observable<User> getUser(@Header("TOSHIAPP-AUTH-TOKEN") String userAuthToken,
-                             @Path("id") String userId);
+    @POST("/v1/user")
+    Single<User> registerUser(@Body SignedUserDetails details);
 
-    @GET("/api/v1/rtm.start")
-    Observable<WebSocketConnectionDetails> getWebsocketUrl(@Header("TOSHIAPP-AUTH-TOKEN") String userAuthToken);
 
-    @PUT("/user/{id}")
-    Observable<Void> putUserCryptoDetails(@Header("TOSHIAPP-AUTH-TOKEN") String userAuthToken,
-                                          @Path("id") String userId,
-                                          @Body CryptoDetails details);
+    @GET("/v1/user/{id}")
+    Single<User> getUser(@Path("id") String userId);
 
     @POST("/message")
-    Observable<Response<SignatureRequest>> postWithdrawalRequest(@Header("TOSHIAPP-AUTH-TOKEN") String userAuthToken,
-                                                                @Body WithdrawalRequest withdrawalRequest);
+    Observable<Response<SignatureRequest>> postTransactionRequest(@Body TransactionRequest transactionRequest);
 
     @POST("/message")
-    Observable<Response<TransactionSent>> postSignedWithdrawal(@Header("TOSHIAPP-AUTH-TOKEN") String userAuthToken,
-                                                     @Body SignedWithdrawalRequest signedWithdrawalRequest);
+    Observable<Response<TransactionSent>> postSignedTransaction(@Body SignedTransactionRequest signedTransactionRequest);
 }

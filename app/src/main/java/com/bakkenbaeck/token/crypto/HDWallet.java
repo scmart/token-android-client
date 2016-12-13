@@ -32,14 +32,10 @@ public class HDWallet {
     private ECKey receivingKey;
     private String masterSeed;
 
-
-    public HDWallet() {
-        init();
-    }
-
-    private void init() {
+    public HDWallet init() {
         initPreferences();
         initWallet();
+        return this;
     }
 
     private void initPreferences() {
@@ -136,23 +132,14 @@ public class HDWallet {
 
     public String getAddress() {
         if(receivingKey != null) {
-            return Hex.toHexString(this.receivingKey.getAddress());
-        }
-
-        return null;
-    }
-
-    public String getAddressAsHex() {
-        if(receivingKey != null) {
             return TypeConverter.toJsonHex(this.receivingKey.getAddress());
         }
-
         return null;
     }
 
     @Override
     public String toString() {
-        return "Private: " + getPrivateKey() + "\nPublic: " + getPublicKey() + "\nAddress: " + getAddressAsHex();
+        return "Private: " + getPrivateKey() + "\nPublic: " + getPublicKey() + "\nAddress: " + getAddress();
     }
 
     private String readMasterSeedFromStorage() {

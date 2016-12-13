@@ -25,15 +25,11 @@ import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.Fragment.QrFragment;
 import com.bakkenbaeck.token.view.adapter.viewholder.BottomOffsetDecoration;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
-import com.bakkenbaeck.token.view.dialog.PhoneInputDialog;
-import com.bakkenbaeck.token.view.dialog.VerificationCodeDialog;
 import com.crashlytics.android.Crashlytics;
 
 import io.fabric.sdk.android.Fabric;
 
-public final class ChatActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ChatPresenter>, PhoneInputDialog.Listener,
-        VerificationCodeDialog.Listener{
-    private static final String TAG = "ChatActivity";
+public final class ChatActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ChatPresenter> {
     private static final int UNIQUE_ACTIVITY_ID = 101;
 
     private ChatPresenter presenter;
@@ -134,22 +130,6 @@ public final class ChatActivity extends AppCompatActivity implements LoaderManag
     }
 
     @Override
-    public void onPhoneInputSuccess(PhoneInputDialog dialog) {
-        if (this.presenter == null) {
-            return;
-        }
-        this.presenter.onPhoneInputSuccess(dialog);
-    }
-
-    @Override
-    public void onVerificationCodeSuccess(VerificationCodeDialog dialog) {
-        if (this.presenter == null) {
-            return;
-        }
-        this.presenter.onVerificationSuccess();
-    }
-
-    @Override
     public void onBackPressed() {
         FragmentManager fm = getSupportFragmentManager();
         QrFragment qrFragment = (QrFragment) fm.findFragmentByTag(QrFragment.TAG);
@@ -164,7 +144,10 @@ public final class ChatActivity extends AppCompatActivity implements LoaderManag
     @Override
     public void onDestroy(){
 
-        BaseApplication.get().disconnectWebSocket();
+        BaseApplication.get()
+                .getTokenManager()
+                .getWebSocketManager()
+                .disconnect();
 
         super.onDestroy();
     }

@@ -14,11 +14,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.model.User;
+import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.OnNextObserver;
-import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.SharedPrefsUtil;
+import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -61,19 +61,26 @@ public class QrFragment extends Fragment{
         v =  inflater.inflate(R.layout.fragment_qr, container, false);
         
         disableTouches();
-
-        //If you show the dialog before the user is initiated, the wallet address is null.
-        //Subscribe to the user observable and wait until it's ready
-        BaseApplication.get().getUserManager().getObservable().subscribe(new OnNextSubscriber<User>() {
-            @Override
-            public void onNext(User user) {
-                this.unsubscribe();
-                walletAddress = BaseApplication.get().getUserManager().getWalletAddress();
-                initView(inState);
-            }
-        });
+        fetchWalletAddress(inState);
 
         return v;
+    }
+
+    private void fetchWalletAddress(final @Nullable Bundle inState) {
+        //If you show the dialog before the user is initiated, the wallet address is null.
+        //Subscribe to the user observable and wait until it's ready
+        BaseApplication.get()
+                .getTokenManager().getWallet()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleSuccessSubscriber<HDWallet>() {
+                    @Override
+                    public void onSuccess(final HDWallet wallet) {
+                        QrFragment.this.walletAddress = wallet.getAddress();
+                        initView(inState);
+                        this.unsubscribe();
+                    }
+                });
     }
 
     private void initView(final Bundle inState) {

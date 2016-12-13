@@ -1,12 +1,12 @@
 package com.bakkenbaeck.token.network.rest.model;
 
 
-public class SignedWithdrawalRequest {
+public class SignedTransactionRequest {
 
     private final String type = "transaction_send";
     private final SignedWithdrawalInternals payload;
 
-    public SignedWithdrawalRequest(final String transaction, final String signature) {
+    public SignedTransactionRequest(final String transaction, final String signature) {
         this.payload = new SignedWithdrawalInternals(transaction, signature);
     }
 

@@ -8,120 +8,119 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.network.rest.TokenService;
-import com.bakkenbaeck.token.util.OnNextObserver;
-import com.bakkenbaeck.token.util.RetryWithBackoff;
+import com.bakkenbaeck.token.network.rest.model.ServerTime;
+import com.bakkenbaeck.token.network.rest.model.SignedUserDetails;
+import com.bakkenbaeck.token.network.rest.model.UserDetails;
+import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
+
+import org.whispersystems.signalservice.internal.util.JsonUtil;
 
 import java.util.concurrent.Callable;
 
-import rx.Observable;
+import retrofit2.adapter.rxjava.HttpException;
 import rx.Single;
-import rx.subjects.BehaviorSubject;
+import rx.SingleSubscriber;
 
 public class UserManager {
 
-    private final static String USER_ID = "u";
-    private final static String AUTH_TOKEN = "t";
-
-    private final BehaviorSubject<User> subject = BehaviorSubject.create();
+    private final static String USER_ID = "uid";
+    private final static String USER_NAME = "un";
 
     private User currentUser;
-    private HDWallet userHDWallet;
     private SharedPreferences prefs;
+    private HDWallet wallet;
 
-    public final Observable<User> getObservable() {
-        return this.subject.asObservable();
-    }
 
-    public Single<UserManager> init() {
-        return Single.fromCallable(new Callable<UserManager>() {
+    public final Single<User> getObservable() {
+        return Single.fromCallable(new Callable<User>() {
             @Override
-            public UserManager call() throws Exception {
-                initUser();
-                userHDWallet = new HDWallet();
-                return UserManager.this;
+            public User call() throws Exception {
+                while(currentUser == null) {
+                    Thread.sleep(100);
+                }
+                return currentUser;
             }
         });
     }
 
-    public String signTransaction(final String transaction) {
-        return this.userHDWallet.signHexString(transaction);
-    }
-
-    public void refresh() {
-        userExistsInPrefs();
+    public UserManager init(final HDWallet wallet) {
+        this.wallet = wallet;
+        initUser();
+        return this;
     }
 
     private void initUser() {
         this.prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
         if (!userExistsInPrefs()) {
-            requestNewUser();
+            registerNewUser();
+        } else {
+            getExistingUser();
         }
     }
 
     private boolean userExistsInPrefs() {
         final String userId = this.prefs.getString(USER_ID, null);
-        final String authToken = this.prefs.getString(AUTH_TOKEN, null);
-        if (userId == null || authToken == null) {
-            return false;
-        }
-
-        getExistingUser(authToken, userId);
-        return true;
+        final String expectedAddress = wallet.getAddress();
+        return userId != null && userId.equals(expectedAddress);
     }
 
-    private void requestNewUser() {
-        final Observable<User> call = TokenService.getApi().requestUserId();
-        call.retryWhen(new RetryWithBackoff())
-            .subscribe(this.newUserSubscriber);
+    private void registerNewUser() {
+        TokenService.getApi().getTimestamp().subscribe(new SingleSubscriber<ServerTime>() {
+            @Override
+            public void onSuccess(final ServerTime serverTime) {
+                final long timestamp = serverTime.get();
+                registerNewUserWithTimestamp(timestamp);
+            }
+
+            @Override
+            public void onError(final Throwable error) {
+                LogUtil.e(getClass(), error.toString());
+            }
+        });
     }
 
-    private void getExistingUser(final String authToken, final String userId) {
-        final Observable<User> call = TokenService.getApi().getUser(authToken, userId);
-        call.retryWhen(new RetryWithBackoff())
-            .subscribe(this.existingUserSubscriber);
+    private void registerNewUserWithTimestamp(final long timestamp) {
+        final UserDetails ud = new UserDetails().setTimestamp(timestamp);
+        final String signature = this.wallet.signString(JsonUtil.toJson(ud));
+
+        final SignedUserDetails sud = new SignedUserDetails()
+                .setEthAddress(this.wallet.getAddress())
+                .setUserDetails(ud)
+                .setSignature(signature);
+
+        TokenService.getApi()
+                .registerUser(sud)
+                .subscribe(newUserSubscriber);
     }
 
-    private final OnNextObserver<User> newUserSubscriber = new OnNextObserver<User>() {
+    private final SingleSubscriber<User> newUserSubscriber = new SingleSubscriber<User>() {
 
         @Override
-        public void onNext(final User userResponse) {
-            currentUser = userResponse;
-            storeReturnedUser(userResponse);
-            emitUser();
+        public void onSuccess(final User user) {
+            currentUser = user;
+            storeReturnedUser(user);
         }
 
-        private void storeReturnedUser(final User userResponse) {
+        private void storeReturnedUser(final User user) {
             prefs.edit()
-                    .putString(USER_ID, currentUser.getId())
-                    .putString(AUTH_TOKEN, userResponse.getAuthToken())
+                    .putString(USER_ID, user.getOwnerAddress())
+                    .putString(USER_NAME, user.getUsername())
                     .apply();
         }
-    };
 
-    private final OnNextObserver<User> existingUserSubscriber = new OnNextObserver<User>() {
         @Override
-        public void onNext(final User userResponse) {
-            currentUser = userResponse;
-            loadUserDetailsFromStorage();
-            emitUser();
-        }
-
-        private void loadUserDetailsFromStorage() {
-            final String authToken = prefs.getString(AUTH_TOKEN, null);
-            currentUser.setAuthToken(authToken);
+        public void onError(final Throwable error) {
+            LogUtil.error(getClass(), error.toString());
+            if (((HttpException)error).code() == 400) {
+                getExistingUser();
+            }
         }
     };
 
-    private void emitUser() {
-        this.subject.onNext(this.currentUser);
-    }
-
-    public String getWalletAddress(){
-        return userHDWallet.getAddressAsHex();
-    }
-
-    public HDWallet getWallet() {
-        return this.userHDWallet;
+    private void getExistingUser() {
+        TokenService.getApi()
+                .getUser(this.wallet.getAddress())
+                .subscribe(this.newUserSubscriber);
     }
 }

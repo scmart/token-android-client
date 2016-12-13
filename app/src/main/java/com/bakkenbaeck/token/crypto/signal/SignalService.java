@@ -22,17 +22,17 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-/* package */ class SignalService extends SignalServiceAccountManager {
+public final class SignalService extends SignalServiceAccountManager {
 
     private static final String PREKEY_PATH = "/v1/accounts/bootstrap/";
     private final HDWallet wallet;
 
-    /* package */ SignalService(
+    public SignalService(
             final TrustStore trustStore,
             final HDWallet wallet,
             final ProtocolStore protocolStore,
             final String userAgent) {
-        this(BaseApplication.get().getResources().getString(R.string.signal_url),
+        this(BaseApplication.get().getResources().getString(R.string.chat_url),
                 trustStore,
                 wallet,
                 wallet.getAddress(),
@@ -50,7 +50,7 @@ import java.util.List;
         this.wallet = wallet;
     }
 
-    /* package */ void registerKeys(final ProtocolStore protocolStore) {
+    public void registerKeys(final ProtocolStore protocolStore) {
         try {
             registerKeys(
                     protocolStore.getIdentityKeyPair().getPublicKey(),
@@ -66,7 +66,7 @@ import java.util.List;
         }
     }
 
-    /* package */ void registerKeys(
+    private void registerKeys(
              final IdentityKey identityKey,
              final PreKeyRecord lastResortKey,
              final String password,
@@ -92,7 +92,7 @@ import java.util.List;
                 signedPreKey.getKeyPair().getPublicKey(),
                 signedPreKey.getSignature());
 
-        final long timestamp = System.currentTimeMillis();
+        final long timestamp = System.currentTimeMillis() / 1000;
 
         final PreKeyStateWithTimestamp payload = new PreKeyStateWithTimestamp(
                 entities,

@@ -34,7 +34,6 @@ public class ChatMessage extends RealmObject {
     private String text;
     private RealmList<Detail> details;
     private RealmList<Action> actions;
-    private boolean hasBeenWatched = false;
 
     public ChatMessage() {
         this.creationTime = System.currentTimeMillis();
@@ -52,10 +51,6 @@ public class ChatMessage extends RealmObject {
 
     public List<Detail> getDetails(){
         return this.details;
-    }
-
-    public boolean shouldShowVerifyButton(){
-        return actions.size() == 1 && actions.get(0).getAction().equals("verify_phone_number");
     }
 
     public ChatMessage setActions(final List<Action> actions){
@@ -88,15 +83,6 @@ public class ChatMessage extends RealmObject {
     public int getType() {
         return this.type;
     }
-
-    public void markAsWatched() {
-        this.hasBeenWatched = true;
-    }
-
-    public boolean hasBeenWatched() {
-        return hasBeenWatched;
-    }
-
 
     // Helper functions
 
