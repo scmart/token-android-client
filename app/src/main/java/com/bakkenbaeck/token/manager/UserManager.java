@@ -71,11 +71,13 @@ public class UserManager {
             public void onSuccess(final ServerTime serverTime) {
                 final long timestamp = serverTime.get();
                 registerNewUserWithTimestamp(timestamp);
+                this.unsubscribe();
             }
 
             @Override
             public void onError(final Throwable error) {
                 LogUtil.e(getClass(), error.toString());
+                this.unsubscribe();
             }
         });
     }

@@ -42,10 +42,12 @@ public final class BaseApplication extends MultiDexApplication {
                     @Override
                     public void onSuccess(final TokenManager tokenManager) {
                         BaseApplication.this.tokenManager = tokenManager;
+                        this.unsubscribe();
                     }
 
                     @Override
                     public void onError(final Throwable error) {
+                        this.unsubscribe();
                         LogUtil.e(getClass(), "Fundamental error setting up managers. " + error);
                         throw new RuntimeException(error);
                     }

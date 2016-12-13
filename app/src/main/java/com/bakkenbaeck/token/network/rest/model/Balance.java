@@ -5,8 +5,8 @@ import java.math.BigInteger;
 
 public class Balance {
 
-    private BigInteger confirmed_balance;
-    private BigInteger unconfirmed_balance;
+    private BigInteger confirmed_balance = BigInteger.ZERO;
+    private BigInteger unconfirmed_balance  = BigInteger.ZERO;
 
     public BigInteger getConfirmedBalance() {
         return confirmed_balance;

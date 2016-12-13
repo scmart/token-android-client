@@ -7,23 +7,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.model.LocalBalance;
 import com.bakkenbaeck.token.util.LocaleUtil;
 
 import java.math.BigDecimal;
 
 public class BalanceBar extends LinearLayout {
 
-    private OnClickListener onLevelClicked;
-    private OnClickListener onBalanceClicked;
-
     public void setOnBalanceClicked(final OnClickListener listener) {
-        onBalanceClicked = listener;
-        findViewById(R.id.balanceWrapper).setOnClickListener(this.onBalanceClicked);
-    }
-
-    public void setOnLevelClicked(final OnClickListener listener) {
-        onLevelClicked = listener;
+        findViewById(R.id.balanceWrapper).setOnClickListener(listener);
     }
 
     public BalanceBar(final Context context) {
@@ -46,21 +37,6 @@ public class BalanceBar extends LinearLayout {
         setEthValueFromDouble(0);
     }
 
-    public void disableClickEvents() {
-        findViewById(R.id.textView).setOnClickListener(null);
-        findViewById(R.id.level).setOnClickListener(null);
-    }
-
-    public void enableClickEvents() {
-        findViewById(R.id.textView).setOnClickListener(this.onLevelClicked);
-        findViewById(R.id.level).setOnClickListener(this.onLevelClicked);
-    }
-
-    public void setBalance(final LocalBalance balance) {
-        final BigDecimal unconfirmedBalance = balance.getUnconfirmedBalanceAsEth();
-        setBalanceFromBigDecimal(unconfirmedBalance);
-    }
-
     private void setBalanceFromBigDecimal(final BigDecimal unconfirmedBalance) {
         this.postDelayed(new Runnable() {
             @Override
@@ -69,20 +45,6 @@ public class BalanceBar extends LinearLayout {
                 ((TextView) findViewById(R.id.balance)).setText(substring);
             }
         }, 200);
-    }
-
-    public void setReputation(final int level){
-        this.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ((TextView)findViewById(R.id.level)).setText(String.valueOf(level));
-            }
-        }, 200);
-    }
-
-    public void setEthValue(final double ethValue, final BigDecimal unconfirmedBalance){
-        final double usd = ethValue * unconfirmedBalance.doubleValue();
-        setEthValueFromDouble(usd);
     }
 
     private void setEthValueFromDouble(final double usd) {

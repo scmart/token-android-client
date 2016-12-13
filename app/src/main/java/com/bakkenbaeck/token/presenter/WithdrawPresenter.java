@@ -16,7 +16,6 @@ import android.widget.EditText;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.ActivityResultHolder;
-import com.bakkenbaeck.token.model.LocalBalance;
 import com.bakkenbaeck.token.network.rest.BalanceService;
 import com.bakkenbaeck.token.network.rest.model.SentTransaction;
 import com.bakkenbaeck.token.network.rest.model.SignedTransaction;
@@ -27,7 +26,6 @@ import com.bakkenbaeck.token.util.LocaleUtil;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
-import com.bakkenbaeck.token.util.SnackbarUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.Fragment.QrFragment;
 import com.bakkenbaeck.token.view.activity.BarcodeScannerActivity;
@@ -80,14 +78,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
             @Override
             public void onSingleClick(final View v) {
                 showBarcodeActivity();
-            }
-        });
-
-        this.activity.getBinding().balanceBar.setOnBalanceClicked(new View.OnClickListener() {
-
-            @Override
-            public void onClick(final View v) {
-                showQrFragment();
             }
         });
 
@@ -163,36 +153,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
         walletAddress.setSelection(walletAddress.getText().length());
     }
 
-    private void tryPopulateAmountField(final LocalBalance localBalance) {
-
-        if(localBalance.getConfirmedBalanceAsEthMinusTransferFee().equals(BigDecimal.ZERO) || localBalance.getUnconfirmedBalanceAsEthMinusTransferFee().equals(BigDecimal.ZERO)) {
-            SnackbarUtil.make(activity.getBinding().root, this.activity.getString(R.string.balanceErrorLessTxFee)).show();
-            return;
-        }
-
-        final String amount = generateMaxAmountFromBalance(localBalance);
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                if(activity != null) {
-                    activity.getBinding().amount.setText(amount);
-                    activity.getBinding().amount.setSelection(activity.getBinding().amount.getText().length());
-                }
-            }
-        });
-    }
-
-    private String generateMaxAmountFromBalance(final LocalBalance localBalance) {
-        final BigInteger unconfirmedBalance = localBalance.getUnconfirmedBalance();
-        final BigInteger confirmedBalance = localBalance.getConfirmedBalance();
-        if (unconfirmedBalance.compareTo(confirmedBalance) == -1) {
-            return localBalance.unconfirmedBalanceStringMinusTransferFee();
-        } else if(confirmedBalance.compareTo(unconfirmedBalance) == -1) {
-            return localBalance.confirmedBalanceStringMinusTransferFee();
-        }
-        return localBalance.confirmedBalanceStringMinusTransferFee();
-    }
-
     @Override
     public void onViewDetached() {
         String walletAddress = this.activity.getBinding().walletAddress.getText().toString();
@@ -247,6 +207,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
                     @Override
                     public void onSuccess(final HDWallet wallet) {
                         sendTransaction(wallet);
+                        this.unsubscribe();
                     }
                 });
     }
@@ -284,6 +245,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
                     @Override
                     public void onSuccess(final UnsignedTransaction unsignedTransaction) {
                         signAndSendTransaction(unsignedTransaction, wallet);
+                        this.unsubscribe();
                     }
                 });
 
@@ -309,12 +271,14 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
                     @Override
                     public void onSuccess(final SentTransaction value) {
                         showBalanceError("It worked!");
+                        this.unsubscribe();
                     }
 
                     @Override
                     public void onError(final Throwable error) {
                         LogUtil.e(getClass(), error.getMessage());
                         showBalanceError(error.getMessage());
+                        this.unsubscribe();
                     }
                 });
     }

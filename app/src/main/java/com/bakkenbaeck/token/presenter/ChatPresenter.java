@@ -12,7 +12,6 @@ import android.view.View;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.ActivityResultHolder;
 import com.bakkenbaeck.token.model.ChatMessage;
-import com.bakkenbaeck.token.model.LocalBalance;
 import com.bakkenbaeck.token.network.ws.model.Message;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.LogUtil;
@@ -23,7 +22,6 @@ import com.bakkenbaeck.token.view.Fragment.QrFragment;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.WithdrawActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
-import com.bakkenbaeck.token.view.custom.BalanceBar;
 
 public final class ChatPresenter implements
         Presenter<ChatActivity>,
@@ -140,36 +138,6 @@ public final class ChatPresenter implements
     private void displayMessage(final ChatMessage chatMessage) {
         displayMessage(chatMessage, 0);
     }
-
-    private final OnNextObserver<LocalBalance> newBalanceSubscriber = new OnNextObserver<LocalBalance>() {
-        @Override
-        public void onNext(final LocalBalance newBalance) {
-            if (activity != null && newBalance != null) {
-                activity.getBinding().balanceBar.setEthValue(newBalance.getEthValue(), newBalance.getUnconfirmedBalanceAsEth());
-                activity.getBinding().balanceBar.setBalance(newBalance);
-            }
-        }
-    };
-
-    private final OnNextObserver<Integer> newReputationSubscriber = new OnNextObserver<Integer>() {
-        @Override
-        public void onNext(Integer reputationScore) {
-            if(activity != null) {
-                BalanceBar balanceBar = activity.getBinding().balanceBar;
-                if (balanceBar != null) {
-                    balanceBar.setReputation(reputationScore);
-                    if (reputationScore == 0) {
-                        balanceBar.enableClickEvents();
-                        //if reputation is 0, set verifies to false so the user can click the verify button
-                        SharedPrefsUtil.saveIsVerified(false);
-                        messageAdapter.notifyDataSetChanged();
-                    } else {
-                        balanceBar.disableClickEvents();
-                    }
-                }
-            }
-        }
-    };
 
     // Todo - use this
     private final OnNextObserver<Message> newMessageSubscriber = new OnNextObserver<Message>() {

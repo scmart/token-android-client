@@ -36,7 +36,7 @@ public class TokenManager {
             @Override
             public TokenManager call() throws Exception {
                 TokenManager.this.wallet = new HDWallet().init();
-                TokenManager.this.balanceManager = new BalanceManager().init();
+                TokenManager.this.balanceManager = new BalanceManager().init(TokenManager.this.wallet);
                 TokenManager.this.signalManager = new SignalManager().init(TokenManager.this.wallet);
                 TokenManager.this.userManager = new UserManager().init(TokenManager.this.wallet);
                 TokenManager.this.webSocketManager = new WebSocketManager().init();
