@@ -1,7 +1,7 @@
 package com.bakkenbaeck.token.network.ws.model;
 
 
-import com.bakkenbaeck.token.network.ws.WebSocketManager;
+import com.bakkenbaeck.token.manager.WebSocketManager;
 
 public class VideoRequest {
 

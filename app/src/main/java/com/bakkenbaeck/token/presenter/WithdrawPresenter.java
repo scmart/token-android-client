@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -13,16 +14,17 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.ActivityResultHolder;
 import com.bakkenbaeck.token.model.LocalBalance;
-import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.network.rest.TokenService;
 import com.bakkenbaeck.token.network.rest.model.SignatureRequest;
-import com.bakkenbaeck.token.network.rest.model.SignedWithdrawalRequest;
+import com.bakkenbaeck.token.network.rest.model.SignedTransactionRequest;
+import com.bakkenbaeck.token.network.rest.model.TransactionRequest;
 import com.bakkenbaeck.token.network.rest.model.TransactionSent;
-import com.bakkenbaeck.token.network.rest.model.WithdrawalRequest;
 import com.bakkenbaeck.token.network.ws.model.TransactionConfirmation;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LocaleUtil;
@@ -58,13 +60,11 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
     static final String INTENT_WITHDRAW_AMOUNT = "withdraw_amount";
 
     private WithdrawActivity activity;
-    private User currentUser;
     private boolean firstTimeAttaching = true;
     private BigDecimal currentBalance = BigDecimal.ZERO;
     private ProgressDialog progressDialog;
     private final BigDecimal minWithdrawLimit = new BigDecimal("0.0000000001");
     private OnNextSubscriber<LocalBalance> newBalanceSubscriber;
-    private OnNextSubscriber<Integer> newReputationSubscriber;
 
     private final PreviousWalletAddress previousWalletAddress = new PreviousWalletAddress();
 
@@ -74,7 +74,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
         initButtons();
         initToolbar();
         initPreviousAddress();
-        registerObservables();
 
         if (firstTimeAttaching) {
             firstTimeAttaching = false;
@@ -103,19 +102,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
         });
 
         reEnableDialogListeners();
-
-        this.activity.getBinding().maxButton.setOnClickListener(new OnSingleClickListener() {
-            @Override
-            public void onSingleClick(View v) {
-                BaseApplication.get().getLocalBalanceManager().getObservable().subscribe(new OnNextSubscriber<LocalBalance>() {
-                    @Override
-                    public void onNext(final LocalBalance localBalance) {
-                        this.unsubscribe();
-                        tryPopulateAmountField(localBalance);
-                    }
-                });
-            }
-        });
 
         this.activity.getBinding().sendButton.setOnClickListener(new OnSingleClickListener() {
             @Override
@@ -153,14 +139,12 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
 
             }
         });
-
-        //refreshButtonStates();
     }
 
     private void updateSendButtonEnabledState() {
         final Editable walletAddress = this.activity.getBinding().walletAddress.getText();
-        String amount = this.activity.getBinding().amount.getText().toString();
-        final boolean shouldEnableButton = walletAddress.length() > 0 && userHasEnoughReputationScore() && amount.length() > 0;
+        final String amount = this.activity.getBinding().amount.getText().toString();
+        final boolean shouldEnableButton = walletAddress.length() > 0 && amount.length() > 0;
         enableSendButton(shouldEnableButton);
         activity.getBinding().sendButton.setEnabled(shouldEnableButton);
     }
@@ -187,30 +171,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
         final EditText walletAddress = this.activity.getBinding().walletAddress;
         walletAddress.setText(this.previousWalletAddress.getAddress());
         walletAddress.setSelection(walletAddress.getText().length());
-    }
-
-    private OnNextSubscriber<LocalBalance> generateNewBalanceSubscriber() {
-        return new OnNextSubscriber<LocalBalance>() {
-            @Override
-            public void onNext(final LocalBalance newBalance) {
-                if (activity != null && newBalance != null) {
-                    currentBalance = newBalance.getConfirmedBalanceAsEthMinusTransferFee();
-                    activity.getBinding().balanceBar.setEthValue(newBalance.getEthValue(), newBalance.getUnconfirmedBalanceAsEth());
-                    activity.getBinding().balanceBar.setBalance(newBalance);
-                }
-            }
-        };
-    }
-
-    private OnNextSubscriber<Integer> generateNewReputationSubscriber() {
-        return new OnNextSubscriber<Integer>() {
-            @Override
-            public void onNext(Integer reputationScore) {
-                if (activity != null) {
-                    activity.getBinding().balanceBar.setReputation(reputationScore);
-                }
-            }
-        };
     }
 
     private void tryPopulateAmountField(final LocalBalance localBalance) {
@@ -247,7 +207,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
     public void onViewDetached() {
         String walletAddress = this.activity.getBinding().walletAddress.getText().toString();
         previousWalletAddress.setAddress(walletAddress);
-        unregisterObservables();
         this.activity = null;
     }
 
@@ -299,10 +258,10 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
 
             final BigInteger amountInWei = EthUtil.ethToWei(amountInEth);
             final String toAddress = this.activity.getBinding().walletAddress.getText().toString();
-            final WithdrawalRequest withdrawalRequest = new WithdrawalRequest(amountInWei, toAddress);
+            final TransactionRequest transactionRequest = new TransactionRequest(amountInWei, toAddress);
 
             TokenService.getApi()
-                    .postWithdrawalRequest(withdrawalRequest)
+                    .postTransactionRequest(transactionRequest)
                     .subscribe(generateSigningSubscriber());
             progressDialog.show(this.activity.getSupportFragmentManager(), "progressDialog");
             this.previousWalletAddress.setAddress(toAddress);
@@ -327,7 +286,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
                         progressDialog.dismiss();
                     }
                 });
-                LogUtil.e(getClass(), "postWithdrawalRequest: " + ex);
+                LogUtil.e(getClass(), "postTransactionRequest: " + ex);
             }
 
             @Override
@@ -342,17 +301,37 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
                             progressDialog.dismiss();
                         }
                     });
-                }else if(signatureRequest.code() == 200) {
-
-                    final String unsignedTransaction = signatureRequest.body().getTransaction();
-                    final String signature = BaseApplication.get().getUserManager().signTransaction(unsignedTransaction);
-                    final SignedWithdrawalRequest request = new SignedWithdrawalRequest(unsignedTransaction, signature);
-
-                    TokenService.getApi()
-                            .postSignedWithdrawal(request)
-                            .retryWhen(new RetryWithBackoff(5))
-                            .subscribe(generateSignedWithdrawalSubscriber());
+                } else if(signatureRequest.code() == 200) {
+                    generateAndSendSignedTransaction(signatureRequest);
                 }
+            }
+
+            private void generateAndSendSignedTransaction(final Response<SignatureRequest> signatureRequest) {
+                BaseApplication.get()
+                        .getTokenManager().getWallet()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io())
+                        .subscribe(new SingleSuccessSubscriber<HDWallet>() {
+                            @Override
+                            public void onSuccess(final HDWallet wallet) {
+                                final SignedTransactionRequest request = generateSignedTransaction(wallet);
+                                sendSignedTransaction(request);
+                            }
+
+                            @NonNull
+                            private SignedTransactionRequest generateSignedTransaction(final HDWallet wallet) {
+                                final String unsignedTransaction = signatureRequest.body().getTransaction();
+                                final String signature = wallet.signString(unsignedTransaction);
+                                return new SignedTransactionRequest(unsignedTransaction, signature);
+                            }
+
+                            private void sendSignedTransaction(final SignedTransactionRequest request) {
+                                TokenService.getApi()
+                                        .postSignedTransaction(request)
+                                        .retryWhen(new RetryWithBackoff(5))
+                                        .subscribe(generateSignedWithdrawalSubscriber());
+                            }
+                        });
             }
 
             private Subscriber<Response<TransactionSent>> generateSignedWithdrawalSubscriber() {
@@ -372,7 +351,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
                                 progressDialog.dismiss();
                             }
                         });
-                        LogUtil.e(getClass(), "postSignedWithdrawal: " + ex);
+                        LogUtil.e(getClass(), "postSignedTransaction: " + ex);
                     }
 
                     @Override
@@ -396,8 +375,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
                         BigInteger t1 = transactionSent.body().getConfirmedBalance();
                         BigInteger t2 = transactionSent.body().getUnconfirmedBalance();
                         TransactionConfirmation t = new TransactionConfirmation(t1.toString(), t2.toString());
-                        BaseApplication.get().getSocketObservables().emitTransactionConfirmation(t);
-                        BaseApplication.get().getSocketObservables().emitTransactionSent(transactionSent.body());
+                        Toast.makeText(BaseApplication.get(), "Not yet implemented", Toast.LENGTH_SHORT).show();
 
                         final DecimalFormat nf = (DecimalFormat) DecimalFormat.getInstance(LocaleUtil.getLocale());
                         nf.setParseBigDecimal(true);
@@ -472,56 +450,6 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
         }
 
         return false;
-    }
-
-    private boolean userHasEnoughReputationScore() {
-        // Todo: Reputation required for withdrawal should be dictated by the server
-        if (currentUser == null || currentUser.getLevel() == 0) {
-            return false;
-        }
-        return true;
-    }
-
-    private void registerObservables() {
-        this.newBalanceSubscriber = generateNewBalanceSubscriber();
-        this.newReputationSubscriber = generateNewReputationSubscriber();
-
-        BaseApplication.get().getLocalBalanceManager().getObservable().subscribe(this.newBalanceSubscriber);
-        BaseApplication.get()
-                .getUserManager()
-                .getObservable()
-                .subscribeOn(Schedulers.io())
-                .subscribe(this.userSubscriber);
-        BaseApplication.get().getLocalBalanceManager().getLevelObservable().subscribe(this.newReputationSubscriber);
-    }
-
-    private void unregisterObservables() {
-        this.newBalanceSubscriber.unsubscribe();
-        this.newReputationSubscriber.unsubscribe();
-
-        this.newBalanceSubscriber = null;
-        this.newReputationSubscriber = null;
-    }
-
-    private final SingleSuccessSubscriber<User> userSubscriber = new SingleSuccessSubscriber<User>() {
-        @Override
-        public void onSuccess(final User user) {
-            currentUser = user;
-            refreshButtonStates();
-            this.unsubscribe();
-        }
-    };
-
-    private void refreshButtonStates() {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                if (activity == null) {
-                    return;
-                }
-                updateSendButtonEnabledState();
-            }
-        });
     }
 
     private void showQrFragment() {

@@ -1,13 +1,12 @@
 package com.bakkenbaeck.token.network.ws.model;
 
 
+import com.bakkenbaeck.token.manager.WebSocketManager;
 import com.bakkenbaeck.token.model.jsonadapter.BigIntegerAdapter;
 import com.bakkenbaeck.token.network.rest.model.TransactionSent;
 import com.bakkenbaeck.token.network.rest.model.VerificationSent;
 import com.bakkenbaeck.token.network.ws.SocketObservables;
-import com.bakkenbaeck.token.network.ws.WebSocketManager;
 import com.bakkenbaeck.token.util.LogUtil;
-import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
@@ -88,8 +87,6 @@ public class SocketToPojo {
                 LogUtil.i(getClass(),  "convertAndEmitPojo: verification_success");
                 final VerificationSuccess verificationMessage = this.verificationSuccessAdapter.fromJson(json);
                 this.socketObservables.emitVerificationSuccess(verificationMessage);
-
-                paymentRequest();
                 
                 break;
                 case "message_sent":
@@ -111,14 +108,6 @@ public class SocketToPojo {
             default:
                 LogUtil.e(getClass(), "Unrecognised websocket event - " + webSocketType.get());
         }
-    }
-
-    private void paymentRequest(){
-        Moshi moshi = new Moshi.Builder().build();
-        JsonAdapter<PaymentRequest> jsonAdapter = moshi.adapter(PaymentRequest.class);
-        PaymentRequest paymentRequest = new PaymentRequest(WebSocketManager.AD_BOT_ID);
-        String json = jsonAdapter.toJson(paymentRequest);
-        BaseApplication.get().sendWebSocketMessage(json);
     }
 
     private WebSocketType getWebSocketMessageFromJson(final String message) {

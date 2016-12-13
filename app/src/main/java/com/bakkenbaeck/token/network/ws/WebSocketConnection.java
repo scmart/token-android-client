@@ -2,6 +2,7 @@ package com.bakkenbaeck.token.network.ws;
 
 
 import android.os.Handler;
+import android.os.Looper;
 
 import com.bakkenbaeck.token.util.LogUtil;
 import com.neovisionaries.ws.client.WebSocket;
@@ -16,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-/* package */ class WebSocketConnection {
-    /* package */ interface Listener {
+public class WebSocketConnection {
+    public interface Listener {
         void onJsonMessage(final String json);
         void onReconnecting();
         void onConnected();
@@ -33,7 +34,7 @@ import java.util.Queue;
 
     public WebSocketConnection(final Listener listener) {
         this.wsFactory = new WebSocketFactory();
-        this.reconnectHandler = new Handler();
+        this.reconnectHandler = new Handler(Looper.getMainLooper());
         this.listener = listener;
     }
 

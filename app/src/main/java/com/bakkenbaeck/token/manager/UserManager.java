@@ -21,47 +21,33 @@ import java.util.concurrent.Callable;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Single;
 import rx.SingleSubscriber;
-import rx.subjects.BehaviorSubject;
 
 public class UserManager {
 
-    private final BehaviorSubject<User> subject = BehaviorSubject.create();
     private final static String USER_ID = "uid";
     private final static String USER_NAME = "un";
 
     private User currentUser;
-    private HDWallet userHDWallet;
     private SharedPreferences prefs;
+    private HDWallet wallet;
+
 
     public final Single<User> getObservable() {
         return Single.fromCallable(new Callable<User>() {
             @Override
             public User call() throws Exception {
                 while(currentUser == null) {
-                    Thread.sleep(500);
+                    Thread.sleep(100);
                 }
                 return currentUser;
             }
         });
     }
 
-    public Single<UserManager> init() {
-        return Single.fromCallable(new Callable<UserManager>() {
-            @Override
-            public UserManager call() throws Exception {
-                userHDWallet = new HDWallet();
-                initUser();
-                return UserManager.this;
-            }
-        });
-    }
-
-    public String signTransaction(final String transaction) {
-        return this.userHDWallet.signHexString(transaction);
-    }
-
-    public void refresh() {
-        userExistsInPrefs();
+    public UserManager init(final HDWallet wallet) {
+        this.wallet = wallet;
+        initUser();
+        return this;
     }
 
     private void initUser() {
@@ -75,7 +61,8 @@ public class UserManager {
 
     private boolean userExistsInPrefs() {
         final String userId = this.prefs.getString(USER_ID, null);
-        return userId != null && userId.equals(this.getWalletAddress());
+        final String expectedAddress = wallet.getAddress();
+        return userId != null && userId.equals(expectedAddress);
     }
 
     private void registerNewUser() {
@@ -95,10 +82,10 @@ public class UserManager {
 
     private void registerNewUserWithTimestamp(final long timestamp) {
         final UserDetails ud = new UserDetails().setTimestamp(timestamp);
-        final String signature = userHDWallet.signString(JsonUtil.toJson(ud));
+        final String signature = this.wallet.signString(JsonUtil.toJson(ud));
 
         final SignedUserDetails sud = new SignedUserDetails()
-                .setEthAddress(userHDWallet.getAddressAsHex())
+                .setEthAddress(this.wallet.getAddress())
                 .setUserDetails(ud)
                 .setSignature(signature);
 
@@ -133,15 +120,7 @@ public class UserManager {
 
     private void getExistingUser() {
         TokenService.getApi()
-                .getUser(this.userHDWallet.getAddressAsHex())
+                .getUser(this.wallet.getAddress())
                 .subscribe(this.newUserSubscriber);
-    }
-
-    public String getWalletAddress(){
-        return userHDWallet.getAddressAsHex();
-    }
-
-    public HDWallet getWallet() {
-        return this.userHDWallet;
     }
 }

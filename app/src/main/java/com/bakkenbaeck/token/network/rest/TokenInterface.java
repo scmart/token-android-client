@@ -5,9 +5,9 @@ import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.network.rest.model.ServerTime;
 import com.bakkenbaeck.token.network.rest.model.SignatureRequest;
 import com.bakkenbaeck.token.network.rest.model.SignedUserDetails;
-import com.bakkenbaeck.token.network.rest.model.SignedWithdrawalRequest;
+import com.bakkenbaeck.token.network.rest.model.SignedTransactionRequest;
 import com.bakkenbaeck.token.network.rest.model.TransactionSent;
-import com.bakkenbaeck.token.network.rest.model.WithdrawalRequest;
+import com.bakkenbaeck.token.network.rest.model.TransactionRequest;
 
 import retrofit2.Response;
 import retrofit2.http.Body;
@@ -30,8 +30,8 @@ public interface TokenInterface {
     Single<User> getUser(@Path("id") String userId);
 
     @POST("/message")
-    Observable<Response<SignatureRequest>> postWithdrawalRequest(@Body WithdrawalRequest withdrawalRequest);
+    Observable<Response<SignatureRequest>> postTransactionRequest(@Body TransactionRequest transactionRequest);
 
     @POST("/message")
-    Observable<Response<TransactionSent>> postSignedWithdrawal(@Body SignedWithdrawalRequest signedWithdrawalRequest);
+    Observable<Response<TransactionSent>> postSignedTransaction(@Body SignedTransactionRequest signedTransactionRequest);
 }

@@ -3,38 +3,32 @@ package com.bakkenbaeck.token.presenter;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.view.View;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.ActivityResultHolder;
 import com.bakkenbaeck.token.model.ChatMessage;
 import com.bakkenbaeck.token.model.LocalBalance;
-import com.bakkenbaeck.token.network.ws.model.ConnectionState;
 import com.bakkenbaeck.token.network.ws.model.Message;
-import com.bakkenbaeck.token.network.ws.model.VideoRequest;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnCompletedObserver;
 import com.bakkenbaeck.token.util.OnNextObserver;
-import com.bakkenbaeck.token.util.OnNextSubscriber;
-import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SharedPrefsUtil;
-import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.Fragment.QrFragment;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.WithdrawActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
 import com.bakkenbaeck.token.view.custom.BalanceBar;
-import com.bakkenbaeck.token.view.dialog.PhoneInputDialog;
-import com.bakkenbaeck.token.view.dialog.VerificationCodeDialog;
 
-public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClickListener, QrFragment.OnFragmentClosed {
+public final class ChatPresenter implements
+        Presenter<ChatActivity>,
+        QrFragment.OnFragmentClosed {
+
     private final int WITHDRAW_REQUEST_CODE = 2;
 
     private ChatActivity activity;
@@ -42,7 +36,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
     private boolean firstViewAttachment = true;
     private boolean isShowingAnotherOneButton;
     private ChatMessageStore chatMessageStore;
-    private Snackbar networkStateSnackbar;
 
     @Override
     public void onViewAttached(final ChatActivity activity) {
@@ -53,7 +46,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
             firstViewAttachment = false;
             initLongLivingObjects();
         }
-        initShortLivingObjects();
 
         // Refresh state
         unpauseMessageAdapter();
@@ -61,7 +53,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
         refreshAnotherOneButtonState();
         scrollToBottom(false);
 
-        initBalanceBar();
         initView();
     }
 
@@ -84,47 +75,19 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
             durationDialog.setOnFragmentClosed(this);
         }
     }
-
-    private void initBalanceBar() {
-        final BalanceBar balanceBar = this.activity.getBinding().balanceBar;
-        balanceBar.setOnLevelClicked(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                showPhoneInputDialog();
-            }
-        });
-    }
     
     public boolean isAttached() {
         return this.activity != null;
     }
 
     private void initLongLivingObjects() {
-        initNetworkStateSnackbar();
-
         this.chatMessageStore = new ChatMessageStore();
         this.chatMessageStore.getEmptySetObservable().subscribe(this.noStoredChatMessages);
         this.chatMessageStore.getNewMessageObservable().subscribe(this.newChatMessage);
-        this.chatMessageStore.getUnwatchedVideoObservable().subscribe(this.unwatchedVideo);
-        BaseApplication.get().getSocketObservables().getMessageObservable().subscribe(this.newMessageSubscriber);
-        BaseApplication.get().getSocketObservables().getConnectionObservable().subscribe(this.connectionStateSubscriber);
 
         this.messageAdapter = new MessageAdapter(activity);
-        this.messageAdapter.setOnVerifyClickListener(this);
 
         this.chatMessageStore.load();
-    }
-
-    private void initNetworkStateSnackbar() {
-        this.networkStateSnackbar = Snackbar.make(
-                this.activity.getBinding().balanceBar,
-                Html.fromHtml(this.activity.getString(R.string.socket__connecting_state)),
-                Snackbar.LENGTH_INDEFINITE);
-    }
-
-    private void initShortLivingObjects() {
-        BaseApplication.get().getLocalBalanceManager().getObservable().subscribe(this.newBalanceSubscriber);
-        BaseApplication.get().getLocalBalanceManager().getLevelObservable().subscribe(this.newReputationSubscriber);
     }
 
     private void initToolbar() {
@@ -145,15 +108,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
         @Override
         public void onNext(final ChatMessage chatMessage) {
             messageAdapter.addMessage(chatMessage);
-        }
-    };
-
-    private final OnNextObserver<Boolean> unwatchedVideo = new OnNextObserver<Boolean>() {
-        @Override
-        public void onNext(final Boolean hasUnwatchedVideo) {
-            if (!hasUnwatchedVideo) {
-                promptNewVideo();
-            }
         }
     };
 
@@ -217,6 +171,7 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
         }
     };
 
+    // Todo - use this
     private final OnNextObserver<Message> newMessageSubscriber = new OnNextObserver<Message>() {
         @Override
         public void onNext(final Message message) {
@@ -232,23 +187,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
             }
         }
     };
-
-    @Override
-    public void onClick(final View view) {
-        showPhoneInputDialog();
-    }
-
-    private PhoneInputDialog phoneInputDialog;
-
-    private void showPhoneInputDialog() {
-        if(phoneInputDialog != null) {
-            if(phoneInputDialog.isVisible2()) {
-                return;
-            }
-        }
-        phoneInputDialog = new PhoneInputDialog();
-        phoneInputDialog.show(activity.getSupportFragmentManager(), "dialog");
-    }
 
     private void scrollToBottom(final boolean animate) {
         if (this.activity != null && this.messageAdapter.getItemCount() > 0) {
@@ -284,31 +222,8 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
                                 ? View.VISIBLE
                                 : View.INVISIBLE
                 );
-
-                if (isShowingAnotherOneButton) {
-                    activity.getBinding().buttonAnotherVideo.setOnClickListener(new OnSingleClickListener() {
-                        @Override
-                        public void onSingleClick(final View view) {
-                            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    requestAnotherVideo();
-                                }
-                            });
-                        }
-                    });
-                }
             }
         });
-    }
-
-    private void requestAnotherVideo() {
-        isShowingAnotherOneButton = false;
-        refreshAnotherOneButtonState();
-        showVideoRequestMessage();
-
-        final VideoRequest vrFrame = new VideoRequest();
-        BaseApplication.get().sendWebSocketMessage(vrFrame.toString());
     }
 
     private void promptNewVideo() {
@@ -318,7 +233,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
 
     @Override
     public void onViewDetached() {
-        connectionStateSubscriber.unsubscribe();
         this.messageAdapter.pauseRendering();
         this.activity = null;
     }
@@ -340,35 +254,6 @@ public final class ChatPresenter implements Presenter<ChatActivity>, View.OnClic
         final Intent intent = new Intent(this.activity, WithdrawActivity.class);
         this.activity.startActivityForResult(intent, WITHDRAW_REQUEST_CODE);
         this.activity.overridePendingTransition(R.anim.enter_fade_in, R.anim.exit_fade_out);
-    }
-
-    private final OnNextSubscriber<ConnectionState> connectionStateSubscriber = new OnNextSubscriber<ConnectionState>() {
-        @Override
-        public void onNext(ConnectionState connectionState) {
-            LogUtil.e(getClass(), "connectionStateSubscriber");
-
-            if (connectionState == ConnectionState.CONNECTING) {
-                if (networkStateSnackbar.isShownOrQueued()) {
-                    return;
-                }
-                LogUtil.e(getClass(), "Connecting");
-            } else {
-                LogUtil.e(getClass(), "Connecting");
-            }
-        }
-    };
-
-    public void onPhoneInputSuccess(final PhoneInputDialog dialog) {
-        final String phoneNumber = dialog.getInputtedPhoneNumber();
-        final VerificationCodeDialog vcDialog = VerificationCodeDialog.newInstance(phoneNumber);
-        vcDialog.show(this.activity.getSupportFragmentManager(), "dialog");
-    }
-
-    public void onVerificationSuccess() {
-        SharedPrefsUtil.saveIsVerified(true);
-        if(activity != null && messageAdapter != null) {
-            messageAdapter.disableVerifyButton(activity);
-        }
     }
 
     private void showQrFragment() {

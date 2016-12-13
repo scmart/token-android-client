@@ -1,6 +1,8 @@
-package com.bakkenbaeck.token.network.ws;
+package com.bakkenbaeck.token.manager;
 
 
+import com.bakkenbaeck.token.network.ws.SocketObservables;
+import com.bakkenbaeck.token.network.ws.WebSocketConnection;
 import com.bakkenbaeck.token.network.ws.WebSocketConnection.Listener;
 import com.bakkenbaeck.token.network.ws.model.ConnectionState;
 import com.bakkenbaeck.token.network.ws.model.SocketToPojo;
@@ -12,10 +14,11 @@ public class WebSocketManager {
     private WebSocketConnection webSocketConnection;
     private SocketToPojo socketToPojo;
 
-    public WebSocketManager() {
+    public WebSocketManager init() {
         this.socketObservables = new SocketObservables();
         this.webSocketConnection = new WebSocketConnection(this.jsonMessageListener);
         this.socketToPojo = new SocketToPojo(this.socketObservables);
+        return this;
     }
 
     private final Listener jsonMessageListener = new Listener() {

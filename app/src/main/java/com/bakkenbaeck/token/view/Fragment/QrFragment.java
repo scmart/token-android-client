@@ -14,7 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.model.User;
+import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.OnNextObserver;
 import com.bakkenbaeck.token.util.SharedPrefsUtil;
@@ -61,24 +61,26 @@ public class QrFragment extends Fragment{
         v =  inflater.inflate(R.layout.fragment_qr, container, false);
         
         disableTouches();
+        fetchWalletAddress(inState);
 
+        return v;
+    }
+
+    private void fetchWalletAddress(final @Nullable Bundle inState) {
         //If you show the dialog before the user is initiated, the wallet address is null.
         //Subscribe to the user observable and wait until it's ready
         BaseApplication.get()
-                .getUserManager()
-                .getObservable()
+                .getTokenManager().getWallet()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleSuccessSubscriber<User>() {
+                .subscribe(new SingleSuccessSubscriber<HDWallet>() {
                     @Override
-                    public void onSuccess(final User user) {
-                        walletAddress = BaseApplication.get().getUserManager().getWalletAddress();
+                    public void onSuccess(final HDWallet wallet) {
+                        QrFragment.this.walletAddress = wallet.getAddress();
                         initView(inState);
                         this.unsubscribe();
                     }
                 });
-
-        return v;
     }
 
     private void initView(final Bundle inState) {

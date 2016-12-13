@@ -3,51 +3,55 @@ package com.bakkenbaeck.token.view;
 
 import android.support.multidex.MultiDexApplication;
 
-import com.bakkenbaeck.token.manager.SignalManager;
-import com.bakkenbaeck.token.manager.LocalBalanceManager;
-import com.bakkenbaeck.token.manager.UserManager;
-import com.bakkenbaeck.token.network.ws.SocketObservables;
-import com.bakkenbaeck.token.network.ws.WebSocketManager;
+import com.bakkenbaeck.token.manager.TokenManager;
+import com.bakkenbaeck.token.util.LogUtil;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
-import rx.Single;
 import rx.SingleSubscriber;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class BaseApplication extends MultiDexApplication {
+public final class BaseApplication extends MultiDexApplication {
+
     private static BaseApplication instance;
     public static BaseApplication get() { return instance; }
 
-    private UserManager userManager;
-    private WebSocketManager webSocketManager;
-    private LocalBalanceManager localBalanceManager;
-    private SignalManager signalManager;
+    private TokenManager tokenManager;
+
+    public final TokenManager getTokenManager() {
+        return this.tokenManager;
+    }
 
     @Override
-    public void onCreate() {
+    public final void onCreate() {
         super.onCreate();
         instance = this;
         init();
     }
 
     private void init() {
-        final Single<UserManager> userCallback = initUserManager();
-        initWebsocketManager();
+        initTokenManager();
         initRealm();
-        initLocalBalanceManager();
-        initSignalManager(userCallback);
     }
 
-    private Single<UserManager> initUserManager() {
-        this.userManager = new UserManager();
-        return this.userManager.init();
-}
+    private void initTokenManager() {
+        new TokenManager().init()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(new SingleSubscriber<TokenManager>() {
+                    @Override
+                    public void onSuccess(final TokenManager tokenManager) {
+                        BaseApplication.this.tokenManager = tokenManager;
+                    }
 
-    private void initWebsocketManager() {
-        this.webSocketManager = new WebSocketManager();
+                    @Override
+                    public void onError(final Throwable error) {
+                        LogUtil.e(getClass(), "Fundamental error setting up managers. " + error);
+                        throw new RuntimeException(error);
+                    }
+                });
     }
+
 
     private void initRealm() {
         final RealmConfiguration config = new RealmConfiguration
@@ -57,49 +61,4 @@ public class BaseApplication extends MultiDexApplication {
         Realm.setDefaultConfiguration(config);
     }
 
-    private void initLocalBalanceManager() {
-        this.localBalanceManager = new LocalBalanceManager();
-    }
-
-    private void initSignalManager(final Single<UserManager> userCallback) {
-        userCallback
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleSubscriber<UserManager>() {
-            @Override
-            public void onSuccess(final UserManager userManager) {
-                signalManager = new SignalManager().init(userManager.getWallet());
-            }
-
-            @Override
-            public void onError(final Throwable error) {
-                throw new RuntimeException(error);
-            }
-        });
-    }
-
-    public UserManager getUserManager() {
-        return this.userManager;
-    }
-
-    public SocketObservables getSocketObservables() {
-        return this.webSocketManager.getSocketObservables();
-    }
-
-    public LocalBalanceManager getLocalBalanceManager() {
-        return localBalanceManager;
-    }
-
-    public void sendWebSocketMessage(final String message) {
-        this.webSocketManager.sendMessage(message);
-    }
-
-    public void disconnectWebSocket(){
-        this.webSocketManager.disconnect();
-    }
-
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
-    }
 }

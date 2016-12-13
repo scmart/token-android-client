@@ -1,8 +1,6 @@
 package com.bakkenbaeck.token.model;
 
 
-import java.math.BigInteger;
-
 public class User {
 
     private String owner_address;
@@ -26,22 +24,7 @@ public class User {
         return this;
     }
 
-    public BigInteger getUnconfirmedBalance() {
-        // Todo
-        return BigInteger.ZERO;
-    }
-
-    public BigInteger getConfirmedBalance() {
-        // Todo
-        return BigInteger.ZERO;
-    }
-
     public int getLevel() {
-        // Todo
-        return 1;
-    }
-
-    public double getEthValue() {
         // Todo
         return 1;
     }
