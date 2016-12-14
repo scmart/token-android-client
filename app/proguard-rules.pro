@@ -20,10 +20,12 @@
 
 -keep class com.bakkenbaeck.token.model.** { *; }
 -keep class com.bakkenbaeck.token.network.** { *; }
+-keep class com.bakkenbaeck.token.crypto.signal.model.** { *; }
 
 -keep class org.spongycastle.** {*;}
 
 -dontwarn okio.**
+-keepnames class rx.Single
 
 -keep class com.squareup.moshi.** { *; }
 -keep interface com.squareup.moshi.** { *; }
@@ -64,5 +66,9 @@
   public *** get*();
 }
 
+# sl4j
 -keep class org.slf4j.** { *; }
 -dontwarn org.slf4j.**
+
+# signal
+-keep class org.whispersystems.** { *; }
