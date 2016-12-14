@@ -3,12 +3,14 @@ package com.bakkenbaeck.token.crypto;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.crypto.DeterministicKey;
+import org.bitcoinj.crypto.MnemonicCode;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.KeyChain;
 import org.bitcoinj.wallet.UnreadableWalletException;
@@ -34,12 +36,22 @@ public class HDWallet {
 
     public HDWallet init() {
         initPreferences();
+        initWordList();
         initWallet();
         return this;
     }
 
     private void initPreferences() {
         this.prefs = BaseApplication.get().getSharedPreferences("wa", Context.MODE_PRIVATE);
+    }
+
+    private void initWordList() {
+        try {
+            MnemonicCode.INSTANCE = new MnemonicCode(BaseApplication.get().getResources().openRawResource(R.raw.bip39_wordlist), null);
+        } catch (final IOException e) {
+            LogUtil.e(getClass(), "Wordlist not loaded.");
+            throw new RuntimeException(e);
+        }
     }
 
     private HDWallet initWallet() {

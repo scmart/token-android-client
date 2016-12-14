@@ -3,14 +3,14 @@ apply plugin: 'io.fabric'
 apply plugin: 'realm-android'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion '24.0.3'
+    compileSdkVersion 25
+    buildToolsVersion '25.0.2'
     dataBinding.enabled = true
 
     defaultConfig {
         applicationId "com.tokenbrowser"
         minSdkVersion 16
-        targetSdkVersion 24
+        targetSdkVersion 25
 
         versionCode 7
         versionName "0.1"
@@ -63,10 +63,9 @@ android {
 dependencies {
     compile(
             // Support
-            'com.android.support:appcompat-v7:24.2.1',
-            'com.android.support:recyclerview-v7:24.2.1',
-            'com.android.support:design:24.2.1',
-            'com.google.android.gms:play-services-ads:9.4.0',
+            'com.android.support:appcompat-v7:25.1.0',
+            'com.android.support:recyclerview-v7:25.1.0',
+            'com.android.support:design:25.1.0',
             'com.android.support:multidex:1.0.0',
             // Networking
             'com.squareup.retrofit2:retrofit:2.1.0',
@@ -79,17 +78,13 @@ dependencies {
             'io.reactivex:rxandroid:1.2.1',
             // Images
             'de.hdodenhof:circleimageview:2.1.0',
-            // Animations / custom views
-            'com.github.ybq:Android-SpinKit:1.1.0',
-            'com.hbb20:ccp:1.5.1',
             // Reading barcodes
             'com.journeyapps:zxing-android-embedded:3.3.0',
             // Crypto
             'org.bitcoinj:bitcoinj-core:0.14.3',
             'com.github.toshiapp:libsignal-service-java:2b94729',
             'com.madgag.spongycastle:core:1.54.0.0',
-            'com.madgag.spongycastle:prov:1.54.0.0',
-            'org.mindrot:jbcrypt:0.3m',
+            'com.madgag.spongycastle:prov:1.54.0.0'
     )
 
     compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {
