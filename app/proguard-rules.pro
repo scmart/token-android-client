@@ -14,17 +14,9 @@
 
 -keep enum com.bakkenbaeck.token.network.ws.model.** { *; }
 
--keepclassmembers class com.supersonicads.sdk.controller.SupersonicWebView$JSInterface {
-    public *;
-}
 -keepclassmembers class * implements android.os.Parcelable {
     public static final android.os.Parcelable$Creator *;
 }
--keep,includedescriptorclasses public class com.google.android.gms.ads.** {
-   public *;
-}
-
--keep,includedescriptorclasses class com.supersonic.adapters.** { *; }
 
 -keep class com.bakkenbaeck.token.model.** { *; }
 -keep class com.bakkenbaeck.token.network.** { *; }
@@ -43,13 +35,9 @@
 
 -keep public class com.bakkenbaeck.token.model.jsonadapter.BigIntegerAdapter { *; }
 
--keepclassmembers class * {
-    @android.webkit.JavascriptInterface <methods>;
-}
-
 -dontwarn android.webkit.**
 -dontwarn com.google.android.**
--dontwarn com.adcolony.sdk.**
+-dontwarn android.databinding.**
 
 
 # bitcoinj
@@ -62,3 +50,19 @@
 -dontnote org.bitcoinj.crypto.DRMWorkaround
 -dontnote org.bitcoinj.crypto.TrustStoreLoader$DefaultTrustStoreLoader
 -dontwarn org.bitcoinj.store.LevelDBFullPrunedBlockStore**
+
+
+# jackson
+-keepattributes *Annotation*,EnclosingMethod,Signature
+-keepnames class com.fasterxml.jackson.** { *; }
+ -dontwarn com.fasterxml.jackson.databind.**
+ -keep class org.codehaus.** { *; }
+ -keepclassmembers public final enum org.codehaus.jackson.annotate.JsonAutoDetect$Visibility {
+ public static final org.codehaus.jackson.annotate.JsonAutoDetect$Visibility *; }
+-keep public class your.class.** {
+  public void set*(***);
+  public *** get*();
+}
+
+-keep class org.slf4j.** { *; }
+-dontwarn org.slf4j.**
