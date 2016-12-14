@@ -67,6 +67,7 @@ dependencies {
             'com.android.support:recyclerview-v7:25.1.0',
             'com.android.support:design:25.1.0',
             'com.android.support:multidex:1.0.0',
+            'com.aurelhubert:ahbottomnavigation:2.0.2',
             // Networking
             'com.squareup.retrofit2:retrofit:2.1.0',
             'com.squareup.retrofit2:converter-moshi:2.1.0',
