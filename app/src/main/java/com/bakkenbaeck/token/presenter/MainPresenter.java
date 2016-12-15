@@ -22,7 +22,7 @@ public class MainPresenter implements Presenter<MainActivity> {
             }
 
             final AHBottomNavigationViewPager viewPager = activity.getBinding().viewPager;
-            viewPager.setCurrentItem(position);
+            viewPager.setCurrentItem(position, false);
             return true;
         }
     };
@@ -33,8 +33,8 @@ public class MainPresenter implements Presenter<MainActivity> {
 
         if (this.firstTimeAttached) {
             this.firstTimeAttached = false;
-            initNavBar();
         }
+        initNavBar();
     }
 
     private void initNavBar() {
