@@ -12,17 +12,17 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.presenter.NavigationPresenter;
+import com.bakkenbaeck.token.presenter.PlaceholderPresenter;
 import com.bakkenbaeck.token.presenter.PresenterLoader;
-import com.bakkenbaeck.token.presenter.factory.NavigationPresenterFactory;
+import com.bakkenbaeck.token.presenter.factory.PlaceholderPresenterFactory;
 
-public class NavigationFragment extends Fragment implements LoaderManager.LoaderCallbacks<NavigationPresenter> {
+public class PlaceholderFragment extends Fragment implements LoaderManager.LoaderCallbacks<PlaceholderPresenter> {
 
     private static final int LOADER_ID = 101;
-    private NavigationPresenter presenter;
+    private PlaceholderPresenter presenter;
 
-    public static NavigationFragment newInstance(final int position) {
-        final NavigationFragment f = new NavigationFragment();
+    public static PlaceholderFragment newInstance(final int position) {
+        final PlaceholderFragment f = new PlaceholderFragment();
         final Bundle args = new Bundle();
         args.putInt("pos", position);
         f.setArguments(args);
@@ -45,8 +45,8 @@ public class NavigationFragment extends Fragment implements LoaderManager.Loader
     }
 
     @Override
-    public Loader<NavigationPresenter> onCreateLoader(final int id, final Bundle args) {
-        return new PresenterLoader<>(this.getContext(), new NavigationPresenterFactory());
+    public Loader<PlaceholderPresenter> onCreateLoader(final int id, final Bundle args) {
+        return new PresenterLoader<>(this.getContext(), new PlaceholderPresenterFactory());
     }
 
     @Override
@@ -62,12 +62,12 @@ public class NavigationFragment extends Fragment implements LoaderManager.Loader
     }
 
     @Override
-    public void onLoadFinished(final Loader<NavigationPresenter> loader, final NavigationPresenter presenter) {
+    public void onLoadFinished(final Loader<PlaceholderPresenter> loader, final PlaceholderPresenter presenter) {
         this.presenter = presenter;
     }
 
     @Override
-    public void onLoaderReset(final Loader<NavigationPresenter> loader) {
+    public void onLoaderReset(final Loader<PlaceholderPresenter> loader) {
         this.presenter.onViewDestroyed();
         this.presenter = null;
     }

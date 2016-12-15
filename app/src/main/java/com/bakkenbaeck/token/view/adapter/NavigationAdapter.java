@@ -1,30 +1,31 @@
 package com.bakkenbaeck.token.view.adapter;
 
 
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.bakkenbaeck.token.view.fragment.NavigationFragment;
+import com.bakkenbaeck.token.view.fragment.PlaceholderFragment;
 
 import java.util.ArrayList;
 
 public class NavigationAdapter extends FragmentPagerAdapter {
 
-    private ArrayList<NavigationFragment> fragments = new ArrayList<>();
+    private ArrayList<Fragment> fragments = new ArrayList<>();
 
     public NavigationAdapter(final FragmentManager fm) {
         super(fm);
 
         fragments.clear();
-        fragments.add(NavigationFragment.newInstance(0));
-        fragments.add(NavigationFragment.newInstance(1));
-        fragments.add(NavigationFragment.newInstance(2));
-        fragments.add(NavigationFragment.newInstance(3));
-        fragments.add(NavigationFragment.newInstance(4));
+        fragments.add(PlaceholderFragment.newInstance(0));
+        fragments.add(PlaceholderFragment.newInstance(1));
+        fragments.add(PlaceholderFragment.newInstance(2));
+        fragments.add(PlaceholderFragment.newInstance(3));
+        fragments.add(PlaceholderFragment.newInstance(4));
     }
 
     @Override
-    public NavigationFragment getItem(final int position) {
+    public Fragment getItem(final int position) {
         return this.fragments.get(position);
     }
 

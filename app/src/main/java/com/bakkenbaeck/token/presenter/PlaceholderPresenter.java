@@ -3,14 +3,14 @@ package com.bakkenbaeck.token.presenter;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.view.fragment.NavigationFragment;
+import com.bakkenbaeck.token.view.fragment.PlaceholderFragment;
 
-public final class NavigationPresenter implements Presenter<NavigationFragment> {
+public final class PlaceholderPresenter implements Presenter<PlaceholderFragment> {
 
-    private NavigationFragment fragment;
+    private PlaceholderFragment fragment;
 
     @Override
-    public void onViewAttached(final NavigationFragment fragment) {
+    public void onViewAttached(final PlaceholderFragment fragment) {
         this.fragment = fragment;
 
         final TextView text = (TextView) this.fragment.getView().findViewById(R.id.qrCodeText);
