@@ -2,10 +2,8 @@ package com.bakkenbaeck.token.view.fragment;
 
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +11,11 @@ import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.presenter.PlaceholderPresenter;
-import com.bakkenbaeck.token.presenter.PresenterLoader;
 import com.bakkenbaeck.token.presenter.factory.PlaceholderPresenterFactory;
+import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
 
-public class PlaceholderFragment extends Fragment implements LoaderManager.LoaderCallbacks<PlaceholderPresenter> {
+public class PlaceholderFragment extends BasePresenterFragment<PlaceholderPresenter, PlaceholderFragment> {
 
-    private static final int LOADER_ID = 101;
     private PlaceholderPresenter presenter;
 
     public static PlaceholderFragment newInstance(final int position) {
@@ -38,37 +35,14 @@ public class PlaceholderFragment extends Fragment implements LoaderManager.Loade
         return v;
     }
 
+    @NonNull
     @Override
-    public void onActivityCreated(final Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(LOADER_ID, null, this);
+    protected PresenterFactory<PlaceholderPresenter> getPresenterFactory() {
+        return new PlaceholderPresenterFactory();
     }
 
     @Override
-    public Loader<PlaceholderPresenter> onCreateLoader(final int id, final Bundle args) {
-        return new PresenterLoader<>(this.getContext(), new PlaceholderPresenterFactory());
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        presenter.onViewAttached(this);
-    }
-
-    @Override
-    public void onPause() {
-        presenter.onViewDetached();
-        super.onPause();
-    }
-
-    @Override
-    public void onLoadFinished(final Loader<PlaceholderPresenter> loader, final PlaceholderPresenter presenter) {
+    protected void onPresenterPrepared(@NonNull final PlaceholderPresenter presenter) {
         this.presenter = presenter;
-    }
-
-    @Override
-    public void onLoaderReset(final Loader<PlaceholderPresenter> loader) {
-        this.presenter.onViewDestroyed();
-        this.presenter = null;
     }
 }

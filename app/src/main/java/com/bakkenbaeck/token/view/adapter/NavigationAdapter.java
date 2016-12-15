@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import com.bakkenbaeck.token.view.fragment.PlaceholderFragment;
+import com.bakkenbaeck.token.view.fragment.ScannerFragment;
 
 import java.util.ArrayList;
 
@@ -19,7 +20,7 @@ public class NavigationAdapter extends FragmentPagerAdapter {
         fragments.clear();
         fragments.add(PlaceholderFragment.newInstance(0));
         fragments.add(PlaceholderFragment.newInstance(1));
-        fragments.add(PlaceholderFragment.newInstance(2));
+        fragments.add(ScannerFragment.newInstance());
         fragments.add(PlaceholderFragment.newInstance(3));
         fragments.add(PlaceholderFragment.newInstance(4));
     }
