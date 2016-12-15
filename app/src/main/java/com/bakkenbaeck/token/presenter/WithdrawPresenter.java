@@ -27,7 +27,7 @@ import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
-import com.bakkenbaeck.token.view.Fragment.QrFragment;
+import com.bakkenbaeck.token.view.fragment.QrFragment;
 import com.bakkenbaeck.token.view.activity.BarcodeScannerActivity;
 import com.bakkenbaeck.token.view.activity.WithdrawActivity;
 import com.bakkenbaeck.token.view.adapter.PreviousWalletAddress;

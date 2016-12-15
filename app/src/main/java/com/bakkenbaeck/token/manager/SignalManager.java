@@ -56,6 +56,8 @@ public class SignalManager {
     private void initSignalManager() {
         generateStores();
         registerIfNeeded();
+        //sendMessage("0x65ed7a22acc5e0f9a865081908379e36467957e1");
+        //receiveMessage();
     }
 
     private void receiveMessage() {

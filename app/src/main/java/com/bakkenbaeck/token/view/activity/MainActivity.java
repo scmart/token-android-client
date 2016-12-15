@@ -7,8 +7,8 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 
-import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.databinding.ActivityMainBinding;
+import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.presenter.MainPresenter;
 import com.bakkenbaeck.token.presenter.PresenterLoader;
 import com.bakkenbaeck.token.presenter.factory.MainPresenterFactory;
