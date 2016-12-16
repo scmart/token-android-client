@@ -1,11 +1,11 @@
 package com.bakkenbaeck.token.presenter;
 
 
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
-import com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.view.activity.MainActivity;
 import com.bakkenbaeck.token.view.adapter.NavigationAdapter;
@@ -23,8 +23,8 @@ public class MainPresenter implements Presenter<MainActivity> {
                 return true;
             }
 
-            final AHBottomNavigationViewPager viewPager = activity.getBinding().viewPager;
-            viewPager.setCurrentItem(position, false);
+            final FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
+            transaction.replace(activity.getBinding().container.getId(), adapter.getItem(position)).commit();
             return true;
         }
     };
@@ -36,20 +36,22 @@ public class MainPresenter implements Presenter<MainActivity> {
         if (this.firstTimeAttached) {
             this.firstTimeAttached = false;
             this.adapter = new NavigationAdapter(this.activity.getSupportFragmentManager());
+            manuallySelectFirstTab();
         }
         initNavBar();
     }
 
+    private void manuallySelectFirstTab() {
+        this.tabListener.onTabSelected(0, false);
+    }
+
     private void initNavBar() {
         final AHBottomNavigation navBar = this.activity.getBinding().navBar;
-        final AHBottomNavigationViewPager viewPager = this.activity.getBinding().viewPager;
         final AHBottomNavigationAdapter menuInflater = new AHBottomNavigationAdapter(this.activity, R.menu.navigation);
         menuInflater.setupWithBottomNavigation(navBar);
         navBar.setTitleState(AHBottomNavigation.TitleState.ALWAYS_SHOW);
         navBar.setAccentColor(ContextCompat.getColor(this.activity, R.color.colorPrimary));
         navBar.setOnTabSelectedListener(this.tabListener);
-
-        viewPager.setAdapter(this.adapter);
     }
 
     @Override

@@ -32,14 +32,6 @@ public class ScannerFragment extends BasePresenterFragment<ScannerPresenter, Sca
         return binding.getRoot();
     }
 
-    @Override
-    public void setUserVisibleHint(final boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (this.presenter != null) {
-            this.presenter.setUserVisibleHint(isVisibleToUser);
-        }
-    }
-
     public FragmentScannerBinding getBinding() {
         return this.binding;
     }

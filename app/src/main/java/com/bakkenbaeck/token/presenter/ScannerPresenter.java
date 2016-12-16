@@ -16,6 +16,8 @@ public final class ScannerPresenter implements Presenter<ScannerFragment> {
 
     private void init() {
         this.capture = new CaptureManager(this.fragment.getActivity(), this.fragment.getBinding().scanner);
+        this.capture.decode();
+        this.capture.onResume();
     }
 
     @Override
@@ -28,14 +30,5 @@ public final class ScannerPresenter implements Presenter<ScannerFragment> {
     public void onViewDestroyed() {
         this.capture.onDestroy();
         this.fragment = null;
-    }
-
-    public void setUserVisibleHint(final boolean isVisibleToUser) {
-        if (isVisibleToUser) {
-            this.capture.decode();
-            this.capture.onResume();
-        } else {
-            this.capture.onPause();
-        }
     }
 }
