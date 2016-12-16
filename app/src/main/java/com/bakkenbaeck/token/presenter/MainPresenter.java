@@ -14,6 +14,8 @@ public class MainPresenter implements Presenter<MainActivity> {
 
     private MainActivity activity;
     private boolean firstTimeAttached = true;
+    private NavigationAdapter adapter;
+
     private final AHBottomNavigation.OnTabSelectedListener tabListener = new AHBottomNavigation.OnTabSelectedListener() {
         @Override
         public boolean onTabSelected(final int position, final boolean wasSelected) {
@@ -33,6 +35,7 @@ public class MainPresenter implements Presenter<MainActivity> {
 
         if (this.firstTimeAttached) {
             this.firstTimeAttached = false;
+            this.adapter = new NavigationAdapter(this.activity.getSupportFragmentManager());
         }
         initNavBar();
     }
@@ -40,14 +43,13 @@ public class MainPresenter implements Presenter<MainActivity> {
     private void initNavBar() {
         final AHBottomNavigation navBar = this.activity.getBinding().navBar;
         final AHBottomNavigationViewPager viewPager = this.activity.getBinding().viewPager;
-        final AHBottomNavigationAdapter adapter = new AHBottomNavigationAdapter(this.activity, R.menu.navigation);
-        adapter.setupWithBottomNavigation(navBar);
+        final AHBottomNavigationAdapter menuInflater = new AHBottomNavigationAdapter(this.activity, R.menu.navigation);
+        menuInflater.setupWithBottomNavigation(navBar);
         navBar.setTitleState(AHBottomNavigation.TitleState.ALWAYS_SHOW);
         navBar.setAccentColor(ContextCompat.getColor(this.activity, R.color.colorPrimary));
         navBar.setOnTabSelectedListener(this.tabListener);
 
-        final NavigationAdapter navAdapter = new NavigationAdapter(this.activity.getSupportFragmentManager());
-        viewPager.setAdapter(navAdapter);
+        viewPager.setAdapter(this.adapter);
     }
 
     @Override

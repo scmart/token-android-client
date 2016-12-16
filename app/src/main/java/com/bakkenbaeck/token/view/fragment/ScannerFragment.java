@@ -1,5 +1,6 @@
 package com.bakkenbaeck.token.view.fragment;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,16 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.databinding.FragmentScannerBinding;
 import com.bakkenbaeck.token.presenter.ScannerPresenter;
 import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
 import com.bakkenbaeck.token.presenter.factory.ScannerPresenterFactory;
-import com.journeyapps.barcodescanner.CaptureManager;
-import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
 public class ScannerFragment extends BasePresenterFragment<ScannerPresenter, ScannerFragment>  {
-    private CaptureManager capture;
-    private DecoratedBarcodeView barcodeScannerView;
     private ScannerPresenter presenter;
+    private FragmentScannerBinding binding;
 
     public static Fragment newInstance() {
         return new ScannerFragment();
@@ -29,24 +28,20 @@ public class ScannerFragment extends BasePresenterFragment<ScannerPresenter, Sca
     public View onCreateView(final LayoutInflater inflater,
                              final ViewGroup container,
                              final Bundle inState) {
-        final View v = inflater.inflate(R.layout.activity_barcode, container, false);
-        barcodeScannerView = (DecoratedBarcodeView)v.findViewById(R.id.barcode_scanner);
-
-        capture = new CaptureManager(this.getActivity(), barcodeScannerView);
-        capture.decode();
-        return v;
+        this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_scanner, container, false);
+        return binding.getRoot();
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        capture.onResume();
+    public void setUserVisibleHint(final boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (this.presenter != null) {
+            this.presenter.setUserVisibleHint(isVisibleToUser);
+        }
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        capture.onPause();
+    public FragmentScannerBinding getBinding() {
+        return this.binding;
     }
 
     @NonNull
@@ -58,12 +53,6 @@ public class ScannerFragment extends BasePresenterFragment<ScannerPresenter, Sca
     @Override
     protected void onPresenterPrepared(@NonNull final ScannerPresenter presenter) {
         this.presenter = presenter;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        capture.onDestroy();
     }
 
 }
