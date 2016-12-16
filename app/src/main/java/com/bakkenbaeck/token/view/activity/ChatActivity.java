@@ -22,7 +22,7 @@ import com.bakkenbaeck.token.presenter.PresenterLoader;
 import com.bakkenbaeck.token.presenter.factory.ChatPresenterFactory;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
-import com.bakkenbaeck.token.view.Fragment.QrFragment;
+import com.bakkenbaeck.token.view.fragment.QrFragment;
 import com.bakkenbaeck.token.view.adapter.viewholder.BottomOffsetDecoration;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 import com.crashlytics.android.Crashlytics;

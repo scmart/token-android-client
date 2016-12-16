@@ -47,8 +47,7 @@
             android:textColor="@color/textColorSec"
             android:textSize="12sp"
             android:textIsSelectable="true"
-            android:layout_marginTop="32dp"
-            android:alpha="0"/>
+            android:layout_marginTop="32dp"/>
 
     </LinearLayout>
 

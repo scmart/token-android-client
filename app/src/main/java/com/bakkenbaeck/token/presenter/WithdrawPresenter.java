@@ -27,8 +27,8 @@ import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
-import com.bakkenbaeck.token.view.Fragment.QrFragment;
-import com.bakkenbaeck.token.view.activity.BarcodeScannerActivity;
+import com.bakkenbaeck.token.view.fragment.QrFragment;
+import com.bakkenbaeck.token.view.fragment.ScannerFragment;
 import com.bakkenbaeck.token.view.activity.WithdrawActivity;
 import com.bakkenbaeck.token.view.adapter.PreviousWalletAddress;
 import com.bakkenbaeck.token.view.dialog.ProgressDialog;
@@ -175,7 +175,7 @@ public class WithdrawPresenter implements Presenter<WithdrawActivity>, QrFragmen
 
     private void showBarcodeActivity() {
         new IntentIntegrator(this.activity)
-                .setCaptureActivity(BarcodeScannerActivity.class)
+                .setCaptureActivity(ScannerFragment.class)
                 .setOrientationLocked(true)
                 .setPrompt("")
                 .setBeepEnabled(true)

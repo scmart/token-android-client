@@ -15,7 +15,7 @@ import com.bakkenbaeck.token.model.ActivityResultHolder;
 import com.bakkenbaeck.token.presenter.PresenterLoader;
 import com.bakkenbaeck.token.presenter.WithdrawPresenter;
 import com.bakkenbaeck.token.presenter.factory.WithdrawPresenterFactory;
-import com.bakkenbaeck.token.view.Fragment.QrFragment;
+import com.bakkenbaeck.token.view.fragment.QrFragment;
 
 public class WithdrawActivity extends AppCompatActivity implements
                                                             LoaderManager.LoaderCallbacks<WithdrawPresenter>{

@@ -1,4 +1,4 @@
-package com.bakkenbaeck.token.view.Fragment;
+package com.bakkenbaeck.token.view.fragment;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;

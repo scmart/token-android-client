@@ -23,17 +23,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.bakkenbaeck.token.view.activity.ChatActivity" />
-
-        <activity android:name="com.bakkenbaeck.token.view.activity.WithdrawActivity"
-                  android:windowSoftInputMode="stateHidden"/>
-
-        <activity android:name="com.bakkenbaeck.token.view.activity.BarcodeScannerActivity"
-                  android:clearTaskOnLaunch="true"
-                  android:screenOrientation="portrait"
-                  android:stateNotNeeded="true"
-                  android:theme="@style/ScannerTheme"
-                  android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity android:name="com.bakkenbaeck.token.view.activity.MainActivity" />
 
         <meta-data
             android:name="io.fabric.ApiKey"

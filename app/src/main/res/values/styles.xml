@@ -2,12 +2,12 @@
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">#4E525D</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textColor">@color/mainText</item>
-        <item name="android:colorBackground">@color/generalBg</item>
-        <item name="android:windowBackground">@color/generalBg</item>
-        <item name="android:textColorHint">@color/mainTextHint</item>
+        <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="android:colorBackground">@color/windowBackground</item>
+        <item name="android:windowBackground">@color/windowBackground</item>
+        <item name="android:textColorHint">@color/textColorHint</item>
         <item name="editTextStyle">@style/AppEditTextStyle</item>
         <item name="android:editTextStyle">@style/AppEditTextStyle</item>
         <item name="android:autoCompleteTextViewStyle">@style/AppAutoCompleteTextStyle</item>
@@ -45,7 +45,7 @@
     </style>
 
     <style name="FlatButton" parent="Button">
-        <item name="android:textColor">@color/mainTextHint</item>
+        <item name="android:textColor">@color/textColorPrimary</item>
         <item name="android:background">@android:color/transparent</item>
         <item name="android:textAllCaps">true</item>
     </style>
@@ -85,7 +85,7 @@
     <style name="DialogTheme" parent="Theme.AppCompat.Dialog">
         <item name="android:background">@drawable/round_corner_dialog</item>
         <item name="android:textColor">@color/mainText</item>
-        <item name="android:textColorHint">@color/mainTextHint</item>
+        <item name="android:textColorHint">@color/textColorHint</item>
         <item name="colorPrimary">@color/divider</item>
         <item name="colorPrimaryDark">@color/divider</item>
         <item name="colorAccent">@color/divider</item>

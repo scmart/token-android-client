@@ -18,7 +18,7 @@ import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnCompletedObserver;
 import com.bakkenbaeck.token.util.OnNextObserver;
 import com.bakkenbaeck.token.util.SharedPrefsUtil;
-import com.bakkenbaeck.token.view.Fragment.QrFragment;
+import com.bakkenbaeck.token.view.fragment.QrFragment;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.WithdrawActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;

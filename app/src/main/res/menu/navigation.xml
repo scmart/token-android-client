@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:title="@string/tab_1"
+        android:icon="@drawable/ic_action_home" />
+
+    <item
+        android:title="@string/tab_2"
+        android:icon="@drawable/ic_action_apps" />
+
+    <item
+        android:title="@string/tab_3"
+        android:icon="@drawable/ic_action_scan" />
+
+    <item
+        android:title="@string/tab_4"
+        android:icon="@drawable/ic_action_contacts" />
+
+    <item
+        android:title="@string/tab_5"
+        android:icon="@drawable/ic_action_settings" />
+</menu>
