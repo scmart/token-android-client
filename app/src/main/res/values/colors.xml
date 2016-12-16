@@ -1,45 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="windowBackground">#F5F6F6</color>
     <color name="colorPrimary">#02BE6E</color>
     <color name="colorPrimaryDark">#0F945C</color>
-
-    <color name="windowBackground">#F5F6F6</color>
-
+    <color name="colorAccent">#33AFFF</color>
     <color name="textColorPrimary">#161621</color>
     <color name="textColorSecondary">#9F9FA3</color>
     <color name="textColorContrast">#FFFFFF</color>
-
     <color name="textColorHint">#B2B4B8</color>
 
-
-    <color name="textColorTertiary">#33AFFF</color>
-    <color name="buttonTextColor">#FFFFFF</color>
-    <color name="colorAccent">#33AFFF</color>
-    <color name="mainText">#4C4848</color>
-    <color name="black">#000000</color>
-    <color name="bubbleBgLocal">#5AD3ED</color>
-    <color name="bubbleTextLocal">#EEEEF3</color>
-    <color name="bubbleBgRemote">#FFFFFF</color>
-    <color name="bubbleBorderRemote">#E5E5E5</color>
-
-    <color name="balanceBg">#FFFFFF</color>
-    <color name="toBg">#F3F3F3</color>
     <color name="divider">#EBEBEB</color>
-
-    <color name="accent1">#689de3</color>
-    <color name="accent2">#8868e3</color>
-    <color name="accent3">#50D08B</color>
-    <color name="accent4">#F6C44C</color>
-    <color name="input_underline">#565A64</color>
-    <color name="statusbarBackgroundColor">#DEDEDE</color>
-    <color name="dividerColor">#0D4E525D</color>
-    <color name="tile_color">#FFFFFF</color>
-    <color name="textColorPri">#CC4E525D</color>
-    <color name="textColorSec">#994E525D</color>
-    <color name="inputText">#CC4E525D</color>
-    <color name="hintText">#664E525D</color>
-    <color name="disabledState">#1A565A64</color>
-    <color name="defaultBackground">#EFF3F6</color>
-    <color name="errorState">#FF3333</color>
-    <color name="qr_dialog_background">#FFFFFF</color>
 </resources>

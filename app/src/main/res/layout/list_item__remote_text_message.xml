@@ -31,7 +31,7 @@
             android:layout_marginRight="@dimen/bubbleMargin"
             android:gravity="center_vertical"
             android:textSize="@dimen/defaultTextSize"
-            android:textColor="@color/textColorSec"
+            android:textColor="@color/textColorSecondary"
             android:lineSpacingExtra="2dp"
             tools:text="Sent 0.00002 ETH to 0xf1dd18252bdfd94ebf0630f2f12aa99dfa7fe5f8"
             />
@@ -40,7 +40,6 @@
             android:id="@+id/verifyBtn"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:background="@drawable/disabled_background"
             android:layout_marginTop="@dimen/textBubblePadding"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"

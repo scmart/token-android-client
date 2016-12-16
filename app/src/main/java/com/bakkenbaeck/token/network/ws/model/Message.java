@@ -39,10 +39,4 @@ public class Message {
     public List<Action> getActions(){
         return payload.actions;
     }
-
-    public boolean shouldShowVideo(){
-        return     getActions() != null
-                && getActions().size() == 1
-                && getActions().get(0).getAction().equals("show_video");
-    }
 }

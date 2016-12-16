@@ -1,6 +1,5 @@
 package com.bakkenbaeck.token.presenter;
 
-import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
@@ -15,13 +14,11 @@ import com.bakkenbaeck.token.model.ChatMessage;
 import com.bakkenbaeck.token.network.ws.model.Message;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.LogUtil;
-import com.bakkenbaeck.token.util.OnCompletedObserver;
 import com.bakkenbaeck.token.util.OnNextObserver;
 import com.bakkenbaeck.token.util.SharedPrefsUtil;
-import com.bakkenbaeck.token.view.fragment.QrFragment;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
-import com.bakkenbaeck.token.view.activity.WithdrawActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
+import com.bakkenbaeck.token.view.fragment.QrFragment;
 
 public final class ChatPresenter implements
         Presenter<ChatActivity>,
@@ -80,7 +77,6 @@ public final class ChatPresenter implements
 
     private void initLongLivingObjects() {
         this.chatMessageStore = new ChatMessageStore();
-        this.chatMessageStore.getEmptySetObservable().subscribe(this.noStoredChatMessages);
         this.chatMessageStore.getNewMessageObservable().subscribe(this.newChatMessage);
 
         this.messageAdapter = new MessageAdapter(activity);
@@ -95,29 +91,12 @@ public final class ChatPresenter implements
         this.activity.getSupportActionBar().setTitle(title);
     }
 
-    private final OnCompletedObserver<Void> noStoredChatMessages = new OnCompletedObserver<Void>() {
-        @Override
-        public void onCompleted() {
-            showWelcomeMessage();
-        }
-    };
-
     private final OnNextObserver<ChatMessage> newChatMessage = new OnNextObserver<ChatMessage>() {
         @Override
         public void onNext(final ChatMessage chatMessage) {
             messageAdapter.addMessage(chatMessage);
         }
     };
-
-    private void showWelcomeMessage() {
-        final ChatMessage videoMessage = new ChatMessage().makeRemoteVideoMessage(this.activity.getResources().getString(R.string.chat__welcome_message));
-        displayMessage(videoMessage, 500);
-    }
-
-    private void showVideoRequestMessage() {
-        final ChatMessage message = new ChatMessage().makeLocalMessageWithText(this.activity.getResources().getString(R.string.chat__request_video_message));
-        displayMessage(message);
-    }
 
     private void displayMessage(final ChatMessage chatMessage, final int delay) {
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
@@ -144,9 +123,7 @@ public final class ChatPresenter implements
         @Override
         public void onNext(final Message message) {
             if (message.getType() != null && message.getType().equals(ChatMessage.REWARD_EARNED_TYPE)) {
-                displayMessage(new ChatMessage().makeRemoteRewardMessage(message), 0);
-            } else if (message.shouldShowVideo()) {
-                displayMessage(new ChatMessage().makeRemoteVideoMessage(message.toString()), 0);
+                displayMessage(new ChatMessage().makeRemoteRewardMessage(message), 0);;
             } else {
                 if (message.getType() != null && message.getType().equals(ChatMessage.DAILY_LIMIT_REACHED)) {
                     promptNewVideo();
@@ -216,12 +193,6 @@ public final class ChatPresenter implements
 
     public void handleActivityResult(final ActivityResultHolder activityResultHolder) {
 
-    }
-
-    public void handleWithdrawClicked() {
-        final Intent intent = new Intent(this.activity, WithdrawActivity.class);
-        this.activity.startActivityForResult(intent, WITHDRAW_REQUEST_CODE);
-        this.activity.overridePendingTransition(R.anim.enter_fade_in, R.anim.exit_fade_out);
     }
 
     private void showQrFragment() {

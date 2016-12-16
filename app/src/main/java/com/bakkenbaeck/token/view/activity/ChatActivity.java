@@ -9,7 +9,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
 
@@ -22,9 +21,9 @@ import com.bakkenbaeck.token.presenter.PresenterLoader;
 import com.bakkenbaeck.token.presenter.factory.ChatPresenterFactory;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
-import com.bakkenbaeck.token.view.fragment.QrFragment;
 import com.bakkenbaeck.token.view.adapter.viewholder.BottomOffsetDecoration;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
+import com.bakkenbaeck.token.view.fragment.QrFragment;
 import com.crashlytics.android.Crashlytics;
 
 import io.fabric.sdk.android.Fabric;
@@ -77,14 +76,6 @@ public final class ChatActivity extends AppCompatActivity implements LoaderManag
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.chat, menu);
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        if (item.getItemId() == R.id.mi_withdraw) {
-            this.presenter.handleWithdrawClicked();
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

@@ -35,7 +35,6 @@
                 android:paddingBottom="50dp"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/messageListRightMargin"
-                android:background="@color/defaultBackground"
                 android:clipToPadding="false"/>
         </LinearLayout>
 
@@ -50,7 +49,6 @@
             android:layout_marginBottom="20dp"
             android:gravity="center"
             android:textAllCaps="true"
-            android:textColor="@color/buttonTextColor"
             android:textSize="@dimen/buttonTextSize"
             android:fontFamily="sans-serif-medium"
             tools:visibility="visible"

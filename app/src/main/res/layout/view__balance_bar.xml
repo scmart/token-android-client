@@ -10,7 +10,6 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/balanceBg"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin">
 
@@ -24,7 +23,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
                 android:textSize="@dimen/subTitleSize"
                 android:textStyle="bold"
                 android:text="@string/dollar"/>
@@ -33,7 +31,6 @@
                 android:id="@+id/eth_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
                 android:textSize="@dimen/subTitleSize"
                 android:textStyle="bold"
                 android:text="0.00"/>
@@ -41,7 +38,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
                 android:layout_marginLeft="4dp"
                 android:textStyle="bold"
                 android:textSize="@dimen/subTitleSize"
@@ -51,47 +47,18 @@
                 android:id="@+id/balance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/textColorSec"
                 android:textSize="@dimen/balance_bar_text_size"
+                android:textColor="@color/textColorSecondary"
                 android:layout_marginLeft="8dp"
                 android:text="0.0000"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/textColorSec"
+                android:textSize="@dimen/balance_bar_text_size"
+                android:textColor="@color/textColorSecondary"
                 android:layout_marginLeft="4dp"
-                android:textSize="@dimen/balance_bar_text_size"
                 android:text="@string/my_balance" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="right"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/textColorSec"
-                android:textSize="@dimen/balance_bar_text_size"
-                android:text="@string/level" />
-
-            <TextView
-                android:id="@+id/level"
-                android:layout_width="wrap_content"
-                android:layout_height="24dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:gravity="center"
-                android:textColor="@color/buttonTextColor"
-                android:textSize="@dimen/balance_bar_text_size"
-                android:background="@drawable/reputation_background"
-                android:layout_marginLeft="8dp"
-                android:text="0" />
 
         </LinearLayout>
     </FrameLayout>
