@@ -35,7 +35,7 @@ public class MainPresenter implements Presenter<MainActivity> {
 
         if (this.firstTimeAttached) {
             this.firstTimeAttached = false;
-            this.adapter = new NavigationAdapter(this.activity.getSupportFragmentManager());
+            this.adapter = new NavigationAdapter(this.activity, R.menu.navigation);
             manuallySelectFirstTab();
         }
         initNavBar();

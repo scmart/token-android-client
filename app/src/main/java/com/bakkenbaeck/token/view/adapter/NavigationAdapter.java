@@ -2,8 +2,10 @@ package com.bakkenbaeck.token.view.adapter;
 
 
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
+import android.view.Menu;
 
 import com.bakkenbaeck.token.view.fragment.PlaceholderFragment;
 import com.bakkenbaeck.token.view.fragment.ScannerFragment;
@@ -14,15 +16,19 @@ public class NavigationAdapter extends FragmentPagerAdapter {
 
     private ArrayList<Fragment> fragments = new ArrayList<>();
 
-    public NavigationAdapter(final FragmentManager fm) {
-        super(fm);
+    public NavigationAdapter(final AppCompatActivity activity, final int menuRes) {
+        super(activity.getSupportFragmentManager());
+
+        final PopupMenu popupMenu = new PopupMenu(activity, null);
+        final Menu menu = popupMenu.getMenu();
+        activity.getMenuInflater().inflate(menuRes, menu);
 
         fragments.clear();
-        fragments.add(PlaceholderFragment.newInstance(0));
-        fragments.add(PlaceholderFragment.newInstance(1));
-        fragments.add(ScannerFragment.newInstance());
-        fragments.add(PlaceholderFragment.newInstance(3));
-        fragments.add(PlaceholderFragment.newInstance(4));
+        fragments.add(PlaceholderFragment.newInstance(menu.getItem(0).getTitle()));
+        fragments.add(PlaceholderFragment.newInstance(menu.getItem(1).getTitle()));
+        fragments.add(ScannerFragment.newInstance(menu.getItem(2).getTitle()));
+        fragments.add(PlaceholderFragment.newInstance(menu.getItem(3).getTitle()));
+        fragments.add(PlaceholderFragment.newInstance(menu.getItem(4).getTitle()));
     }
 
     @Override

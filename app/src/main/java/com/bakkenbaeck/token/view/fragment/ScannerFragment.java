@@ -19,8 +19,12 @@ public class ScannerFragment extends BasePresenterFragment<ScannerPresenter, Sca
     private ScannerPresenter presenter;
     private FragmentScannerBinding binding;
 
-    public static Fragment newInstance() {
-        return new ScannerFragment();
+    public static Fragment newInstance(final CharSequence title) {
+        final ScannerFragment f = new ScannerFragment();
+        final Bundle b = new Bundle();
+        b.putCharSequence("title", title);
+        f.setArguments(b);
+        return f;
     }
 
     @Nullable
