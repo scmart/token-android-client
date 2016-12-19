@@ -1,7 +1,5 @@
 package com.bakkenbaeck.token.crypto.db;
 
-
-import com.android.annotations.NonNull;
 import com.bakkenbaeck.token.crypto.util.FastByteComparisons;
 
 import org.spongycastle.util.encoders.Hex;

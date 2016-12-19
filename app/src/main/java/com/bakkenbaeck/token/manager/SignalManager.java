@@ -57,7 +57,7 @@ public class SignalManager {
         generateStores();
         registerIfNeeded();
         //sendMessage("0x65ed7a22acc5e0f9a865081908379e36467957e1");
-        //receiveMessage();
+        receiveMessage();
     }
 
     private void receiveMessage() {
@@ -112,11 +112,14 @@ public class SignalManager {
                 null
         );
         try {
-            messageSender.sendMessage(
-                    new SignalServiceAddress(remoteAddress),
+            final int count = 5;
+            for (int i = 1; i <= count; i++) {
+                messageSender.sendMessage(
+                        new SignalServiceAddress(remoteAddress),
                         SignalServiceDataMessage.newBuilder()
-                            .withBody("Hello, world!")
-                            .build());
+                                .withBody("Message " + String.valueOf(i) + " of " + String.valueOf(count))
+                                .build());
+            }
         } catch (final UntrustedIdentityException | IOException ex) {
             LogUtil.error(getClass(), ex.toString());
             throw new RuntimeException(ex);
