@@ -11,15 +11,18 @@ import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.databinding.FragmentContactsListBinding;
+import com.bakkenbaeck.token.model.Contact;
 import com.bakkenbaeck.token.presenter.ContactsListPresenter;
 import com.bakkenbaeck.token.presenter.factory.ContactsListPresenterFactory;
 import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
+import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.fragment.BasePresenterFragment;
 
 public class ContactsListFragment extends BasePresenterFragment<ContactsListPresenter, ContactsListFragment> {
 
     private ContactsListPresenter presenter;
     private FragmentContactsListBinding binding;
+    private OnItemClickListener<Contact> onItemClickListener;
 
     public static ContactsListFragment newInstance() {
         return new ContactsListFragment();
@@ -47,5 +50,13 @@ public class ContactsListFragment extends BasePresenterFragment<ContactsListPres
     @Override
     protected void onPresenterPrepared(@NonNull final ContactsListPresenter presenter) {
         this.presenter = presenter;
+        this.presenter.setOnItemClickListener(this.onItemClickListener);
+    }
+
+    public void setOnItemClickListener(final OnItemClickListener<Contact> onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
+        if (this.presenter != null) {
+            this.presenter.setOnItemClickListener(this.onItemClickListener);
+        }
     }
 }
