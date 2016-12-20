@@ -1,19 +1,22 @@
 package com.bakkenbaeck.token.presenter;
 
 import android.support.v4.app.FragmentTransaction;
-import android.widget.Toast;
 
 import com.bakkenbaeck.token.model.Contact;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.fragment.children.ContactsListFragment;
 import com.bakkenbaeck.token.view.fragment.toplevel.ContactsFragment;
+import com.bakkenbaeck.token.view.fragment.toplevel.PlaceholderFragment;
 
 public final class ContactsPresenter implements
         Presenter<ContactsFragment>,
         OnItemClickListener<Contact> {
 
     private ContactsFragment fragment;
+
     private ContactsListFragment contactsListFragment;
+    private PlaceholderFragment placeholderFragment;
+
     private boolean firstTimeAttaching = true;
 
     @Override
@@ -42,6 +45,8 @@ public final class ContactsPresenter implements
 
     @Override
     public void onItemClick(final Contact contact) {
-        Toast.makeText(fragment.getContext(), contact.getName(), Toast.LENGTH_SHORT).show();
+        this.placeholderFragment = PlaceholderFragment.newInstance(contact.getName());
+        final FragmentTransaction transaction = fragment.getChildFragmentManager().beginTransaction();
+        transaction.replace(fragment.getBinding().container.getId(), this.placeholderFragment).commit();
     }
 }

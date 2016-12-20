@@ -1,7 +1,8 @@
 package com.bakkenbaeck.token.presenter;
 
 
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
@@ -15,17 +16,46 @@ public class MainPresenter implements Presenter<MainActivity> {
     private MainActivity activity;
     private boolean firstTimeAttached = true;
     private NavigationAdapter adapter;
+    private final int DEFAULT_TAB = 0;
+    private int currentSelectedTab = DEFAULT_TAB;
 
     private final AHBottomNavigation.OnTabSelectedListener tabListener = new AHBottomNavigation.OnTabSelectedListener() {
         @Override
         public boolean onTabSelected(final int position, final boolean wasSelected) {
             if (wasSelected) {
-                return true;
+                return false;
             }
 
-            final FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
-            transaction.replace(activity.getBinding().container.getId(), adapter.getItem(position)).commit();
+            detachOldFragment(position);
+            attachNewFragment(position);
+            currentSelectedTab = position;
             return true;
+        }
+
+        private void attachNewFragment(final int position) {
+            final FragmentManager fm = activity.getSupportFragmentManager();
+            final Fragment newFragment = adapter.getItem(position);
+            if (fm.findFragmentByTag(newFragment.getClass().getSimpleName()) == null) {
+                fm.beginTransaction()
+                    .add(activity.getBinding().container.getId(), newFragment, newFragment.getClass().getSimpleName())
+                    .commit();
+            } else {
+                fm.beginTransaction()
+                    .attach(fm.findFragmentByTag(newFragment.getClass().getSimpleName()))
+                    .commit();
+            }
+        }
+
+        private void detachOldFragment(final int position) {
+            if (currentSelectedTab == position) {
+                return;
+            }
+
+            final FragmentManager fm = activity.getSupportFragmentManager();
+            final Fragment oldFragment = adapter.getItem(currentSelectedTab);
+            fm.beginTransaction()
+                .detach(oldFragment)
+                .commit();
         }
     };
 
@@ -42,7 +72,7 @@ public class MainPresenter implements Presenter<MainActivity> {
     }
 
     private void manuallySelectFirstTab() {
-        this.tabListener.onTabSelected(0, false);
+        this.tabListener.onTabSelected(DEFAULT_TAB, false);
     }
 
     private void initNavBar() {
