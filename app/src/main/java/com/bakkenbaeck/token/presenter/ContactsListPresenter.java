@@ -4,11 +4,16 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
 
+import com.bakkenbaeck.token.model.Contact;
 import com.bakkenbaeck.token.view.adapter.ContactsAdapter;
+import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.fragment.children.ContactsListFragment;
 
-public final class ContactsListPresenter implements Presenter<ContactsListFragment> {
+public final class ContactsListPresenter implements
+        Presenter<ContactsListFragment>,
+        OnItemClickListener<Contact> {
 
     private ContactsListFragment fragment;
     private boolean firstTimeAttaching = true;
@@ -38,6 +43,7 @@ public final class ContactsListPresenter implements Presenter<ContactsListFragme
 
     private void initLongLivingObjects() {
         this.adapter = new ContactsAdapter();
+        this.adapter.setOnItemClickListener(this);
     }
 
     @Override
@@ -48,5 +54,10 @@ public final class ContactsListPresenter implements Presenter<ContactsListFragme
     @Override
     public void onViewDestroyed() {
         this.fragment = null;
+    }
+
+    @Override
+    public void onItemClick(final Contact contact) {
+        Toast.makeText(this.fragment.getContext(), contact.getName(), Toast.LENGTH_SHORT).show();
     }
 }

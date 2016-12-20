@@ -8,14 +8,17 @@ import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.Contact;
+import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
+import com.bakkenbaeck.token.view.adapter.viewholder.ClickableViewHolder;
 import com.bakkenbaeck.token.view.adapter.viewholder.ContactViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> {
+public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> implements ClickableViewHolder.OnClickListener {
 
     private List<Contact> contacts;
+    private OnItemClickListener<Contact> onItemClickListener;
 
     public ContactsAdapter() {
         this.contacts = new ArrayList<>();
@@ -43,10 +46,25 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> {
         final Contact contact = this.contacts.get(position);
         holder.name.setText(contact.getName());
         holder.avatar.setImageBitmap(contact.getImage());
+        holder.setOnClickListener(this);
     }
 
     @Override
     public int getItemCount() {
         return this.contacts.size();
+    }
+
+    @Override
+    public void onClick(final int position) {
+        if (this.onItemClickListener == null) {
+            return;
+        }
+
+        final Contact clickedContact = contacts.get(position);
+        this.onItemClickListener.onItemClick(clickedContact);
+    }
+
+    public void setOnItemClickListener(final OnItemClickListener<Contact> onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
     }
 }
