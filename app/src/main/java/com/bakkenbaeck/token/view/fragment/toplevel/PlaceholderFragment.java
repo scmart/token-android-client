@@ -46,4 +46,9 @@ public class PlaceholderFragment extends BasePresenterFragment<PlaceholderPresen
     protected void onPresenterPrepared(@NonNull final PlaceholderPresenter presenter) {
         this.presenter = presenter;
     }
+
+    @Override
+    protected int loaderId() {
+        return 0;
+    }
 }

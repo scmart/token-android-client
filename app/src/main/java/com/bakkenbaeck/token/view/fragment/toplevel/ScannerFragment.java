@@ -52,4 +52,8 @@ public class ScannerFragment extends BasePresenterFragment<ScannerPresenter, Sca
         this.presenter = presenter;
     }
 
+    @Override
+    protected int loaderId() {
+        return 2;
+    }
 }

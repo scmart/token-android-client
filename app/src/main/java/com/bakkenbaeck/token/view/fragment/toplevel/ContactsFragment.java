@@ -54,4 +54,9 @@ public class ContactsFragment extends BasePresenterFragment<ContactsPresenter, C
     protected void onPresenterPrepared(@NonNull final ContactsPresenter presenter) {
         this.presenter = presenter;
     }
+
+    @Override
+    protected int loaderId() {
+        return 3;
+    }
 }
