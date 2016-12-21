@@ -7,9 +7,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.view.Menu;
 
-import com.bakkenbaeck.token.view.fragment.ContactsFragment;
-import com.bakkenbaeck.token.view.fragment.PlaceholderFragment;
-import com.bakkenbaeck.token.view.fragment.ScannerFragment;
+import com.bakkenbaeck.token.view.fragment.toplevel.ContactsFragment;
+import com.bakkenbaeck.token.view.fragment.toplevel.PlaceholderFragment;
+import com.bakkenbaeck.token.view.fragment.toplevel.ScannerFragment;
 
 import java.util.ArrayList;
 

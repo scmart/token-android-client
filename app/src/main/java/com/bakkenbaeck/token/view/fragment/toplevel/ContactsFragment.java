@@ -1,4 +1,4 @@
-package com.bakkenbaeck.token.view.fragment;
+package com.bakkenbaeck.token.view.fragment.toplevel;
 
 
 import android.databinding.DataBindingUtil;
@@ -14,6 +14,7 @@ import com.bakkenbaeck.token.databinding.FragmentContactsBinding;
 import com.bakkenbaeck.token.presenter.ContactsPresenter;
 import com.bakkenbaeck.token.presenter.factory.ContactsPresenterFactory;
 import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
+import com.bakkenbaeck.token.view.fragment.BasePresenterFragment;
 
 public class ContactsFragment extends BasePresenterFragment<ContactsPresenter, ContactsFragment> {
 
@@ -52,5 +53,10 @@ public class ContactsFragment extends BasePresenterFragment<ContactsPresenter, C
     @Override
     protected void onPresenterPrepared(@NonNull final ContactsPresenter presenter) {
         this.presenter = presenter;
+    }
+
+    @Override
+    protected int loaderId() {
+        return 3;
     }
 }

@@ -1,6 +1,6 @@
 package com.bakkenbaeck.token.presenter;
 
-import com.bakkenbaeck.token.view.fragment.PlaceholderFragment;
+import com.bakkenbaeck.token.view.fragment.toplevel.PlaceholderFragment;
 
 public final class PlaceholderPresenter implements Presenter<PlaceholderFragment> {
 

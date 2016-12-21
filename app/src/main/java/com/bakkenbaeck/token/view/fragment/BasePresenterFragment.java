@@ -54,7 +54,9 @@ public abstract class BasePresenterFragment<P extends Presenter<V>, V> extends F
 
     @Override
     public void onDestroy() {
-        presenter.onViewDestroyed();
+        if (presenter != null) {
+            presenter.onViewDestroyed();
+        }
         super.onDestroy();
     }
 

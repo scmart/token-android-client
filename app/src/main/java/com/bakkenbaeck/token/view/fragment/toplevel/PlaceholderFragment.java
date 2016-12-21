@@ -1,4 +1,4 @@
-package com.bakkenbaeck.token.view.fragment;
+package com.bakkenbaeck.token.view.fragment.toplevel;
 
 
 import android.os.Bundle;
@@ -13,6 +13,7 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.presenter.PlaceholderPresenter;
 import com.bakkenbaeck.token.presenter.factory.PlaceholderPresenterFactory;
 import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
+import com.bakkenbaeck.token.view.fragment.BasePresenterFragment;
 
 public class PlaceholderFragment extends BasePresenterFragment<PlaceholderPresenter, PlaceholderFragment> {
 
@@ -44,5 +45,10 @@ public class PlaceholderFragment extends BasePresenterFragment<PlaceholderPresen
     @Override
     protected void onPresenterPrepared(@NonNull final PlaceholderPresenter presenter) {
         this.presenter = presenter;
+    }
+
+    @Override
+    protected int loaderId() {
+        return 0;
     }
 }

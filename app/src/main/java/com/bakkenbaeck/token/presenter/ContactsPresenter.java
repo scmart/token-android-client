@@ -1,18 +1,23 @@
 package com.bakkenbaeck.token.presenter;
 
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v4.app.FragmentTransaction;
 
-import com.bakkenbaeck.token.view.adapter.ContactsAdapter;
-import com.bakkenbaeck.token.view.fragment.ContactsFragment;
+import com.bakkenbaeck.token.model.Contact;
+import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
+import com.bakkenbaeck.token.view.fragment.children.ContactsListFragment;
+import com.bakkenbaeck.token.view.fragment.toplevel.ContactsFragment;
+import com.bakkenbaeck.token.view.fragment.toplevel.PlaceholderFragment;
 
-public final class ContactsPresenter implements Presenter<ContactsFragment> {
+public final class ContactsPresenter implements
+        Presenter<ContactsFragment>,
+        OnItemClickListener<Contact> {
 
     private ContactsFragment fragment;
+
+    private ContactsListFragment contactsListFragment;
+    private PlaceholderFragment placeholderFragment;
+
     private boolean firstTimeAttaching = true;
-    private ContactsAdapter adapter;
 
     @Override
     public void onViewAttached(final ContactsFragment fragment) {
@@ -20,24 +25,12 @@ public final class ContactsPresenter implements Presenter<ContactsFragment> {
 
         if (this.firstTimeAttaching) {
             this.firstTimeAttaching = false;
-            initLongLivingObjects();
+            this.contactsListFragment = ContactsListFragment.newInstance();
+
+            final FragmentTransaction transaction = fragment.getChildFragmentManager().beginTransaction();
+            transaction.replace(fragment.getBinding().container.getId(), contactsListFragment).commit();
         }
-        initShortLivingObjects();
-    }
-
-    private void initShortLivingObjects() {
-        final RecyclerView recyclerView = this.fragment.getBinding().contacts;
-        final RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this.fragment.getContext());
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(this.adapter);
-
-        final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
-        recyclerView.addItemDecoration(dividerItemDecoration);
-    }
-
-    private void initLongLivingObjects() {
-        this.adapter = new ContactsAdapter();
+        this.contactsListFragment.setOnItemClickListener(this);
     }
 
     @Override
@@ -48,5 +41,12 @@ public final class ContactsPresenter implements Presenter<ContactsFragment> {
     @Override
     public void onViewDestroyed() {
         this.fragment = null;
+    }
+
+    @Override
+    public void onItemClick(final Contact contact) {
+        this.placeholderFragment = PlaceholderFragment.newInstance(contact.getName());
+        final FragmentTransaction transaction = fragment.getChildFragmentManager().beginTransaction();
+        transaction.replace(fragment.getBinding().container.getId(), this.placeholderFragment).commit();
     }
 }

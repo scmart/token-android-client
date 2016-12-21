@@ -1,6 +1,6 @@
 package com.bakkenbaeck.token.presenter;
 
-import com.bakkenbaeck.token.view.fragment.ScannerFragment;
+import com.bakkenbaeck.token.view.fragment.toplevel.ScannerFragment;
 import com.journeyapps.barcodescanner.CaptureManager;
 
 public final class ScannerPresenter implements Presenter<ScannerFragment> {

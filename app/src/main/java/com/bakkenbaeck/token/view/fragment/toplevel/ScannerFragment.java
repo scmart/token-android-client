@@ -1,4 +1,4 @@
-package com.bakkenbaeck.token.view.fragment;
+package com.bakkenbaeck.token.view.fragment.toplevel;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -14,8 +14,9 @@ import com.bakkenbaeck.token.databinding.FragmentScannerBinding;
 import com.bakkenbaeck.token.presenter.ScannerPresenter;
 import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
 import com.bakkenbaeck.token.presenter.factory.ScannerPresenterFactory;
+import com.bakkenbaeck.token.view.fragment.BasePresenterFragment;
 
-public class ScannerFragment extends BasePresenterFragment<ScannerPresenter, ScannerFragment>  {
+public class ScannerFragment extends BasePresenterFragment<ScannerPresenter, ScannerFragment> {
     private ScannerPresenter presenter;
     private FragmentScannerBinding binding;
 
@@ -51,4 +52,8 @@ public class ScannerFragment extends BasePresenterFragment<ScannerPresenter, Sca
         this.presenter = presenter;
     }
 
+    @Override
+    protected int loaderId() {
+        return 2;
+    }
 }
