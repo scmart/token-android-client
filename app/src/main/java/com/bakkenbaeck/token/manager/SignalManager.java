@@ -56,8 +56,8 @@ public class SignalManager {
     private void initSignalManager() {
         generateStores();
         registerIfNeeded();
-        //sendMessage("0x65ed7a22acc5e0f9a865081908379e36467957e1");
-        receiveMessage();
+        sendMessage("0xa2a0134f1df987bc388dbcb635dfeed4ce497e2a");
+        //receiveMessage();
     }
 
     private void receiveMessage() {
@@ -112,7 +112,7 @@ public class SignalManager {
                 null
         );
         try {
-            final int count = 5;
+            final int count = 20;
             for (int i = 1; i <= count; i++) {
                 messageSender.sendMessage(
                         new SignalServiceAddress(remoteAddress),

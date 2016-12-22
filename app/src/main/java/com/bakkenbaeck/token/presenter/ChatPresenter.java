@@ -2,35 +2,26 @@ package com.bakkenbaeck.token.presenter;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.model.ActivityResultHolder;
 import com.bakkenbaeck.token.model.ChatMessage;
+import com.bakkenbaeck.token.model.Contact;
 import com.bakkenbaeck.token.network.ws.model.Message;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
-import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextObserver;
 import com.bakkenbaeck.token.util.SharedPrefsUtil;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
-import com.bakkenbaeck.token.view.fragment.QrFragment;
 
 public final class ChatPresenter implements
-        Presenter<ChatActivity>,
-        QrFragment.OnFragmentClosed {
-
-    private final int WITHDRAW_REQUEST_CODE = 2;
+        Presenter<ChatActivity> {
 
     private ChatActivity activity;
     private MessageAdapter messageAdapter;
     private boolean firstViewAttachment = true;
-    private boolean isShowingAnotherOneButton;
     private ChatMessageStore chatMessageStore;
+    private Contact contact;
 
     @Override
     public void onViewAttached(final ChatActivity activity) {
@@ -43,9 +34,8 @@ public final class ChatPresenter implements
         }
 
         // Refresh state
-        unpauseMessageAdapter();
+        unPauseAdapterRendering();
         this.messageAdapter.notifyDataSetChanged();
-        refreshAnotherOneButtonState();
         scrollToBottom(false);
 
         initView();
@@ -53,26 +43,6 @@ public final class ChatPresenter implements
 
     private void initView() {
         this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
-        this.activity.getBinding().balanceBar.setOnBalanceClicked(new View.OnClickListener() {
-
-            @Override
-            public void onClick(final View v) {
-                showQrFragment();
-            }
-        });
-
-        reEnableDialogListeners();
-    }
-
-    private void reEnableDialogListeners() {
-        QrFragment durationDialog = (QrFragment) this.activity.getSupportFragmentManager().findFragmentByTag(QrFragment.TAG);
-        if(durationDialog != null) {
-            durationDialog.setOnFragmentClosed(this);
-        }
-    }
-    
-    public boolean isAttached() {
-        return this.activity != null;
     }
 
     private void initLongLivingObjects() {
@@ -81,7 +51,7 @@ public final class ChatPresenter implements
 
         this.messageAdapter = new MessageAdapter(activity);
 
-        this.chatMessageStore.load();
+        this.chatMessageStore.load(this.contact.getConversationId());
     }
 
     private void initToolbar() {
@@ -125,9 +95,6 @@ public final class ChatPresenter implements
             if (message.getType() != null && message.getType().equals(ChatMessage.REWARD_EARNED_TYPE)) {
                 displayMessage(new ChatMessage().makeRemoteRewardMessage(message), 0);;
             } else {
-                if (message.getType() != null && message.getType().equals(ChatMessage.DAILY_LIMIT_REACHED)) {
-                    promptNewVideo();
-                }
                 displayMessage(new ChatMessage().makeRemoteMessageWithText(message.toString()), 0);
             }
         }
@@ -143,37 +110,9 @@ public final class ChatPresenter implements
         }
     }
 
-    private void unpauseMessageAdapter() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                messageAdapter.unPauseRendering();
-                scrollToBottom(true);
-            }
-        }, 0);
-    }
-
-    private void refreshAnotherOneButtonState() {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                if (activity == null) {
-                    LogUtil.print(getClass(), "Attempt to refreshAnotherOneButtonState but activity is null");
-                    return;
-                }
-
-                activity.getBinding().buttonAnotherVideo.setVisibility(
-                        isShowingAnotherOneButton
-                                ? View.VISIBLE
-                                : View.INVISIBLE
-                );
-            }
-        });
-    }
-
-    private void promptNewVideo() {
-        this.isShowingAnotherOneButton = true;
-        refreshAnotherOneButtonState();
+    private void unPauseAdapterRendering() {
+        messageAdapter.unPauseRendering();
+        scrollToBottom(true);
     }
 
     @Override
@@ -191,33 +130,7 @@ public final class ChatPresenter implements
         this.activity = null;
     }
 
-    public void handleActivityResult(final ActivityResultHolder activityResultHolder) {
-
-    }
-
-    private void showQrFragment() {
-        FragmentManager fm = this.activity.getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.setCustomAnimations(R.anim.enter_fade_in, R.anim.exit_fade_out);
-        QrFragment qrFragment = QrFragment.newInstance();
-        ft.add(R.id.root, qrFragment, QrFragment.TAG).addToBackStack(QrFragment.TAG).commit();
-        qrFragment.setOnFragmentClosed(this);
-    }
-
-    public void removeQrFragment() {
-        FragmentManager fm = this.activity.getSupportFragmentManager();
-        Fragment qrFragment = fm.findFragmentByTag(QrFragment.TAG);
-
-        if(qrFragment != null) {
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.setCustomAnimations(R.anim.enter_fade_in, R.anim.exit_fade_out);
-            ft.remove(qrFragment).commit();
-            fm.popBackStackImmediate(QrFragment.TAG,  FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        }
-    }
-
-    @Override
-    public void onClose() {
-        removeQrFragment();
+    public void setPassedInContact(final Contact contact) {
+        this.contact = contact;
     }
 }

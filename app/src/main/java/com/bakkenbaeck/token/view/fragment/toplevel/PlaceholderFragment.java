@@ -17,8 +17,6 @@ import com.bakkenbaeck.token.view.fragment.BasePresenterFragment;
 
 public class PlaceholderFragment extends BasePresenterFragment<PlaceholderPresenter, PlaceholderFragment> {
 
-    private PlaceholderPresenter presenter;
-
     public static PlaceholderFragment newInstance(final CharSequence title) {
         final PlaceholderFragment f = new PlaceholderFragment();
         final Bundle b = new Bundle();
@@ -44,7 +42,7 @@ public class PlaceholderFragment extends BasePresenterFragment<PlaceholderPresen
 
     @Override
     protected void onPresenterPrepared(@NonNull final PlaceholderPresenter presenter) {
-        this.presenter = presenter;
+        // Do nothing
     }
 
     @Override

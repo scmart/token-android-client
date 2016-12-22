@@ -1,60 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools" >
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <FrameLayout
-        android:id="@+id/root"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:minHeight="?attr/actionBarSize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </android.support.v7.widget.Toolbar>
+
+
+        <com.bakkenbaeck.token.view.custom.BalanceBar
+            android:id="@+id/balance_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <include layout="@layout/horizontal_divider"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/messages_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:minHeight="?attr/actionBarSize"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-            </android.support.v7.widget.Toolbar>
-
-
-            <com.bakkenbaeck.token.view.custom.BalanceBar
-                android:id="@+id/balance_bar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <include layout="@layout/horizontal_divider"/>
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/messages_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingTop="@dimen/textBubbleHalfPadding"
-                android:paddingBottom="50dp"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/messageListRightMargin"
-                android:clipToPadding="false"/>
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/button_another_video"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:background="@drawable/btn_with_radius"
-            android:layout_gravity="bottom|center_horizontal"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:layout_marginBottom="20dp"
-            android:gravity="center"
-            android:textAllCaps="true"
-            android:textSize="@dimen/buttonTextSize"
-            android:fontFamily="sans-serif-medium"
-            tools:visibility="visible"
-            android:visibility="invisible"
-            android:text="@string/another_one" />
-    </FrameLayout>
+            android:paddingTop="@dimen/textBubbleHalfPadding"
+            android:paddingBottom="50dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/messageListRightMargin"
+            android:clipToPadding="false"/>
+    </LinearLayout>
 
 </layout>
 

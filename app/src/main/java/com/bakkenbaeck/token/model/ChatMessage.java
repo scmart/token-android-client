@@ -25,10 +25,10 @@ public class ChatMessage extends RealmObject {
     @Ignore public static final int TYPE_DAY = 4;
 
     @Ignore public static final String REWARD_EARNED_TYPE = "rewards_earned";
-    @Ignore public static final String DAILY_LIMIT_REACHED = "daily_limit_reached";
 
     private long creationTime;
     private @Type int type;
+    private String conversationId;
     private String text;
     private RealmList<Detail> details;
     private RealmList<Action> actions;
@@ -39,6 +39,11 @@ public class ChatMessage extends RealmObject {
 
     private ChatMessage setType(final @Type int type) {
         this.type = type;
+        return this;
+    }
+
+    public ChatMessage setConversationId(final String conversationId) {
+        this.conversationId = conversationId;
         return this;
     }
 

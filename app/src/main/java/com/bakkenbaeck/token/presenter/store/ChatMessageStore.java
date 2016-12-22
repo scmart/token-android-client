@@ -10,8 +10,8 @@ public class ChatMessageStore extends RealmStore<ChatMessage> {
     private final PublishSubject<Void> emptySetObservable = PublishSubject.create();
     private final PublishSubject<ChatMessage> newMessageObservable = PublishSubject.create();
 
-    public void load() {
-        this.load(ChatMessage.class);
+    public void load(final String conversationId) {
+        this.loadWhere(ChatMessage.class, "conversationId", conversationId);
     }
 
     public PublishSubject<Void> getEmptySetObservable() {
