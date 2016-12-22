@@ -2,9 +2,8 @@ package com.bakkenbaeck.token.presenter;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v7.widget.Toolbar;
+import android.view.View;
 
-import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.ChatMessage;
 import com.bakkenbaeck.token.model.Contact;
 import com.bakkenbaeck.token.network.ws.model.Message;
@@ -23,6 +22,10 @@ public final class ChatPresenter implements
     private ChatMessageStore chatMessageStore;
     private Contact contact;
 
+    public void setPassedInContact(final Contact contact) {
+        this.contact = contact;
+    }
+
     @Override
     public void onViewAttached(final ChatActivity activity) {
         this.activity = activity;
@@ -33,32 +36,24 @@ public final class ChatPresenter implements
             initLongLivingObjects();
         }
 
-        // Refresh state
         unPauseAdapterRendering();
         this.messageAdapter.notifyDataSetChanged();
         scrollToBottom(false);
-
-        initView();
+        this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
     }
 
-    private void initView() {
-        this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
+    private void initToolbar() {
+        this.activity.getBinding().title.setText(this.contact.getName());
+        this.activity.getBinding().avatar.setImageBitmap(this.contact.getImage());
+        this.activity.getBinding().backButton.setOnClickListener(this.backButtonClickListener);
     }
 
     private void initLongLivingObjects() {
         this.chatMessageStore = new ChatMessageStore();
         this.chatMessageStore.getNewMessageObservable().subscribe(this.newChatMessage);
 
-        this.messageAdapter = new MessageAdapter(activity);
-
+        this.messageAdapter = new MessageAdapter(this.activity);
         this.chatMessageStore.load(this.contact.getConversationId());
-    }
-
-    private void initToolbar() {
-        final String title = this.activity.getResources().getString(R.string.chat__title);
-        final Toolbar toolbar = this.activity.getBinding().toolbar;
-        this.activity.setSupportActionBar(toolbar);
-        this.activity.getSupportActionBar().setTitle(title);
     }
 
     private final OnNextObserver<ChatMessage> newChatMessage = new OnNextObserver<ChatMessage>() {
@@ -130,7 +125,10 @@ public final class ChatPresenter implements
         this.activity = null;
     }
 
-    public void setPassedInContact(final Contact contact) {
-        this.contact = contact;
-    }
+    private final View.OnClickListener backButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(final View v) {
+            activity.onBackPressed();
+        }
+    };
 }
