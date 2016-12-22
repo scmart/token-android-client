@@ -9,5 +9,7 @@
     <color name="textColorContrast">#FFFFFF</color>
     <color name="textColorHint">#B2B4B8</color>
 
+    <color name="input_bg">#FFFFFF</color>
+    <color name="balance_bar__bg">#FFFFFF</color>
     <color name="divider">#EBEBEB</color>
 </resources>

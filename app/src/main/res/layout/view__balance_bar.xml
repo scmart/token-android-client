@@ -3,13 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="40dp">
-
-    <include layout="@layout/horizontal_divider"/>
+    android:layout_height="48dp">
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/balance_bar__bg"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin">
 
@@ -62,4 +61,6 @@
 
         </LinearLayout>
     </FrameLayout>
+
+    <include layout="@layout/horizontal_divider"/>
 </LinearLayout>
