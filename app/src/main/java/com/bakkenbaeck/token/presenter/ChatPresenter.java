@@ -80,7 +80,7 @@ public final class ChatPresenter implements
 
     private void initRecyclerView() {
         this.messageAdapter.notifyDataSetChanged();
-        tryScrollToBottom(false);
+        forceScrollToBottom();
         this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
 
         // Hack to scroll to bottom when keyboard rendered
@@ -138,7 +138,7 @@ public final class ChatPresenter implements
             tryScrollToBottom(true);
         }
     };
-
+    
     private void tryScrollToBottom(final boolean animate) {
         if (this.activity == null || this.layoutManager == null || this.messageAdapter.getItemCount() == 0) {
             return;
@@ -152,8 +152,12 @@ public final class ChatPresenter implements
         if (animate) {
             this.activity.getBinding().messagesList.smoothScrollToPosition(this.messageAdapter.getItemCount() - 1);
         } else {
-            this.activity.getBinding().messagesList.scrollToPosition(this.messageAdapter.getItemCount() - 1);
+            forceScrollToBottom();
         }
+    }
+
+    private void forceScrollToBottom() {
+        this.activity.getBinding().messagesList.scrollToPosition(this.messageAdapter.getItemCount() - 1);
     }
 
     @Override
