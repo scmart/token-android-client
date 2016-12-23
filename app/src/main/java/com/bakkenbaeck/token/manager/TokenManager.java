@@ -23,21 +23,19 @@ public class TokenManager {
         return balanceManager;
     }
 
-    public SignalManager getSignalManager() {
-        return signalManager;
-    }
-
     public UserManager getUserManager() {
         return userManager;
     }
 
     public Single<TokenManager> init() {
+        this.signalManager = new SignalManager();
+
         return Single.fromCallable(new Callable<TokenManager>() {
             @Override
             public TokenManager call() throws Exception {
                 TokenManager.this.wallet = new HDWallet().init();
                 TokenManager.this.balanceManager = new BalanceManager().init(TokenManager.this.wallet);
-                TokenManager.this.signalManager = new SignalManager().init(TokenManager.this.wallet);
+                TokenManager.this.signalManager.init(TokenManager.this.wallet);
                 TokenManager.this.userManager = new UserManager().init(TokenManager.this.wallet);
                 TokenManager.this.webSocketManager = new WebSocketManager().init();
                 return TokenManager.this;
@@ -55,5 +53,9 @@ public class TokenManager {
                 return wallet;
             }
         });
+    }
+
+    public final SignalManager getSignalManager() {
+        return this.signalManager;
     }
 }
