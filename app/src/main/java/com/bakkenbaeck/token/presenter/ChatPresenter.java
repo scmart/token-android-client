@@ -1,20 +1,26 @@
 package com.bakkenbaeck.token.presenter;
 
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
+import android.widget.Toast;
 
 import com.bakkenbaeck.token.crypto.signal.model.OutgoingMessage;
 import com.bakkenbaeck.token.model.ChatMessage;
 import com.bakkenbaeck.token.model.Contact;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.OnNextObserver;
+import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
+
+import rx.Subscriber;
 
 public final class ChatPresenter implements
         Presenter<ChatActivity> {
@@ -53,6 +59,11 @@ public final class ChatPresenter implements
         this.chatMessageStore.getNewMessageObservable().subscribe(this.newChatMessage);
         this.messageAdapter = new MessageAdapter();
         this.chatMessageStore.load(this.contact.getConversationId());
+        BaseApplication.get()
+                .getTokenManager()
+                .getSignalManager()
+                .getFailedMessagesObservable()
+                .subscribe(this.failedMessagesSubscriber);
     }
 
     private void initShortLivingObjects() {
@@ -122,12 +133,29 @@ public final class ChatPresenter implements
             // Send to backend
             final OutgoingMessage outgoingMessage = new OutgoingMessage()
                     .setAddress(contact.getConversationId())
-                    .setBody(userInput);
-            BaseApplication.get().getTokenManager().getSignalManager().sendMessage(outgoingMessage);
+                    .setBody(userInput)
+                    .setId(messageAdapter.getItemCount());
+            BaseApplication.get()
+                    .getTokenManager()
+                    .getSignalManager()
+                    .sendMessage(outgoingMessage);
         }
 
         private boolean userInputInvalid() {
             return activity.getBinding().userInput.getText().toString().trim().length() == 0;
+        }
+    };
+
+    private final Subscriber<OutgoingMessage> failedMessagesSubscriber = new OnNextSubscriber<OutgoingMessage>() {
+        @Override
+        public void onNext(final OutgoingMessage message) {
+            new Handler(Looper.getMainLooper())
+                    .post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(activity, "Unable to send message: " + message.getBody(), Toast.LENGTH_LONG).show();
+                        }
+                    });
         }
     };
 
@@ -138,7 +166,7 @@ public final class ChatPresenter implements
             tryScrollToBottom(true);
         }
     };
-    
+
     private void tryScrollToBottom(final boolean animate) {
         if (this.activity == null || this.layoutManager == null || this.messageAdapter.getItemCount() == 0) {
             return;
@@ -170,6 +198,7 @@ public final class ChatPresenter implements
         if(messageAdapter != null) {
             messageAdapter = null;
         }
+        this.failedMessagesSubscriber.unsubscribe();
         this.activity = null;
     }
 

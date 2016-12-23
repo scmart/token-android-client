@@ -114,7 +114,7 @@ public class UserManager {
         @Override
         public void onError(final Throwable error) {
             LogUtil.error(getClass(), error.toString());
-            if (((HttpException)error).code() == 400) {
+            if (error instanceof HttpException && ((HttpException)error).code() == 400) {
                 getExistingUser();
             }
         }

@@ -34,12 +34,14 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import rx.Observable;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 public final class SignalManager {
 
     private final PublishSubject<OutgoingMessage> sendMessageSubject = PublishSubject.create();
+    private final PublishSubject<OutgoingMessage> failedMessageSubject = PublishSubject.create();
 
     private SignalService signalService;
     private HDWallet wallet;
@@ -103,6 +105,10 @@ public final class SignalManager {
         this.sendMessageSubject.onNext(message);
     }
 
+    public final Observable<OutgoingMessage> getFailedMessagesObservable() {
+        return this.failedMessageSubject.asObservable();
+    }
+
     private void sendMessageToBackend(final OutgoingMessage message) {
         final SignalServiceMessageSender messageSender = new SignalServiceMessageSender(
                 BaseApplication.get().getResources().getString(R.string.chat_url),
@@ -121,7 +127,7 @@ public final class SignalManager {
                             .build());
         } catch (final UntrustedIdentityException | IOException ex) {
             LogUtil.error(getClass(), ex.toString());
-            throw new RuntimeException(ex);
+            this.failedMessageSubject.onNext(message);
         }
     }
 

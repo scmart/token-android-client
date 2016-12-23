@@ -13,11 +13,6 @@ public class TokenManager {
     private HDWallet wallet;
     private SignalManager signalManager;
     private UserManager userManager;
-    private WebSocketManager webSocketManager;
-
-    public WebSocketManager getWebSocketManager() {
-        return webSocketManager;
-    }
 
     public BalanceManager getBalanceManager() {
         return balanceManager;
@@ -37,7 +32,6 @@ public class TokenManager {
                 TokenManager.this.balanceManager = new BalanceManager().init(TokenManager.this.wallet);
                 TokenManager.this.signalManager.init(TokenManager.this.wallet);
                 TokenManager.this.userManager = new UserManager().init(TokenManager.this.wallet);
-                TokenManager.this.webSocketManager = new WebSocketManager().init();
                 return TokenManager.this;
             }
         });

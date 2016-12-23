@@ -1,10 +1,10 @@
 package com.bakkenbaeck.token.crypto.signal.model;
 
-
 public final class OutgoingMessage {
 
     private String body;
     private String address;
+    private int id;
 
     public OutgoingMessage() {}
 
@@ -24,5 +24,12 @@ public final class OutgoingMessage {
 
     public final String getAddress() {
         return address;
+    }
+
+    // The ID can be used to identify a message
+    // that failed to send
+    public final OutgoingMessage setId(final int id) {
+        this.id = id;
+        return this;
     }
 }
