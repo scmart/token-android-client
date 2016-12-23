@@ -21,6 +21,8 @@ import com.bakkenbaeck.token.view.adapter.MessageAdapter;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 
 import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public final class ChatPresenter implements
         Presenter<ChatActivity> {
@@ -64,6 +66,13 @@ public final class ChatPresenter implements
                 .getSignalManager()
                 .getFailedMessagesObservable()
                 .subscribe(this.failedMessagesSubscriber);
+        BaseApplication.get()
+                .getTokenManager()
+                .getSignalManager()
+                .getReceiveMessagesObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this.receiveMessagesSubscriber);
     }
 
     private void initShortLivingObjects() {
@@ -159,6 +168,14 @@ public final class ChatPresenter implements
         }
     };
 
+    private final Subscriber<String> receiveMessagesSubscriber = new OnNextSubscriber<String>() {
+        @Override
+        public void onNext(final String messageBody) {
+            final ChatMessage remoteMessage = new ChatMessage().makeRemoteMessageWithText(messageBody);
+            chatMessageStore.save(remoteMessage);
+        }
+    };
+
     private final OnNextObserver<ChatMessage> newChatMessage = new OnNextObserver<ChatMessage>() {
         @Override
         public void onNext(final ChatMessage chatMessage) {
@@ -199,6 +216,7 @@ public final class ChatPresenter implements
             messageAdapter = null;
         }
         this.failedMessagesSubscriber.unsubscribe();
+        this.receiveMessagesSubscriber.unsubscribe();
         this.activity = null;
     }
 

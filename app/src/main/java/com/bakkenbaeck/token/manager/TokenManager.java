@@ -22,9 +22,11 @@ public class TokenManager {
         return userManager;
     }
 
-    public Single<TokenManager> init() {
+    public TokenManager() {
         this.signalManager = new SignalManager();
+    }
 
+    public Single<TokenManager> init() {
         return Single.fromCallable(new Callable<TokenManager>() {
             @Override
             public TokenManager call() throws Exception {

@@ -27,6 +27,10 @@ public class SpeedyLinearLayoutManager extends LinearLayoutManager {
     @Override
     public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state, int position) {
 
+        if (position < 0) {
+            return;
+        }
+
         final LinearSmoothScroller linearSmoothScroller = new LinearSmoothScroller(recyclerView.getContext()) {
 
             @Override

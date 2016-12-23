@@ -11,12 +11,14 @@ public class Contact implements Parcelable {
 
     private String name;
     private String base64Avatar;
+    private String conversationId;
 
     public Contact() {}
 
     private Contact(final Parcel in) {
         this.name = in.readString();
         this.base64Avatar = in.readString();
+        this.conversationId = in.readString();
     }
 
     public static final Creator<Contact> CREATOR = new Creator<Contact>() {
@@ -41,6 +43,11 @@ public class Contact implements Parcelable {
         return this;
     }
 
+    public Contact setConversationId(final String conversationId) {
+        this.conversationId = conversationId;
+        return this;
+    }
+
     public String getName() {
         return this.name;
     }
@@ -50,6 +57,10 @@ public class Contact implements Parcelable {
         return BitmapFactory.decodeByteArray(decoded, 0, decoded.length);
     }
 
+    public String getConversationId() {
+        return this.conversationId;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -57,11 +68,8 @@ public class Contact implements Parcelable {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeString(name);
-        dest.writeString(base64Avatar);
-    }
-
-    public String getConversationId() {
-        return "0xa2a0134f1df987bc388dbcb635dfeed4ce497e2a";
+        dest.writeString(this.name);
+        dest.writeString(this.base64Avatar);
+        dest.writeString(this.conversationId);
     }
 }

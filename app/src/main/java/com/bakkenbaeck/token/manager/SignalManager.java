@@ -40,6 +40,7 @@ import rx.subjects.PublishSubject;
 
 public final class SignalManager {
 
+    private final PublishSubject<String> receiveMessageSubject = PublishSubject.create();
     private final PublishSubject<OutgoingMessage> sendMessageSubject = PublishSubject.create();
     private final PublishSubject<OutgoingMessage> failedMessageSubject = PublishSubject.create();
 
@@ -47,7 +48,9 @@ public final class SignalManager {
     private HDWallet wallet;
     private SignalTrustStore trustStore;
     private ProtocolStore protocolStore;
+    private SignalServiceMessagePipe messagePipe;
     private String userAgent;
+    private boolean receiveMessages;
 
     public final SignalManager init(final HDWallet wallet) {
         this.wallet = wallet;
@@ -99,7 +102,11 @@ public final class SignalManager {
                 sendMessageToBackend(message);
             }
         });
+
+        receiveMessagesAsync();
     }
+
+
 
     public final void sendMessage(final OutgoingMessage message) {
         this.sendMessageSubject.onNext(message);
@@ -107,6 +114,10 @@ public final class SignalManager {
 
     public final Observable<OutgoingMessage> getFailedMessagesObservable() {
         return this.failedMessageSubject.asObservable();
+    }
+
+    public final Observable<String> getReceiveMessagesObservable() {
+        return this.receiveMessageSubject.asObservable();
     }
 
     private void sendMessageToBackend(final OutgoingMessage message) {
@@ -131,32 +142,51 @@ public final class SignalManager {
         }
     }
 
-    private void receiveMessage() {
-        SignalServiceMessageReceiver messageReciever = new SignalServiceMessageReceiver(
+    public final void disconnect() {
+        this.receiveMessages = false;
+        if (this.messagePipe != null) {
+            this.messagePipe.shutdown();
+        }
+    }
+
+    private void receiveMessagesAsync() {
+        this.receiveMessages = true;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (receiveMessages) {
+                    receiveMessages();
+                }
+            }
+        }).start();
+    }
+
+    private void receiveMessages() {
+        final SignalServiceMessageReceiver messageReceiver = new SignalServiceMessageReceiver(
                 BaseApplication.get().getResources().getString(R.string.chat_url),
                 this.trustStore,
                 this.wallet.getAddress(),
                 this.protocolStore.getPassword(),
                 this.protocolStore.getSignalingKey(),
                 this.userAgent);
-        SignalServiceMessagePipe messagePipe = null;
+        final SignalServiceAddress localAddress = new SignalServiceAddress(this.wallet.getAddress());
+        final SignalServiceCipher cipher = new SignalServiceCipher(localAddress, this.protocolStore);
+
+
+        if (this.messagePipe == null) {
+            this.messagePipe = messageReceiver.createMessagePipe();
+        }
 
         try {
-            messagePipe = messageReciever.createMessagePipe();
-
-            while (true) {
-                SignalServiceEnvelope envelope = messagePipe.read(10, TimeUnit.SECONDS);
-                SignalServiceCipher cipher = new SignalServiceCipher(new SignalServiceAddress(this.wallet.getAddress()),this.protocolStore);
-                SignalServiceContent message = cipher.decrypt(envelope);
-
-                System.out.println("Received message: " + message.getDataMessage().get().getBody().get());
+            final SignalServiceEnvelope envelope = messagePipe.read(10, TimeUnit.SECONDS);
+            final SignalServiceContent message = cipher.decrypt(envelope);
+            final SignalServiceDataMessage dataMessage = message.getDataMessage().get();
+            if (dataMessage != null) {
+                final String messageBody = dataMessage.getBody().get();
+                this.receiveMessageSubject.onNext(messageBody);
             }
-
-        } catch (InvalidKeyException | InvalidKeyIdException | DuplicateMessageException | InvalidVersionException | LegacyMessageException | InvalidMessageException | NoSessionException | org.whispersystems.libsignal.UntrustedIdentityException | IOException | TimeoutException e) {
-            e.printStackTrace();
-        } finally {
-            if (messagePipe != null)
-                messagePipe.shutdown();
+        } catch (final IllegalStateException | InvalidKeyException | InvalidKeyIdException | DuplicateMessageException | InvalidVersionException | LegacyMessageException | InvalidMessageException | NoSessionException | org.whispersystems.libsignal.UntrustedIdentityException | IOException | TimeoutException e) {
+            LogUtil.e(getClass(), "receiveMessage: " + e.toString());
         }
     }
 
