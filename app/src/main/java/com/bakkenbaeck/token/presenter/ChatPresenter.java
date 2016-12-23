@@ -5,11 +5,13 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
 
+import com.bakkenbaeck.token.crypto.signal.model.OutgoingMessage;
 import com.bakkenbaeck.token.model.ChatMessage;
 import com.bakkenbaeck.token.model.Contact;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.OnNextObserver;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
+import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
@@ -110,10 +112,18 @@ public final class ChatPresenter implements
                 return;
             }
 
+
+            // Store in Local DB
             final String userInput = activity.getBinding().userInput.getText().toString();
             final ChatMessage message = new ChatMessage().makeLocalMessageWithText(userInput);
             chatMessageStore.save(message);
             activity.getBinding().userInput.setText(null);
+
+            // Send to backend
+            final OutgoingMessage outgoingMessage = new OutgoingMessage()
+                    .setAddress(contact.getConversationId())
+                    .setBody(userInput);
+            BaseApplication.get().getTokenManager().getSignalManager().sendMessage(outgoingMessage);
         }
 
         private boolean userInputInvalid() {

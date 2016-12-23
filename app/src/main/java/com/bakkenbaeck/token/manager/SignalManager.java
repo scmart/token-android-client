@@ -6,9 +6,11 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.crypto.signal.SignalPreferences;
 import com.bakkenbaeck.token.crypto.signal.SignalService;
+import com.bakkenbaeck.token.crypto.signal.model.OutgoingMessage;
 import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
 import com.bakkenbaeck.token.crypto.signal.store.SignalTrustStore;
 import com.bakkenbaeck.token.util.LogUtil;
+import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 
 import org.whispersystems.libsignal.DuplicateMessageException;
@@ -32,7 +34,12 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class SignalManager {
+import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
+
+public final class SignalManager {
+
+    private final PublishSubject<OutgoingMessage> sendMessageSubject = PublishSubject.create();
 
     private SignalService signalService;
     private HDWallet wallet;
@@ -40,7 +47,7 @@ public class SignalManager {
     private ProtocolStore protocolStore;
     private String userAgent;
 
-    public SignalManager init(final HDWallet wallet) {
+    public final SignalManager init(final HDWallet wallet) {
         this.wallet = wallet;
         this.userAgent = "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME +  ":" + BuildConfig.VERSION_CODE;
         new Thread(new Runnable() {
@@ -56,8 +63,66 @@ public class SignalManager {
     private void initSignalManager() {
         generateStores();
         registerIfNeeded();
-        //sendMessage("0xa2a0134f1df987bc388dbcb635dfeed4ce497e2a");
-        //receiveMessage();
+        attachSubscribers();
+    }
+
+    private void generateStores() {
+        this.protocolStore = new ProtocolStore().init();
+        this.trustStore = new SignalTrustStore();
+        this.signalService = new SignalService(this.trustStore, this.wallet, this.protocolStore, this.userAgent);
+    }
+
+    private void registerIfNeeded() {
+        if (!haveRegisteredWithServer()) {
+            registerWithServer();
+        }
+    }
+
+    private void registerWithServer() {
+        this.signalService.registerKeys(this.protocolStore);
+        SignalPreferences.setRegisteredWithServer();
+    }
+
+    private boolean haveRegisteredWithServer() {
+        return SignalPreferences.getRegisteredWithServer();
+    }
+
+    private void attachSubscribers() {
+        this.sendMessageSubject
+                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new OnNextSubscriber<OutgoingMessage>() {
+            @Override
+            public void onNext(final OutgoingMessage message) {
+                sendMessageToBackend(message);
+            }
+        });
+    }
+
+    public final void sendMessage(final OutgoingMessage message) {
+        this.sendMessageSubject.onNext(message);
+    }
+
+    private void sendMessageToBackend(final OutgoingMessage message) {
+        final SignalServiceMessageSender messageSender = new SignalServiceMessageSender(
+                BaseApplication.get().getResources().getString(R.string.chat_url),
+                this.trustStore,
+                this.wallet.getAddress(),
+                this.protocolStore.getPassword(),
+                this.protocolStore,
+                this.userAgent,
+                null
+        );
+        try {
+            messageSender.sendMessage(
+                    new SignalServiceAddress(message.getAddress()),
+                    SignalServiceDataMessage.newBuilder()
+                            .withBody(message.getBody())
+                            .build());
+        } catch (final UntrustedIdentityException | IOException ex) {
+            LogUtil.error(getClass(), ex.toString());
+            throw new RuntimeException(ex);
+        }
     }
 
     private void receiveMessage() {
@@ -89,49 +154,4 @@ public class SignalManager {
         }
     }
 
-    private void generateStores() {
-        this.protocolStore = new ProtocolStore().init();
-        this.trustStore = new SignalTrustStore();
-        this.signalService = new SignalService(this.trustStore, this.wallet, this.protocolStore, this.userAgent);
-    }
-
-    private void registerIfNeeded() {
-        if (!haveRegisteredWithServer()) {
-            registerWithServer();
-        }
-    }
-
-    public void sendMessage(final String remoteAddress) {
-        final SignalServiceMessageSender messageSender = new SignalServiceMessageSender(
-                BaseApplication.get().getResources().getString(R.string.chat_url),
-                this.trustStore,
-                this.wallet.getAddress(),
-                this.protocolStore.getPassword(),
-                this.protocolStore,
-                this.userAgent,
-                null
-        );
-        try {
-            final int count = 1;
-            for (int i = 1; i <= count; i++) {
-                messageSender.sendMessage(
-                        new SignalServiceAddress(remoteAddress),
-                        SignalServiceDataMessage.newBuilder()
-                                .withBody("Message " + String.valueOf(i) + " of " + String.valueOf(count))
-                                .build());
-            }
-        } catch (final UntrustedIdentityException | IOException ex) {
-            LogUtil.error(getClass(), ex.toString());
-            throw new RuntimeException(ex);
-        }
-    }
-
-    private void registerWithServer() {
-        this.signalService.registerKeys(this.protocolStore);
-        SignalPreferences.setRegisteredWithServer();
-    }
-
-    private boolean haveRegisteredWithServer() {
-        return SignalPreferences.getRegisteredWithServer();
-    }
 }
