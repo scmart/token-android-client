@@ -1,145 +1,51 @@
 package com.bakkenbaeck.token.view.activity;
 
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
-import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.PathInterpolator;
+import android.support.annotation.NonNull;
 
-import com.bakkenbaeck.token.BuildConfig;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.databinding.ActivityChatBinding;
-import com.bakkenbaeck.token.model.ActivityResultHolder;
+import com.bakkenbaeck.token.model.Contact;
 import com.bakkenbaeck.token.presenter.ChatPresenter;
-import com.bakkenbaeck.token.presenter.PresenterLoader;
 import com.bakkenbaeck.token.presenter.factory.ChatPresenterFactory;
-import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
-import com.bakkenbaeck.token.view.BaseApplication;
-import com.bakkenbaeck.token.view.adapter.viewholder.BottomOffsetDecoration;
-import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
-import com.bakkenbaeck.token.view.fragment.QrFragment;
-import com.crashlytics.android.Crashlytics;
+import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
 
-import io.fabric.sdk.android.Fabric;
+public final class ChatActivity extends BasePresenterActivity<ChatPresenter, ChatActivity> {
+    public static final String EXTRA__CONTACT = "contact";
 
-public final class ChatActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ChatPresenter> {
-    private static final int UNIQUE_ACTIVITY_ID = 101;
-
-    private ChatPresenter presenter;
+    private static final int UNIQUE_ACTIVITY_ID = 4002;
     private ActivityChatBinding binding;
-
-    private ActivityResultHolder activityResultHolder;
+    private Contact contact;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!BuildConfig.DEBUG) {
-            Fabric.with(this, new Crashlytics());
-        }
         init();
     }
 
     private void init() {
-        getSupportLoaderManager().initLoader(UNIQUE_ACTIVITY_ID, null, this);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_chat);
-
-        SpeedyLinearLayoutManager linearLayoutManager = new SpeedyLinearLayoutManager(this);
-        this.binding.messagesList.setLayoutManager(linearLayoutManager);
-
-        SlideUpAnimator anim;
-
-        if(Build.VERSION.SDK_INT >= 21){
-            anim = new SlideUpAnimator(new PathInterpolator(0.33f, 0.78f, 0.3f, 1));
-        }else{
-            anim = new SlideUpAnimator(new DecelerateInterpolator());
-        }
-
-        anim.setAddDuration(400);
-        this.binding.messagesList.setItemAnimator(anim);
-
-        float offsetPx = getResources().getDimension(R.dimen.bottom_offset_dp);
-        BottomOffsetDecoration bottomOffsetDecoration = new BottomOffsetDecoration((int) offsetPx);
-        getBinding().messagesList.addItemDecoration(bottomOffsetDecoration);
+        this.contact = getIntent().getParcelableExtra(EXTRA__CONTACT);
     }
 
     public final ActivityChatBinding getBinding() {
         return this.binding;
     }
 
+    @NonNull
     @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        getMenuInflater().inflate(R.menu.chat, menu);
-        return true;
+    protected PresenterFactory<ChatPresenter> getPresenterFactory() {
+        return new ChatPresenterFactory();
     }
 
     @Override
-    public final void onStart() {
-        super.onStart();
-        this.presenter.onViewAttached(this);
-        if (this.activityResultHolder != null) {
-            this.presenter.handleActivityResult(activityResultHolder);
-            this.activityResultHolder = null;
-        }
+    protected void onPresenterPrepared(@NonNull final ChatPresenter presenter) {
+        presenter.setPassedInContact(this.contact);
     }
 
     @Override
-    public final void onStop() {
-        super.onStop();
-        presenter.onViewDetached();
-    }
-
-    @Override
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        if (this.presenter.isAttached()) {
-            this.presenter.handleActivityResult(new ActivityResultHolder(requestCode, resultCode, data));
-        } else {
-            // Will get processed when the activity attaches
-            this.activityResultHolder = new ActivityResultHolder(requestCode, resultCode, data);
-        }
-    }
-
-    @Override
-    public Loader<ChatPresenter> onCreateLoader(final int id, final Bundle args) {
-        return new PresenterLoader<>(this, new ChatPresenterFactory());
-    }
-
-    @Override
-    public void onLoadFinished(final Loader<ChatPresenter> loader, final ChatPresenter presenter) {
-        this.presenter = presenter;
-    }
-
-    @Override
-    public void onLoaderReset(final Loader<ChatPresenter> loader) {
-        this.presenter.onViewDestroyed();
-        this.presenter = null;
-    }
-
-    @Override
-    public void onBackPressed() {
-        FragmentManager fm = getSupportFragmentManager();
-        QrFragment qrFragment = (QrFragment) fm.findFragmentByTag(QrFragment.TAG);
-
-        if(qrFragment != null){
-            this.presenter.removeQrFragment();
-        }else{
-            super.onBackPressed();
-        }
-    }
-
-    @Override
-    public void onDestroy(){
-
-        BaseApplication.get()
-                .getTokenManager()
-                .getWebSocketManager()
-                .disconnect();
-
-        super.onDestroy();
+    protected int loaderId() {
+        return UNIQUE_ACTIVITY_ID;
     }
 }

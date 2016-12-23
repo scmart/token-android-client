@@ -31,7 +31,7 @@
             android:layout_marginRight="@dimen/bubbleMargin"
             android:gravity="center_vertical"
             android:textSize="@dimen/defaultTextSize"
-            android:textColor="@color/textColorSecondary"
+            android:textColor="@color/textColorContrast"
             android:lineSpacingExtra="2dp"
             tools:text="Sent 0.00002 ETH to 0xf1dd18252bdfd94ebf0630f2f12aa99dfa7fe5f8"
             />

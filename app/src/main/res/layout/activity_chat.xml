@@ -1,60 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools" >
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <FrameLayout
-        android:id="@+id/root"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <LinearLayout
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="?attr/actionBarSize"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            style="@style/ToolbarTheme">
 
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:minHeight="?attr/actionBarSize"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-            </android.support.v7.widget.Toolbar>
+            <ImageButton
+                android:id="@+id/back_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="fitCenter"
+                android:background="@android:color/transparent"
+                app:srcCompat="@drawable/ic__arrow_back"
+                android:padding="20dp" />
+            
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/avatar"
+                tools:src="@mipmap/launcher"
+                android:layout_width="34dp"
+                android:layout_height="34dp"/>
 
+            <android.support.v4.widget.Space
+                android:layout_width="15dp"
+                android:layout_height="match_parent"/>
 
-            <com.bakkenbaeck.token.view.custom.BalanceBar
-                android:id="@+id/balance_bar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                style="@style/Toolbar.TitleText"
+                tools:text="Contact Name"/>
 
-            <include layout="@layout/horizontal_divider"/>
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/messages_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingTop="@dimen/textBubbleHalfPadding"
-                android:paddingBottom="50dp"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/messageListRightMargin"
-                android:clipToPadding="false"/>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/button_another_video"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:background="@drawable/btn_with_radius"
-            android:layout_gravity="bottom|center_horizontal"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:layout_marginBottom="20dp"
-            android:gravity="center"
-            android:textAllCaps="true"
-            android:textSize="@dimen/buttonTextSize"
-            android:fontFamily="sans-serif-medium"
-            tools:visibility="visible"
-            android:visibility="invisible"
-            android:text="@string/another_one" />
-    </FrameLayout>
+
+        <com.bakkenbaeck.token.view.custom.BalanceBar
+            android:id="@+id/balance_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/messages_list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingTop="@dimen/textBubbleHalfPadding"
+            android:paddingBottom="50dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/messageListRightMargin"
+            android:clipToPadding="false"/>
+
+        <include layout="@layout/horizontal_divider"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@color/input_bg"
+            android:gravity="center_vertical">
+
+            <ImageButton
+                android:id="@+id/add_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="fitCenter"
+                android:background="@android:color/transparent"
+                app:srcCompat="@drawable/ic_add_circle_black_24px"
+                android:padding="12dp" />
+            <EditText
+                android:id="@+id/user_input"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:inputType="text"
+                android:maxLength="1500"
+                android:hint="@string/message"
+                android:imeOptions="actionSend"
+                android:background="@android:color/transparent"/>
+
+            <ImageButton
+                android:id="@+id/send_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="fitCenter"
+                android:background="@android:color/transparent"
+                app:srcCompat="@drawable/ic_action_content_send"
+                android:padding="8dp" />
+
+            <android.support.v4.widget.Space
+                android:layout_width="8dp"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+    </LinearLayout>
 
 </layout>
 

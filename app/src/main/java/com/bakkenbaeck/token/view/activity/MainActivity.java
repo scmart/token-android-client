@@ -3,20 +3,17 @@ package com.bakkenbaeck.token.view.activity;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
 
-import com.bakkenbaeck.token.databinding.ActivityMainBinding;
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.databinding.ActivityMainBinding;
 import com.bakkenbaeck.token.presenter.MainPresenter;
-import com.bakkenbaeck.token.presenter.PresenterLoader;
 import com.bakkenbaeck.token.presenter.factory.MainPresenterFactory;
+import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<MainPresenter> {
+public class MainActivity extends BasePresenterActivity<MainPresenter, MainActivity> {
 
-    private static final int UNIQUE_ACTIVITY_ID = 101;
-    private MainPresenter presenter;
+    private static final int UNIQUE_ACTIVITY_ID = 9000;
     private ActivityMainBinding binding;
 
     @Override
@@ -26,36 +23,23 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private void init() {
-        getSupportLoaderManager().initLoader(UNIQUE_ACTIVITY_ID, null, this);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
     }
 
+    @NonNull
     @Override
-    public final void onStart() {
-        super.onStart();
-        this.presenter.onViewAttached(this);
+    protected PresenterFactory<MainPresenter> getPresenterFactory() {
+        return new MainPresenterFactory();
     }
 
     @Override
-    public final void onStop() {
-        super.onStop();
-        this.presenter.onViewDetached();
+    public int loaderId() {
+        return UNIQUE_ACTIVITY_ID;
     }
 
     @Override
-    public Loader<MainPresenter> onCreateLoader(final int id, final Bundle args) {
-        return new PresenterLoader<>(this, new MainPresenterFactory());
-    }
-
-    @Override
-    public void onLoadFinished(final Loader<MainPresenter> loader, final MainPresenter presenter) {
-        this.presenter = presenter;
-    }
-
-    @Override
-    public void onLoaderReset(final Loader<MainPresenter> loader) {
-        this.presenter.onViewDestroyed();
-        this.presenter = null;
+    protected void onPresenterPrepared(@NonNull final MainPresenter presenter) {
+        // Nothing to do
     }
 
     public final ActivityMainBinding getBinding() {

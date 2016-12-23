@@ -1,61 +1,54 @@
-package com.bakkenbaeck.token.view.fragment;
+package com.bakkenbaeck.token.view.activity;
 
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AppCompatActivity;
 
 import com.bakkenbaeck.token.presenter.Presenter;
 import com.bakkenbaeck.token.presenter.PresenterLoader;
 import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
 
-public abstract class BasePresenterFragment<P extends Presenter<V>, V> extends Fragment {
+public abstract class BasePresenterActivity<P extends Presenter<V>, V> extends AppCompatActivity {
     private Presenter<V> presenter;
 
     @Override
-    public void onActivityCreated(final Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-        getLoaderManager().initLoader(loaderId(), null, new LoaderManager.LoaderCallbacks<P>() {
+        // LoaderCallbacks as an object, so no hint regarding Loader will be leak to the subclasses.
+        getSupportLoaderManager().initLoader(loaderId(), null, new LoaderManager.LoaderCallbacks<P>() {
             @Override
             public final Loader<P> onCreateLoader(int id, Bundle args) {
-                return new PresenterLoader<>(getContext(), getPresenterFactory());
+                return new PresenterLoader<>(BasePresenterActivity.this, getPresenterFactory());
             }
 
             @Override
             public final void onLoadFinished(Loader<P> loader, P presenter) {
-                BasePresenterFragment.this.presenter = presenter;
+                BasePresenterActivity.this.presenter = presenter;
                 onPresenterPrepared(presenter);
             }
 
             @Override
             public final void onLoaderReset(Loader<P> loader) {
-                BasePresenterFragment.this.presenter = null;
+                BasePresenterActivity.this.presenter = null;
                 onPresenterDestroyed();
             }
         });
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
         presenter.onViewAttached(getPresenterView());
     }
 
     @Override
-    public void onPause() {
+    protected void onStop() {
         presenter.onViewDetached();
-        super.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        if (presenter != null) {
-            presenter.onViewDestroyed();
-        }
-        super.onDestroy();
+        super.onStop();
     }
 
     /**

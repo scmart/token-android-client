@@ -35,13 +35,13 @@ public final class BaseApplication extends MultiDexApplication {
     }
 
     private void initTokenManager() {
-        new TokenManager().init()
+        this.tokenManager = new TokenManager();
+        this.tokenManager.init()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(new SingleSubscriber<TokenManager>() {
                     @Override
                     public void onSuccess(final TokenManager tokenManager) {
-                        BaseApplication.this.tokenManager = tokenManager;
                         this.unsubscribe();
                     }
 

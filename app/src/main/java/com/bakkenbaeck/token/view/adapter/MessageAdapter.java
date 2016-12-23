@@ -1,11 +1,9 @@
 package com.bakkenbaeck.token.view.adapter;
 
-import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.ChatMessage;
@@ -18,39 +16,19 @@ import com.bakkenbaeck.token.view.adapter.viewholder.RemoteTextViewHolder;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.subjects.PublishSubject;
-
 import static com.bakkenbaeck.token.model.ChatMessage.TYPE_DAY;
 import static com.bakkenbaeck.token.model.ChatMessage.TYPE_LOCAL_TEXT;
 import static com.bakkenbaeck.token.model.ChatMessage.TYPE_REMOTE_TEXT;
 
 public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<ChatMessage> chatMessages;
-    private List<ChatMessage> chatMessagesWhilstPaused;
 
-    private final PublishSubject<Integer> onClickSubject = PublishSubject.create();
-
-    private boolean isRenderingPaused;
-    private Activity activity;
-    private TextView verifyButton;
-
-    public MessageAdapter(Activity activity) {
+    public MessageAdapter() {
         this.chatMessages = new ArrayList<>();
-        this.chatMessagesWhilstPaused = new ArrayList<>();
-        this.activity = activity;
     }
 
     public final void addMessage(final ChatMessage chatMessage) {
-        if (isRenderingPaused) {
-            this.chatMessagesWhilstPaused.add(chatMessage);
-        } else {
-            addAndRenderMessage(chatMessage);
-        }
-    }
-
-    private void addAndRenderMessage(final ChatMessage chatMessage) {
         this.chatMessages.add(chatMessage);
-        notifyItemChanged(this.chatMessages.size() - 2);
         notifyItemInserted(this.chatMessages.size() - 1);
     }
 
@@ -127,22 +105,5 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public final int getItemCount() {
         return this.chatMessages.size();
-    }
-
-    public void pauseRendering() {
-        this.isRenderingPaused = true;
-    }
-
-    public void unPauseRendering() {
-        this.isRenderingPaused = false;
-        for (final ChatMessage chatMessage : this.chatMessagesWhilstPaused) {
-            addAndRenderMessage(chatMessage);
-        }
-        this.chatMessagesWhilstPaused.clear();
-    }
-
-    public void clean(){
-        activity = null;
-        verifyButton = null;
     }
 }

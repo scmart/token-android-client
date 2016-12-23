@@ -3,6 +3,7 @@ package com.bakkenbaeck.token.presenter.store;
 
 import io.realm.Realm;
 import io.realm.RealmObject;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 abstract class RealmStore<RO extends RealmObject> {
@@ -21,7 +22,18 @@ abstract class RealmStore<RO extends RealmObject> {
     }
 
     public void load(Class<RO> clazz) {
-        final RealmResults<RO> storedObjects = realm.where(clazz).findAll();
+        final RealmQuery<RO> query = realm.where(clazz);
+        runAndHandleQuery(query);
+    }
+
+    public void loadWhere(Class<RO> clazz, final String fieldName, final String value) {
+        final RealmQuery<RO> query = realm.where(clazz);
+        query.equalTo(fieldName, value);
+        runAndHandleQuery(query);
+    }
+
+    private void runAndHandleQuery(final RealmQuery<RO> query) {
+        final RealmResults<RO> storedObjects = query.findAll();
         if (storedObjects.size() == 0) {
             onEmptySetAfterLoad();
             return;

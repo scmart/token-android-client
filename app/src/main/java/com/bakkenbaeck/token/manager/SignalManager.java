@@ -6,9 +6,11 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.crypto.signal.SignalPreferences;
 import com.bakkenbaeck.token.crypto.signal.SignalService;
+import com.bakkenbaeck.token.crypto.signal.model.OutgoingMessage;
 import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
 import com.bakkenbaeck.token.crypto.signal.store.SignalTrustStore;
 import com.bakkenbaeck.token.util.LogUtil;
+import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 
 import org.whispersystems.libsignal.DuplicateMessageException;
@@ -32,15 +34,25 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class SignalManager {
+import rx.Observable;
+import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
+
+public final class SignalManager {
+
+    private final PublishSubject<String> receiveMessageSubject = PublishSubject.create();
+    private final PublishSubject<OutgoingMessage> sendMessageSubject = PublishSubject.create();
+    private final PublishSubject<OutgoingMessage> failedMessageSubject = PublishSubject.create();
 
     private SignalService signalService;
     private HDWallet wallet;
     private SignalTrustStore trustStore;
     private ProtocolStore protocolStore;
+    private SignalServiceMessagePipe messagePipe;
     private String userAgent;
+    private boolean receiveMessages;
 
-    public SignalManager init(final HDWallet wallet) {
+    public final SignalManager init(final HDWallet wallet) {
         this.wallet = wallet;
         this.userAgent = "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME +  ":" + BuildConfig.VERSION_CODE;
         new Thread(new Runnable() {
@@ -56,37 +68,7 @@ public class SignalManager {
     private void initSignalManager() {
         generateStores();
         registerIfNeeded();
-        //sendMessage("0x65ed7a22acc5e0f9a865081908379e36467957e1");
-        receiveMessage();
-    }
-
-    private void receiveMessage() {
-        SignalServiceMessageReceiver messageReciever = new SignalServiceMessageReceiver(
-                BaseApplication.get().getResources().getString(R.string.chat_url),
-                this.trustStore,
-                this.wallet.getAddress(),
-                this.protocolStore.getPassword(),
-                this.protocolStore.getSignalingKey(),
-                this.userAgent);
-        SignalServiceMessagePipe messagePipe = null;
-
-        try {
-            messagePipe = messageReciever.createMessagePipe();
-
-            while (true) {
-                SignalServiceEnvelope envelope = messagePipe.read(10, TimeUnit.SECONDS);
-                SignalServiceCipher cipher = new SignalServiceCipher(new SignalServiceAddress(this.wallet.getAddress()),this.protocolStore);
-                SignalServiceContent message = cipher.decrypt(envelope);
-
-                System.out.println("Received message: " + message.getDataMessage().get().getBody().get());
-            }
-
-        } catch (InvalidKeyException | InvalidKeyIdException | DuplicateMessageException | InvalidVersionException | LegacyMessageException | InvalidMessageException | NoSessionException | org.whispersystems.libsignal.UntrustedIdentityException | IOException | TimeoutException e) {
-            e.printStackTrace();
-        } finally {
-            if (messagePipe != null)
-                messagePipe.shutdown();
-        }
+        attachSubscribers();
     }
 
     private void generateStores() {
@@ -101,7 +83,44 @@ public class SignalManager {
         }
     }
 
-    public void sendMessage(final String remoteAddress) {
+    private void registerWithServer() {
+        this.signalService.registerKeys(this.protocolStore);
+        SignalPreferences.setRegisteredWithServer();
+    }
+
+    private boolean haveRegisteredWithServer() {
+        return SignalPreferences.getRegisteredWithServer();
+    }
+
+    private void attachSubscribers() {
+        this.sendMessageSubject
+                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new OnNextSubscriber<OutgoingMessage>() {
+            @Override
+            public void onNext(final OutgoingMessage message) {
+                sendMessageToBackend(message);
+            }
+        });
+
+        receiveMessagesAsync();
+    }
+
+
+
+    public final void sendMessage(final OutgoingMessage message) {
+        this.sendMessageSubject.onNext(message);
+    }
+
+    public final Observable<OutgoingMessage> getFailedMessagesObservable() {
+        return this.failedMessageSubject.asObservable();
+    }
+
+    public final Observable<String> getReceiveMessagesObservable() {
+        return this.receiveMessageSubject.asObservable();
+    }
+
+    private void sendMessageToBackend(final OutgoingMessage message) {
         final SignalServiceMessageSender messageSender = new SignalServiceMessageSender(
                 BaseApplication.get().getResources().getString(R.string.chat_url),
                 this.trustStore,
@@ -112,26 +131,63 @@ public class SignalManager {
                 null
         );
         try {
-            final int count = 5;
-            for (int i = 1; i <= count; i++) {
-                messageSender.sendMessage(
-                        new SignalServiceAddress(remoteAddress),
-                        SignalServiceDataMessage.newBuilder()
-                                .withBody("Message " + String.valueOf(i) + " of " + String.valueOf(count))
-                                .build());
-            }
+            messageSender.sendMessage(
+                    new SignalServiceAddress(message.getAddress()),
+                    SignalServiceDataMessage.newBuilder()
+                            .withBody(message.getBody())
+                            .build());
         } catch (final UntrustedIdentityException | IOException ex) {
             LogUtil.error(getClass(), ex.toString());
-            throw new RuntimeException(ex);
+            this.failedMessageSubject.onNext(message);
         }
     }
 
-    private void registerWithServer() {
-        this.signalService.registerKeys(this.protocolStore);
-        SignalPreferences.setRegisteredWithServer();
+    public final void disconnect() {
+        this.receiveMessages = false;
+        if (this.messagePipe != null) {
+            this.messagePipe.shutdown();
+        }
     }
 
-    private boolean haveRegisteredWithServer() {
-        return SignalPreferences.getRegisteredWithServer();
+    private void receiveMessagesAsync() {
+        this.receiveMessages = true;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (receiveMessages) {
+                    receiveMessages();
+                }
+            }
+        }).start();
     }
+
+    private void receiveMessages() {
+        final SignalServiceMessageReceiver messageReceiver = new SignalServiceMessageReceiver(
+                BaseApplication.get().getResources().getString(R.string.chat_url),
+                this.trustStore,
+                this.wallet.getAddress(),
+                this.protocolStore.getPassword(),
+                this.protocolStore.getSignalingKey(),
+                this.userAgent);
+        final SignalServiceAddress localAddress = new SignalServiceAddress(this.wallet.getAddress());
+        final SignalServiceCipher cipher = new SignalServiceCipher(localAddress, this.protocolStore);
+
+
+        if (this.messagePipe == null) {
+            this.messagePipe = messageReceiver.createMessagePipe();
+        }
+
+        try {
+            final SignalServiceEnvelope envelope = messagePipe.read(10, TimeUnit.SECONDS);
+            final SignalServiceContent message = cipher.decrypt(envelope);
+            final SignalServiceDataMessage dataMessage = message.getDataMessage().get();
+            if (dataMessage != null) {
+                final String messageBody = dataMessage.getBody().get();
+                this.receiveMessageSubject.onNext(messageBody);
+            }
+        } catch (final IllegalStateException | InvalidKeyException | InvalidKeyIdException | DuplicateMessageException | InvalidVersionException | LegacyMessageException | InvalidMessageException | NoSessionException | org.whispersystems.libsignal.UntrustedIdentityException | IOException | TimeoutException e) {
+            LogUtil.e(getClass(), "receiveMessage: " + e.toString());
+        }
+    }
+
 }

@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:alpha="1">
 
     <TextView
@@ -18,7 +19,9 @@
         android:lineSpacingExtra="2dp"
         android:layout_gravity="right"
         android:minWidth="50dp"
-        android:textSize="@dimen/defaultTextSize" />
+        android:textColor="@color/textColorContrast"
+        android:textSize="@dimen/defaultTextSize"
+        tools:text="This is a locally sent message!"/>
 
 </FrameLayout>
 

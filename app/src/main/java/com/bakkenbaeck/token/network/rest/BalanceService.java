@@ -41,7 +41,8 @@ public class BalanceService {
     }
 
     private BalanceService() {
-        final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io());
+        final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory
+                .createWithScheduler(Schedulers.io());
         this.client = new OkHttpClient.Builder();
 
         addUserAgentHeader();
