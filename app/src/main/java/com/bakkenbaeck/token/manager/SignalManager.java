@@ -153,10 +153,15 @@ public final class SignalManager {
         }
     }
 
+    public final void connect() {
+        receiveMessagesAsync();
+    }
+
     public final void disconnect() {
         this.receiveMessages = false;
         if (this.messagePipe != null) {
             this.messagePipe.shutdown();
+            this.messagePipe = null;
         }
     }
 

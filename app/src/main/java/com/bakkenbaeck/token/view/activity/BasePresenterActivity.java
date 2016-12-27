@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.bakkenbaeck.token.presenter.Presenter;
 import com.bakkenbaeck.token.presenter.PresenterLoader;
 import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
+import com.bakkenbaeck.token.view.BaseApplication;
 
 public abstract class BasePresenterActivity<P extends Presenter<V>, V> extends AppCompatActivity {
     private Presenter<V> presenter;
@@ -37,6 +38,12 @@ public abstract class BasePresenterActivity<P extends Presenter<V>, V> extends A
                 onPresenterDestroyed();
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((BaseApplication)getApplication()).applicationResumed();
     }
 
     @Override
