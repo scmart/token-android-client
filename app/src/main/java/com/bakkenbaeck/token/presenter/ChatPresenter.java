@@ -195,9 +195,10 @@ public final class ChatPresenter implements
 
     @Override
     public void onViewDestroyed() {
-        if(messageAdapter != null) {
-            messageAdapter = null;
+        if (this.messageAdapter != null) {
+            this.messageAdapter = null;
         }
+        this.chatMessageStore.destroy();
         this.failedMessagesSubscriber.unsubscribe();
         this.activity = null;
     }
