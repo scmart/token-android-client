@@ -9,6 +9,8 @@ import com.bakkenbaeck.token.crypto.signal.SignalService;
 import com.bakkenbaeck.token.crypto.signal.model.OutgoingMessage;
 import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
 import com.bakkenbaeck.token.crypto.signal.store.SignalTrustStore;
+import com.bakkenbaeck.token.model.ChatMessage;
+import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -31,6 +33,8 @@ import org.whispersystems.signalservice.api.messages.SignalServiceEnvelope;
 import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -39,8 +43,6 @@ import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 public final class SignalManager {
-
-    private final PublishSubject<String> receiveMessageSubject = PublishSubject.create();
     private final PublishSubject<OutgoingMessage> sendMessageSubject = PublishSubject.create();
     private final PublishSubject<OutgoingMessage> failedMessageSubject = PublishSubject.create();
 
@@ -49,6 +51,8 @@ public final class SignalManager {
     private SignalTrustStore trustStore;
     private ProtocolStore protocolStore;
     private SignalServiceMessagePipe messagePipe;
+    private ChatMessageStore chatMessageStore;
+    private ExecutorService dbThreadExecutor;
     private String userAgent;
     private boolean receiveMessages;
 
@@ -67,8 +71,19 @@ public final class SignalManager {
 
     private void initSignalManager() {
         generateStores();
+        initDatabase();
         registerIfNeeded();
         attachSubscribers();
+    }
+
+    private void initDatabase() {
+        this.dbThreadExecutor = Executors.newSingleThreadExecutor();
+        this.dbThreadExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                SignalManager.this.chatMessageStore = new ChatMessageStore();
+            }
+        });
     }
 
     private void generateStores() {
@@ -114,10 +129,6 @@ public final class SignalManager {
 
     public final Observable<OutgoingMessage> getFailedMessagesObservable() {
         return this.failedMessageSubject.asObservable();
-    }
-
-    public final Observable<String> getReceiveMessagesObservable() {
-        return this.receiveMessageSubject.asObservable();
     }
 
     private void sendMessageToBackend(final OutgoingMessage message) {
@@ -182,12 +193,22 @@ public final class SignalManager {
             final SignalServiceContent message = cipher.decrypt(envelope);
             final SignalServiceDataMessage dataMessage = message.getDataMessage().get();
             if (dataMessage != null) {
+                final String messageSource = envelope.getSource();
                 final String messageBody = dataMessage.getBody().get();
-                this.receiveMessageSubject.onNext(messageBody);
+                saveMessageToDatabase(messageSource, messageBody);
             }
         } catch (final IllegalStateException | InvalidKeyException | InvalidKeyIdException | DuplicateMessageException | InvalidVersionException | LegacyMessageException | InvalidMessageException | NoSessionException | org.whispersystems.libsignal.UntrustedIdentityException | IOException | TimeoutException e) {
             LogUtil.e(getClass(), "receiveMessage: " + e.toString());
         }
     }
 
+    private void saveMessageToDatabase(final String messageSource, final String messageBody) {
+        this.dbThreadExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                final ChatMessage remoteMessage = new ChatMessage().makeRemoteMessage(messageSource, messageBody);
+                SignalManager.this.chatMessageStore.save(remoteMessage);
+            }
+        });
+    }
 }

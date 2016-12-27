@@ -89,13 +89,13 @@ public class ChatMessage extends RealmObject {
 
     // Helper functions
 
-    public ChatMessage makeLocalMessageWithText(final String text) {
+    public ChatMessage makeLocalMessage(final String conversationId, final String text) {
         setType(TYPE_LOCAL_TEXT);
         setText(text);
         return this;
     }
 
-    public ChatMessage makeRemoteMessageWithText(final String text) {
+    public ChatMessage makeRemoteMessage(final String conversationId, final String text) {
         setType(TYPE_REMOTE_TEXT);
         setText(text);
         return this;
