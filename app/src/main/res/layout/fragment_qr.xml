@@ -1,53 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
+        style="@style/ToolbarTheme"
         android:gravity="center_vertical">
-
-        <ImageView
-            android:id="@+id/backNav"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            app:srcCompat="@drawable/close_dark_vec"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:textStyle="bold"
+            style="@style/Toolbar.TitleText"
             android:text="@string/qr_code"/>
 
     </android.support.v7.widget.Toolbar>
+    
+    <android.support.v4.widget.Space
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"/>
 
-    <LinearLayout
-        android:orientation="vertical"
+    <ImageView
+        android:id="@+id/qrCodeImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"/>
+
+    <TextView
+        android:id="@+id/qrCodeText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_gravity="center">
+        android:textColor="@color/textColorSecondary"
+        android:textSize="12sp"
+        android:textIsSelectable="true"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="32dp"/>
 
-        <ImageView
-            android:id="@+id/qrCodeImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:alpha="0" />
-
-        <TextView
-            android:id="@+id/qrCodeText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/textColorSecondary"
-            android:textSize="12sp"
-            android:textIsSelectable="true"
-            android:layout_marginTop="32dp"/>
-
-    </LinearLayout>
-
-</FrameLayout>
+</LinearLayout>
+</layout>

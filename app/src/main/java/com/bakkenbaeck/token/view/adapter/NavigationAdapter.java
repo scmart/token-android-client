@@ -9,6 +9,7 @@ import android.view.Menu;
 
 import com.bakkenbaeck.token.view.fragment.toplevel.ContactsFragment;
 import com.bakkenbaeck.token.view.fragment.toplevel.PlaceholderFragment;
+import com.bakkenbaeck.token.view.fragment.toplevel.QrFragment;
 import com.bakkenbaeck.token.view.fragment.toplevel.ScannerFragment;
 
 import java.util.ArrayList;
@@ -29,7 +30,8 @@ public class NavigationAdapter extends FragmentPagerAdapter {
         fragments.add(PlaceholderFragment.newInstance(menu.getItem(1).getTitle()));
         fragments.add(ScannerFragment.newInstance(menu.getItem(2).getTitle()));
         fragments.add(ContactsFragment.newInstance(menu.getItem(3).getTitle()));
-        fragments.add(PlaceholderFragment.newInstance(menu.getItem(4).getTitle()));
+        fragments.add(QrFragment.newInstance()
+        );
     }
 
     @Override
