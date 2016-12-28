@@ -4,7 +4,6 @@ import android.support.annotation.IntDef;
 
 import com.bakkenbaeck.token.network.ws.model.Action;
 import com.bakkenbaeck.token.network.ws.model.Detail;
-import com.bakkenbaeck.token.network.ws.model.Message;
 
 import java.util.List;
 
@@ -23,8 +22,6 @@ public class ChatMessage extends RealmObject {
     @Ignore public static final int TYPE_LOCAL_TEXT = 0;
     @Ignore public static final int TYPE_REMOTE_TEXT = 1;
     @Ignore public static final int TYPE_DAY = 4;
-
-    @Ignore public static final String REWARD_EARNED_TYPE = "rewards_earned";
 
     private long creationTime;
     private @Type int type;
@@ -50,10 +47,6 @@ public class ChatMessage extends RealmObject {
     public ChatMessage setText(final String text) {
         this.text = text;
         return this;
-    }
-
-    public List<Detail> getDetails(){
-        return this.details;
     }
 
     public ChatMessage setActions(final List<Action> actions){
@@ -82,9 +75,17 @@ public class ChatMessage extends RealmObject {
         return this.text;
     }
 
+    public String getConversationId() {
+        return this.conversationId;
+    }
+
     @Type
     public int getType() {
         return this.type;
+    }
+
+    public List<Detail> getDetails(){
+        return this.details;
     }
 
     // Helper functions
@@ -100,14 +101,6 @@ public class ChatMessage extends RealmObject {
         setConversationId(conversationId);
         setType(TYPE_REMOTE_TEXT);
         setText(text);
-        return this;
-    }
-
-    public ChatMessage makeRemoteRewardMessage(Message message){
-        setType(TYPE_REMOTE_TEXT);
-        setText(message.toString());
-        setDetails(message.getDetails());
-        setActions(message.getActions());
         return this;
     }
 

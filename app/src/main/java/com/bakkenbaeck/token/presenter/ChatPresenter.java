@@ -8,7 +8,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
 import android.widget.Toast;
 
-import com.bakkenbaeck.token.crypto.signal.model.OutgoingMessage;
 import com.bakkenbaeck.token.model.ChatMessage;
 import com.bakkenbaeck.token.model.Contact;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
@@ -131,14 +130,10 @@ public final class ChatPresenter implements
             activity.getBinding().userInput.setText(null);
 
             // Send to backend
-            final OutgoingMessage outgoingMessage = new OutgoingMessage()
-                    .setAddress(contact.getConversationId())
-                    .setBody(userInput)
-                    .setId(messageAdapter.getItemCount());
             BaseApplication.get()
                     .getTokenManager()
                     .getSignalManager()
-                    .sendMessage(outgoingMessage);
+                    .sendMessage(message);
         }
 
         private boolean userInputInvalid() {
@@ -146,14 +141,14 @@ public final class ChatPresenter implements
         }
     };
 
-    private final Subscriber<OutgoingMessage> failedMessagesSubscriber = new OnNextSubscriber<OutgoingMessage>() {
+    private final Subscriber<ChatMessage> failedMessagesSubscriber = new OnNextSubscriber<ChatMessage>() {
         @Override
-        public void onNext(final OutgoingMessage message) {
+        public void onNext(final ChatMessage message) {
             new Handler(Looper.getMainLooper())
                     .post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(activity, "Unable to send message: " + message.getBody(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(activity, "Unable to send message: " + message.getText(), Toast.LENGTH_LONG).show();
                         }
                     });
         }

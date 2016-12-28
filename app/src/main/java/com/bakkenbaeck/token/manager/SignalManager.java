@@ -6,7 +6,6 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.crypto.signal.SignalPreferences;
 import com.bakkenbaeck.token.crypto.signal.SignalService;
-import com.bakkenbaeck.token.crypto.signal.model.OutgoingMessage;
 import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
 import com.bakkenbaeck.token.crypto.signal.store.SignalTrustStore;
 import com.bakkenbaeck.token.model.ChatMessage;
@@ -43,8 +42,8 @@ import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 public final class SignalManager {
-    private final PublishSubject<OutgoingMessage> sendMessageSubject = PublishSubject.create();
-    private final PublishSubject<OutgoingMessage> failedMessageSubject = PublishSubject.create();
+    private final PublishSubject<ChatMessage> sendMessageSubject = PublishSubject.create();
+    private final PublishSubject<ChatMessage> failedMessageSubject = PublishSubject.create();
 
     private SignalService signalService;
     private HDWallet wallet;
@@ -111,9 +110,9 @@ public final class SignalManager {
         this.sendMessageSubject
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new OnNextSubscriber<OutgoingMessage>() {
+                .subscribe(new OnNextSubscriber<ChatMessage>() {
             @Override
-            public void onNext(final OutgoingMessage message) {
+            public void onNext(final ChatMessage message) {
                 sendMessageToBackend(message);
             }
         });
@@ -123,15 +122,15 @@ public final class SignalManager {
 
 
 
-    public final void sendMessage(final OutgoingMessage message) {
+    public final void sendMessage(final ChatMessage message) {
         this.sendMessageSubject.onNext(message);
     }
 
-    public final Observable<OutgoingMessage> getFailedMessagesObservable() {
+    public final Observable<ChatMessage> getFailedMessagesObservable() {
         return this.failedMessageSubject.asObservable();
     }
 
-    private void sendMessageToBackend(final OutgoingMessage message) {
+    private void sendMessageToBackend(final ChatMessage message) {
         final SignalServiceMessageSender messageSender = new SignalServiceMessageSender(
                 BaseApplication.get().getResources().getString(R.string.chat_url),
                 this.trustStore,
@@ -143,9 +142,9 @@ public final class SignalManager {
         );
         try {
             messageSender.sendMessage(
-                    new SignalServiceAddress(message.getAddress()),
+                    new SignalServiceAddress(message.getConversationId()),
                     SignalServiceDataMessage.newBuilder()
-                            .withBody(message.getBody())
+                            .withBody(message.getText())
                             .build());
         } catch (final UntrustedIdentityException | IOException ex) {
             LogUtil.error(getClass(), ex.toString());
