@@ -122,14 +122,10 @@ public final class ChatPresenter implements
                 return;
             }
 
-
-            // Store in Local DB
             final String userInput = activity.getBinding().userInput.getText().toString();
             final ChatMessage message = new ChatMessage().makeLocalMessage(contact.getConversationId(), userInput);
-            chatMessageStore.save(message);
             activity.getBinding().userInput.setText(null);
 
-            // Send to backend
             BaseApplication.get()
                     .getTokenManager()
                     .getSignalManager()

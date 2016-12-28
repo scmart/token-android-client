@@ -113,7 +113,12 @@ public final class SignalManager {
                 .subscribe(new OnNextSubscriber<ChatMessage>() {
             @Override
             public void onNext(final ChatMessage message) {
-                sendMessageToBackend(message);
+                dbThreadExecutor.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        sendMessageToBackend(message);
+                    }
+                });
             }
         });
 
@@ -140,6 +145,9 @@ public final class SignalManager {
                 this.userAgent,
                 null
         );
+
+        chatMessageStore.save(message);
+
         try {
             messageSender.sendMessage(
                     new SignalServiceAddress(message.getConversationId()),

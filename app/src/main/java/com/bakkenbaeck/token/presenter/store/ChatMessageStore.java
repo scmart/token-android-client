@@ -24,12 +24,7 @@ public class ChatMessageStore {
             public void onChange(final RealmResults<ChatMessage> newMessages) {
                 // Just broadcast the last message -- this might be too naive
                 final ChatMessage newMessage = newMessages.last();
-                // Only broadcast remote messages -- otherwise listening classes will also
-                // be informed of messages they have already saved
-                if (newMessage.getType() != ChatMessage.TYPE_REMOTE_TEXT) {
-                    return;
-                }
-                onNewChatMessage(newMessage);
+                broadcastNewChatMessage(newMessage);
             }
         };
     }
@@ -42,7 +37,6 @@ public class ChatMessageStore {
         this.realm.beginTransaction();
         final ChatMessage storedObject = realm.copyToRealm(chatMessage);
         this.realm.commitTransaction();
-        onNewChatMessage(storedObject);
     }
 
     private void loadWhere(final String fieldName, final String value) {
@@ -60,7 +54,7 @@ public class ChatMessageStore {
         }
 
         for (final ChatMessage chatMessage : this.chatMessages) {
-            onNewChatMessage(chatMessage);
+            broadcastNewChatMessage(chatMessage);
         }
 
         onFinishedLoading();
@@ -74,7 +68,7 @@ public class ChatMessageStore {
         return this.newMessageObservable;
     }
 
-    private void onNewChatMessage(final ChatMessage newMessage) {
+    private void broadcastNewChatMessage(final ChatMessage newMessage) {
         this.newMessageObservable.onNext(newMessage);
     }
 
