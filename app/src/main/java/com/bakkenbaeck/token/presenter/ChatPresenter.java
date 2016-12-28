@@ -21,8 +21,6 @@ import com.bakkenbaeck.token.view.adapter.MessageAdapter;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 
 import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public final class ChatPresenter implements
         Presenter<ChatActivity> {
@@ -66,13 +64,6 @@ public final class ChatPresenter implements
                 .getSignalManager()
                 .getFailedMessagesObservable()
                 .subscribe(this.failedMessagesSubscriber);
-        BaseApplication.get()
-                .getTokenManager()
-                .getSignalManager()
-                .getReceiveMessagesObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.receiveMessagesSubscriber);
     }
 
     private void initShortLivingObjects() {
@@ -135,7 +126,7 @@ public final class ChatPresenter implements
 
             // Store in Local DB
             final String userInput = activity.getBinding().userInput.getText().toString();
-            final ChatMessage message = new ChatMessage().makeLocalMessageWithText(userInput);
+            final ChatMessage message = new ChatMessage().makeLocalMessage(contact.getConversationId(), userInput);
             chatMessageStore.save(message);
             activity.getBinding().userInput.setText(null);
 
@@ -165,14 +156,6 @@ public final class ChatPresenter implements
                             Toast.makeText(activity, "Unable to send message: " + message.getBody(), Toast.LENGTH_LONG).show();
                         }
                     });
-        }
-    };
-
-    private final Subscriber<String> receiveMessagesSubscriber = new OnNextSubscriber<String>() {
-        @Override
-        public void onNext(final String messageBody) {
-            final ChatMessage remoteMessage = new ChatMessage().makeRemoteMessageWithText(messageBody);
-            chatMessageStore.save(remoteMessage);
         }
     };
 
@@ -212,11 +195,11 @@ public final class ChatPresenter implements
 
     @Override
     public void onViewDestroyed() {
-        if(messageAdapter != null) {
-            messageAdapter = null;
+        if (this.messageAdapter != null) {
+            this.messageAdapter = null;
         }
+        this.chatMessageStore.destroy();
         this.failedMessagesSubscriber.unsubscribe();
-        this.receiveMessagesSubscriber.unsubscribe();
         this.activity = null;
     }
 

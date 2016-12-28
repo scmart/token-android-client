@@ -1,123 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:layout_marginTop="@dimen/bubbleMargin"
-    android:layout_marginBottom="@dimen/bubbleMargin"
-    android:alpha="1">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <ImageView
+    <TextView
+        android:id="@+id/single_message_item__message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:src="@drawable/token_avatar"
-        android:layout_marginRight="@dimen/avatarPadding" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:background="@drawable/background_message_remote"
+        android:layout_marginBottom="@dimen/bubbleMargin"
+        android:layout_marginTop="@dimen/bubbleMargin"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:gravity="center"
+        android:lineSpacingExtra="2dp"
+        android:layout_gravity="left"
         android:minWidth="50dp"
-        android:orientation="vertical"
-        android:padding="@dimen/textBubblePadding"
-        android:background="@drawable/background_message_remote">
+        android:textColor="@color/textColorContrast"
+        android:textSize="@dimen/defaultTextSize"
+        tools:text="This is a remote message!"/>
 
-        <TextView
-            android:id="@+id/single_message_item__message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/bubbleMargin"
-            android:gravity="center_vertical"
-            android:textSize="@dimen/defaultTextSize"
-            android:textColor="@color/textColorContrast"
-            android:lineSpacingExtra="2dp"
-            tools:text="Sent 0.00002 ETH to 0xf1dd18252bdfd94ebf0630f2f12aa99dfa7fe5f8"
-            />
-
-        <TextView
-            android:id="@+id/verifyBtn"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginTop="@dimen/textBubblePadding"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:gravity="center"
-            android:textAllCaps="true"
-            android:textColor="#33565A64"
-            android:fontFamily="sans-serif-medium"
-            android:textSize="@dimen/buttonTextSize"
-            android:text="@string/verify_phone_number"
-            android:lineSpacingExtra="2dp"
-            android:enabled="false"
-            android:visibility="gone"
-            tools:visibility="visible"/>
-
-        <LinearLayout
-            android:id="@+id/details"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="@dimen/textBubblePadding"
-            android:visibility="gone">
-
-            <LinearLayout
-                android:id="@+id/earnedWrapper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="@dimen/textBubblePadding"
-                android:visibility="gone">
-
-                <TextView
-                    android:id="@+id/earned"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#FFFFFF"
-                    android:textSize="@dimen/defaultTextSize"
-                    android:lineSpacingExtra="2dp"
-                    android:layout_gravity="center_vertical" />
-
-                <TextView
-                    android:id="@+id/earnedValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#ffffff"
-                    android:layout_gravity="center_vertical"
-                    android:lineSpacingExtra="2dp"
-                    android:textSize="@dimen/subTitleSize" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/earnedTotalWrapper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="@dimen/textBubblePadding"
-                android:visibility="gone"
-                android:background="@drawable/bottom_radius_background">
-
-                <TextView
-                    android:id="@+id/earnedTotal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:textColor="#FFFFFF"
-                    android:lineSpacingExtra="2dp"
-                    android:textSize="@dimen/defaultTextSize" />
-
-                <TextView
-                    android:id="@+id/earnedTotalValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:textColor="#FFFFFF"
-                    android:lineSpacingExtra="2dp"
-                    android:textSize="@dimen/subTitleSize" />
-
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-</LinearLayout>
+</FrameLayout>

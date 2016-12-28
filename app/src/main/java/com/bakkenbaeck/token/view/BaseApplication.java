@@ -1,6 +1,7 @@
 package com.bakkenbaeck.token.view;
 
 
+import android.content.ComponentCallbacks2;
 import android.support.multidex.MultiDexApplication;
 
 import com.bakkenbaeck.token.manager.TokenManager;
@@ -17,6 +18,7 @@ public final class BaseApplication extends MultiDexApplication {
     public static BaseApplication get() { return instance; }
 
     private TokenManager tokenManager;
+    private boolean inBackground = false;
 
     public final TokenManager getTokenManager() {
         return this.tokenManager;
@@ -64,4 +66,22 @@ public final class BaseApplication extends MultiDexApplication {
         Realm.setDefaultConfiguration(config);
     }
 
+
+    public void applicationResumed() {
+        if (this.inBackground) {
+            this.inBackground = false;
+            this.tokenManager.getSignalManager().connect();
+        }
+    }
+
+    @Override
+    public void onTrimMemory(final int level) {
+        // This is a method for detecting the application going into the background:
+        // http://stackoverflow.com/a/19920353
+        if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
+            this.inBackground = true;
+            this.tokenManager.getSignalManager().disconnect();
+        }
+        super.onTrimMemory(level);
+    }
 }
