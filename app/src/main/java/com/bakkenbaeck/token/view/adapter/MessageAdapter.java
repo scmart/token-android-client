@@ -66,24 +66,6 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 final RemoteTextViewHolder vh = (RemoteTextViewHolder) holder;
                 final String parsedMessage = MessageUtil.parseString(chatMessage.getText());
                 vh.messageText.setText(parsedMessage);
-                vh.verificationButton.setVisibility(View.GONE);
-
-                //Details reward
-                if(chatMessage.getDetails() != null && chatMessage.getDetails().size() > 0) {
-                    vh.details.setVisibility(View.VISIBLE);
-                    vh.earnedWrapper.setVisibility(View.VISIBLE);
-                    String subString1 = String.valueOf(chatMessage.getDetails().get(0).getValue());
-                    vh.earned.setText(chatMessage.getDetails().get(0).getTitle());
-                    vh.earnedValue.setText(subString1);
-
-                    //Total
-                    if (chatMessage.getDetails().size() > 1) {
-                        vh.earnedTotalWrapper.setVisibility(View.VISIBLE);
-                        String subString2 = String.valueOf(chatMessage.getDetails().get(1).getValue());
-                        vh.earnedTotal.setText(chatMessage.getDetails().get(1).getTitle());
-                        vh.earnedTotalValue.setText(subString2);
-                    }
-                }
                 break;
             }
             case TYPE_DAY: {

@@ -23,7 +23,13 @@ public class ChatMessageStore {
             @Override
             public void onChange(final RealmResults<ChatMessage> newMessages) {
                 // Just broadcast the last message -- this might be too naive
-                onNewChatMessage(newMessages.last());
+                final ChatMessage newMessage = newMessages.last();
+                // Only broadcast remote messages -- otherwise listening classes will also
+                // be informed of messages they have already saved
+                if (newMessage.getType() != ChatMessage.TYPE_REMOTE_TEXT) {
+                    return;
+                }
+                onNewChatMessage(newMessage);
             }
         };
     }
@@ -69,12 +75,6 @@ public class ChatMessageStore {
     }
 
     private void onNewChatMessage(final ChatMessage newMessage) {
-        // Only broadcast remote messages -- otherwise listening classes will also
-        // be informed of messages they have already saved
-        if (newMessage.getType() != ChatMessage.TYPE_REMOTE_TEXT) {
-            return;
-        }
-
         this.newMessageObservable.onNext(newMessage);
     }
 
