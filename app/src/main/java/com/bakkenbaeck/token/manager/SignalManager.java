@@ -209,7 +209,9 @@ public final class SignalManager {
                 final String messageBody = dataMessage.getBody().get();
                 saveMessageToDatabase(messageSource, messageBody);
             }
-        } catch (final IllegalStateException | InvalidKeyException | InvalidKeyIdException | DuplicateMessageException | InvalidVersionException | LegacyMessageException | InvalidMessageException | NoSessionException | org.whispersystems.libsignal.UntrustedIdentityException | IOException | TimeoutException e) {
+        } catch (final TimeoutException ex) {
+            // Nop. This is to be expected
+        } catch (final IllegalStateException | InvalidKeyException | InvalidKeyIdException | DuplicateMessageException | InvalidVersionException | LegacyMessageException | InvalidMessageException | NoSessionException | org.whispersystems.libsignal.UntrustedIdentityException | IOException e) {
             LogUtil.e(getClass(), "receiveMessage: " + e.toString());
         }
     }
