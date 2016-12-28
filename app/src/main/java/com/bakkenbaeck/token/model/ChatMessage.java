@@ -21,10 +21,23 @@ public class ChatMessage extends RealmObject {
     private @interface Type {}
     @Ignore public static final int TYPE_LOCAL_TEXT = 0;
     @Ignore public static final int TYPE_REMOTE_TEXT = 1;
-    @Ignore public static final int TYPE_DAY = 4;
+    @Ignore public static final int TYPE_DAY = 2;
+
+    @IntDef({
+            STATE_SENDING,
+            STATE_SENT,
+            STATE_FAILED,
+            STATE_RECEIVED
+    })
+    private @interface SendState {}
+    @Ignore public static final int STATE_SENDING = 0;
+    @Ignore public static final int STATE_SENT = 1;
+    @Ignore public static final int STATE_FAILED = 2;
+    @Ignore public static final int STATE_RECEIVED = 3;
 
     private long creationTime;
     private @Type int type;
+    private @SendState int sendState;
     private String conversationId;
     private String text;
     private RealmList<Detail> details;
@@ -36,6 +49,11 @@ public class ChatMessage extends RealmObject {
 
     private ChatMessage setType(final @Type int type) {
         this.type = type;
+        return this;
+    }
+
+    private ChatMessage setSendState(final @SendState int sendState) {
+        this.sendState = sendState;
         return this;
     }
 
@@ -79,9 +97,12 @@ public class ChatMessage extends RealmObject {
         return this.conversationId;
     }
 
-    @Type
-    public int getType() {
+    public @Type int getType() {
         return this.type;
+    }
+
+    public @SendState int getSendState() {
+        return this.sendState;
     }
 
     public List<Detail> getDetails(){
@@ -91,17 +112,19 @@ public class ChatMessage extends RealmObject {
     // Helper functions
 
     public ChatMessage makeLocalMessage(final String conversationId, final String text) {
-        setConversationId(conversationId);
-        setType(TYPE_LOCAL_TEXT);
-        setText(text);
-        return this;
+        return
+            setConversationId(conversationId)
+                    .setSendState(STATE_SENDING)
+                    .setType(TYPE_LOCAL_TEXT)
+                    .setText(text);
     }
 
     public ChatMessage makeRemoteMessage(final String conversationId, final String text) {
-        setConversationId(conversationId);
-        setType(TYPE_REMOTE_TEXT);
-        setText(text);
-        return this;
+        return
+            setConversationId(conversationId)
+                .setSendState(STATE_RECEIVED)
+                .setType(TYPE_REMOTE_TEXT)
+                .setText(text);
     }
 
     public ChatMessage makeDayHeader(){

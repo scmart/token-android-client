@@ -123,9 +123,9 @@ public final class ChatPresenter implements
             }
 
             final String userInput = activity.getBinding().userInput.getText().toString();
-            final ChatMessage message = new ChatMessage().makeLocalMessage(contact.getConversationId(), userInput);
             activity.getBinding().userInput.setText(null);
 
+            final ChatMessage message = new ChatMessage().makeLocalMessage(contact.getConversationId(), userInput);
             BaseApplication.get()
                     .getTokenManager()
                     .getSignalManager()
