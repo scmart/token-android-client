@@ -3,10 +3,13 @@ package com.bakkenbaeck.token.presenter.store;
 
 import com.bakkenbaeck.token.model.ChatMessage;
 
+import java.util.concurrent.Callable;
+
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
+import rx.Single;
 import rx.subjects.PublishSubject;
 
 public class ChatMessageStore {
@@ -18,8 +21,13 @@ public class ChatMessageStore {
         this.realm = Realm.getDefaultInstance();
     }
 
-    public void load(final String conversationId) {
-        this.loadWhere("conversationId", conversationId);
+    public Single<RealmResults<ChatMessage>> load(final String conversationId) {
+        return Single.fromCallable(new Callable<RealmResults<ChatMessage>>() {
+            @Override
+            public RealmResults<ChatMessage> call() throws Exception {
+                return loadWhere("conversationId", conversationId);
+            }
+        });
     }
 
     public ChatMessage save(final ChatMessage chatMessage) {
@@ -37,24 +45,10 @@ public class ChatMessageStore {
         this.realm.commitTransaction();
     }
 
-    private void loadWhere(final String fieldName, final String value) {
+    private RealmResults<ChatMessage> loadWhere(final String fieldName, final String value) {
         final RealmQuery<ChatMessage> query = realm.where(ChatMessage.class);
         query.equalTo(fieldName, value);
-        runAndHandleQuery(query);
-    }
-
-    private void runAndHandleQuery(final RealmQuery<ChatMessage> query) {
-        final RealmResults<ChatMessage> chatMessages = query.findAll();
-        if (chatMessages.size() == 0) {
-            onEmptySetAfterLoad();
-            return;
-        }
-
-        for (final ChatMessage chatMessage : chatMessages) {
-            broadcastNewChatMessage(chatMessage);
-        }
-
-        onFinishedLoading();
+        return query.findAll();
     }
 
     public PublishSubject<ChatMessage> getNewMessageObservable() {
@@ -64,8 +58,4 @@ public class ChatMessageStore {
     private void broadcastNewChatMessage(final ChatMessage newMessage) {
         newMessageObservable.onNext(newMessage);
     }
-
-    private void onEmptySetAfterLoad() {}
-
-    private void onFinishedLoading() {}
 }

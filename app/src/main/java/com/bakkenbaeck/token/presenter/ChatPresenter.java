@@ -12,12 +12,14 @@ import com.bakkenbaeck.token.model.ChatMessage;
 import com.bakkenbaeck.token.model.Contact;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
+import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 
+import io.realm.RealmResults;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -55,18 +57,15 @@ public final class ChatPresenter implements
     }
 
     private void initLongLivingObjects() {
+        this.messageAdapter = new MessageAdapter();
         this.chatMessageStore = new ChatMessageStore();
         this.chatMessageStore.getNewMessageObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.newChatMessage);
-        this.messageAdapter = new MessageAdapter();
-        this.chatMessageStore.load(this.contact.getConversationId());
-        BaseApplication.get()
-                .getTokenManager()
-                .getSignalManager()
-                .getFailedMessagesObservable()
-                .subscribe(this.failedMessagesSubscriber);
+                .subscribe(this.handleNewMessage);
+        this.chatMessageStore.load(this.contact.getConversationId())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this.handleLoadMessages);
     }
 
     private void initShortLivingObjects() {
@@ -94,7 +93,6 @@ public final class ChatPresenter implements
 
     private void initRecyclerView() {
         this.messageAdapter.notifyDataSetChanged();
-        forceScrollToBottom();
         this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
 
         // Hack to scroll to bottom when keyboard rendered
@@ -141,24 +139,24 @@ public final class ChatPresenter implements
         }
     };
 
-    private final Subscriber<ChatMessage> failedMessagesSubscriber = new OnNextSubscriber<ChatMessage>() {
-        @Override
-        public void onNext(final ChatMessage message) {
-            new Handler(Looper.getMainLooper())
-                    .post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(activity, "Unable to send message: " + message.getText(), Toast.LENGTH_LONG).show();
-                        }
-                    });
-        }
-    };
-
-    private final OnNextSubscriber<ChatMessage> newChatMessage = new OnNextSubscriber<ChatMessage>() {
+    private final OnNextSubscriber<ChatMessage> handleNewMessage = new OnNextSubscriber<ChatMessage>() {
         @Override
         public void onNext(final ChatMessage chatMessage) {
             messageAdapter.addMessage(chatMessage);
             tryScrollToBottom(true);
+        }
+    };
+
+    private final SingleSuccessSubscriber<RealmResults<ChatMessage>> handleLoadMessages = new SingleSuccessSubscriber<RealmResults<ChatMessage>>() {
+        @Override
+        public void onSuccess(final RealmResults<ChatMessage> chatMessages) {
+            if (chatMessages.size() == 0) {
+                Toast.makeText(activity, "To do: Handle empty state.", Toast.LENGTH_SHORT).show();
+            }
+
+            messageAdapter.addMessages(chatMessages);
+            forceScrollToBottom();
+            this.unsubscribe();
         }
     };
 
@@ -193,8 +191,7 @@ public final class ChatPresenter implements
         if (this.messageAdapter != null) {
             this.messageAdapter = null;
         }
-        this.failedMessagesSubscriber.unsubscribe();
-        this.newChatMessage.unsubscribe();
+        this.handleNewMessage.unsubscribe();
         this.chatMessageStore = null;
         this.activity = null;
     }
