@@ -37,9 +37,8 @@ public class ChatMessageStore {
         broadcastNewChatMessage(chatMessage);
     }
 
-    public void setSendState(final ChatMessage chatMessage, final @ChatMessage.SendState int newState) {
+    public void update(final ChatMessage chatMessage) {
         this.realm.beginTransaction();
-        chatMessage.setSendState(newState);
         this.realm.insertOrUpdate(chatMessage);
         this.realm.commitTransaction();
         broadcastUpdatedChatMessage(chatMessage);

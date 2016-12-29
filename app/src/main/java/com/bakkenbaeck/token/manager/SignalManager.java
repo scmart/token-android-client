@@ -37,7 +37,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import rx.Observable;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
@@ -152,10 +151,12 @@ public final class SignalManager {
                     SignalServiceDataMessage.newBuilder()
                             .withBody(message.getText())
                             .build());
-            this.chatMessageStore.setSendState(message, STATE_SENT);
+            message.setSendState(STATE_SENT);
+            this.chatMessageStore.update(message);
         } catch (final UntrustedIdentityException | IOException ex) {
             LogUtil.error(getClass(), ex.toString());
-            this.chatMessageStore.setSendState(message, STATE_FAILED);
+            message.setSendState(STATE_FAILED);
+            this.chatMessageStore.update(message);
         }
     }
 
