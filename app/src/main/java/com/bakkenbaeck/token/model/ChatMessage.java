@@ -10,8 +10,12 @@ import java.util.List;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
+import io.realm.annotations.PrimaryKey;
 
 public class ChatMessage extends RealmObject {
+
+    @PrimaryKey
+    private String privateKey;
 
     @IntDef({
             TYPE_LOCAL_TEXT,
@@ -59,6 +63,7 @@ public class ChatMessage extends RealmObject {
 
     public ChatMessage setConversationId(final String conversationId) {
         this.conversationId = conversationId;
+        this.privateKey = this.conversationId + String.valueOf(this.creationTime);
         return this;
     }
 

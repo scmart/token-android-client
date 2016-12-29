@@ -46,7 +46,6 @@ import static com.bakkenbaeck.token.model.ChatMessage.STATE_SENT;
 
 public final class SignalManager {
     private final PublishSubject<ChatMessage> sendMessageSubject = PublishSubject.create();
-    private final PublishSubject<ChatMessage> failedMessageSubject = PublishSubject.create();
 
     private SignalService signalService;
     private HDWallet wallet;
@@ -134,10 +133,6 @@ public final class SignalManager {
         this.sendMessageSubject.onNext(message);
     }
 
-    public final Observable<ChatMessage> getFailedMessagesObservable() {
-        return this.failedMessageSubject.asObservable();
-    }
-
     private void sendMessageToBackend(final ChatMessage message) {
         final SignalServiceMessageSender messageSender = new SignalServiceMessageSender(
                 BaseApplication.get().getResources().getString(R.string.chat_url),
@@ -149,7 +144,7 @@ public final class SignalManager {
                 null
         );
 
-        final ChatMessage inProgressMessage = chatMessageStore.save(message);
+        chatMessageStore.save(message);
 
         try {
             messageSender.sendMessage(
@@ -157,10 +152,10 @@ public final class SignalManager {
                     SignalServiceDataMessage.newBuilder()
                             .withBody(message.getText())
                             .build());
-            this.chatMessageStore.setSendState(inProgressMessage, STATE_SENT);
+            this.chatMessageStore.setSendState(message, STATE_SENT);
         } catch (final UntrustedIdentityException | IOException ex) {
             LogUtil.error(getClass(), ex.toString());
-            this.chatMessageStore.setSendState(inProgressMessage, STATE_FAILED);
+            this.chatMessageStore.setSendState(message, STATE_FAILED);
         }
     }
 

@@ -63,6 +63,10 @@ public final class ChatPresenter implements
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleNewMessage);
+        this.chatMessageStore.getUpdatedMessageObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this.handleUpdatedMessage);
         this.chatMessageStore.load(this.contact.getConversationId())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleLoadMessages);
@@ -147,6 +151,17 @@ public final class ChatPresenter implements
         }
     };
 
+    private final OnNextSubscriber<ChatMessage> handleUpdatedMessage = new OnNextSubscriber<ChatMessage>() {
+        @Override
+        public void onNext(final ChatMessage chatMessage) {
+            if (chatMessage.getSendState() != ChatMessage.STATE_FAILED) {
+                return;
+            }
+
+            Toast.makeText(activity, "Failed to send: " + chatMessage.getText(), Toast.LENGTH_SHORT).show();
+        }
+    };
+
     private final SingleSuccessSubscriber<RealmResults<ChatMessage>> handleLoadMessages = new SingleSuccessSubscriber<RealmResults<ChatMessage>>() {
         @Override
         public void onSuccess(final RealmResults<ChatMessage> chatMessages) {
@@ -192,6 +207,7 @@ public final class ChatPresenter implements
             this.messageAdapter = null;
         }
         this.handleNewMessage.unsubscribe();
+        this.handleUpdatedMessage.unsubscribe();
         this.chatMessageStore = null;
         this.activity = null;
     }

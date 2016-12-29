@@ -6,7 +6,6 @@ import com.bakkenbaeck.token.model.ChatMessage;
 import java.util.concurrent.Callable;
 
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import rx.Single;
@@ -15,6 +14,7 @@ import rx.subjects.PublishSubject;
 public class ChatMessageStore {
 
     private final static PublishSubject<ChatMessage> newMessageObservable = PublishSubject.create();
+    private final static PublishSubject<ChatMessage> updatedMessageObservable = PublishSubject.create();
     private final Realm realm;
 
     public ChatMessageStore() {
@@ -30,19 +30,19 @@ public class ChatMessageStore {
         });
     }
 
-    public ChatMessage save(final ChatMessage chatMessage) {
+    public void save(final ChatMessage chatMessage) {
         this.realm.beginTransaction();
-        final ChatMessage storedObject = this.realm.copyToRealm(chatMessage);
+        this.realm.insert(chatMessage);
         this.realm.commitTransaction();
         broadcastNewChatMessage(chatMessage);
-        return storedObject;
     }
 
-    public void setSendState(final ChatMessage storedChatMessage, final @ChatMessage.SendState int newState) {
+    public void setSendState(final ChatMessage chatMessage, final @ChatMessage.SendState int newState) {
         this.realm.beginTransaction();
-        storedChatMessage.setSendState(newState);
-        this.realm.insertOrUpdate(storedChatMessage);
+        chatMessage.setSendState(newState);
+        this.realm.insertOrUpdate(chatMessage);
         this.realm.commitTransaction();
+        broadcastUpdatedChatMessage(chatMessage);
     }
 
     private RealmResults<ChatMessage> loadWhere(final String fieldName, final String value) {
@@ -55,7 +55,15 @@ public class ChatMessageStore {
         return newMessageObservable;
     }
 
+    public PublishSubject<ChatMessage> getUpdatedMessageObservable() {
+        return updatedMessageObservable;
+    }
+
     private void broadcastNewChatMessage(final ChatMessage newMessage) {
         newMessageObservable.onNext(newMessage);
+    }
+
+    private void broadcastUpdatedChatMessage(final ChatMessage updatedMessage) {
+        updatedMessageObservable.onNext(updatedMessage);
     }
 }
