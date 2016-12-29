@@ -11,31 +11,29 @@ import rx.subjects.PublishSubject;
 
 public class ChatMessageStore {
 
+    private final static PublishSubject<ChatMessage> newMessageObservable = PublishSubject.create();
     private final Realm realm;
-    private final RealmChangeListener<RealmResults<ChatMessage>> newMessageListener;
-    private final PublishSubject<Void> emptySetObservable = PublishSubject.create();
-    private final PublishSubject<ChatMessage> newMessageObservable = PublishSubject.create();
-    private RealmResults<ChatMessage> chatMessages;
 
     public ChatMessageStore() {
         this.realm = Realm.getDefaultInstance();
-        this.newMessageListener = new RealmChangeListener<RealmResults<ChatMessage>>() {
-            @Override
-            public void onChange(final RealmResults<ChatMessage> newMessages) {
-                // Just broadcast the last message -- this might be too naive
-                final ChatMessage newMessage = newMessages.last();
-                broadcastNewChatMessage(newMessage);
-            }
-        };
     }
 
     public void load(final String conversationId) {
         this.loadWhere("conversationId", conversationId);
     }
 
-    public void save(final ChatMessage chatMessage) {
+    public ChatMessage save(final ChatMessage chatMessage) {
         this.realm.beginTransaction();
-        final ChatMessage storedObject = realm.copyToRealm(chatMessage);
+        final ChatMessage storedObject = this.realm.copyToRealm(chatMessage);
+        this.realm.commitTransaction();
+        broadcastNewChatMessage(chatMessage);
+        return storedObject;
+    }
+
+    public void setSendState(final ChatMessage storedChatMessage, final @ChatMessage.SendState int newState) {
+        this.realm.beginTransaction();
+        storedChatMessage.setSendState(newState);
+        this.realm.insertOrUpdate(storedChatMessage);
         this.realm.commitTransaction();
     }
 
@@ -46,40 +44,28 @@ public class ChatMessageStore {
     }
 
     private void runAndHandleQuery(final RealmQuery<ChatMessage> query) {
-        this.chatMessages = query.findAll();
-        this.chatMessages.addChangeListener(this.newMessageListener);
-        if (this.chatMessages.size() == 0) {
+        final RealmResults<ChatMessage> chatMessages = query.findAll();
+        if (chatMessages.size() == 0) {
             onEmptySetAfterLoad();
             return;
         }
 
-        for (final ChatMessage chatMessage : this.chatMessages) {
+        for (final ChatMessage chatMessage : chatMessages) {
             broadcastNewChatMessage(chatMessage);
         }
 
         onFinishedLoading();
     }
 
-    public PublishSubject<Void> getEmptySetObservable() {
-        return this.emptySetObservable;
-    }
-
     public PublishSubject<ChatMessage> getNewMessageObservable() {
-        return this.newMessageObservable;
+        return newMessageObservable;
     }
 
     private void broadcastNewChatMessage(final ChatMessage newMessage) {
-        this.newMessageObservable.onNext(newMessage);
+        newMessageObservable.onNext(newMessage);
     }
 
-    private void onEmptySetAfterLoad() {
-        this.emptySetObservable.onCompleted();
-    }
+    private void onEmptySetAfterLoad() {}
 
     private void onFinishedLoading() {}
-
-
-    public void destroy() {
-        this.chatMessages.removeChangeListener(this.newMessageListener);
-    }
 }

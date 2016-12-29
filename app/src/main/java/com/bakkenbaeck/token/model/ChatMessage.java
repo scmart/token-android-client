@@ -29,7 +29,7 @@ public class ChatMessage extends RealmObject {
             STATE_FAILED,
             STATE_RECEIVED
     })
-    private @interface SendState {}
+    public @interface SendState {}
     @Ignore public static final int STATE_SENDING = 0;
     @Ignore public static final int STATE_SENT = 1;
     @Ignore public static final int STATE_FAILED = 2;
@@ -52,7 +52,7 @@ public class ChatMessage extends RealmObject {
         return this;
     }
 
-    private ChatMessage setSendState(final @SendState int sendState) {
+    public ChatMessage setSendState(final @SendState int sendState) {
         this.sendState = sendState;
         return this;
     }

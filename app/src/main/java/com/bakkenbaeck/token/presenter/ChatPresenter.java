@@ -11,7 +11,6 @@ import android.widget.Toast;
 import com.bakkenbaeck.token.model.ChatMessage;
 import com.bakkenbaeck.token.model.Contact;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
-import com.bakkenbaeck.token.util.OnNextObserver;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -20,6 +19,8 @@ import com.bakkenbaeck.token.view.adapter.MessageAdapter;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 
 import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public final class ChatPresenter implements
         Presenter<ChatActivity> {
@@ -55,7 +56,10 @@ public final class ChatPresenter implements
 
     private void initLongLivingObjects() {
         this.chatMessageStore = new ChatMessageStore();
-        this.chatMessageStore.getNewMessageObservable().subscribe(this.newChatMessage);
+        this.chatMessageStore.getNewMessageObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this.newChatMessage);
         this.messageAdapter = new MessageAdapter();
         this.chatMessageStore.load(this.contact.getConversationId());
         BaseApplication.get()
@@ -150,7 +154,7 @@ public final class ChatPresenter implements
         }
     };
 
-    private final OnNextObserver<ChatMessage> newChatMessage = new OnNextObserver<ChatMessage>() {
+    private final OnNextSubscriber<ChatMessage> newChatMessage = new OnNextSubscriber<ChatMessage>() {
         @Override
         public void onNext(final ChatMessage chatMessage) {
             messageAdapter.addMessage(chatMessage);
@@ -189,8 +193,9 @@ public final class ChatPresenter implements
         if (this.messageAdapter != null) {
             this.messageAdapter = null;
         }
-        this.chatMessageStore.destroy();
         this.failedMessagesSubscriber.unsubscribe();
+        this.newChatMessage.unsubscribe();
+        this.chatMessageStore = null;
         this.activity = null;
     }
 

@@ -41,6 +41,9 @@ import rx.Observable;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
+import static com.bakkenbaeck.token.model.ChatMessage.STATE_FAILED;
+import static com.bakkenbaeck.token.model.ChatMessage.STATE_SENT;
+
 public final class SignalManager {
     private final PublishSubject<ChatMessage> sendMessageSubject = PublishSubject.create();
     private final PublishSubject<ChatMessage> failedMessageSubject = PublishSubject.create();
@@ -146,7 +149,7 @@ public final class SignalManager {
                 null
         );
 
-        chatMessageStore.save(message);
+        final ChatMessage inProgressMessage = chatMessageStore.save(message);
 
         try {
             messageSender.sendMessage(
@@ -154,9 +157,10 @@ public final class SignalManager {
                     SignalServiceDataMessage.newBuilder()
                             .withBody(message.getText())
                             .build());
+            this.chatMessageStore.setSendState(inProgressMessage, STATE_SENT);
         } catch (final UntrustedIdentityException | IOException ex) {
             LogUtil.error(getClass(), ex.toString());
-            this.failedMessageSubject.onNext(message);
+            this.chatMessageStore.setSendState(inProgressMessage, STATE_FAILED);
         }
     }
 
