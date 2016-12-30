@@ -3,6 +3,7 @@ package com.bakkenbaeck.token.presenter;
 import android.content.Intent;
 import android.widget.Toast;
 
+import com.bakkenbaeck.token.model.ScanResult;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.ScanResultActivity;
@@ -34,8 +35,9 @@ public final class ScannerPresenter implements Presenter<ScannerFragment> {
     private final BarcodeCallback onScanSuccess = new BarcodeCallback() {
         @Override
         public void barcodeResult(final BarcodeResult result) {
+            final ScanResult scanResult = new ScanResult(result);
             final Intent intent = new Intent(fragment.getActivity(), ScanResultActivity.class);
-            intent.putExtra(ScanResultActivity.EXTRA__RESULT, result.getText());
+            intent.putExtra(ScanResultActivity.EXTRA__RESULT, scanResult);
             fragment.startActivity(intent);
         }
 

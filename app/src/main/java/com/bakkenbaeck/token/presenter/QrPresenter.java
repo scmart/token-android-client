@@ -88,49 +88,15 @@ public final class QrPresenter implements Presenter<QrFragment> {
     }
 
     private void generateQrCode() {
-        generateAndCacheQrBitmap()
+        ImageUtil.generateQrCodeForWalletAddress(this.walletAddress)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SingleSuccessSubscriber<Bitmap>() {
                     @Override
                     public void onSuccess(final Bitmap qrBitmap) {
+                        SharedPrefsUtil.saveQrCode(ImageUtil.compressBitmap(qrBitmap));
                         renderQrCode(qrBitmap);
                     }
                 });
-    }
-
-    private Single<Bitmap> generateAndCacheQrBitmap() {
-        return Single.fromCallable(new Callable<Bitmap>() {
-            @Override
-            public Bitmap call() throws Exception {
-                try {
-                    final Bitmap qrBitmap = generateBitmapFromWalletAddress();
-                    SharedPrefsUtil.saveQrCode(ImageUtil.compressBitmap(qrBitmap));
-                    return qrBitmap;
-                } catch (final WriterException e) {
-                    LogUtil.e(getClass(), "Error creating QR code bitmap");
-                }
-                return null;
-            }
-        });
-    }
-
-    private Bitmap generateBitmapFromWalletAddress() throws WriterException {
-        final String prefix = this.fragment.getResources().getString(R.string.prefixEth);
-        final QRCodeWriter writer = new QRCodeWriter();
-        final int size = this.fragment.getResources().getDimensionPixelSize(R.dimen.qr_code_size);
-        final Map<EncodeHintType, Integer> map = new HashMap<>();
-        map.put(EncodeHintType.MARGIN, 0);
-        final BitMatrix bitMatrix = writer.encode(prefix + this.walletAddress, BarcodeFormat.QR_CODE, size, size, map);
-        final int width = bitMatrix.getWidth();
-        final int height = bitMatrix.getHeight();
-        final Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-        final int contrastColour = this.fragment.getResources().getColor(R.color.windowBackground);
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                bmp.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : contrastColour);
-            }
-        }
-        return bmp;
     }
 }
