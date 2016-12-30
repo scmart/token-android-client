@@ -18,15 +18,10 @@ import com.bakkenbaeck.token.view.fragment.BasePresenterFragment;
 
 public class ContactsFragment extends BasePresenterFragment<ContactsPresenter, ContactsFragment> {
 
-    private ContactsPresenter presenter;
     private FragmentContactsBinding binding;
 
-    public static ContactsFragment newInstance(final CharSequence title) {
-        final ContactsFragment f = new ContactsFragment();
-        final Bundle b = new Bundle();
-        b.putCharSequence("title", title);
-        f.setArguments(b);
-        return f;
+    public static ContactsFragment newInstance() {
+        return new ContactsFragment();
     }
 
     @Nullable
@@ -34,9 +29,8 @@ public class ContactsFragment extends BasePresenterFragment<ContactsPresenter, C
     public View onCreateView(final LayoutInflater inflater,
                              final ViewGroup container,
                              final Bundle inState) {
-        final CharSequence title = getArguments().getCharSequence("title", null);
         this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_contacts, container, false);
-        this.binding.title.setText(title);
+        this.binding.title.setText(R.string.tab_4);
         return binding.getRoot();
     }
 
@@ -51,9 +45,7 @@ public class ContactsFragment extends BasePresenterFragment<ContactsPresenter, C
     }
 
     @Override
-    protected void onPresenterPrepared(@NonNull final ContactsPresenter presenter) {
-        this.presenter = presenter;
-    }
+    protected void onPresenterPrepared(@NonNull final ContactsPresenter presenter) {}
 
     @Override
     protected int loaderId() {
