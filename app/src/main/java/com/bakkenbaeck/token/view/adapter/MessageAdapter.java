@@ -14,6 +14,7 @@ import com.bakkenbaeck.token.view.adapter.viewholder.LocalTextViewHolder;
 import com.bakkenbaeck.token.view.adapter.viewholder.RemoteTextViewHolder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static com.bakkenbaeck.token.model.ChatMessage.TYPE_DAY;
@@ -25,6 +26,11 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     public MessageAdapter() {
         this.chatMessages = new ArrayList<>();
+    }
+
+    public final void addMessages(final Collection<ChatMessage> chatMessages) {
+        this.chatMessages.addAll(chatMessages);
+        notifyDataSetChanged();
     }
 
     public final void addMessage(final ChatMessage chatMessage) {

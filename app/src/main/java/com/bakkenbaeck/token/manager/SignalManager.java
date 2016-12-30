@@ -37,13 +37,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import rx.Observable;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
+import static com.bakkenbaeck.token.model.ChatMessage.STATE_FAILED;
+import static com.bakkenbaeck.token.model.ChatMessage.STATE_SENT;
+
 public final class SignalManager {
     private final PublishSubject<ChatMessage> sendMessageSubject = PublishSubject.create();
-    private final PublishSubject<ChatMessage> failedMessageSubject = PublishSubject.create();
 
     private SignalService signalService;
     private HDWallet wallet;
@@ -131,10 +132,6 @@ public final class SignalManager {
         this.sendMessageSubject.onNext(message);
     }
 
-    public final Observable<ChatMessage> getFailedMessagesObservable() {
-        return this.failedMessageSubject.asObservable();
-    }
-
     private void sendMessageToBackend(final ChatMessage message) {
         final SignalServiceMessageSender messageSender = new SignalServiceMessageSender(
                 BaseApplication.get().getResources().getString(R.string.chat_url),
@@ -154,9 +151,12 @@ public final class SignalManager {
                     SignalServiceDataMessage.newBuilder()
                             .withBody(message.getText())
                             .build());
+            message.setSendState(STATE_SENT);
+            this.chatMessageStore.update(message);
         } catch (final UntrustedIdentityException | IOException ex) {
             LogUtil.error(getClass(), ex.toString());
-            this.failedMessageSubject.onNext(message);
+            message.setSendState(STATE_FAILED);
+            this.chatMessageStore.update(message);
         }
     }
 
