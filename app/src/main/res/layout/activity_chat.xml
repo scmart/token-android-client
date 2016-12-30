@@ -53,16 +53,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/messages_list"
+        <ViewSwitcher
+            android:id="@+id/empty_state__switcher"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:paddingTop="@dimen/textBubbleHalfPadding"
-            android:paddingBottom="50dp"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/messageListRightMargin"
-            android:clipToPadding="false"/>
+            android:layout_weight="1">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableTop="@drawable/ic_chat_empty_state"
+                android:text="@string/chat__empty_state"
+                android:textColor="@color/textColorSecondary"
+                android:layout_gravity="center"
+                android:gravity="center_horizontal"
+                />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/messages_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="@dimen/textBubbleHalfPadding"
+                android:paddingBottom="50dp"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/messageListRightMargin"
+                android:clipToPadding="false"/>
+
+        </ViewSwitcher>
+
+
 
         <include layout="@layout/horizontal_divider"/>
 

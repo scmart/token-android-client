@@ -1,8 +1,6 @@
 package com.bakkenbaeck.token.presenter;
 
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
@@ -20,7 +18,6 @@ import com.bakkenbaeck.token.view.adapter.MessageAdapter;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 
 import io.realm.RealmResults;
-import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -115,6 +112,11 @@ public final class ChatPresenter implements
                 }
             }
         });
+
+        // Hide empty state if we have some content
+        if (this.messageAdapter.getItemCount() > 0) {
+            this.activity.getBinding().emptyStateSwitcher.showNext();
+        }
     }
 
     private void initButtons() {
@@ -165,12 +167,12 @@ public final class ChatPresenter implements
     private final SingleSuccessSubscriber<RealmResults<ChatMessage>> handleLoadMessages = new SingleSuccessSubscriber<RealmResults<ChatMessage>>() {
         @Override
         public void onSuccess(final RealmResults<ChatMessage> chatMessages) {
-            if (chatMessages.size() == 0) {
-                Toast.makeText(activity, "To do: Handle empty state.", Toast.LENGTH_SHORT).show();
+            if (chatMessages.size() > 0) {
+                messageAdapter.addMessages(chatMessages);
+                forceScrollToBottom();
+                activity.getBinding().emptyStateSwitcher.showNext();
             }
 
-            messageAdapter.addMessages(chatMessages);
-            forceScrollToBottom();
             this.unsubscribe();
         }
     };
