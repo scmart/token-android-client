@@ -7,18 +7,22 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Base64;
 
-public class Contact implements Parcelable {
+import io.realm.RealmModel;
+import io.realm.annotations.PrimaryKey;
+
+public class Contact implements Parcelable, RealmModel {
 
     private String name;
     private String base64Avatar;
-    private String conversationId;
+    @PrimaryKey
+    private String address;
 
     public Contact() {}
 
     private Contact(final Parcel in) {
         this.name = in.readString();
         this.base64Avatar = in.readString();
-        this.conversationId = in.readString();
+        this.address = in.readString();
     }
 
     public static final Creator<Contact> CREATOR = new Creator<Contact>() {
@@ -44,7 +48,7 @@ public class Contact implements Parcelable {
     }
 
     public Contact setConversationId(final String conversationId) {
-        this.conversationId = conversationId;
+        this.address = conversationId;
         return this;
     }
 
@@ -57,8 +61,8 @@ public class Contact implements Parcelable {
         return BitmapFactory.decodeByteArray(decoded, 0, decoded.length);
     }
 
-    public String getConversationId() {
-        return this.conversationId;
+    public String getAddress() {
+        return this.address;
     }
 
     @Override
@@ -70,6 +74,6 @@ public class Contact implements Parcelable {
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeString(this.name);
         dest.writeString(this.base64Avatar);
-        dest.writeString(this.conversationId);
+        dest.writeString(this.address);
     }
 }

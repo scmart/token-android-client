@@ -64,7 +64,7 @@ public final class ChatPresenter implements
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleUpdatedMessage);
-        this.chatMessageStore.load(this.contact.getConversationId())
+        this.chatMessageStore.load(this.contact.getAddress())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleLoadMessages);
     }
@@ -133,7 +133,7 @@ public final class ChatPresenter implements
             final String userInput = activity.getBinding().userInput.getText().toString();
             activity.getBinding().userInput.setText(null);
 
-            final ChatMessage message = new ChatMessage().makeLocalMessage(contact.getConversationId(), userInput);
+            final ChatMessage message = new ChatMessage().makeLocalMessage(contact.getAddress(), userInput);
             BaseApplication.get()
                     .getTokenManager()
                     .getSignalManager()
