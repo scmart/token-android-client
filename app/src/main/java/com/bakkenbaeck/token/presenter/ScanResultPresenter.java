@@ -4,16 +4,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 
 import com.bakkenbaeck.token.model.ScanResult;
-import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.activity.ScanResultActivity;
-import com.bakkenbaeck.token.view.fragment.toplevel.ScannerFragment;
-import com.google.zxing.ResultPoint;
-import com.journeyapps.barcodescanner.BarcodeCallback;
-import com.journeyapps.barcodescanner.BarcodeResult;
-import com.journeyapps.barcodescanner.CaptureManager;
-
-import java.util.List;
 
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;

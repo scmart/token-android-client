@@ -3,7 +3,6 @@ package com.bakkenbaeck.token.crypto.signal.store;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.bakkenbaeck.token.crypto.util.ByteUtil;
 import com.bakkenbaeck.token.util.LogUtil;

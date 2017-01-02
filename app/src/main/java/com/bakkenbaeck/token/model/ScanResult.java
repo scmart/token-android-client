@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.bakkenbaeck.token.network.rest.IdService;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.journeyapps.barcodescanner.BarcodeResult;
 
@@ -20,6 +21,11 @@ public class ScanResult implements Parcelable {
 
     public Single<Bitmap> getQrCode() {
         return ImageUtil.generateQrCodeForWalletAddress(this.text);
+    }
+
+    public Single<User> getContact() {
+        return IdService.getApi()
+                .getUser(this.text);
     }
 
     private ScanResult(final Parcel in) {
