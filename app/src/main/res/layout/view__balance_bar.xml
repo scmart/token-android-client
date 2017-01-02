@@ -1,66 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="48dp">
+    android:layout_height="50dp">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+    <LinearLayout
+        android:id="@+id/balanceWrapper"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
         android:background="@color/balance_bar__bg"
         android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin">
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:layout_gravity="left"
+        android:gravity="center_vertical">
 
-        <LinearLayout
-            android:id="@+id/balanceWrapper"
+        <TextView
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="left"
-            android:gravity="center_vertical">
-            
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/subTitleSize"
-                android:textStyle="bold"
-                android:text="@string/dollar"/>
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/subTitleSize"
+            android:textStyle="bold"
+            android:text="@string/dollar"/>
 
-            <TextView
-                android:id="@+id/eth_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/subTitleSize"
-                android:textStyle="bold"
-                android:text="0.00"/>
+        <TextView
+            android:id="@+id/eth_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/subTitleSize"
+            android:textStyle="bold"
+            android:text="0.00"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:textStyle="bold"
-                android:textSize="@dimen/subTitleSize"
-                android:text="@string/fiat_iso__usd" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:textStyle="bold"
+            android:textSize="@dimen/subTitleSize"
+            android:text="@string/fiat_iso__usd" />
 
-            <TextView
-                android:id="@+id/balance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/balance_bar_text_size"
-                android:textColor="@color/textColorSecondary"
-                android:layout_marginLeft="8dp"
-                android:text="0.0000"/>
+        <TextView
+            android:id="@+id/balance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/balance_bar_text_size"
+            android:textColor="@color/textColorSecondary"
+            android:layout_marginLeft="8dp"
+            android:text="0.0000"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/balance_bar_text_size"
-                android:textColor="@color/textColorSecondary"
-                android:layout_marginLeft="4dp"
-                android:text="@string/my_balance" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/balance_bar_text_size"
+            android:textColor="@color/textColorSecondary"
+            android:layout_marginLeft="4dp"
+            android:text="@string/my_balance" />
 
-        </LinearLayout>
-    </FrameLayout>
+    </LinearLayout>
 
     <include layout="@layout/horizontal_divider"/>
 </LinearLayout>
