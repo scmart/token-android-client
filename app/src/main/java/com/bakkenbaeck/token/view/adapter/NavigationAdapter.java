@@ -28,10 +28,9 @@ public class NavigationAdapter extends FragmentPagerAdapter {
         fragments.clear();
         fragments.add(PlaceholderFragment.newInstance(menu.getItem(0).getTitle()));
         fragments.add(PlaceholderFragment.newInstance(menu.getItem(1).getTitle()));
-        fragments.add(ScannerFragment.newInstance(menu.getItem(2).getTitle()));
-        fragments.add(ContactsFragment.newInstance(menu.getItem(3).getTitle()));
-        fragments.add(QrFragment.newInstance()
-        );
+        fragments.add(ScannerFragment.newInstance());
+        fragments.add(ContactsFragment.newInstance());
+        fragments.add(QrFragment.newInstance());
     }
 
     @Override

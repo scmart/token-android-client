@@ -1,7 +1,19 @@
 package com.bakkenbaeck.token.presenter;
 
+import android.content.Intent;
+import android.widget.Toast;
+
+import com.bakkenbaeck.token.model.ScanResult;
+import com.bakkenbaeck.token.util.LogUtil;
+import com.bakkenbaeck.token.view.activity.ChatActivity;
+import com.bakkenbaeck.token.view.activity.ScanResultActivity;
 import com.bakkenbaeck.token.view.fragment.toplevel.ScannerFragment;
+import com.google.zxing.ResultPoint;
+import com.journeyapps.barcodescanner.BarcodeCallback;
+import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.CaptureManager;
+
+import java.util.List;
 
 public final class ScannerPresenter implements Presenter<ScannerFragment> {
 
@@ -16,9 +28,24 @@ public final class ScannerPresenter implements Presenter<ScannerFragment> {
 
     private void init() {
         this.capture = new CaptureManager(this.fragment.getActivity(), this.fragment.getBinding().scanner);
-        this.capture.decode();
+        this.fragment.getBinding().scanner.decodeSingle(this.onScanSuccess);
         this.capture.onResume();
     }
+
+    private final BarcodeCallback onScanSuccess = new BarcodeCallback() {
+        @Override
+        public void barcodeResult(final BarcodeResult result) {
+            final ScanResult scanResult = new ScanResult(result);
+            final Intent intent = new Intent(fragment.getActivity(), ScanResultActivity.class);
+            intent.putExtra(ScanResultActivity.EXTRA__RESULT, scanResult);
+            fragment.startActivity(intent);
+        }
+
+        @Override
+        public void possibleResultPoints(final List<ResultPoint> resultPoints) {
+
+        }
+    };
 
     @Override
     public void onViewDetached() {
