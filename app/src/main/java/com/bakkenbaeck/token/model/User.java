@@ -10,22 +10,7 @@ public class User {
         return username;
     }
 
-    public User setUsername(final String username) {
-        this.username = username;
-        return this;
-    }
-
     public String getOwnerAddress() {
         return owner_address;
-    }
-
-    public User setOwnerAddress(final String ownerAddress) {
-        this.owner_address = ownerAddress;
-        return this;
-    }
-
-    public int getLevel() {
-        // Todo
-        return 1;
     }
 }

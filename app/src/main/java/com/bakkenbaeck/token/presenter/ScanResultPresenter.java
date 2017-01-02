@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 
 import com.bakkenbaeck.token.model.ScanResult;
+import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.activity.ScanResultActivity;
 
@@ -27,11 +28,22 @@ public final class ScanResultPresenter implements Presenter<ScanResultActivity> 
     private void init() {
         final Intent intent = activity.getIntent();
         final ScanResult scanResult = intent.getParcelableExtra(ScanResultActivity.EXTRA__RESULT);
+        scanResult.getContact()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this.handleContactLoaded);
         scanResult.getQrCode()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleQrCodeLoaded);
     }
+
+    private final SingleSuccessSubscriber<User> handleContactLoaded = new SingleSuccessSubscriber<User>() {
+        @Override
+        public void onSuccess(final User scannedUser) {
+            activity.getBinding().contactName.setText(scannedUser.getUsername());
+        }
+    };
 
     private final SingleSuccessSubscriber<Bitmap> handleQrCodeLoaded = new SingleSuccessSubscriber<Bitmap>() {
         @Override
