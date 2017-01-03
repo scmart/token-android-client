@@ -15,4 +15,5 @@
     <string name="message">Message…</string>
     <string name="chat__empty_state">There are no messages, yet!</string>
     <string name="add_contact">Add Contact</string>
+    <string name="added_contact">Added</string>
 </resources>

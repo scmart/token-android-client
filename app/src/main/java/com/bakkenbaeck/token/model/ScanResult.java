@@ -19,6 +19,10 @@ public class ScanResult implements Parcelable {
         this.text = result.getText();
     }
 
+    public String getText() {
+        return this.text;
+    }
+
     public Single<Bitmap> getQrCode() {
         return ImageUtil.generateQrCodeForWalletAddress(this.text);
     }

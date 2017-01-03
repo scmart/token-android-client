@@ -21,7 +21,7 @@ public class ContactStore {
         return Single.fromCallable(new Callable<User>() {
             @Override
             public User call() throws Exception {
-                return loadWhere("address", address);
+                return loadWhere("owner_address", address);
             }
         });
     }
