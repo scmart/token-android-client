@@ -148,6 +148,9 @@ public final class ChatPresenter implements
     private final OnNextSubscriber<ChatMessage> handleNewMessage = new OnNextSubscriber<ChatMessage>() {
         @Override
         public void onNext(final ChatMessage chatMessage) {
+            if (messageAdapter.getItemCount() == 0) {
+                activity.getBinding().emptyStateSwitcher.showNext();
+            }
             messageAdapter.addMessage(chatMessage);
             tryScrollToBottom(true);
         }
