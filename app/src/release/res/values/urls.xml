@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="id_url">https://token-id-service.herokuapp.com</string>
     <string name="balance_url">https://token-eth-service.herokuapp.com/</string>

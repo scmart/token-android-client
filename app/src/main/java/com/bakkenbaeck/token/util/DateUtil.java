@@ -18,16 +18,4 @@ public class DateUtil {
             return s.substring(0,1).toUpperCase() + s.substring(1).toLowerCase();
         }
     }
-
-    // Returns true if both timestamps are from the same day
-    // Returns false if both timestamps are from different days
-    public static boolean areSameDay(final long t1, final long t2) {
-        final Calendar d1 = Calendar.getInstance(LocaleUtil.getLocale());
-        final Calendar d2 = Calendar.getInstance(LocaleUtil.getLocale());
-        d1.setTimeInMillis(t1);
-        d2.setTimeInMillis(t2);
-
-        return    d1.get(Calendar.YEAR) == d2.get(Calendar.YEAR)
-               && d1.get(Calendar.DAY_OF_YEAR) == d2.get(Calendar.DAY_OF_YEAR);
-    }
 }

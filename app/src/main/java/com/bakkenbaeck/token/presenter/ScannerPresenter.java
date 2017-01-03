@@ -1,11 +1,8 @@
 package com.bakkenbaeck.token.presenter;
 
 import android.content.Intent;
-import android.widget.Toast;
 
 import com.bakkenbaeck.token.model.ScanResult;
-import com.bakkenbaeck.token.util.LogUtil;
-import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.ScanResultActivity;
 import com.bakkenbaeck.token.view.fragment.toplevel.ScannerFragment;
 import com.google.zxing.ResultPoint;

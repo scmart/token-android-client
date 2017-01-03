@@ -106,7 +106,7 @@ public class UserManager {
 
         private void storeReturnedUser(final User user) {
             prefs.edit()
-                    .putString(USER_ID, user.getOwnerAddress())
+                    .putString(USER_ID, user.getAddress())
                     .putString(USER_NAME, user.getUsername())
                     .apply();
         }

@@ -18,8 +18,7 @@ public class SharedPrefsUtil {
             return null;
         }
 
-        byte[] array = Base64.decode(byteString, Base64.DEFAULT);
-        return array;
+        return Base64.decode(byteString, Base64.DEFAULT);
     }
 
     public static void saveQrCode(final byte[] array){
