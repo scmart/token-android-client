@@ -2,9 +2,12 @@ package com.bakkenbaeck.token.presenter;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.view.View;
 
 import com.bakkenbaeck.token.model.ScanResult;
 import com.bakkenbaeck.token.model.User;
+import com.bakkenbaeck.token.presenter.store.ContactStore;
+import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.activity.ScanResultActivity;
 
@@ -14,7 +17,9 @@ import rx.schedulers.Schedulers;
 public final class ScanResultPresenter implements Presenter<ScanResultActivity> {
 
     private boolean firstTimeAttached = true;
+    private ContactStore contactStore;
     private ScanResultActivity activity;
+    private User scannedUser;
 
     @Override
     public void onViewAttached(final ScanResultActivity activity) {
@@ -36,12 +41,22 @@ public final class ScanResultPresenter implements Presenter<ScanResultActivity> 
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleQrCodeLoaded);
+        this.contactStore = new ContactStore();
     }
 
     private final SingleSuccessSubscriber<User> handleContactLoaded = new SingleSuccessSubscriber<User>() {
         @Override
         public void onSuccess(final User scannedUser) {
-            activity.getBinding().contactName.setText(scannedUser.getUsername());
+            ScanResultPresenter.this.scannedUser = scannedUser;
+            ScanResultPresenter.this.activity.getBinding().contactName.setText(scannedUser.getUsername());
+            ScanResultPresenter.this.activity.getBinding().addContactButton.setOnClickListener(handleOnAddContact);
+        }
+    };
+
+    private final OnSingleClickListener handleOnAddContact = new OnSingleClickListener() {
+        @Override
+        public void onSingleClick(final View v) {
+            contactStore.save(scannedUser);
         }
     };
 

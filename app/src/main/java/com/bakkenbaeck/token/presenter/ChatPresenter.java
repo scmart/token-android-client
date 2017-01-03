@@ -7,7 +7,7 @@ import android.view.animation.PathInterpolator;
 import android.widget.Toast;
 
 import com.bakkenbaeck.token.model.ChatMessage;
-import com.bakkenbaeck.token.model.Contact;
+import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
@@ -28,11 +28,11 @@ public final class ChatPresenter implements
     private MessageAdapter messageAdapter;
     private boolean firstViewAttachment = true;
     private ChatMessageStore chatMessageStore;
-    private Contact contact;
+    private User remoteUser;
     private SpeedyLinearLayoutManager layoutManager;
 
-    public void setPassedInContact(final Contact contact) {
-        this.contact = contact;
+    public void setRemoteUser(final User remoteUser) {
+        this.remoteUser = remoteUser;
     }
 
     @Override
@@ -48,8 +48,8 @@ public final class ChatPresenter implements
     }
 
     private void initToolbar() {
-        this.activity.getBinding().title.setText(this.contact.getName());
-        this.activity.getBinding().avatar.setImageBitmap(this.contact.getImage());
+        this.activity.getBinding().title.setText(this.remoteUser.getUsername());
+        this.activity.getBinding().avatar.setImageBitmap(this.remoteUser.getImage());
         this.activity.getBinding().backButton.setOnClickListener(this.backButtonClickListener);
     }
 
@@ -64,7 +64,7 @@ public final class ChatPresenter implements
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleUpdatedMessage);
-        this.chatMessageStore.load(this.contact.getAddress())
+        this.chatMessageStore.load(this.remoteUser.getAddress())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleLoadMessages);
     }
@@ -133,7 +133,7 @@ public final class ChatPresenter implements
             final String userInput = activity.getBinding().userInput.getText().toString();
             activity.getBinding().userInput.setText(null);
 
-            final ChatMessage message = new ChatMessage().makeLocalMessage(contact.getAddress(), userInput);
+            final ChatMessage message = new ChatMessage().makeLocalMessage(remoteUser.getAddress(), userInput);
             BaseApplication.get()
                     .getTokenManager()
                     .getSignalManager()

@@ -6,7 +6,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import com.bakkenbaeck.token.model.Contact;
+import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.adapter.ContactsAdapter;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
@@ -14,7 +14,7 @@ import com.bakkenbaeck.token.view.fragment.children.ContactsListFragment;
 
 public final class ContactsListPresenter implements
         Presenter<ContactsListFragment>,
-        OnItemClickListener<Contact> {
+        OnItemClickListener<User> {
 
     private ContactsListFragment fragment;
     private boolean firstTimeAttaching = true;
@@ -58,9 +58,9 @@ public final class ContactsListPresenter implements
     }
 
     @Override
-    public void onItemClick(final Contact contact) {
+    public void onItemClick(final User clickedUser) {
         final Intent intent = new Intent(this.fragment.getActivity(), ChatActivity.class);
-        intent.putExtra(ChatActivity.EXTRA__CONTACT, contact);
+        intent.putExtra(ChatActivity.EXTRA__REMOTE_USER, clickedUser);
         this.fragment.startActivity(intent);
     }
 }
