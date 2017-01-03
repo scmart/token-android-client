@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.User;
+import com.bakkenbaeck.token.presenter.store.ContactStore;
+import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.adapter.viewholder.ClickableViewHolder;
 import com.bakkenbaeck.token.view.adapter.viewholder.ContactViewHolder;
@@ -15,13 +17,28 @@ import com.bakkenbaeck.token.view.adapter.viewholder.ContactViewHolder;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.RealmResults;
+
 public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> implements ClickableViewHolder.OnClickListener {
 
     private List<User> users;
     private OnItemClickListener<User> onItemClickListener;
 
     public ContactsAdapter() {
-        this.users = new ArrayList<>();
+        this.users = new ArrayList<>(0);
+        loadAllStoredContacts();
+    }
+
+    private void loadAllStoredContacts() {
+        new ContactStore()
+                .loadAll()
+                .subscribe(new SingleSuccessSubscriber<RealmResults<User>>() {
+                    @Override
+                    public void onSuccess(final RealmResults<User> users) {
+                        ContactsAdapter.this.users = users;
+                        notifyDataSetChanged();
+                    }
+                });
     }
 
     @Override
