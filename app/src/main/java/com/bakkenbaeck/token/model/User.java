@@ -7,6 +7,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Base64;
 
+import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.view.BaseApplication;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -47,7 +50,7 @@ public class User extends RealmObject implements Parcelable {
 
     public Bitmap getImage() {
         if (this.base64Avatar == null) {
-            return null;
+            return BitmapFactory.decodeResource(BaseApplication.get().getResources(), R.mipmap.launcher);
         }
 
         final byte[] decoded = Base64.decode(this.base64Avatar, Base64.DEFAULT);
