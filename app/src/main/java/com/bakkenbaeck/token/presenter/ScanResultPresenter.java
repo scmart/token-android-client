@@ -98,7 +98,7 @@ public final class ScanResultPresenter implements Presenter<ScanResultActivity> 
             @Override
             public void run() {
                 ScanResultPresenter.this.scannedUser = scannedUser;
-                ScanResultPresenter.this.activity.getBinding().contactName.setText(scannedUser.getUsername());
+                ScanResultPresenter.this.activity.getBinding().name.setText(scannedUser.getUsername());
                 ScanResultPresenter.this.activity.getBinding().title.setText(scannedUser.getUsername());
                 ScanResultPresenter.this.activity.getBinding().addContactButton.setOnClickListener(handleOnAddContact);
             }

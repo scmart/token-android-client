@@ -35,52 +35,168 @@
 
     </LinearLayout>
 
-    <android.support.v4.widget.Space
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"/>
-
-    <ImageView
-        android:id="@+id/qrCodeImage"
-        android:layout_width="160dp"
-        android:layout_height="160dp"
-        android:layout_gravity="center_horizontal"/>
-
-    <TextView
-        android:id="@+id/contact_name"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:textIsSelectable="true"
-        android:gravity="center_horizontal"
-        tools:text="Name Goes Here"
-        android:layout_marginTop="32dp"/>
+        android:layout_height="match_parent">
 
-    <android.support.v4.widget.Space
-        android:layout_width="match_parent"
-        android:layout_height="60dp"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <android.support.v4.widget.Space
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"/>
-
-        <Button
-            android:id="@+id/add_contact_button"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/add_contact" />
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:orientation="vertical">
 
-        <android.support.v4.widget.Space
-            android:layout_width="16dp"
-            android:layout_height="match_parent"/>
+            <android.support.v4.widget.Space
+                android:layout_width="0dp"
+                android:layout_height="16dp"/>
 
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/qrCodeImage"
+                android:layout_width="166dp"
+                android:layout_height="166dp"
+                android:layout_gravity="center_horizontal"/>
+
+            <android.support.v4.widget.Space
+                android:layout_width="0dp"
+                android:layout_height="16dp"/>
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                tools:text="Damn Daniel!"/>
+
+            <TextView
+                android:id="@+id/username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="\@username"
+                android:textColor="@color/textColorSecondary"/>
+
+            <android.support.v4.widget.Space
+                android:layout_width="0dp"
+                android:layout_height="16dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <com.bakkenbaeck.token.view.custom.RoundedProgressBar
+                    android:id="@+id/level_progress"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    app:backgroundColor="@color/levelSecondary"
+                    app:foregroundColor="@color/levelPrimary"
+                    app:progressPercentage="60"/>
+
+                <android.support.v4.widget.Space
+                    android:layout_width="8dp"
+                    android:layout_height="0dp"/>
+
+                <TextView
+                    android:id="@+id/level"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Level 5"
+                    android:textColor="@color/levelPrimary"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_gravity="center_horizontal"/>
+            </LinearLayout>
+
+            <android.support.v4.widget.Space
+                android:layout_width="0dp"
+                android:layout_height="32dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <android.support.v4.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+
+                <Button
+                    android:id="@+id/add_contact_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/add_contact" />
+
+                <android.support.v4.widget.Space
+                    android:layout_width="16dp"
+                    android:layout_height="match_parent"/>
+
+            </LinearLayout>
+
+            <android.support.v4.widget.Space
+                android:layout_width="0dp"
+                android:layout_height="32dp"/>
+
+            <include layout="@layout/horizontal_divider"/>
+
+            <android.support.v4.widget.Space
+                android:layout_width="0dp"
+                android:layout_height="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_about"
+                android:textColor="@color/textColorSecondary"/>
+
+            <android.support.v4.widget.Space
+                android:layout_width="0dp"
+                android:layout_height="8dp"/>
+
+            <TextView
+                android:id="@+id/about"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Digital dingus @bakkenbaeck"
+                android:textColor="@color/textColorPrimary"/>
+
+            <android.support.v4.widget.Space
+                android:layout_width="0dp"
+                android:layout_height="8dp"/>
+
+            <include layout="@layout/horizontal_divider"/>
+
+            <android.support.v4.widget.Space
+                android:layout_width="0dp"
+                android:layout_height="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_location"
+                android:textColor="@color/textColorSecondary"/>
+
+            <android.support.v4.widget.Space
+                android:layout_width="0dp"
+                android:layout_height="8dp"/>
+
+            <TextView
+                android:id="@+id/location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Amsterdam, The Netherlands"
+                android:textColor="@color/textColorPrimary"/>
+
+            <android.support.v4.widget.Space
+                android:layout_width="0dp"
+                android:layout_height="8dp"/>
+
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>
 </layout>
