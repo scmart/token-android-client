@@ -46,6 +46,6 @@ public class QrFragment extends BasePresenterFragment<QrPresenter, QrFragment> {
 
     @Override
     protected int loaderId() {
-        return 4002;
+        return 5002;
     }
 }

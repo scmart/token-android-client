@@ -47,6 +47,6 @@ public class ContactsListFragment extends BasePresenterFragment<ContactsListPres
 
     @Override
     protected int loaderId() {
-        return 3001;
+        return 4001;
     }
 }

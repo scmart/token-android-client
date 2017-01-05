@@ -13,8 +13,6 @@ import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
 
 public final class ChatActivity extends BasePresenterActivity<ChatPresenter, ChatActivity> {
     public static final String EXTRA__REMOTE_USER = "remote_user";
-
-    private static final int UNIQUE_ACTIVITY_ID = 4002;
     private ActivityChatBinding binding;
     private User remoteUser;
 
@@ -46,6 +44,6 @@ public final class ChatActivity extends BasePresenterActivity<ChatPresenter, Cha
 
     @Override
     protected int loaderId() {
-        return UNIQUE_ACTIVITY_ID;
+        return 4002;
     }
 }

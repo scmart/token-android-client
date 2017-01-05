@@ -50,6 +50,6 @@ public class ScannerFragment extends BasePresenterFragment<ScannerPresenter, Sca
 
     @Override
     protected int loaderId() {
-        return 2;
+        return 3;
     }
 }

@@ -33,6 +33,10 @@ public class SettingsFragment extends BasePresenterFragment<SettingsPresenter, S
         return binding.getRoot();
     }
 
+    public FragmentSettingsBinding getBinding() {
+        return this.binding;
+    }
+
     @NonNull
     @Override
     protected PresenterFactory<SettingsPresenter> getPresenterFactory() {
@@ -46,6 +50,6 @@ public class SettingsFragment extends BasePresenterFragment<SettingsPresenter, S
 
     @Override
     protected int loaderId() {
-        return 4001;
+        return 5001;
     }
 }

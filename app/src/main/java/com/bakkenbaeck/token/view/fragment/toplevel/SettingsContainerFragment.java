@@ -49,6 +49,6 @@ public class SettingsContainerFragment extends BasePresenterFragment<SettingsCon
 
     @Override
     protected int loaderId() {
-        return 3;
+        return 5;
     }
 }
