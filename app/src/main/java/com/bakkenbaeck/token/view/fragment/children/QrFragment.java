@@ -1,10 +1,9 @@
-package com.bakkenbaeck.token.view.fragment.toplevel;
+package com.bakkenbaeck.token.view.fragment.children;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +16,9 @@ import com.bakkenbaeck.token.presenter.factory.QrPresenterFactory;
 import com.bakkenbaeck.token.view.fragment.BasePresenterFragment;
 
 public class QrFragment extends BasePresenterFragment<QrPresenter, QrFragment> {
-    private QrPresenter presenter;
     private FragmentQrBinding binding;
 
-    public static Fragment newInstance() {
+    public static QrFragment newInstance() {
         return new QrFragment();
     }
 
@@ -44,12 +42,10 @@ public class QrFragment extends BasePresenterFragment<QrPresenter, QrFragment> {
     }
 
     @Override
-    protected void onPresenterPrepared(@NonNull final QrPresenter presenter) {
-        this.presenter = presenter;
-    }
+    protected void onPresenterPrepared(@NonNull final QrPresenter presenter) {}
 
     @Override
     protected int loaderId() {
-        return 4;
+        return 4002;
     }
 }

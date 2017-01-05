@@ -3,17 +3,17 @@ package com.bakkenbaeck.token.presenter;
 import android.support.v4.app.FragmentTransaction;
 
 import com.bakkenbaeck.token.view.fragment.children.ContactsListFragment;
-import com.bakkenbaeck.token.view.fragment.toplevel.ContactsFragment;
+import com.bakkenbaeck.token.view.fragment.toplevel.ContactsContainerFragment;
 
 public final class ContactsPresenter implements
-        Presenter<ContactsFragment> {
+        Presenter<ContactsContainerFragment> {
 
     private ContactsListFragment contactsListFragment;
 
     private boolean firstTimeAttaching = true;
 
     @Override
-    public void onViewAttached(final ContactsFragment fragment) {
+    public void onViewAttached(final ContactsContainerFragment fragment) {
 
         if (this.firstTimeAttaching) {
             this.firstTimeAttaching = false;
@@ -21,7 +21,7 @@ public final class ContactsPresenter implements
         }
     }
 
-    private void manuallyAddRootFragment(final ContactsFragment fragment) {
+    private void manuallyAddRootFragment(final ContactsContainerFragment fragment) {
         this.contactsListFragment = ContactsListFragment.newInstance();
 
         final FragmentTransaction transaction = fragment.getChildFragmentManager().beginTransaction();

@@ -67,6 +67,7 @@ dependencies {
             // Support
             'com.android.support:appcompat-v7:25.1.0',
             'com.android.support:recyclerview-v7:25.1.0',
+            'com.android.support:gridlayout-v7:25.1.0',
             'com.android.support:design:25.1.0',
             'com.android.support:multidex:1.0.0',
             'com.aurelhubert:ahbottomnavigation:2.0.2',

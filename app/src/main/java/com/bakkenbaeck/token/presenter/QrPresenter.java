@@ -7,7 +7,7 @@ import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.SharedPrefsUtil;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
-import com.bakkenbaeck.token.view.fragment.toplevel.QrFragment;
+import com.bakkenbaeck.token.view.fragment.children.QrFragment;
 
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;

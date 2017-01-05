@@ -10,18 +10,18 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.databinding.FragmentContactsBinding;
+import com.bakkenbaeck.token.databinding.FragmentTopLevelBinding;
 import com.bakkenbaeck.token.presenter.ContactsPresenter;
 import com.bakkenbaeck.token.presenter.factory.ContactsPresenterFactory;
 import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
 import com.bakkenbaeck.token.view.fragment.BasePresenterFragment;
 
-public class ContactsFragment extends BasePresenterFragment<ContactsPresenter, ContactsFragment> {
+public class ContactsContainerFragment extends BasePresenterFragment<ContactsPresenter, ContactsContainerFragment> {
 
-    private FragmentContactsBinding binding;
+    private FragmentTopLevelBinding binding;
 
-    public static ContactsFragment newInstance() {
-        return new ContactsFragment();
+    public static ContactsContainerFragment newInstance() {
+        return new ContactsContainerFragment();
     }
 
     @Nullable
@@ -29,12 +29,12 @@ public class ContactsFragment extends BasePresenterFragment<ContactsPresenter, C
     public View onCreateView(final LayoutInflater inflater,
                              final ViewGroup container,
                              final Bundle inState) {
-        this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_contacts, container, false);
+        this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_top_level, container, false);
         this.binding.title.setText(R.string.tab_4);
         return binding.getRoot();
     }
 
-    public FragmentContactsBinding getBinding() {
+    public FragmentTopLevelBinding getBinding() {
         return this.binding;
     }
 

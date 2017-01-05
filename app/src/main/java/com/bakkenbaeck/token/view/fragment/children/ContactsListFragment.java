@@ -17,8 +17,6 @@ import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
 import com.bakkenbaeck.token.view.fragment.BasePresenterFragment;
 
 public class ContactsListFragment extends BasePresenterFragment<ContactsListPresenter, ContactsListFragment> {
-
-    private static final int UNIQUE_FRAGMENT_ID = 4001;
     private FragmentContactsListBinding binding;
 
     public static ContactsListFragment newInstance() {
@@ -49,6 +47,6 @@ public class ContactsListFragment extends BasePresenterFragment<ContactsListPres
 
     @Override
     protected int loaderId() {
-        return UNIQUE_FRAGMENT_ID;
+        return 3001;
     }
 }
