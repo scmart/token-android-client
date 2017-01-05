@@ -30,11 +30,12 @@ public final class ScanResultPresenter implements Presenter<ScanResultActivity> 
         this.activity = activity;
         if (this.firstTimeAttached) {
             this.firstTimeAttached = false;
-            init();
+            initLongLivingObjects();
         }
+        initShortLivingObjects();
     }
 
-    private void init() {
+    private void initLongLivingObjects() {
         this.contactStore = new ContactStore();
         final Intent intent = activity.getIntent();
         final ScanResult scanResult = intent.getParcelableExtra(ScanResultActivity.EXTRA__RESULT);
@@ -43,6 +44,15 @@ public final class ScanResultPresenter implements Presenter<ScanResultActivity> 
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleQrCodeLoaded);
         loadOrFetchContact(scanResult);
+    }
+
+    private void initShortLivingObjects() {
+        this.activity.getBinding().closeButton.setOnClickListener(new OnSingleClickListener() {
+            @Override
+            public void onSingleClick(final View v) {
+                activity.onBackPressed();
+            }
+        });
     }
 
     private void loadOrFetchContact(final ScanResult scanResult) {
@@ -89,6 +99,7 @@ public final class ScanResultPresenter implements Presenter<ScanResultActivity> 
             public void run() {
                 ScanResultPresenter.this.scannedUser = scannedUser;
                 ScanResultPresenter.this.activity.getBinding().contactName.setText(scannedUser.getUsername());
+                ScanResultPresenter.this.activity.getBinding().title.setText(scannedUser.getUsername());
                 ScanResultPresenter.this.activity.getBinding().addContactButton.setOnClickListener(handleOnAddContact);
             }
         });
