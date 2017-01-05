@@ -3,7 +3,7 @@ package com.bakkenbaeck.token.presenter;
 import android.graphics.Bitmap;
 import android.view.View;
 
-import com.bakkenbaeck.token.crypto.HDWallet;
+import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SharedPrefsUtil;
@@ -17,31 +17,46 @@ import rx.schedulers.Schedulers;
 public final class ProfilePresenter implements Presenter<ProfileActivity> {
 
     private ProfileActivity activity;
-    private String walletAddress;
+    private boolean firstTimeAttaching = true;
+    private User localUser;
 
     @Override
     public void onViewAttached(final ProfileActivity fragment) {
         this.activity = fragment;
+        if (this.firstTimeAttaching) {
+            this.firstTimeAttaching = false;
+            initLongLivingObjects();
+        }
 
-        init();
+        initShortLivingObjects();
     }
 
-    private void init() {
+    private void initLongLivingObjects() {
+        BaseApplication.get()
+                .getTokenManager()
+                .getUserManager()
+                .getUser()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this.handleUserLoaded);
+    }
+
+    private void initShortLivingObjects() {
         initToolbar();
-        initView();
+        updateView();
     }
 
     private void initToolbar() {
         this.activity.getBinding().closeButton.setOnClickListener(this.onCloseClicked);
     }
 
-    private void initView() {
-        if (this.walletAddress == null) {
-            fetchWalletDetails();
+    private void updateView() {
+        if (this.localUser == null) {
             return;
         }
 
-        this.activity.getBinding().username.setText(this.walletAddress);
+        this.activity.getBinding().name.setText(this.localUser.getUsername());
+        this.activity.getBinding().username.setText(this.localUser.getAddress());
 
         final byte[] decodedBitmap = SharedPrefsUtil.getQrCode();
         if (decodedBitmap != null) {
@@ -51,19 +66,11 @@ public final class ProfilePresenter implements Presenter<ProfileActivity> {
         }
     }
 
-    private void fetchWalletDetails() {
-        BaseApplication.get()
-                .getTokenManager().getWallet()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleWalletLoaded);
-    }
-
-    private SingleSuccessSubscriber<HDWallet> handleWalletLoaded = new SingleSuccessSubscriber<HDWallet>() {
+    private final SingleSuccessSubscriber<User> handleUserLoaded = new SingleSuccessSubscriber<User>() {
         @Override
-        public void onSuccess(final HDWallet wallet) {
-            ProfilePresenter.this.walletAddress = wallet.getAddress();
-            initView();
+        public void onSuccess(final User user) {
+            ProfilePresenter.this.localUser = user;
+            updateView();
             this.unsubscribe();
         }
     };
@@ -80,7 +87,7 @@ public final class ProfilePresenter implements Presenter<ProfileActivity> {
     }
 
     private void generateQrCode() {
-        ImageUtil.generateQrCodeForWalletAddress(this.walletAddress)
+        ImageUtil.generateQrCodeForWalletAddress(this.localUser.getAddress())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleQrCodeGenerated);
@@ -109,7 +116,7 @@ public final class ProfilePresenter implements Presenter<ProfileActivity> {
     @Override
     public void onViewDestroyed() {
         this.activity = null;
-        this.handleWalletLoaded.unsubscribe();
+        this.handleUserLoaded.unsubscribe();
         this.handleQrCodeGenerated.unsubscribe();
     }
 }
