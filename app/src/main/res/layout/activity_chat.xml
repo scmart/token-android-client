@@ -19,13 +19,14 @@
             style="@style/ToolbarTheme">
 
             <ImageButton
-                android:id="@+id/back_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/close_button"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:scaleType="fitCenter"
                 android:background="@android:color/transparent"
-                app:srcCompat="@drawable/ic__arrow_back"
-                android:padding="20dp" />
+                app:srcCompat="@drawable/ic_close"
+                android:tint="@color/textColorContrast"
+                android:layout_margin="16dp" />
             
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/avatar"

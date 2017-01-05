@@ -26,6 +26,7 @@
         <activity android:name="com.bakkenbaeck.token.view.activity.MainActivity" />
         <activity android:name="com.bakkenbaeck.token.view.activity.ChatActivity" />
         <activity android:name="com.bakkenbaeck.token.view.activity.ScanResultActivity" />
+        <activity android:name="com.bakkenbaeck.token.view.activity.ProfileActivity" />
 
         <meta-data
             android:name="io.fabric.ApiKey"

@@ -1,8 +1,13 @@
 package com.bakkenbaeck.token.presenter;
 
+import android.content.Intent;
+import android.view.View;
+
 import com.bakkenbaeck.token.model.User;
+import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.view.activity.ProfileActivity;
 import com.bakkenbaeck.token.view.fragment.children.SettingsFragment;
 
 import rx.android.schedulers.AndroidSchedulers;
@@ -49,7 +54,17 @@ public final class SettingsPresenter implements
         if (this.localUser != null) {
             this.fragment.getBinding().name.setText(this.localUser.getUsername());
         }
+
+        this.fragment.getBinding().myProfileCard.setOnClickListener(this.handleMyProfileClicked);
     }
+
+    private final OnSingleClickListener handleMyProfileClicked = new OnSingleClickListener() {
+        @Override
+        public void onSingleClick(final View v) {
+            final Intent intent = new Intent(fragment.getActivity(), ProfileActivity.class);
+            fragment.startActivity(intent);
+        }
+    };
 
     @Override
     public void onViewDetached() {}

@@ -50,7 +50,7 @@ public final class ChatPresenter implements
     private void initToolbar() {
         this.activity.getBinding().title.setText(this.remoteUser.getUsername());
         this.activity.getBinding().avatar.setImageBitmap(this.remoteUser.getImage());
-        this.activity.getBinding().backButton.setOnClickListener(this.backButtonClickListener);
+        this.activity.getBinding().closeButton.setOnClickListener(this.backButtonClickListener);
     }
 
     private void initLongLivingObjects() {

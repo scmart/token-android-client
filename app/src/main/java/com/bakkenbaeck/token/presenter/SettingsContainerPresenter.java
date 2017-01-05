@@ -2,7 +2,6 @@ package com.bakkenbaeck.token.presenter;
 
 import android.support.v4.app.FragmentTransaction;
 
-import com.bakkenbaeck.token.view.fragment.children.QrFragment;
 import com.bakkenbaeck.token.view.fragment.children.SettingsFragment;
 import com.bakkenbaeck.token.view.fragment.toplevel.SettingsContainerFragment;
 
