@@ -44,6 +44,6 @@ public class ScanResultActivity extends BasePresenterActivity<ScanResultPresente
 
     @Override
     protected int loaderId() {
-        return 20;
+        return 3001;
     }
 }

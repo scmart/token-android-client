@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools">
-<LinearLayout
+<layout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools">
+<LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/toolbar"
@@ -17,12 +18,13 @@
 
         <ImageButton
             android:id="@+id/close_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:scaleType="fitCenter"
             android:background="@android:color/transparent"
-            app:srcCompat="@drawable/ic__arrow_back"
-            android:padding="20dp" />
+            app:srcCompat="@drawable/ic_close"
+            android:tint="@color/textColorContrast"
+            android:layout_margin="16dp" />
 
         <TextView
             android:id="@+id/title"
@@ -31,7 +33,7 @@
             android:textSize="18sp"
             android:textStyle="bold"
             style="@style/Toolbar.TitleText"
-            android:text="Name"/>
+            android:text="@string/profile"/>
 
     </LinearLayout>
 
@@ -115,27 +117,11 @@
                 android:layout_width="0dp"
                 android:layout_height="32dp"/>
 
-            <LinearLayout
+            <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <android.support.v4.widget.Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"/>
-
-                <Button
-                    android:id="@+id/add_contact_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/add_contact" />
-
-                <android.support.v4.widget.Space
-                    android:layout_width="16dp"
-                    android:layout_height="match_parent"/>
-
-            </LinearLayout>
+                android:layout_gravity="center_horizontal"
+                android:text="@string/edit_profile"/>
 
             <android.support.v4.widget.Space
                 android:layout_width="0dp"
@@ -197,6 +183,5 @@
 
         </LinearLayout>
     </ScrollView>
-
 </LinearLayout>
 </layout>

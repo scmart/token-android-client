@@ -32,7 +32,7 @@ public class UserManager {
     private HDWallet wallet;
 
 
-    public final Single<User> getObservable() {
+    public final Single<User> getUser() {
         return Single.fromCallable(new Callable<User>() {
             @Override
             public User call() throws Exception {

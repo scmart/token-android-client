@@ -50,7 +50,7 @@ public final class ChatPresenter implements
     private void initToolbar() {
         this.activity.getBinding().title.setText(this.remoteUser.getUsername());
         this.activity.getBinding().avatar.setImageBitmap(this.remoteUser.getImage());
-        this.activity.getBinding().backButton.setOnClickListener(this.backButtonClickListener);
+        this.activity.getBinding().closeButton.setOnClickListener(this.backButtonClickListener);
     }
 
     private void initLongLivingObjects() {
@@ -113,10 +113,7 @@ public final class ChatPresenter implements
             }
         });
 
-        // Hide empty state if we have some content
-        if (this.messageAdapter.getItemCount() > 0) {
-            this.activity.getBinding().emptyStateSwitcher.showNext();
-        }
+        updateEmptyState();
     }
 
     private void initButtons() {
@@ -148,10 +145,8 @@ public final class ChatPresenter implements
     private final OnNextSubscriber<ChatMessage> handleNewMessage = new OnNextSubscriber<ChatMessage>() {
         @Override
         public void onNext(final ChatMessage chatMessage) {
-            if (messageAdapter.getItemCount() == 0) {
-                activity.getBinding().emptyStateSwitcher.showNext();
-            }
             messageAdapter.addMessage(chatMessage);
+            updateEmptyState();
             tryScrollToBottom(true);
         }
     };
@@ -173,7 +168,7 @@ public final class ChatPresenter implements
             if (chatMessages.size() > 0) {
                 messageAdapter.addMessages(chatMessages);
                 forceScrollToBottom();
-                activity.getBinding().emptyStateSwitcher.showNext();
+                updateEmptyState();
             }
 
             this.unsubscribe();
@@ -199,6 +194,18 @@ public final class ChatPresenter implements
 
     private void forceScrollToBottom() {
         this.activity.getBinding().messagesList.scrollToPosition(this.messageAdapter.getItemCount() - 1);
+    }
+
+    private void updateEmptyState() {
+        // Hide empty state if we have some content
+        final boolean showingEmptyState = this.activity.getBinding().emptyStateSwitcher.getCurrentView().getId() == this.activity.getBinding().emptyState.getId();
+        final boolean shouldShowEmptyState = this.messageAdapter.getItemCount() == 0;
+
+        if (shouldShowEmptyState && !showingEmptyState) {
+            this.activity.getBinding().emptyStateSwitcher.showPrevious();
+        } else if (!shouldShowEmptyState && showingEmptyState) {
+            this.activity.getBinding().emptyStateSwitcher.showNext();
+        }
     }
 
     @Override
