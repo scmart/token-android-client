@@ -5,14 +5,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.databinding.ActivityProfileBinding;
+import com.bakkenbaeck.token.databinding.ActivityTopLevelBinding;
 import com.bakkenbaeck.token.presenter.ProfilePresenter;
 import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
 import com.bakkenbaeck.token.presenter.factory.ProfilePresenterFactory;
 
 public class ProfileActivity extends BasePresenterActivity<ProfilePresenter, ProfileActivity> {
 
-    private ActivityProfileBinding binding;
+    private ActivityTopLevelBinding binding;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -21,10 +21,10 @@ public class ProfileActivity extends BasePresenterActivity<ProfilePresenter, Pro
     }
 
     private void init() {
-        this.binding = DataBindingUtil.setContentView(this, R.layout.activity_profile);
+        this.binding = DataBindingUtil.setContentView(this, R.layout.activity_top_level);
     }
 
-    public ActivityProfileBinding getBinding() {
+    public ActivityTopLevelBinding getBinding() {
         return this.binding;
     }
 

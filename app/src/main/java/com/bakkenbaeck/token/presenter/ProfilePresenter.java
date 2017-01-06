@@ -1,122 +1,61 @@
 package com.bakkenbaeck.token.presenter;
 
-import android.graphics.Bitmap;
-import android.view.View;
+import android.support.v4.app.FragmentTransaction;
 
-import com.bakkenbaeck.token.model.User;
-import com.bakkenbaeck.token.util.ImageUtil;
-import com.bakkenbaeck.token.util.OnSingleClickListener;
-import com.bakkenbaeck.token.util.SharedPrefsUtil;
-import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
-import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.view.activity.ProfileActivity;
+import com.bakkenbaeck.token.view.fragment.children.EditProfileFragment;
+import com.bakkenbaeck.token.view.fragment.children.ViewProfileFragment;
 
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public final class ProfilePresenter implements Presenter<ProfileActivity> {
 
     private ProfileActivity activity;
+
+    public interface OnEditButtonListener {
+        void onClick();
+    }
+
     private boolean firstTimeAttaching = true;
-    private User localUser;
 
     @Override
-    public void onViewAttached(final ProfileActivity fragment) {
-        this.activity = fragment;
+    public void onViewAttached(final ProfileActivity activity) {
+        this.activity = activity;
         if (this.firstTimeAttaching) {
             this.firstTimeAttaching = false;
-            initLongLivingObjects();
-        }
-
-        initShortLivingObjects();
-    }
-
-    private void initLongLivingObjects() {
-        BaseApplication.get()
-                .getTokenManager()
-                .getUserManager()
-                .getUser()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleUserLoaded);
-    }
-
-    private void initShortLivingObjects() {
-        initToolbar();
-        updateView();
-    }
-
-    private void initToolbar() {
-        this.activity.getBinding().closeButton.setOnClickListener(this.onCloseClicked);
-    }
-
-    private void updateView() {
-        if (this.localUser == null) {
-            return;
-        }
-
-        this.activity.getBinding().name.setText(this.localUser.getUsername());
-        this.activity.getBinding().username.setText(this.localUser.getAddress());
-
-        final byte[] decodedBitmap = SharedPrefsUtil.getQrCode();
-        if (decodedBitmap != null) {
-            renderQrCode(decodedBitmap);
-        } else {
-            generateQrCode();
+            manuallyAddRootFragment();
         }
     }
 
-    private final SingleSuccessSubscriber<User> handleUserLoaded = new SingleSuccessSubscriber<User>() {
+    private void manuallyAddRootFragment() {
+        final ViewProfileFragment rootFragment = ViewProfileFragment.newInstance();
+        rootFragment.setOnEditButtonListener(this.onEditButtonListener);
+
+        final FragmentTransaction transaction = this.activity.getSupportFragmentManager().beginTransaction();
+        transaction.replace(this.activity.getBinding().container.getId(), rootFragment).commit();
+    }
+
+    private final OnEditButtonListener onEditButtonListener = new OnEditButtonListener() {
         @Override
-        public void onSuccess(final User user) {
-            ProfilePresenter.this.localUser = user;
-            updateView();
-            this.unsubscribe();
-        }
-    };
+        public void onClick() {
+            final int fragmentContainerId = activity.getBinding().container.getId();
+            final EditProfileFragment editProfileFragment = EditProfileFragment.newInstance();
 
-    private void renderQrCode(final byte[] qrCodeImageBytes) {
-        final Bitmap qrCodeBitmap = ImageUtil.decodeByteArray(qrCodeImageBytes);
-        renderQrCode(qrCodeBitmap);
-    }
-
-    private void renderQrCode(final Bitmap qrCodeBitmap) {
-        this.activity.getBinding().qrCodeImage.setAlpha(0.0f);
-        this.activity.getBinding().qrCodeImage.setImageBitmap(qrCodeBitmap);
-        this.activity.getBinding().qrCodeImage.animate().alpha(1f).setDuration(200).start();
-    }
-
-    private void generateQrCode() {
-        ImageUtil.generateQrCodeForWalletAddress(this.localUser.getAddress())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleQrCodeGenerated);
-    }
-
-    private SingleSuccessSubscriber<Bitmap> handleQrCodeGenerated = new SingleSuccessSubscriber<Bitmap>() {
-        @Override
-        public void onSuccess(final Bitmap qrBitmap) {
-            SharedPrefsUtil.saveQrCode(ImageUtil.compressBitmap(qrBitmap));
-            renderQrCode(qrBitmap);
-        }
-    };
-
-    private final OnSingleClickListener onCloseClicked = new OnSingleClickListener() {
-        @Override
-        public void onSingleClick(final View v) {
-            activity.onBackPressed();
+            activity.getSupportFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
+                    .replace(fragmentContainerId, editProfileFragment)
+                    .addToBackStack(String.valueOf(fragmentContainerId))
+                    .commit();
         }
     };
 
     @Override
     public void onViewDetached() {
-        this.activity = null;
+
     }
 
     @Override
     public void onViewDestroyed() {
-        this.activity = null;
-        this.handleUserLoaded.unsubscribe();
-        this.handleQrCodeGenerated.unsubscribe();
     }
 }
