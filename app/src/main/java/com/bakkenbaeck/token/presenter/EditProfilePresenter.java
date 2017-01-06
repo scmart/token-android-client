@@ -1,46 +1,65 @@
 package com.bakkenbaeck.token.presenter;
 
 
+import com.bakkenbaeck.token.model.User;
+import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
+import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.fragment.children.EditProfileFragment;
+
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class EditProfilePresenter implements Presenter<EditProfileFragment> {
 
-    private EditProfileFragment activity;
+    private EditProfileFragment fragment;
+    private User localUser;
     private boolean firstTimeAttached = true;
 
     @Override
-    public void onViewAttached(final EditProfileFragment activity) {
-        this.activity = activity;
+    public void onViewAttached(final EditProfileFragment fragment) {
+        this.fragment = fragment;
         if (this.firstTimeAttached) {
             this.firstTimeAttached = false;
+            initLongLivingObjects();
         }
 
-        initShortLivingObjects();
+        updateView();
     }
 
-    private void initShortLivingObjects() {
-        attachButtonListeners();
+    private void initLongLivingObjects() {
+        BaseApplication.get()
+                .getTokenManager()
+                .getUserManager()
+                .getUser()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this.handleUserLoaded);
     }
 
-    private void attachButtonListeners() {
-        //this.activity.getBinding().backButton.setOnClickListener(this.backButtonClicked);
-    }
-/*
-    private final OnSingleClickListener backButtonClicked = new OnSingleClickListener() {
+    private final SingleSuccessSubscriber<User> handleUserLoaded = new SingleSuccessSubscriber<User>() {
         @Override
-        public void onSingleClick(final View v) {
-            activity.onBackPressed();
-            activity.overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+        public void onSuccess(final User user) {
+            EditProfilePresenter.this.localUser = user;
+            updateView();
+            this.unsubscribe();
         }
     };
-*/
+
+    private void updateView() {
+        if (this.localUser == null) {
+            return;
+        }
+
+        this.fragment.getBinding().inputName.setText(this.localUser.getUsername());
+    }
+
     @Override
     public void onViewDetached() {
-        this.activity = null;
+        this.fragment = null;
     }
 
     @Override
     public void onViewDestroyed() {
-        this.activity = null;
+        this.fragment = null;
     }
 }

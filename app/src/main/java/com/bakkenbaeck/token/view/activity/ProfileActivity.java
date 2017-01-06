@@ -13,6 +13,7 @@ import com.bakkenbaeck.token.presenter.factory.ProfilePresenterFactory;
 public class ProfileActivity extends BasePresenterActivity<ProfilePresenter, ProfileActivity> {
 
     private ActivityTopLevelBinding binding;
+    private ProfilePresenter presenter;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -35,7 +36,17 @@ public class ProfileActivity extends BasePresenterActivity<ProfilePresenter, Pro
     }
 
     @Override
-    protected void onPresenterPrepared(@NonNull final ProfilePresenter presenter) {}
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (this.presenter != null) {
+            this.presenter.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onPresenterPrepared(@NonNull final ProfilePresenter presenter) {
+        this.presenter = presenter;
+    }
 
     @Override
     protected int loaderId() {

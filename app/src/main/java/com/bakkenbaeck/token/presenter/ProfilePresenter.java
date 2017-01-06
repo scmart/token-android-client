@@ -1,8 +1,10 @@
 package com.bakkenbaeck.token.presenter;
 
 import android.support.v4.app.FragmentTransaction;
+import android.view.View;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.view.activity.ProfileActivity;
 import com.bakkenbaeck.token.view.fragment.children.EditProfileFragment;
 import com.bakkenbaeck.token.view.fragment.children.ViewProfileFragment;
@@ -25,6 +27,8 @@ public final class ProfilePresenter implements Presenter<ProfileActivity> {
             this.firstTimeAttaching = false;
             manuallyAddRootFragment();
         }
+
+        initToolbar();
     }
 
     private void manuallyAddRootFragment() {
@@ -33,6 +37,8 @@ public final class ProfilePresenter implements Presenter<ProfileActivity> {
 
         final FragmentTransaction transaction = this.activity.getSupportFragmentManager().beginTransaction();
         transaction.replace(this.activity.getBinding().container.getId(), rootFragment).commit();
+
+        setToolbarForViewProfile();
     }
 
     private final OnEditButtonListener onEditButtonListener = new OnEditButtonListener() {
@@ -47,8 +53,34 @@ public final class ProfilePresenter implements Presenter<ProfileActivity> {
                     .replace(fragmentContainerId, editProfileFragment)
                     .addToBackStack(String.valueOf(fragmentContainerId))
                     .commit();
+
+            setToolbarForEditProfile();
         }
     };
+
+    private void initToolbar() {
+        this.activity.getBinding().closeButton.setOnClickListener(new OnSingleClickListener() {
+            @Override
+            public void onSingleClick(final View v) {
+                activity.onBackPressed();
+                setToolbarForViewProfile();
+            }
+        });
+    }
+
+    public void onBackPressed() {
+        setToolbarForViewProfile();
+    }
+
+    private void setToolbarForEditProfile() {
+        this.activity.getBinding().title.setText(R.string.edit_profile);
+        this.activity.getBinding().closeButton.setImageDrawable(this.activity.getResources().getDrawable(R.drawable.ic_arrow_back));
+    }
+
+    private void setToolbarForViewProfile() {
+        this.activity.getBinding().title.setText(R.string.profile);
+        this.activity.getBinding().closeButton.setImageDrawable(this.activity.getResources().getDrawable(R.drawable.ic_close));
+    }
 
     @Override
     public void onViewDetached() {
