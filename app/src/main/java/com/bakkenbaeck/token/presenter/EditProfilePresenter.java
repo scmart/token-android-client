@@ -1,9 +1,11 @@
 package com.bakkenbaeck.token.presenter;
 
 
+import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.view.activity.ProfileActivity;
 import com.bakkenbaeck.token.view.fragment.children.EditProfileFragment;
 
 import rx.android.schedulers.AndroidSchedulers;
@@ -23,7 +25,18 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
             initLongLivingObjects();
         }
 
+        initShortLivingObjects();
+    }
+
+    private void initShortLivingObjects() {
+        initToolbar();
         updateView();
+    }
+
+    private void initToolbar() {
+        final ProfileActivity parentActivity = (ProfileActivity) this.fragment.getActivity();
+        parentActivity.getBinding().title.setText(R.string.edit_profile);
+        parentActivity.getBinding().closeButton.setImageDrawable(parentActivity.getResources().getDrawable(R.drawable.ic_arrow_back));
     }
 
     private void initLongLivingObjects() {

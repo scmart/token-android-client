@@ -3,12 +3,14 @@ package com.bakkenbaeck.token.presenter;
 import android.graphics.Bitmap;
 import android.view.View;
 
+import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SharedPrefsUtil;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.view.activity.ProfileActivity;
 import com.bakkenbaeck.token.view.fragment.children.ViewProfileFragment;
 
 import rx.android.schedulers.AndroidSchedulers;
@@ -44,7 +46,14 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
 
     private void initShortLivingObjects() {
         attachButtonListeners();
+        initToolbar();
         updateView();
+    }
+
+    private void initToolbar() {
+        final ProfileActivity parentActivity = (ProfileActivity) this.fragment.getActivity();
+        parentActivity.getBinding().title.setText(R.string.profile);
+        parentActivity.getBinding().closeButton.setImageDrawable(parentActivity.getResources().getDrawable(R.drawable.ic_close));
     }
 
     private void attachButtonListeners() {

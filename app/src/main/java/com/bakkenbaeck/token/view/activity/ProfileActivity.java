@@ -36,14 +36,6 @@ public class ProfileActivity extends BasePresenterActivity<ProfilePresenter, Pro
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        if (this.presenter != null) {
-            this.presenter.onBackPressed();
-        }
-    }
-
-    @Override
     protected void onPresenterPrepared(@NonNull final ProfilePresenter presenter) {
         this.presenter = presenter;
     }

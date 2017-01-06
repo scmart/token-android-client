@@ -37,8 +37,6 @@ public final class ProfilePresenter implements Presenter<ProfileActivity> {
 
         final FragmentTransaction transaction = this.activity.getSupportFragmentManager().beginTransaction();
         transaction.replace(this.activity.getBinding().container.getId(), rootFragment).commit();
-
-        setToolbarForViewProfile();
     }
 
     private final OnEditButtonListener onEditButtonListener = new OnEditButtonListener() {
@@ -53,8 +51,6 @@ public final class ProfilePresenter implements Presenter<ProfileActivity> {
                     .replace(fragmentContainerId, editProfileFragment)
                     .addToBackStack(String.valueOf(fragmentContainerId))
                     .commit();
-
-            setToolbarForEditProfile();
         }
     };
 
@@ -63,23 +59,8 @@ public final class ProfilePresenter implements Presenter<ProfileActivity> {
             @Override
             public void onSingleClick(final View v) {
                 activity.onBackPressed();
-                setToolbarForViewProfile();
             }
         });
-    }
-
-    public void onBackPressed() {
-        setToolbarForViewProfile();
-    }
-
-    private void setToolbarForEditProfile() {
-        this.activity.getBinding().title.setText(R.string.edit_profile);
-        this.activity.getBinding().closeButton.setImageDrawable(this.activity.getResources().getDrawable(R.drawable.ic_arrow_back));
-    }
-
-    private void setToolbarForViewProfile() {
-        this.activity.getBinding().title.setText(R.string.profile);
-        this.activity.getBinding().closeButton.setImageDrawable(this.activity.getResources().getDrawable(R.drawable.ic_close));
     }
 
     @Override
