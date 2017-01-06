@@ -54,6 +54,7 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
         final ProfileActivity parentActivity = (ProfileActivity) this.fragment.getActivity();
         parentActivity.getBinding().title.setText(R.string.profile);
         parentActivity.getBinding().closeButton.setImageDrawable(parentActivity.getResources().getDrawable(R.drawable.ic_close));
+        parentActivity.getBinding().saveButton.setVisibility(View.INVISIBLE);
     }
 
     private void attachButtonListeners() {

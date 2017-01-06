@@ -100,15 +100,7 @@ public class UserManager {
 
         @Override
         public void onSuccess(final User user) {
-            currentUser = user;
-            storeReturnedUser(user);
-        }
-
-        private void storeReturnedUser(final User user) {
-            prefs.edit()
-                    .putString(USER_ID, user.getAddress())
-                    .putString(USER_NAME, user.getUsername())
-                    .apply();
+            updateCurrentUser(user);
         }
 
         @Override
@@ -120,9 +112,65 @@ public class UserManager {
         }
     };
 
+    private void updateCurrentUser(final User user) {
+        currentUser = user;
+        prefs.edit()
+                .putString(USER_ID, user.getAddress())
+                .putString(USER_NAME, user.getUsername())
+                .apply();
+    }
+
     private void getExistingUser() {
         IdService.getApi()
                 .getUser(this.wallet.getAddress())
                 .subscribe(this.newUserSubscriber);
+    }
+
+    public void updateUser(final UserDetails userDetails, final SingleSubscriber<Void> completionCallback) {
+        IdService
+        .getApi()
+        .getTimestamp()
+        .subscribe(new SingleSubscriber<ServerTime>() {
+            @Override
+            public void onSuccess(final ServerTime serverTime) {
+                final long timestamp = serverTime.get();
+                userDetails.setTimestamp(timestamp);
+                updateUserWithTimestamp(userDetails, completionCallback);
+                this.unsubscribe();
+            }
+
+            @Override
+            public void onError(final Throwable error) {
+                LogUtil.e(getClass(), error.toString());
+                this.unsubscribe();
+                completionCallback.onError(error);
+            }
+        });
+    }
+
+    private void updateUserWithTimestamp(final UserDetails userDetails, final SingleSubscriber<Void> completionCallback) {
+        final String signature = this.wallet.signString(JsonUtil.toJson(userDetails));
+
+        final SignedUserDetails sud = new SignedUserDetails()
+                .setEthAddress(this.wallet.getAddress())
+                .setUserDetails(userDetails)
+                .setSignature(signature);
+
+        IdService.getApi()
+                .updateUser(this.wallet.getAddress(), sud)
+                .subscribe(new SingleSubscriber<User>() {
+                    @Override
+                    public void onSuccess(final User user) {
+                        updateCurrentUser(user);
+                        completionCallback.onSuccess(null);
+                    }
+
+                    @Override
+                    public void onError(final Throwable error) {
+                        LogUtil.error(getClass(), error.toString());
+                        this.unsubscribe();
+                        completionCallback.onError(error);
+                    }
+                });
     }
 }
