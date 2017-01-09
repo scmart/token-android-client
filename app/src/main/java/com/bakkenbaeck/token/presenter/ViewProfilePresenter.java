@@ -6,6 +6,7 @@ import android.view.View;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.util.ImageUtil;
+import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SharedPrefsUtil;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
@@ -19,35 +20,21 @@ import rx.schedulers.Schedulers;
 public final class ViewProfilePresenter implements Presenter<ViewProfileFragment> {
 
     private ViewProfileFragment fragment;
-    private boolean firstTimeAttaching = true;
     private User localUser;
     private ProfilePresenter.OnEditButtonListener onEditButtonListener;
+    private  OnNextSubscriber<User> handleUserLoaded;
 
     @Override
     public void onViewAttached(final ViewProfileFragment fragment) {
         this.fragment = fragment;
-        if (this.firstTimeAttaching) {
-            this.firstTimeAttaching = false;
-            initLongLivingObjects();
-        }
-
         initShortLivingObjects();
-    }
-
-    private void initLongLivingObjects() {
-        BaseApplication.get()
-                .getTokenManager()
-                .getUserManager()
-                .getUser()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleUserLoaded);
     }
 
     private void initShortLivingObjects() {
         attachButtonListeners();
         initToolbar();
         updateView();
+        attachListeners();
     }
 
     private void initToolbar() {
@@ -68,6 +55,8 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
 
         this.fragment.getBinding().name.setText(this.localUser.getUsername());
         this.fragment.getBinding().username.setText(this.localUser.getAddress());
+        this.fragment.getBinding().about.setText(this.localUser.getAbout());
+        this.fragment.getBinding().location.setText(this.localUser.getLocation());
 
         final byte[] decodedBitmap = SharedPrefsUtil.getQrCode();
         if (decodedBitmap != null) {
@@ -77,14 +66,26 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
         }
     }
 
-    private final SingleSuccessSubscriber<User> handleUserLoaded = new SingleSuccessSubscriber<User>() {
-        @Override
-        public void onSuccess(final User user) {
-            ViewProfilePresenter.this.localUser = user;
-            updateView();
-            this.unsubscribe();
-        }
-    };
+    private void attachListeners() {
+        generateUserLoadedHandler();
+        BaseApplication.get()
+                .getTokenManager()
+                .getUserManager()
+                .getUserObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this.handleUserLoaded);
+    }
+
+    private void generateUserLoadedHandler() {
+        this.handleUserLoaded = new OnNextSubscriber<User>() {
+            @Override
+            public void onNext(final User user) {
+                ViewProfilePresenter.this.localUser = user;
+                updateView();
+            }
+        };
+    }
 
     private void renderQrCode(final byte[] qrCodeImageBytes) {
         final Bitmap qrCodeBitmap = ImageUtil.decodeByteArray(qrCodeImageBytes);
@@ -126,12 +127,13 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
     @Override
     public void onViewDetached() {
         this.fragment = null;
+        this.handleUserLoaded.unsubscribe();
+        this.handleUserLoaded = null;
     }
 
     @Override
     public void onViewDestroyed() {
         this.fragment = null;
-        this.handleUserLoaded.unsubscribe();
         this.handleQrCodeGenerated.unsubscribe();
     }
 

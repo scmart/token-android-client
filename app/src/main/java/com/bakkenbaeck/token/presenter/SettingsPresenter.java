@@ -4,8 +4,8 @@ import android.content.Intent;
 import android.view.View;
 
 import com.bakkenbaeck.token.model.User;
+import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
-import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ProfileActivity;
 import com.bakkenbaeck.token.view.fragment.children.SettingsFragment;
@@ -16,39 +16,38 @@ import rx.schedulers.Schedulers;
 public final class SettingsPresenter implements
         Presenter<SettingsFragment> {
 
-    private boolean firstTimeAttaching = true;
     private User localUser;
     private SettingsFragment fragment;
+    private OnNextSubscriber<User> handleUserLoaded;
 
     @Override
     public void onViewAttached(final SettingsFragment fragment) {
         this.fragment = fragment;
-        if (this.firstTimeAttaching) {
-            this.firstTimeAttaching = false;
-            init();
-        }
 
+        addListeners();
         updateUi();
     }
 
-    private void init() {
+    private void addListeners() {
+        generateUserLoadedHandler();
         BaseApplication.get()
                 .getTokenManager()
                 .getUserManager()
-                .getUser()
+                .getUserObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleUserLoaded);
     }
 
-    private final SingleSuccessSubscriber<User> handleUserLoaded = new SingleSuccessSubscriber<User>() {
-        @Override
-        public void onSuccess(final User user) {
-            SettingsPresenter.this.localUser = user;
-            updateUi();
-            this.unsubscribe();
-        }
-    };
+    private void generateUserLoadedHandler() {
+        this.handleUserLoaded = new OnNextSubscriber<User>() {
+            @Override
+            public void onNext(final User user) {
+                SettingsPresenter.this.localUser = user;
+                updateUi();
+            }
+        };
+    }
 
     private void updateUi() {
         if (this.localUser != null) {
@@ -67,7 +66,9 @@ public final class SettingsPresenter implements
     };
 
     @Override
-    public void onViewDetached() {}
+    public void onViewDetached() {
+        destroy();
+    }
 
     @Override
     public void onViewDestroyed() {

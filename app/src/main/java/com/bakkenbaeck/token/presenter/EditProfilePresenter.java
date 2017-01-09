@@ -9,8 +9,8 @@ import android.widget.Toast;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.network.rest.model.UserDetails;
+import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
-import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ProfileActivity;
 import com.bakkenbaeck.token.view.fragment.children.EditProfileFragment;
@@ -21,24 +21,20 @@ import rx.schedulers.Schedulers;
 
 public class EditProfilePresenter implements Presenter<EditProfileFragment> {
 
+    private OnNextSubscriber<User> handleUserLoaded;
     private EditProfileFragment fragment;
     private User localUser;
-    private boolean firstTimeAttached = true;
 
     @Override
     public void onViewAttached(final EditProfileFragment fragment) {
         this.fragment = fragment;
-        if (this.firstTimeAttached) {
-            this.firstTimeAttached = false;
-            initLongLivingObjects();
-        }
-
         initShortLivingObjects();
     }
 
     private void initShortLivingObjects() {
         initToolbar();
         updateView();
+        attachListeners();
     }
 
     private void initToolbar() {
@@ -49,24 +45,26 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
         parentActivity.getBinding().saveButton.setOnClickListener(this.handleSaveClicked);
     }
 
-    private void initLongLivingObjects() {
+    private void attachListeners() {
+        generateUserLoadedHandler();
         BaseApplication.get()
                 .getTokenManager()
                 .getUserManager()
-                .getUser()
+                .getUserObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleUserLoaded);
     }
 
-    private final SingleSuccessSubscriber<User> handleUserLoaded = new SingleSuccessSubscriber<User>() {
-        @Override
-        public void onSuccess(final User user) {
-            EditProfilePresenter.this.localUser = user;
-            updateView();
-            this.unsubscribe();
-        }
-    };
+    private void generateUserLoadedHandler() {
+        this.handleUserLoaded = new OnNextSubscriber<User>() {
+            @Override
+            public void onNext(final User user) {
+                EditProfilePresenter.this.localUser = user;
+                updateView();
+            }
+        };
+    }
 
     private void updateView() {
         if (this.localUser == null) {
@@ -117,6 +115,7 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     @Override
     public void onViewDetached() {
         this.fragment = null;
+        this.handleUserLoaded.unsubscribe();
     }
 
     @Override

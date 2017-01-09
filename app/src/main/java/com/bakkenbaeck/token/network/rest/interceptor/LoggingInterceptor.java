@@ -6,15 +6,8 @@ import okhttp3.logging.HttpLoggingInterceptor;
 
 
 public class LoggingInterceptor implements HttpLoggingInterceptor.Logger {
-
     @Override
     public void log(final String message) {
-        final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
-            @Override
-            public void log(final String message) {
-                LogUtil.print(getClass(), message);
-            }
-        });
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        LogUtil.print(getClass(), message);
     }
 }

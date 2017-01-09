@@ -16,32 +16,22 @@ import com.bakkenbaeck.token.view.BaseApplication;
 
 import org.whispersystems.signalservice.internal.util.JsonUtil;
 
-import java.util.concurrent.Callable;
-
 import retrofit2.adapter.rxjava.HttpException;
-import rx.Single;
 import rx.SingleSubscriber;
+import rx.subjects.BehaviorSubject;
 
 public class UserManager {
 
     private final static String USER_ID = "uid";
     private final static String USER_NAME = "un";
 
-    private User currentUser;
+    private final BehaviorSubject<User> userSubject = BehaviorSubject.create();
     private SharedPreferences prefs;
     private HDWallet wallet;
 
 
-    public final Single<User> getUser() {
-        return Single.fromCallable(new Callable<User>() {
-            @Override
-            public User call() throws Exception {
-                while(currentUser == null) {
-                    Thread.sleep(100);
-                }
-                return currentUser;
-            }
-        });
+    public final BehaviorSubject<User> getUserObservable() {
+        return this.userSubject;
     }
 
     public UserManager init(final HDWallet wallet) {
@@ -113,11 +103,11 @@ public class UserManager {
     };
 
     private void updateCurrentUser(final User user) {
-        currentUser = user;
         prefs.edit()
                 .putString(USER_ID, user.getAddress())
                 .putString(USER_NAME, user.getUsername())
                 .apply();
+        this.userSubject.onNext(user);
     }
 
     private void getExistingUser() {
