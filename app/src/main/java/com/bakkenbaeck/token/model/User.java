@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Base64;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -18,16 +17,40 @@ public class User extends RealmObject implements Parcelable {
     @PrimaryKey
     private String owner_address;
     private String username;
-    private String base64Avatar;
+    private CustomUserInformation custom;
 
+    // ctors
     public User() {}
 
     private User(final Parcel in) {
         owner_address = in.readString();
         username = in.readString();
-        base64Avatar = in.readString();
     }
 
+    // Getters
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getAddress() {
+        return owner_address;
+    }
+
+    public String getAbout() {
+        return custom == null ? null : this.custom.getAbout();
+    }
+
+    public String getLocation() {
+        return custom == null ? null : this.custom.getLocation();
+    }
+
+    public Bitmap getImage() {
+        return BitmapFactory.decodeResource(BaseApplication.get().getResources(), R.mipmap.launcher);
+    }
+
+
+    // Parcelable implementation
     public static final Creator<User> CREATOR = new Creator<User>() {
         @Override
         public User createFromParcel(Parcel in) {
@@ -40,23 +63,6 @@ public class User extends RealmObject implements Parcelable {
         }
     };
 
-    public String getUsername() {
-        return username;
-    }
-
-    public String getAddress() {
-        return owner_address;
-    }
-
-    public Bitmap getImage() {
-        if (this.base64Avatar == null) {
-            return BitmapFactory.decodeResource(BaseApplication.get().getResources(), R.mipmap.launcher);
-        }
-
-        final byte[] decoded = Base64.decode(this.base64Avatar, Base64.DEFAULT);
-        return BitmapFactory.decodeByteArray(decoded, 0, decoded.length);
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -66,6 +72,6 @@ public class User extends RealmObject implements Parcelable {
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeString(owner_address);
         dest.writeString(username);
-        dest.writeString(base64Avatar);
+        dest.writeParcelable(custom, flags);
     }
 }

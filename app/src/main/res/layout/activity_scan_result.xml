@@ -21,8 +21,9 @@
             android:layout_height="wrap_content"
             android:scaleType="fitCenter"
             android:background="@android:color/transparent"
-            app:srcCompat="@drawable/ic__arrow_back"
-            android:padding="20dp" />
+            app:srcCompat="@drawable/ic_arrow_back"
+            android:tint="@color/textColorContrast"
+            android:padding="16dp" />
 
         <TextView
             android:id="@+id/title"

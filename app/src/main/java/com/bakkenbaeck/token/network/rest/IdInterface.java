@@ -8,6 +8,7 @@ import com.bakkenbaeck.token.network.rest.model.SignedUserDetails;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import rx.Single;
 
@@ -22,4 +23,7 @@ public interface IdInterface {
 
     @GET("/v1/user/{id}")
     Single<User> getUser(@Path("id") String userId);
+
+    @PUT("/v1/user/{id}")
+    Single<User> updateUser(@Path("id") String userId, @Body SignedUserDetails details);
 }
