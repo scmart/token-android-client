@@ -23,4 +23,5 @@
     <string name="profile_about">About</string>
     <string name="profile_location">Location</string>
     <string name="profile_name">Name</string>
+    <string name="contacts__user_search_hint">Find a user</string>
 </resources>

@@ -5,10 +5,13 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import com.bakkenbaeck.token.model.User;
+import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
-import com.bakkenbaeck.token.view.adapter.ContactsAdapter;
+import com.bakkenbaeck.token.view.activity.UserSearchActivity;
+import com.bakkenbaeck.token.view.adapter.UserAdapter;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.fragment.children.ContactsListFragment;
 
@@ -18,7 +21,7 @@ public final class ContactsListPresenter implements
 
     private ContactsListFragment fragment;
     private boolean firstTimeAttaching = true;
-    private ContactsAdapter adapter;
+    private UserAdapter adapter;
 
     @Override
     public void onViewAttached(final ContactsListFragment fragment) {
@@ -40,11 +43,14 @@ public final class ContactsListPresenter implements
 
         final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
         recyclerView.addItemDecoration(dividerItemDecoration);
+
+        this.fragment.getBinding().userSearch.setOnClickListener(this.handleUserSearchClicked);
     }
 
     private void initLongLivingObjects() {
-        this.adapter = new ContactsAdapter();
-        this.adapter.setOnItemClickListener(this);
+        this.adapter = new UserAdapter()
+                .loadAllStoredContacts()
+                .setOnItemClickListener(this);
     }
 
     @Override
@@ -63,4 +69,12 @@ public final class ContactsListPresenter implements
         intent.putExtra(ChatActivity.EXTRA__REMOTE_USER, clickedUser);
         this.fragment.startActivity(intent);
     }
+
+    private final OnSingleClickListener handleUserSearchClicked = new OnSingleClickListener() {
+        @Override
+        public void onSingleClick(final View v) {
+            final Intent intent = new Intent(fragment.getActivity(), UserSearchActivity.class);
+            fragment.startActivity(intent);
+        }
+    };
 }

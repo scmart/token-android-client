@@ -2,9 +2,36 @@
 <layout
     xmlns:android="http://schemas.android.com/apk/res/android" >
 
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/windowBackgroundContrast">
+
+    <TextView
+        android:id="@+id/user_search"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:text="@string/contacts__user_search_hint"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:background="@color/windowBackground"
+        android:gravity="center_vertical"
+        android:textSize="16sp"
+        android:textColor="@color/textColorHint"
+        />
+
+    <android.support.v4.widget.Space
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/contacts"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="@dimen/activity_horizontal_margin"/>
+        android:padding="@dimen/activity_horizontal_margin"
+        android:clipToPadding="false"
+        android:background="@color/windowBackground"/>
+
+</LinearLayout>
 </layout>

@@ -80,6 +80,7 @@ dependencies {
             'com.artemzin.rxjava:proguard-rules:1.1.9.0',
             // Reactive
             'io.reactivex:rxandroid:1.2.1',
+            'com.jakewharton.rxbinding:rxbinding:1.0.0',
             // Images
             'de.hdodenhof:circleimageview:2.1.0',
             // Reading barcodes
