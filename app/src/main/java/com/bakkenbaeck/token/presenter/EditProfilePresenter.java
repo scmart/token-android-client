@@ -101,7 +101,12 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
         @Override
         public void onSuccess(final Void unused) {
             showToast("Saved successfully!");
-            fragment.getActivity().onBackPressed();
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    fragment.getActivity().onBackPressed();
+                }
+            });
         }
 
         @Override
