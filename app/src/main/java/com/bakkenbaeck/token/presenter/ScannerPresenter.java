@@ -3,7 +3,7 @@ package com.bakkenbaeck.token.presenter;
 import android.content.Intent;
 
 import com.bakkenbaeck.token.model.ScanResult;
-import com.bakkenbaeck.token.view.activity.ScanResultActivity;
+import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 import com.bakkenbaeck.token.view.fragment.toplevel.ScannerFragment;
 import com.google.zxing.ResultPoint;
 import com.journeyapps.barcodescanner.BarcodeCallback;
@@ -32,9 +32,11 @@ public final class ScannerPresenter implements Presenter<ScannerFragment> {
     private final BarcodeCallback onScanSuccess = new BarcodeCallback() {
         @Override
         public void barcodeResult(final BarcodeResult result) {
+            // Right now, this assumes that the QR code is a contacts address
+            // so it is currently very naive
             final ScanResult scanResult = new ScanResult(result);
-            final Intent intent = new Intent(fragment.getActivity(), ScanResultActivity.class);
-            intent.putExtra(ScanResultActivity.EXTRA__RESULT, scanResult);
+            final Intent intent = new Intent(fragment.getActivity(), ViewUserActivity.class);
+            intent.putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, scanResult.getText());
             fragment.startActivity(intent);
         }
 

@@ -1,18 +1,22 @@
 package com.bakkenbaeck.token.presenter;
 
+import android.content.Intent;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.bakkenbaeck.token.model.User;
 import com.bakkenbaeck.token.network.rest.IdService;
 import com.bakkenbaeck.token.network.rest.model.UserSearchResults;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
+import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 import com.bakkenbaeck.token.view.activity.UserSearchActivity;
 import com.bakkenbaeck.token.view.adapter.UserAdapter;
+import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.jakewharton.rxbinding.widget.RxTextView;
 import com.jakewharton.rxbinding.widget.TextViewTextChangeEvent;
 
@@ -21,7 +25,10 @@ import java.util.concurrent.TimeUnit;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public final class UserSearchPresenter implements Presenter<UserSearchActivity> {
+public final class UserSearchPresenter
+        implements
+            Presenter<UserSearchActivity>,
+            OnItemClickListener<User> {
 
     private boolean firstTimeAttaching = true;
     private UserSearchActivity activity;
@@ -40,7 +47,8 @@ public final class UserSearchPresenter implements Presenter<UserSearchActivity> 
     }
 
     private void initLongLivingObjects() {
-        this.adapter = new UserAdapter();
+        this.adapter =
+                new UserAdapter().setOnItemClickListener(this);
     }
 
     private void initShortLivingObjects() {
@@ -114,5 +122,12 @@ public final class UserSearchPresenter implements Presenter<UserSearchActivity> 
     @Override
     public void onViewDestroyed() {
         this.activity = null;
+    }
+
+    @Override
+    public void onItemClick(final User clickedUser) {
+        final Intent intent = new Intent(this.activity, ViewUserActivity.class);
+        intent.putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, clickedUser.getAddress());
+        this.activity.startActivity(intent);
     }
 }
