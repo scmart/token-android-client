@@ -153,7 +153,8 @@ public final class SignalService extends SignalServiceAccountManager {
             final int registrationId,
             final String signalingKey,
             final SignedPreKeyRecord signedPreKey,
-final List<PreKeyRecord> preKeys) throws IOException {
+            final List<PreKeyRecord> preKeys) throws IOException {
+        
         final List<PreKeyEntity> entities = new LinkedList<>();
         for (PreKeyRecord preKey : preKeys) {
             final PreKeyEntity entity = new PreKeyEntity(
