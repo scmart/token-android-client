@@ -23,7 +23,10 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
 
     private OnNextSubscriber<User> handleUserLoaded;
     private EditProfileFragment fragment;
-    private User localUser;
+
+    private String nameFieldContents;
+    private String aboutFieldContents;
+    private String locationFieldContents;
 
     @Override
     public void onViewAttached(final EditProfileFragment fragment) {
@@ -60,18 +63,22 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
         this.handleUserLoaded = new OnNextSubscriber<User>() {
             @Override
             public void onNext(final User user) {
-                EditProfilePresenter.this.localUser = user;
+                setFieldsFromUser(user);
                 updateView();
+            }
+
+            private void setFieldsFromUser(final User user) {
+                if(nameFieldContents == null) nameFieldContents = user.getUsername();
+                if(aboutFieldContents == null) aboutFieldContents = user.getAbout();
+                if(locationFieldContents == null) locationFieldContents = user.getLocation();
             }
         };
     }
 
     private void updateView() {
-        if (this.localUser == null) {
-            return;
-        }
-
-        this.fragment.getBinding().inputName.setText(this.localUser.getUsername());
+        this.fragment.getBinding().inputName.setText(this.nameFieldContents);
+        this.fragment.getBinding().inputAbout.setText(this.aboutFieldContents);
+        this.fragment.getBinding().inputLocation.setText(this.locationFieldContents);
     }
 
     private final OnSingleClickListener handleSaveClicked = new OnSingleClickListener() {
@@ -94,6 +101,7 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
         @Override
         public void onSuccess(final Void unused) {
             showToast("Saved successfully!");
+            fragment.getActivity().onBackPressed();
         }
 
         @Override
@@ -114,8 +122,15 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
 
     @Override
     public void onViewDetached() {
+        saveFields();
         this.fragment = null;
         this.handleUserLoaded.unsubscribe();
+    }
+
+    private void saveFields() {
+        this.nameFieldContents = this.fragment.getBinding().inputName.getText().toString();
+        this.aboutFieldContents = this.fragment.getBinding().inputAbout.getText().toString();
+        this.locationFieldContents = this.fragment.getBinding().inputLocation.getText().toString();
     }
 
     @Override
