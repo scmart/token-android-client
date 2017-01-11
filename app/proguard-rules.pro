@@ -11,6 +11,7 @@
 -keepattributes EnclosingMethod
 
 -keepattributes Annotation
+-dontwarn retrofit2.adapter.rxjava.CompletableHelper$**
 
 -keep enum com.bakkenbaeck.token.network.ws.model.** { *; }
 
@@ -34,8 +35,6 @@
     @com.squareup.moshi.FromJson *;
     @com.squareup.moshi.ToJson *;
 }
-
--keep public class com.bakkenbaeck.token.model.jsonadapter.BigIntegerAdapter { *; }
 
 -dontwarn android.webkit.**
 -dontwarn com.google.android.**
