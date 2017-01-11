@@ -11,10 +11,15 @@ import com.bakkenbaeck.token.network.rest.IdService;
 import com.bakkenbaeck.token.network.rest.model.ServerTime;
 import com.bakkenbaeck.token.network.rest.model.SignedUserDetails;
 import com.bakkenbaeck.token.network.rest.model.UserDetails;
+import com.bakkenbaeck.token.presenter.store.ContactStore;
 import com.bakkenbaeck.token.util.LogUtil;
+import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 
 import org.whispersystems.signalservice.internal.util.JsonUtil;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import retrofit2.adapter.rxjava.HttpException;
 import rx.SingleSubscriber;
@@ -28,7 +33,8 @@ public class UserManager {
     private final BehaviorSubject<User> userSubject = BehaviorSubject.create();
     private SharedPreferences prefs;
     private HDWallet wallet;
-
+    private ExecutorService dbThreadExecutor;
+    private ContactStore contactStore;
 
     public final BehaviorSubject<User> getUserObservable() {
         return this.userSubject;
@@ -36,8 +42,19 @@ public class UserManager {
 
     public UserManager init(final HDWallet wallet) {
         this.wallet = wallet;
+        initDatabase();
         initUser();
         return this;
+    }
+
+    private void initDatabase() {
+        this.dbThreadExecutor = Executors.newSingleThreadExecutor();
+        this.dbThreadExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                UserManager.this.contactStore = new ContactStore();
+            }
+        });
     }
 
     private void initUser() {
@@ -162,5 +179,39 @@ public class UserManager {
                         completionCallback.onError(error);
                     }
                 });
+    }
+
+    // If the user at the address is already saved as a contact this method does nothing.
+    // If the user is not a contact, they will be added.
+    public void tryAddContact(final String contactAddress) {
+        this.dbThreadExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                contactStore
+                        .load(contactAddress)
+                        .subscribe(this.handleContactLookup);
+            }
+
+            private final SingleSubscriber<User> handleContactLookup = new SingleSuccessSubscriber<User>() {
+                @Override
+                public void onSuccess(final User user) {
+                    if (user != null) return;
+                    fetchAndSaveContact();
+                }
+            };
+
+            private void fetchAndSaveContact() {
+                IdService.getApi()
+                        .getUser(contactAddress)
+                        .subscribe(this.handleUserFetched);
+            }
+
+            private final SingleSubscriber<User> handleUserFetched = new SingleSuccessSubscriber<User>() {
+                @Override
+                public void onSuccess(final User user) {
+                    contactStore.save(user);
+                }
+            };
+        });
     }
 }
