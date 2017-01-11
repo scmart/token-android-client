@@ -45,6 +45,7 @@ public final class ContactsListPresenter implements
         recyclerView.addItemDecoration(dividerItemDecoration);
 
         this.fragment.getBinding().userSearch.setOnClickListener(this.handleUserSearchClicked);
+        updateEmptyState();
     }
 
     private void initLongLivingObjects() {
@@ -68,6 +69,18 @@ public final class ContactsListPresenter implements
         final Intent intent = new Intent(this.fragment.getActivity(), ChatActivity.class);
         intent.putExtra(ChatActivity.EXTRA__REMOTE_USER, clickedUser);
         this.fragment.startActivity(intent);
+    }
+
+    private void updateEmptyState() {
+        // Hide empty state if we have some content
+        final boolean showingEmptyState = this.fragment.getBinding().emptyStateSwitcher.getCurrentView().getId() == this.fragment.getBinding().emptyState.getId();
+        final boolean shouldShowEmptyState = this.adapter.getItemCount() == 0;
+
+        if (shouldShowEmptyState && !showingEmptyState) {
+            this.fragment.getBinding().emptyStateSwitcher.showPrevious();
+        } else if (!shouldShowEmptyState && showingEmptyState) {
+            this.fragment.getBinding().emptyStateSwitcher.showNext();
+        }
     }
 
     private final OnSingleClickListener handleUserSearchClicked = new OnSingleClickListener() {
