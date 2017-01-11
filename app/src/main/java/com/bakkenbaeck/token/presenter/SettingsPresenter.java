@@ -1,6 +1,9 @@
 package com.bakkenbaeck.token.presenter;
 
 import android.content.Intent;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.bakkenbaeck.token.model.User;
@@ -8,6 +11,7 @@ import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ProfileActivity;
+import com.bakkenbaeck.token.view.adapter.SettingsAdapter;
 import com.bakkenbaeck.token.view.fragment.children.SettingsFragment;
 
 import rx.android.schedulers.AndroidSchedulers;
@@ -25,6 +29,7 @@ public final class SettingsPresenter implements
         this.fragment = fragment;
 
         addListeners();
+        initRecyclerView();
         updateUi();
     }
 
@@ -37,6 +42,17 @@ public final class SettingsPresenter implements
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleUserLoaded);
+    }
+
+    private void initRecyclerView() {
+        final SettingsAdapter adapter = new SettingsAdapter();
+        final RecyclerView recyclerView = this.fragment.getBinding().settings;
+        final RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this.fragment.getContext());
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter);
+
+        final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
+        recyclerView.addItemDecoration(dividerItemDecoration);
     }
 
     private void generateUserLoadedHandler() {
