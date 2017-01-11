@@ -49,7 +49,7 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
     }
-
+/*
     // Give each APK in the API split a different versionCode and versionName
     project.ext.versionCodes = ['armeabi-v7a': 2, 'arm64-v8a': 3, 'x86': 4]
     android.applicationVariants.all { variant ->
@@ -58,6 +58,7 @@ android {
                     project.ext.versionCodes.get(output.getFilter(com.android.build.OutputFile.ABI), 0) * 10000000 + android.defaultConfig.versionCode
         }
     }
+    */
 }
 
 dependencies {
