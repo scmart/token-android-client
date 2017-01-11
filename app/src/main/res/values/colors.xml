@@ -10,6 +10,7 @@
     <color name="textColorSecondary">#9F9FA3</color>
     <color name="textColorContrast">#FFFFFF</color>
     <color name="textColorHint">#B2B4B8</color>
+    <color name="textColorHintToolbar">#4DD199</color>
 
     <color name="input_bg">#FFFFFF</color>
     <color name="balance_bar__bg">#FFFFFF</color>

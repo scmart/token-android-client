@@ -7,26 +7,27 @@ import android.os.Looper;
 import android.view.View;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.model.ScanResult;
 import com.bakkenbaeck.token.model.User;
+import com.bakkenbaeck.token.network.rest.IdService;
 import com.bakkenbaeck.token.presenter.store.ContactStore;
+import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
-import com.bakkenbaeck.token.view.activity.ScanResultActivity;
+import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 
 import rx.SingleSubscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public final class ScanResultPresenter implements Presenter<ScanResultActivity> {
+public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
 
     private boolean firstTimeAttached = true;
     private ContactStore contactStore;
-    private ScanResultActivity activity;
+    private ViewUserActivity activity;
     private User scannedUser;
 
     @Override
-    public void onViewAttached(final ScanResultActivity activity) {
+    public void onViewAttached(final ViewUserActivity activity) {
         this.activity = activity;
         if (this.firstTimeAttached) {
             this.firstTimeAttached = false;
@@ -38,12 +39,17 @@ public final class ScanResultPresenter implements Presenter<ScanResultActivity> 
     private void initLongLivingObjects() {
         this.contactStore = new ContactStore();
         final Intent intent = activity.getIntent();
-        final ScanResult scanResult = intent.getParcelableExtra(ScanResultActivity.EXTRA__RESULT);
-        scanResult.getQrCode()
+        final String userAddress = intent.getStringExtra(ViewUserActivity.EXTRA__USER_ADDRESS);
+        loadOrFetchUser(userAddress);
+        generateQrCode(userAddress);
+    }
+
+    private void generateQrCode(final String address) {
+        ImageUtil
+                .generateQrCodeForWalletAddress(address)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleQrCodeLoaded);
-        loadOrFetchContact(scanResult);
     }
 
     private void initShortLivingObjects() {
@@ -55,9 +61,16 @@ public final class ScanResultPresenter implements Presenter<ScanResultActivity> 
         });
     }
 
-    private void loadOrFetchContact(final ScanResult scanResult) {
+
+
+    private void disableAddContactButton() {
+        this.activity.getBinding().addContactButton.setEnabled(false);
+        this.activity.getBinding().addContactButton.setText(this.activity.getResources().getString(R.string.added_contact));
+    }
+
+    private void loadOrFetchUser(final String userAddress) {
         this.contactStore
-                .load(scanResult.getText())
+                .load(userAddress)
                 .subscribe(new SingleSubscriber<User>() {
                     @Override
                     public void onSuccess(final User user) {
@@ -76,8 +89,9 @@ public final class ScanResultPresenter implements Presenter<ScanResultActivity> 
                     }
 
                     private void fetchContactFromServer() {
-                        scanResult
-                                .getContact()
+                        IdService
+                                .getApi()
+                                .getUser(userAddress)
                                 .subscribe(new SingleSuccessSubscriber<User>() {
                                     @Override
                                     public void onSuccess(final User user) {
@@ -88,19 +102,16 @@ public final class ScanResultPresenter implements Presenter<ScanResultActivity> 
                 });
     }
 
-    private void disableAddContactButton() {
-        this.activity.getBinding().addContactButton.setEnabled(false);
-        this.activity.getBinding().addContactButton.setText(this.activity.getResources().getString(R.string.added_contact));
-    }
-
     private void handleUserLoaded(final User scannedUser) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                ScanResultPresenter.this.scannedUser = scannedUser;
-                ScanResultPresenter.this.activity.getBinding().name.setText(scannedUser.getUsername());
-                ScanResultPresenter.this.activity.getBinding().title.setText(scannedUser.getUsername());
-                ScanResultPresenter.this.activity.getBinding().addContactButton.setOnClickListener(handleOnAddContact);
+                ViewUserPresenter.this.scannedUser = scannedUser;
+                ViewUserPresenter.this.activity.getBinding().name.setText(scannedUser.getUsername());
+                ViewUserPresenter.this.activity.getBinding().title.setText(scannedUser.getUsername());
+                ViewUserPresenter.this.activity.getBinding().about.setText(scannedUser.getAbout());
+                ViewUserPresenter.this.activity.getBinding().location.setText(scannedUser.getLocation());
+                ViewUserPresenter.this.activity.getBinding().addContactButton.setOnClickListener(handleOnAddContact);
             }
         });
     };

@@ -2,9 +2,55 @@
 <layout
     xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/contacts"
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/windowBackgroundContrast">
+
+    <TextView
+        android:id="@+id/user_search"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="@dimen/activity_horizontal_margin"/>
+        android:layout_height="54dp"
+        android:text="@string/contacts__user_search_hint"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:background="@color/windowBackground"
+        android:gravity="center_vertical"
+        android:textSize="16sp"
+        android:textColor="@color/textColorHint"
+        />
+
+    <android.support.v4.widget.Space
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"/>
+
+    <ViewSwitcher
+        android:id="@+id/empty_state__switcher"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/empty_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/ic_contact_list__empty_state"
+            android:text="@string/contact_list__empty_state"
+            android:textColor="@color/textColorSecondary"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:drawablePadding="8dp"
+            />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/contacts"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="@dimen/activity_horizontal_margin"
+            android:clipToPadding="false"
+            android:background="@color/windowBackground"/>
+
+    </ViewSwitcher>
+
+</LinearLayout>
 </layout>

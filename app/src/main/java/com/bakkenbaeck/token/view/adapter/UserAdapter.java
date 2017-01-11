@@ -19,26 +19,32 @@ import java.util.List;
 
 import io.realm.RealmResults;
 
-public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> implements ClickableViewHolder.OnClickListener {
+public class UserAdapter extends RecyclerView.Adapter<ContactViewHolder> implements ClickableViewHolder.OnClickListener {
 
     private List<User> users;
     private OnItemClickListener<User> onItemClickListener;
 
-    public ContactsAdapter() {
+    public UserAdapter() {
         this.users = new ArrayList<>(0);
-        loadAllStoredContacts();
     }
 
-    private void loadAllStoredContacts() {
+    public UserAdapter loadAllStoredContacts() {
         new ContactStore()
                 .loadAll()
                 .subscribe(new SingleSuccessSubscriber<RealmResults<User>>() {
                     @Override
                     public void onSuccess(final RealmResults<User> users) {
-                        ContactsAdapter.this.users = users;
+                        UserAdapter.this.users = users;
                         notifyDataSetChanged();
                     }
                 });
+        return this;
+    }
+
+    public UserAdapter setUsers(final List<User> users) {
+        this.users = users;
+        notifyDataSetChanged();
+        return this;
     }
 
     @Override
@@ -70,7 +76,13 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> imp
         this.onItemClickListener.onItemClick(clickedUser);
     }
 
-    public void setOnItemClickListener(final OnItemClickListener<User> onItemClickListener) {
+    public UserAdapter setOnItemClickListener(final OnItemClickListener<User> onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
+        return this;
+    }
+
+    public void clear() {
+        this.users.clear();
+        notifyDataSetChanged();
     }
 }

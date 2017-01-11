@@ -7,12 +7,12 @@ import android.support.annotation.NonNull;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.databinding.ActivityScanResultBinding;
-import com.bakkenbaeck.token.presenter.ScanResultPresenter;
+import com.bakkenbaeck.token.presenter.ViewUserPresenter;
 import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
-import com.bakkenbaeck.token.presenter.factory.ScanResultPresenterFactory;
+import com.bakkenbaeck.token.presenter.factory.ViewUserPresenterFactory;
 
-public class ScanResultActivity extends BasePresenterActivity<ScanResultPresenter, ScanResultActivity> {
-    public static final String EXTRA__RESULT = "extra_result";
+public class ViewUserActivity extends BasePresenterActivity<ViewUserPresenter, ViewUserActivity> {
+    public static final String EXTRA__USER_ADDRESS = "extra_user_address";
 
     private ActivityScanResultBinding binding;
 
@@ -33,12 +33,12 @@ public class ScanResultActivity extends BasePresenterActivity<ScanResultPresente
 
     @NonNull
     @Override
-    protected PresenterFactory<ScanResultPresenter> getPresenterFactory() {
-        return new ScanResultPresenterFactory();
+    protected PresenterFactory<ViewUserPresenter> getPresenterFactory() {
+        return new ViewUserPresenterFactory();
     }
 
     @Override
-    protected void onPresenterPrepared(@NonNull final ScanResultPresenter presenter) {
+    protected void onPresenterPrepared(@NonNull final ViewUserPresenter presenter) {
 
     }
 

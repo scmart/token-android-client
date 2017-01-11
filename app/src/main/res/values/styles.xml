@@ -41,4 +41,13 @@
         <item name="android:foreground">?android:attr/selectableItemBackground</item>
     </style>
 
+    <style name="ToolbarEditText" parent="android:Widget.Holo.EditText">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/textColorContrast</item>
+        <item name="android:textColorHint">@color/textColorHintToolbar</item>
+        <item name="colorAccent">@color/textColorContrast</item>
+        <item name="backgroundTint">@color/textColorContrast</item>
+        <item name="android:textCursorDrawable">@null</item>
+    </style>
+
 </resources>
