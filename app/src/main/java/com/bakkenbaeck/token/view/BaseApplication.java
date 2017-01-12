@@ -70,7 +70,7 @@ public final class BaseApplication extends MultiDexApplication {
     public void applicationResumed() {
         if (this.inBackground) {
             this.inBackground = false;
-            this.tokenManager.getSignalManager().connect();
+            this.tokenManager.getSignalManager().resumeMessageReceiving();
         }
     }
 

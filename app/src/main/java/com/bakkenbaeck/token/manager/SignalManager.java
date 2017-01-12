@@ -37,6 +37,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import rx.SingleSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
@@ -95,11 +96,26 @@ public final class SignalManager {
     private void registerIfNeeded() {
         if (!haveRegisteredWithServer()) {
             registerWithServer();
+        } else {
+            receiveMessagesAsync();
         }
     }
 
     private void registerWithServer() {
-        this.signalService.registerKeys(this.protocolStore);
+        this.signalService.registerKeys(
+                this.protocolStore,
+                new SingleSubscriber<Void>() {
+                    @Override
+                    public void onSuccess(final Void aVoid) {
+                        SignalPreferences.setRegisteredWithServer();
+                        receiveMessagesAsync();
+                    }
+
+                    @Override
+                    public void onError(final Throwable throwable) {
+                        LogUtil.e(getClass(), "Error during key registration: " + throwable);
+                    }
+                });
     }
 
     private boolean haveRegisteredWithServer() {
@@ -121,8 +137,6 @@ public final class SignalManager {
                 });
             }
         });
-
-        receiveMessagesAsync();
     }
 
 
@@ -159,8 +173,10 @@ public final class SignalManager {
         }
     }
 
-    public final void connect() {
-        receiveMessagesAsync();
+    public final void resumeMessageReceiving() {
+        if (haveRegisteredWithServer()) {
+            receiveMessagesAsync();
+        }
     }
 
     public final void disconnect() {

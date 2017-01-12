@@ -10,8 +10,6 @@ import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
 import com.bakkenbaeck.token.network.rest.interceptor.LoggingInterceptor;
 import com.bakkenbaeck.token.network.rest.interceptor.UserAgentInterceptor;
 import com.bakkenbaeck.token.network.rest.model.ServerTime;
-import com.bakkenbaeck.token.util.LogUtil;
-import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.Moshi;
 
@@ -34,6 +32,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.moshi.MoshiConverterFactory;
+import rx.SingleSubscriber;
 import rx.schedulers.Schedulers;
 
 public final class SignalService extends SignalServiceAccountManager {
@@ -97,7 +96,7 @@ public final class SignalService extends SignalServiceAccountManager {
         this.client.addInterceptor(interceptor);
     }
 
-    public void registerKeys(final ProtocolStore protocolStore) {
+    public void registerKeys(final ProtocolStore protocolStore, final SingleSubscriber<Void> registrationSubscriber) {
         try {
             registerKeys(
                     protocolStore.getIdentityKeyPair().getPublicKey(),
@@ -106,26 +105,28 @@ public final class SignalService extends SignalServiceAccountManager {
                     protocolStore.getLocalRegistrationId(),
                     protocolStore.getSignalingKey(),
                     protocolStore.getSignedPreKey(),
-                    protocolStore.getPreKeys()
+                    protocolStore.getPreKeys(),
+                    registrationSubscriber
             );
         } catch (final IOException | InvalidKeyIdException ex) {
-            throw new RuntimeException(ex);
+            registrationSubscriber.onError(ex);
         }
     }
 
     private void registerKeys(
-             final IdentityKey identityKey,
-             final PreKeyRecord lastResortKey,
-             final String password,
-             final int registrationId,
-             final String signalingKey,
-             final SignedPreKeyRecord signedPreKey,
-             final List<PreKeyRecord> preKeys) {
+            final IdentityKey identityKey,
+            final PreKeyRecord lastResortKey,
+            final String password,
+            final int registrationId,
+            final String signalingKey,
+            final SignedPreKeyRecord signedPreKey,
+            final List<PreKeyRecord> preKeys,
+            final SingleSubscriber<Void> registrationSubscriber) {
 
         this.signalInterface.getTimestamp()
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new SingleSuccessSubscriber<ServerTime>() {
+                .subscribe(new SingleSubscriber<ServerTime>() {
                     @Override
                     public void onSuccess(final ServerTime serverTime) {
                         try {
@@ -138,10 +139,15 @@ public final class SignalService extends SignalServiceAccountManager {
                                     signalingKey,
                                     signedPreKey,
                                     preKeys);
-                            SignalPreferences.setRegisteredWithServer();
-                        } catch (final IOException e) {
-                            LogUtil.e(getClass(), "Error registering keys: " + e);
+                            registrationSubscriber.onSuccess(null);
+                        } catch (final IOException ex) {
+                            registrationSubscriber.onError(ex);
                         }
+                    }
+
+                    @Override
+                    public void onError(final Throwable throwable) {
+                        registrationSubscriber.onError(throwable);
                     }
                 });
     }
