@@ -209,7 +209,12 @@ public class UserManager {
             private final SingleSubscriber<User> handleUserFetched = new SingleSuccessSubscriber<User>() {
                 @Override
                 public void onSuccess(final User user) {
-                    contactStore.save(user);
+                    dbThreadExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            contactStore.save(user);
+                        }
+                    });
                 }
             };
         });
