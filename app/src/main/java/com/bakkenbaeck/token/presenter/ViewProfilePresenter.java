@@ -93,6 +93,9 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
     }
 
     private void renderQrCode(final Bitmap qrCodeBitmap) {
+        if (this.fragment == null) {
+            return;
+        }
         this.fragment.getBinding().qrCodeImage.setAlpha(0.0f);
         this.fragment.getBinding().qrCodeImage.setImageBitmap(qrCodeBitmap);
         this.fragment.getBinding().qrCodeImage.animate().alpha(1f).setDuration(200).start();

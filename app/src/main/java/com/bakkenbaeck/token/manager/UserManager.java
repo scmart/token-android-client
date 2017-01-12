@@ -148,7 +148,6 @@ public class UserManager {
 
             @Override
             public void onError(final Throwable error) {
-                LogUtil.e(getClass(), error.toString());
                 this.unsubscribe();
                 completionCallback.onError(error);
             }
@@ -174,7 +173,6 @@ public class UserManager {
 
                     @Override
                     public void onError(final Throwable error) {
-                        LogUtil.error(getClass(), error.toString());
                         this.unsubscribe();
                         completionCallback.onError(error);
                     }

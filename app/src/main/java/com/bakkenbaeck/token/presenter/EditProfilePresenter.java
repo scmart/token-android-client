@@ -84,6 +84,9 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     private final OnSingleClickListener handleSaveClicked = new OnSingleClickListener() {
         @Override
         public void onSingleClick(final View v) {
+            if (!validate()) {
+                return;
+            }
             final UserDetails userDetails =
                     new UserDetails()
                     .setUsername(fragment.getBinding().inputName.getText().toString())
@@ -94,6 +97,22 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
                     .getTokenManager()
                     .getUserManager()
                     .updateUser(userDetails, handleUserUpdated);
+        }
+
+        private boolean validate() {
+            final String username = fragment.getBinding().inputName.getText().toString().trim();
+            if (username.length() == 0) {
+                fragment.getBinding().inputName.setError(fragment.getResources().getString(R.string.error__required));
+                fragment.getBinding().inputName.requestFocus();
+                return false;
+            }
+
+            if (username.contains(" ")) {
+                fragment.getBinding().inputName.setError(fragment.getResources().getString(R.string.error__invalid_characters));
+                fragment.getBinding().inputName.requestFocus();
+                return false;
+            }
+            return true;
         }
     };
 
@@ -111,7 +130,7 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
 
         @Override
         public void onError(final Throwable error) {
-            showToast("Error updating profile.");
+            showToast("Error updating profile. Try a different username");
         }
     };
 
