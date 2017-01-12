@@ -100,7 +100,6 @@ public final class SignalManager {
 
     private void registerWithServer() {
         this.signalService.registerKeys(this.protocolStore);
-        SignalPreferences.setRegisteredWithServer();
     }
 
     private boolean haveRegisteredWithServer() {
@@ -143,7 +142,7 @@ public final class SignalManager {
                 null
         );
 
-        chatMessageStore.save(message);
+        this.chatMessageStore.save(message);
 
         try {
             messageSender.sendMessage(
@@ -208,6 +207,7 @@ public final class SignalManager {
                 final String messageSource = envelope.getSource();
                 final String messageBody = dataMessage.getBody().get();
                 saveMessageToDatabase(messageSource, messageBody);
+                BaseApplication.get().getTokenManager().getUserManager().tryAddContact(messageSource);
             }
         } catch (final TimeoutException ex) {
             // Nop. This is to be expected
