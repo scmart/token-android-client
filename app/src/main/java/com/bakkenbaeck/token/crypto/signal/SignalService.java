@@ -138,6 +138,7 @@ public final class SignalService extends SignalServiceAccountManager {
                                     signalingKey,
                                     signedPreKey,
                                     preKeys);
+                            SignalPreferences.setRegisteredWithServer();
                         } catch (final IOException e) {
                             LogUtil.e(getClass(), "Error registering keys: " + e);
                         }
@@ -154,6 +155,8 @@ public final class SignalService extends SignalServiceAccountManager {
             final String signalingKey,
             final SignedPreKeyRecord signedPreKey,
             final List<PreKeyRecord> preKeys) throws IOException {
+
+        final long startTime = System.currentTimeMillis();
 
         final List<PreKeyEntity> entities = new LinkedList<>();
         for (PreKeyRecord preKey : preKeys) {
@@ -172,6 +175,10 @@ public final class SignalService extends SignalServiceAccountManager {
                 signedPreKey.getKeyPair().getPublicKey(),
                 signedPreKey.getSignature());
 
+        final long endTime = System.currentTimeMillis();
+        final long elapsedSeconds = (endTime - startTime) / 1000;
+        final long amendedTimestamp = timestamp + elapsedSeconds;
+
         final PreKeyStateWithTimestamp payload = new PreKeyStateWithTimestamp(
                 entities,
                 lastResortEntity,
@@ -180,11 +187,11 @@ public final class SignalService extends SignalServiceAccountManager {
                 signalingKey,
                 signedPreKeyEntity,
                 identityKey,
-                timestamp);
+                amendedTimestamp);
+
         final String payloadForSigning = JsonUtil.toJson(payload);
         final String signature = this.wallet.signString(payloadForSigning);
         final OutgoingSignedPreKeyState outgoingEvent = new OutgoingSignedPreKeyState(payload, signature, this.wallet.getAddress());
-
         super.setPreKeysWithSignature(PREKEY_PATH, JsonUtil.toJson(outgoingEvent));
     }
 }

@@ -100,7 +100,6 @@ public final class SignalManager {
 
     private void registerWithServer() {
         this.signalService.registerKeys(this.protocolStore);
-        SignalPreferences.setRegisteredWithServer();
     }
 
     private boolean haveRegisteredWithServer() {
