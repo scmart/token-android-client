@@ -2,6 +2,7 @@ package com.bakkenbaeck.token.crypto.signal.model;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -12,6 +13,7 @@ import org.whispersystems.signalservice.internal.util.JsonUtil;
 
 import java.util.List;
 
+@JsonPropertyOrder(alphabetic=true)
 public class PreKeyStateWithTimestamp {
     @JsonProperty
     @JsonSerialize(using = JsonUtil.IdentityKeySerializer.class)

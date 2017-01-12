@@ -2,7 +2,9 @@ package com.bakkenbaeck.token.crypto.signal.model;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+@JsonPropertyOrder(alphabetic=true)
 public class OutgoingSignedPreKeyState {
     @JsonProperty
     private PreKeyStateWithTimestamp payload;
