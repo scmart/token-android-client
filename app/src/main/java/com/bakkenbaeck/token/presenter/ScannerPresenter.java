@@ -24,7 +24,9 @@ public final class ScannerPresenter implements Presenter<ScannerFragment> {
     }
 
     private void init() {
-        this.capture = new CaptureManager(this.fragment.getActivity(), this.fragment.getBinding().scanner);
+        if (this.capture == null) {
+            this.capture = new CaptureManager(this.fragment.getActivity(), this.fragment.getBinding().scanner);
+        }
         this.fragment.getBinding().scanner.decodeSingle(this.onScanSuccess);
         this.capture.onResume();
     }
