@@ -8,7 +8,7 @@ import com.bakkenbaeck.token.crypto.signal.SignalPreferences;
 import com.bakkenbaeck.token.crypto.signal.SignalService;
 import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
 import com.bakkenbaeck.token.crypto.signal.store.SignalTrustStore;
-import com.bakkenbaeck.token.model.ChatMessage;
+import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
@@ -41,8 +41,8 @@ import rx.SingleSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
-import static com.bakkenbaeck.token.model.ChatMessage.STATE_FAILED;
-import static com.bakkenbaeck.token.model.ChatMessage.STATE_SENT;
+import static com.bakkenbaeck.token.model.local.ChatMessage.STATE_FAILED;
+import static com.bakkenbaeck.token.model.local.ChatMessage.STATE_SENT;
 
 public final class SignalManager {
     private final PublishSubject<ChatMessage> sendMessageSubject = PublishSubject.create();

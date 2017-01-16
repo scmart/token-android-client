@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.databinding.ActivityChatBinding;
-import com.bakkenbaeck.token.model.User;
+import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.presenter.ChatPresenter;
 import com.bakkenbaeck.token.presenter.factory.ChatPresenterFactory;
 import com.bakkenbaeck.token.presenter.factory.PresenterFactory;

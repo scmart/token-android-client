@@ -7,8 +7,8 @@ import android.os.Looper;
 import android.view.View;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.model.User;
-import com.bakkenbaeck.token.network.rest.IdService;
+import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.network.IdService;
 import com.bakkenbaeck.token.presenter.store.ContactStore;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.OnSingleClickListener;

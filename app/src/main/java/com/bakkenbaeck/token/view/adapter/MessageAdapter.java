@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.model.ChatMessage;
+import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.util.DateUtil;
 import com.bakkenbaeck.token.util.MessageUtil;
 import com.bakkenbaeck.token.view.adapter.viewholder.DayViewHolder;
@@ -17,9 +17,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.bakkenbaeck.token.model.ChatMessage.TYPE_DAY;
-import static com.bakkenbaeck.token.model.ChatMessage.TYPE_LOCAL_TEXT;
-import static com.bakkenbaeck.token.model.ChatMessage.TYPE_REMOTE_TEXT;
+import static com.bakkenbaeck.token.model.local.ChatMessage.TYPE_DAY;
+import static com.bakkenbaeck.token.model.local.ChatMessage.TYPE_LOCAL_TEXT;
+import static com.bakkenbaeck.token.model.local.ChatMessage.TYPE_REMOTE_TEXT;
 
 public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<ChatMessage> chatMessages;

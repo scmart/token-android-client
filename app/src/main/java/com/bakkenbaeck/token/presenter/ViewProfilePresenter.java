@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.view.View;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.model.User;
+import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;

@@ -33,18 +33,6 @@ public class TokenManager {
         });
     }
 
-    public final Single<HDWallet> getWallet() {
-        return Single.fromCallable(new Callable<HDWallet>() {
-            @Override
-            public HDWallet call() throws Exception {
-                while(wallet == null) {
-                    Thread.sleep(100);
-                }
-                return wallet;
-            }
-        });
-    }
-
     public final SignalManager getSignalManager() {
         return this.signalManager;
     }

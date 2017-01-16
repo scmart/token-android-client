@@ -2,7 +2,7 @@ package com.bakkenbaeck.token.presenter;
 
 import android.content.Intent;
 
-import com.bakkenbaeck.token.model.ScanResult;
+import com.bakkenbaeck.token.model.local.ScanResult;
 import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 import com.bakkenbaeck.token.view.fragment.toplevel.ScannerFragment;
 import com.google.zxing.ResultPoint;

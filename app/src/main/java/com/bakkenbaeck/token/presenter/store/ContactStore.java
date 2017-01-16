@@ -1,7 +1,7 @@
 package com.bakkenbaeck.token.presenter.store;
 
 
-import com.bakkenbaeck.token.model.User;
+import com.bakkenbaeck.token.model.local.User;
 
 import java.util.concurrent.Callable;
 

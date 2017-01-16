@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.model.User;
+import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.presenter.store.ContactStore;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;

@@ -6,8 +6,8 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
 import android.widget.Toast;
 
-import com.bakkenbaeck.token.model.ChatMessage;
-import com.bakkenbaeck.token.model.User;
+import com.bakkenbaeck.token.model.local.ChatMessage;
+import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;

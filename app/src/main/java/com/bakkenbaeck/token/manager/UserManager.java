@@ -6,11 +6,11 @@ import android.content.SharedPreferences;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
-import com.bakkenbaeck.token.model.User;
-import com.bakkenbaeck.token.network.rest.IdService;
-import com.bakkenbaeck.token.network.rest.model.ServerTime;
-import com.bakkenbaeck.token.network.rest.model.SignedUserDetails;
-import com.bakkenbaeck.token.network.rest.model.UserDetails;
+import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.model.network.ServerTime;
+import com.bakkenbaeck.token.model.network.SignedUserDetails;
+import com.bakkenbaeck.token.model.network.UserDetails;
+import com.bakkenbaeck.token.network.IdService;
 import com.bakkenbaeck.token.presenter.store.ContactStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
@@ -73,7 +73,9 @@ public class UserManager {
     }
 
     private void registerNewUser() {
-        IdService.getApi().getTimestamp().subscribe(new SingleSubscriber<ServerTime>() {
+        IdService.getApi()
+        .getTimestamp()
+        .subscribe(new SingleSubscriber<ServerTime>() {
             @Override
             public void onSuccess(final ServerTime serverTime) {
                 final long timestamp = serverTime.get();
