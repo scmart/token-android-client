@@ -27,4 +27,6 @@
     <string name="contact_list__empty_state">You have no contacts, yet!</string>
     <string name="error__required">This is required</string>
     <string name="error__invalid_characters">Invalid characters. No spaces allowed.</string>
+    <string name="button_pay">Pay</string>
+    <string name="button_request">Request</string>
 </resources>
