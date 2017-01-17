@@ -8,14 +8,19 @@ import android.widget.Toast;
 
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.model.sofa.Constants;
+import com.bakkenbaeck.token.model.sofa.TxRequest;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
+import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
 
 import io.realm.RealmResults;
 import rx.android.schedulers.AndroidSchedulers;
@@ -118,11 +123,12 @@ public final class ChatPresenter implements
 
     private void initButtons() {
         this.activity.getBinding().sendButton.setOnClickListener(this.sendButtonClicked);
+        this.activity.getBinding().balanceBar.setOnRequestClicked(this.requestButtonClicked);
     }
 
-    private final View.OnClickListener sendButtonClicked = new View.OnClickListener() {
+    private final OnSingleClickListener sendButtonClicked = new OnSingleClickListener() {
         @Override
-        public void onClick(final View v) {
+        public void onSingleClick(final View v) {
             if (userInputInvalid()) {
                 return;
             }
@@ -139,6 +145,28 @@ public final class ChatPresenter implements
 
         private boolean userInputInvalid() {
             return activity.getBinding().userInput.getText().toString().trim().length() == 0;
+        }
+    };
+
+    private final OnSingleClickListener requestButtonClicked = new OnSingleClickListener() {
+        @Override
+        public void onSingleClick(final View v) {
+            final TxRequest txRequest = new TxRequest()
+                    .setCurrency("USD")
+                    .setDestinationAddress(remoteUser.getAddress())
+                    .setSenderAddress(remoteUser.getAddress())
+                    .setValue(2.0d);
+
+            final Moshi moshi = new Moshi.Builder().build();
+            final JsonAdapter<TxRequest> jsonAdapter = moshi.adapter(TxRequest.class);
+
+            final String messageBody = Constants.createHeader(Constants.REQUEST_TYPE) +  jsonAdapter.toJson(txRequest);
+            final ChatMessage message = new ChatMessage().makeLocalMessage(remoteUser.getAddress(), messageBody);
+            BaseApplication.get()
+                    .getTokenManager()
+                    .getSignalManager()
+                    .sendMessage(message);
+
         }
     };
 

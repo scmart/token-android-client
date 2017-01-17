@@ -132,6 +132,9 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     };
 
     private void renderQrCode(final Bitmap qrCodeBitmap) {
+        if (this.activity == null || this.activity.getBinding() == null) {
+            return;
+        }
         this.activity.getBinding().qrCodeImage.setAlpha(0.0f);
         this.activity.getBinding().qrCodeImage.setImageBitmap(qrCodeBitmap);
         this.activity.getBinding().qrCodeImage.animate().alpha(1f).setDuration(200).start();
@@ -145,5 +148,6 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     @Override
     public void onViewDestroyed() {
         this.activity = null;
+        this.handleQrCodeLoaded.unsubscribe();
     }
 }

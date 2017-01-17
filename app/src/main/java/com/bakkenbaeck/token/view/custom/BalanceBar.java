@@ -17,6 +17,16 @@ public class BalanceBar extends LinearLayout {
         findViewById(R.id.balanceWrapper).setOnClickListener(listener);
     }
 
+    public void setOnPayClicked(final OnClickListener listener) {
+        findViewById(R.id.pay_button).setOnClickListener(listener);
+        findViewById(R.id.pay_button).setVisibility(VISIBLE);
+    }
+
+    public void setOnRequestClicked(final OnClickListener listener) {
+        findViewById(R.id.request_button).setOnClickListener(listener);
+        findViewById(R.id.request_button).setVisibility(VISIBLE);
+    }
+
     public BalanceBar(final Context context) {
         super(context);
         init();

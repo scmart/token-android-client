@@ -174,7 +174,7 @@ public final class SignalManager {
     }
 
     public final void resumeMessageReceiving() {
-        if (haveRegisteredWithServer()) {
+        if (haveRegisteredWithServer() && this.wallet != null) {
             receiveMessagesAsync();
         }
     }
