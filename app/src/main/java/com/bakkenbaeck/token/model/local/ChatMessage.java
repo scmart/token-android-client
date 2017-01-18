@@ -1,14 +1,11 @@
 package com.bakkenbaeck.token.model.local;
 
-import android.support.annotation.IntDef;
-
 import com.bakkenbaeck.token.model.sofa.SofaType;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.realm.RealmObject;
-import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
 public class ChatMessage extends RealmObject {
@@ -16,21 +13,11 @@ public class ChatMessage extends RealmObject {
     @PrimaryKey
     private String privateKey;
 
-    @IntDef({
-            STATE_SENDING,
-            STATE_SENT,
-            STATE_FAILED,
-            STATE_RECEIVED
-    })
-    public @interface SendState {}
-    @Ignore public static final int STATE_SENDING = 0;
-    @Ignore public static final int STATE_SENT = 1;
-    @Ignore public static final int STATE_FAILED = 2;
-    @Ignore public static final int STATE_RECEIVED = 3;
+
 
     private long creationTime;
     private @SofaType.Type int type;
-    private @SendState int sendState;
+    private @SendState.State int sendState;
     private String conversationId;
     private String text;
     private boolean sentByLocal;
@@ -44,7 +31,7 @@ public class ChatMessage extends RealmObject {
         return this;
     }
 
-    public ChatMessage setSendState(final @SendState int sendState) {
+    public ChatMessage setSendState(final @SendState.State int sendState) {
         this.sendState = sendState;
         return this;
     }
@@ -91,7 +78,7 @@ public class ChatMessage extends RealmObject {
         return this.type;
     }
 
-    public @SendState int getSendState() {
+    public @SendState.State int getSendState() {
         return this.sendState;
     }
 
@@ -107,7 +94,7 @@ public class ChatMessage extends RealmObject {
             final String text) {
         return
                 setConversationId(conversationId)
-                        .setSendState(STATE_SENDING)
+                        .setSendState(SendState.STATE_SENDING)
                         .setType(SofaType.PLAIN_TEXT)
                         .setSentByLocal(sentByLocal)
                         .setText(text);
@@ -116,7 +103,7 @@ public class ChatMessage extends RealmObject {
     public ChatMessage makeLocalPaymentRequest(final String conversationId, final String sofaPayload) {
         return
                 setConversationId(conversationId)
-                        .setSendState(STATE_SENDING)
+                        .setSendState(SendState.STATE_SENDING)
                         .setType(SofaType.PAYMENT_REQUEST)
                         .setSentByLocal(true)
                         .setText(sofaPayload);

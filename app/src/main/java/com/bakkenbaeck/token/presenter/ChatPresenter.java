@@ -7,6 +7,7 @@ import android.view.animation.PathInterpolator;
 import android.widget.Toast;
 
 import com.bakkenbaeck.token.model.local.ChatMessage;
+import com.bakkenbaeck.token.model.local.SendState;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.sofa.Message;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
@@ -181,7 +182,7 @@ public final class ChatPresenter implements
     private final OnNextSubscriber<ChatMessage> handleUpdatedMessage = new OnNextSubscriber<ChatMessage>() {
         @Override
         public void onNext(final ChatMessage chatMessage) {
-            if (chatMessage.getSendState() != ChatMessage.STATE_FAILED) {
+            if (chatMessage.getSendState() != SendState.STATE_FAILED) {
                 return;
             }
 
