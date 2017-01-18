@@ -7,25 +7,29 @@ import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.local.ChatMessage;
-import com.bakkenbaeck.token.util.DateUtil;
+import com.bakkenbaeck.token.model.sofa.SofaType;
+import com.bakkenbaeck.token.model.sofa.TxRequest;
 import com.bakkenbaeck.token.util.MessageUtil;
-import com.bakkenbaeck.token.view.adapter.viewholder.DayViewHolder;
-import com.bakkenbaeck.token.view.adapter.viewholder.LocalTextViewHolder;
-import com.bakkenbaeck.token.view.adapter.viewholder.RemoteTextViewHolder;
+import com.bakkenbaeck.token.view.adapter.viewholder.LocalPaymentRequestViewHolder;
+import com.bakkenbaeck.token.view.adapter.viewholder.TextViewHolder;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.bakkenbaeck.token.model.local.ChatMessage.TYPE_DAY;
-import static com.bakkenbaeck.token.model.local.ChatMessage.TYPE_LOCAL_TEXT;
-import static com.bakkenbaeck.token.model.local.ChatMessage.TYPE_REMOTE_TEXT;
 
 public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<ChatMessage> chatMessages;
+    private final JsonAdapter<TxRequest> txRequestAdapter;
 
     public MessageAdapter() {
         this.chatMessages = new ArrayList<>();
+
+        final Moshi moshi = new Moshi.Builder().build();
+        this.txRequestAdapter = moshi.adapter(TxRequest.class);
     }
 
     public final void addMessages(final Collection<ChatMessage> chatMessages) {
@@ -47,20 +51,19 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public final RecyclerView.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
         switch (viewType) {
-            case TYPE_REMOTE_TEXT: {
-                final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__remote_text_message, parent, false);
-                return new RemoteTextViewHolder(v);
+
+            case SofaType.PAYMENT_REQUEST: {
+                final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__local_payment_request, parent, false);
+                return new LocalPaymentRequestViewHolder(v);
             }
 
-            case TYPE_DAY: {
-                final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__day_message, parent, false);
-                return new DayViewHolder(v);
-            }
-            case TYPE_LOCAL_TEXT:
+            case SofaType.UNKNOWN:
+            case SofaType.PLAIN_TEXT:
             default: {
-                final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__local_text_message, parent, false);
-                return new LocalTextViewHolder(v);
+                final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__text_message, parent, false);
+                return new TextViewHolder(v);
             }
+
         }
     }
 
@@ -68,23 +71,29 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public final void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         final ChatMessage chatMessage = this.chatMessages.get(position);
         switch (holder.getItemViewType()) {
-            case TYPE_REMOTE_TEXT: {
-                final RemoteTextViewHolder vh = (RemoteTextViewHolder) holder;
+
+            case SofaType.PLAIN_TEXT: {
+                final TextViewHolder vh = (TextViewHolder) holder;
                 final String parsedMessage = MessageUtil.parseString(chatMessage.getText());
-                vh.messageText.setText(parsedMessage);
+                vh.setText(parsedMessage, chatMessage.isSentByLocal());
                 break;
             }
-            case TYPE_DAY: {
-                final DayViewHolder vh = (DayViewHolder) holder;
-                chatMessage.getCreationTime();
-                final String formattedDate = DateUtil.getDate("EEEE", chatMessage.getCreationTime());
-                vh.date.setText(formattedDate);
-                break;
-            }
-            case TYPE_LOCAL_TEXT:
-            default: {
-                final LocalTextViewHolder vh = (LocalTextViewHolder) holder;
-                vh.messageText.setText(chatMessage.getText());
+
+            case SofaType.PAYMENT_REQUEST: {
+                final LocalPaymentRequestViewHolder vh = (LocalPaymentRequestViewHolder) holder;
+                final String requestPayload = chatMessage.getSofaPayload();
+                if (requestPayload == null) {
+                    return;
+                }
+
+                try {
+                    final TxRequest request = this.txRequestAdapter.fromJson(requestPayload);
+                    vh.requestedAmount.setText(request.getValue() + request.getCurrency());
+                    vh.secondaryAmount.setText(" · 0.1234 ETH");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 break;
             }
         }

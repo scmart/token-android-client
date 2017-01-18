@@ -236,7 +236,7 @@ public final class SignalManager {
         this.dbThreadExecutor.submit(new Runnable() {
             @Override
             public void run() {
-                final ChatMessage remoteMessage = new ChatMessage().makeRemoteMessage(messageSource, messageBody);
+                final ChatMessage remoteMessage = new ChatMessage().makeTextMessage(messageSource, false, messageBody);
                 SignalManager.this.chatMessageStore.save(remoteMessage);
             }
         });

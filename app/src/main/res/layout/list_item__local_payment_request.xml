@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <android.support.v7.widget.GridLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:columnCount="2"
+        android:layout_gravity="right"
+        android:background="@drawable/btn_with_radius"
+        android:layout_marginBottom="@dimen/bubbleMargin"
+        android:layout_marginTop="@dimen/bubbleMargin"
+        android:minWidth="50dp">
+
+        <TextView
+            android:id="@+id/message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:lineSpacingExtra="2dp"
+            android:textColor="@color/textColorContrast"
+            android:textSize="@dimen/defaultTextSize"
+            android:text="@string/request_sent"
+            app:layout_columnSpan="2"/>
+
+        <TextView
+            android:id="@+id/requested_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:lineSpacingExtra="2dp"
+            android:textColor="@color/textColorContrast"
+            android:textSize="@dimen/defaultTextSize"
+            tools:text="$20.00 USD"/>
+
+        <TextView
+            android:id="@+id/eth_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:lineSpacingExtra="2dp"
+            android:textColor="@color/textColorTertiary"
+            android:textSize="@dimen/defaultTextSize"
+            tools:text=" · 0.4534 ETH"/>
+    </android.support.v7.widget.GridLayout>
+
+</FrameLayout>
+

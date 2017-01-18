@@ -8,7 +8,7 @@ import android.widget.Toast;
 
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.User;
-import com.bakkenbaeck.token.model.sofa.Constants;
+import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.model.sofa.TxRequest;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
@@ -136,7 +136,7 @@ public final class ChatPresenter implements
             final String userInput = activity.getBinding().userInput.getText().toString();
             activity.getBinding().userInput.setText(null);
 
-            final ChatMessage message = new ChatMessage().makeLocalMessage(remoteUser.getAddress(), userInput);
+            final ChatMessage message = new ChatMessage().makeTextMessage(remoteUser.getAddress(), true, userInput);
             BaseApplication.get()
                     .getTokenManager()
                     .getSignalManager()
@@ -160,8 +160,8 @@ public final class ChatPresenter implements
             final Moshi moshi = new Moshi.Builder().build();
             final JsonAdapter<TxRequest> jsonAdapter = moshi.adapter(TxRequest.class);
 
-            final String messageBody = Constants.createHeader(Constants.REQUEST_TYPE) +  jsonAdapter.toJson(txRequest);
-            final ChatMessage message = new ChatMessage().makeLocalMessage(remoteUser.getAddress(), messageBody);
+            final String messageBody = SofaType.createHeader(SofaType.PAYMENT_REQUEST) +  jsonAdapter.toJson(txRequest);
+            final ChatMessage message = new ChatMessage().makeLocalPaymentRequest(remoteUser.getAddress(), messageBody);
             BaseApplication.get()
                     .getTokenManager()
                     .getSignalManager()

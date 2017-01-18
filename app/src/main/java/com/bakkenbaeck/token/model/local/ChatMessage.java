@@ -2,6 +2,11 @@ package com.bakkenbaeck.token.model.local;
 
 import android.support.annotation.IntDef;
 
+import com.bakkenbaeck.token.model.sofa.SofaType;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
@@ -10,16 +15,6 @@ public class ChatMessage extends RealmObject {
 
     @PrimaryKey
     private String privateKey;
-
-    @IntDef({
-            TYPE_LOCAL_TEXT,
-            TYPE_REMOTE_TEXT,
-            TYPE_DAY
-    })
-    private @interface Type {}
-    @Ignore public static final int TYPE_LOCAL_TEXT = 0;
-    @Ignore public static final int TYPE_REMOTE_TEXT = 1;
-    @Ignore public static final int TYPE_DAY = 2;
 
     @IntDef({
             STATE_SENDING,
@@ -34,16 +29,17 @@ public class ChatMessage extends RealmObject {
     @Ignore public static final int STATE_RECEIVED = 3;
 
     private long creationTime;
-    private @Type int type;
+    private @SofaType.Type int type;
     private @SendState int sendState;
     private String conversationId;
     private String text;
+    private boolean sentByLocal;
 
     public ChatMessage() {
         this.creationTime = System.currentTimeMillis();
     }
 
-    private ChatMessage setType(final @Type int type) {
+    private ChatMessage setType(final @SofaType.Type int type) {
         this.type = type;
         return this;
     }
@@ -64,6 +60,11 @@ public class ChatMessage extends RealmObject {
         return this;
     }
 
+    public ChatMessage setSentByLocal(final boolean sentByLocal) {
+        this.sentByLocal = sentByLocal;
+        return this;
+    }
+
     public long getCreationTime(){
         return creationTime;
     }
@@ -72,11 +73,21 @@ public class ChatMessage extends RealmObject {
         return this.text;
     }
 
+    public String getSofaPayload() {
+        final String regexString = "\\{.*?\\}";
+        final Pattern pattern = Pattern.compile(regexString);
+        final Matcher m = pattern.matcher(this.text);
+        if (m.find()) {
+            return m.group();
+        }
+        return null;
+    }
+
     public String getConversationId() {
         return this.conversationId;
     }
 
-    public @Type int getType() {
+    public @SofaType.Type int getType() {
         return this.type;
     }
 
@@ -84,26 +95,30 @@ public class ChatMessage extends RealmObject {
         return this.sendState;
     }
 
+    public boolean isSentByLocal() {
+        return this.sentByLocal;
+    }
+
     // Helper functions
 
-    public ChatMessage makeLocalMessage(final String conversationId, final String text) {
+    public ChatMessage makeTextMessage(
+            final String conversationId,
+            final boolean sentByLocal,
+            final String text) {
         return
-            setConversationId(conversationId)
-                    .setSendState(STATE_SENDING)
-                    .setType(TYPE_LOCAL_TEXT)
-                    .setText(text);
+                setConversationId(conversationId)
+                        .setSendState(STATE_SENDING)
+                        .setType(SofaType.PLAIN_TEXT)
+                        .setSentByLocal(sentByLocal)
+                        .setText(text);
     }
 
-    public ChatMessage makeRemoteMessage(final String conversationId, final String text) {
+    public ChatMessage makeLocalPaymentRequest(final String conversationId, final String sofaPayload) {
         return
-            setConversationId(conversationId)
-                .setSendState(STATE_RECEIVED)
-                .setType(TYPE_REMOTE_TEXT)
-                .setText(text);
-    }
-
-    public ChatMessage makeDayHeader(){
-        setType(TYPE_DAY);
-        return this;
+                setConversationId(conversationId)
+                        .setSendState(STATE_SENDING)
+                        .setType(SofaType.PAYMENT_REQUEST)
+                        .setSentByLocal(true)
+                        .setText(sofaPayload);
     }
 }

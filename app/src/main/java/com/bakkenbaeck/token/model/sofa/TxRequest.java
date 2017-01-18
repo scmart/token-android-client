@@ -62,4 +62,11 @@ public class TxRequest {
         return this;
     }
 
+    public String getCurrency() {
+        return currency;
+    }
+
+    public Double getValue() {
+        return value;
+    }
 }
