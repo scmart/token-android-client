@@ -10,6 +10,7 @@ import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
 import com.bakkenbaeck.token.crypto.signal.store.SignalTrustStore;
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.SendState;
+import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
@@ -160,7 +161,7 @@ public final class SignalManager {
             messageSender.sendMessage(
                     new SignalServiceAddress(message.getConversationId()),
                     SignalServiceDataMessage.newBuilder()
-                            .withBody(message.getText())
+                            .withBody(message.getPayload())
                             .build());
             message.setSendState(SendState.STATE_SENT);
             this.chatMessageStore.update(message);
@@ -234,7 +235,7 @@ public final class SignalManager {
         this.dbThreadExecutor.submit(new Runnable() {
             @Override
             public void run() {
-                final ChatMessage remoteMessage = new ChatMessage().makeTextMessage(messageSource, false, messageBody);
+                final ChatMessage remoteMessage = new ChatMessage().makeNew(messageSource, SofaType.PLAIN_TEXT, false, messageBody);
                 SignalManager.this.chatMessageStore.save(remoteMessage);
             }
         });

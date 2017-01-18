@@ -12,19 +12,18 @@ public class ChatMessage extends RealmObject {
 
     @PrimaryKey
     private String privateKey;
-
-
-
     private long creationTime;
     private @SofaType.Type int type;
     private @SendState.State int sendState;
     private String conversationId;
-    private String text;
+    private String payload;
     private boolean sentByLocal;
 
     public ChatMessage() {
         this.creationTime = System.currentTimeMillis();
     }
+
+    // Setters
 
     private ChatMessage setType(final @SofaType.Type int type) {
         this.type = type;
@@ -42,8 +41,8 @@ public class ChatMessage extends RealmObject {
         return this;
     }
 
-    public ChatMessage setText(final String text) {
-        this.text = text;
+    public ChatMessage setPayload(final String payload) {
+        this.payload = cleanPayload(payload);
         return this;
     }
 
@@ -52,22 +51,10 @@ public class ChatMessage extends RealmObject {
         return this;
     }
 
-    public long getCreationTime(){
-        return creationTime;
-    }
+    // Getters
 
-    public String getText() {
-        return this.text;
-    }
-
-    public String getSofaPayload() {
-        final String regexString = "\\{.*?\\}";
-        final Pattern pattern = Pattern.compile(regexString);
-        final Matcher m = pattern.matcher(this.text);
-        if (m.find()) {
-            return m.group();
-        }
-        return null;
+    public String getPayload() {
+        return this.payload;
     }
 
     public String getConversationId() {
@@ -88,24 +75,26 @@ public class ChatMessage extends RealmObject {
 
     // Helper functions
 
-    public ChatMessage makeTextMessage(
-            final String conversationId,
-            final boolean sentByLocal,
-            final String text) {
-        return
-                setConversationId(conversationId)
-                        .setSendState(SendState.STATE_SENDING)
-                        .setType(SofaType.PLAIN_TEXT)
-                        .setSentByLocal(sentByLocal)
-                        .setText(text);
+    private String cleanPayload(final String payload) {
+        final String regexString = "\\{.*?\\}";
+        final Pattern pattern = Pattern.compile(regexString);
+        final Matcher m = pattern.matcher(payload);
+        if (m.find()) {
+            return m.group();
+        }
+        return payload;
     }
 
-    public ChatMessage makeLocalPaymentRequest(final String conversationId, final String sofaPayload) {
+    public ChatMessage makeNew(
+            final String conversationId,
+            final @SofaType.Type int type,
+            final boolean sentByLocal,
+            final String sofaPayload) {
         return
                 setConversationId(conversationId)
                         .setSendState(SendState.STATE_SENDING)
-                        .setType(SofaType.PAYMENT_REQUEST)
-                        .setSentByLocal(true)
-                        .setText(sofaPayload);
+                        .setType(type)
+                        .setSentByLocal(sentByLocal)
+                        .setPayload(sofaPayload);
     }
 }

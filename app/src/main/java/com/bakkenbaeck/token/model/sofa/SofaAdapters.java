@@ -4,6 +4,8 @@ package com.bakkenbaeck.token.model.sofa;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
+import java.io.IOException;
+
 public class SofaAdapters {
 
     private final Moshi moshi;
@@ -22,5 +24,13 @@ public class SofaAdapters {
 
     public String toJson(final TxRequest txRequest) {
         return SofaType.createHeader(SofaType.PAYMENT_REQUEST) + this.paymentRequestAdapter.toJson(txRequest);
+    }
+
+    public Message messageFrom(final String payload) throws IOException {
+        return messageAdapter.fromJson(payload);
+    }
+
+    public TxRequest txRequestFrom(final String payload) throws IOException {
+        return paymentRequestAdapter.fromJson(payload);
     }
 }

@@ -11,6 +11,7 @@ import com.bakkenbaeck.token.model.local.SendState;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.sofa.Message;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
+import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.model.sofa.TxRequest;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
@@ -138,7 +139,7 @@ public final class ChatPresenter implements
             final String userInput = activity.getBinding().userInput.getText().toString();
             final Message sofaMessage = new Message().setBody(userInput);
             final String messageBody = adapters.toJson(sofaMessage);
-            final ChatMessage message = new ChatMessage().makeTextMessage(remoteUser.getAddress(), true, messageBody);
+            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getAddress(), SofaType.PLAIN_TEXT, true, messageBody);
             BaseApplication.get()
                     .getTokenManager()
                     .getSignalManager()
@@ -162,7 +163,7 @@ public final class ChatPresenter implements
                     .setValue(2.0d);
 
             final String messageBody = adapters.toJson(txRequest);
-            final ChatMessage message = new ChatMessage().makeLocalPaymentRequest(remoteUser.getAddress(), messageBody);
+            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getAddress(), SofaType.PAYMENT_REQUEST, true, messageBody);
             BaseApplication.get()
                     .getTokenManager()
                     .getSignalManager()
@@ -186,7 +187,7 @@ public final class ChatPresenter implements
                 return;
             }
 
-            Toast.makeText(activity, "Failed to send: " + chatMessage.getText(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, "Failed to send: " + chatMessage.getPayload(), Toast.LENGTH_SHORT).show();
         }
     };
 

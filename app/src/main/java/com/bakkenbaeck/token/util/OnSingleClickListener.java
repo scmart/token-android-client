@@ -4,7 +4,6 @@ package com.bakkenbaeck.token.util;
 import android.view.View;
 
 public abstract class OnSingleClickListener implements View.OnClickListener {
-    private static final String TAG = OnSingleClickListener.class.getSimpleName();
 
     private static final long MIN_DELAY_MS = 500;
 
@@ -16,7 +15,6 @@ public abstract class OnSingleClickListener implements View.OnClickListener {
         long now = System.currentTimeMillis();
         mLastClickTime = now;
         if (now - lastClickTime >= MIN_DELAY_MS) {
-            // Register the click
             onSingleClick(v);
         }
     }

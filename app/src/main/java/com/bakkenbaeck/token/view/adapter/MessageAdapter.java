@@ -7,13 +7,13 @@ import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.local.ChatMessage;
+import com.bakkenbaeck.token.model.sofa.Message;
+import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.model.sofa.TxRequest;
-import com.bakkenbaeck.token.util.MessageUtil;
+import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.adapter.viewholder.LocalPaymentRequestViewHolder;
 import com.bakkenbaeck.token.view.adapter.viewholder.TextViewHolder;
-import com.squareup.moshi.JsonAdapter;
-import com.squareup.moshi.Moshi;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,13 +23,11 @@ import java.util.List;
 
 public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<ChatMessage> chatMessages;
-    private final JsonAdapter<TxRequest> txRequestAdapter;
+    private final SofaAdapters adapters;
 
     public MessageAdapter() {
         this.chatMessages = new ArrayList<>();
-
-        final Moshi moshi = new Moshi.Builder().build();
-        this.txRequestAdapter = moshi.adapter(TxRequest.class);
+        this.adapters = new SofaAdapters();
     }
 
     public final void addMessages(final Collection<ChatMessage> chatMessages) {
@@ -70,28 +68,35 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public final void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         final ChatMessage chatMessage = this.chatMessages.get(position);
+        final String requestPayload = chatMessage.getPayload();
+        if (requestPayload == null) {
+            return;
+        }
+
+
         switch (holder.getItemViewType()) {
 
             case SofaType.PLAIN_TEXT: {
                 final TextViewHolder vh = (TextViewHolder) holder;
-                final String parsedMessage = MessageUtil.parseString(chatMessage.getText());
-                vh.setText(parsedMessage, chatMessage.isSentByLocal());
+                try {
+                    final Message message = this.adapters.messageFrom(requestPayload);
+                    vh.setText(message.getBody(), chatMessage.isSentByLocal());
+                } catch (final IOException e) {
+                    LogUtil.print(getClass(), e.toString());
+                }
+
                 break;
             }
 
             case SofaType.PAYMENT_REQUEST: {
                 final LocalPaymentRequestViewHolder vh = (LocalPaymentRequestViewHolder) holder;
-                final String requestPayload = chatMessage.getSofaPayload();
-                if (requestPayload == null) {
-                    return;
-                }
 
                 try {
-                    final TxRequest request = this.txRequestAdapter.fromJson(requestPayload);
+                    final TxRequest request = this.adapters.txRequestFrom(requestPayload);
                     vh.requestedAmount.setText(request.getValue() + request.getCurrency());
                     vh.secondaryAmount.setText(" · 0.1234 ETH");
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (final IOException e) {
+                    LogUtil.print(getClass(), e.toString());
                 }
 
                 break;
