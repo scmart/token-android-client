@@ -9,7 +9,7 @@ import android.widget.Toast;
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.sofa.Message;
-import com.bakkenbaeck.token.model.sofa.SofaType;
+import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.TxRequest;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
@@ -20,8 +20,6 @@ import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
-import com.squareup.moshi.JsonAdapter;
-import com.squareup.moshi.Moshi;
 
 import io.realm.RealmResults;
 import rx.android.schedulers.AndroidSchedulers;
@@ -36,6 +34,7 @@ public final class ChatPresenter implements
     private ChatMessageStore chatMessageStore;
     private User remoteUser;
     private SpeedyLinearLayoutManager layoutManager;
+    private SofaAdapters adapters;
 
     public void setRemoteUser(final User remoteUser) {
         this.remoteUser = remoteUser;
@@ -73,6 +72,7 @@ public final class ChatPresenter implements
         this.chatMessageStore.load(this.remoteUser.getAddress())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleLoadMessages);
+        this.adapters = new SofaAdapters();
     }
 
     private void initShortLivingObjects() {
@@ -135,20 +135,15 @@ public final class ChatPresenter implements
             }
 
             final String userInput = activity.getBinding().userInput.getText().toString();
-            activity.getBinding().userInput.setText(null);
-
-
-            final Message sofaMessage = new Message()
-                    .setBody(userInput);
-
-            final Moshi moshi = new Moshi.Builder().build();
-            final JsonAdapter<Message> jsonAdapter = moshi.adapter(Message.class);
-            final String messageBody = SofaType.createHeader(SofaType.PLAIN_TEXT) +  jsonAdapter.toJson(sofaMessage);
+            final Message sofaMessage = new Message().setBody(userInput);
+            final String messageBody = adapters.toJson(sofaMessage);
             final ChatMessage message = new ChatMessage().makeTextMessage(remoteUser.getAddress(), true, messageBody);
             BaseApplication.get()
                     .getTokenManager()
                     .getSignalManager()
                     .sendMessage(message);
+
+            activity.getBinding().userInput.setText(null);
         }
 
         private boolean userInputInvalid() {
@@ -165,16 +160,12 @@ public final class ChatPresenter implements
                     .setSenderAddress(remoteUser.getAddress())
                     .setValue(2.0d);
 
-            final Moshi moshi = new Moshi.Builder().build();
-            final JsonAdapter<TxRequest> jsonAdapter = moshi.adapter(TxRequest.class);
-
-            final String messageBody = SofaType.createHeader(SofaType.PAYMENT_REQUEST) +  jsonAdapter.toJson(txRequest);
+            final String messageBody = adapters.toJson(txRequest);
             final ChatMessage message = new ChatMessage().makeLocalPaymentRequest(remoteUser.getAddress(), messageBody);
             BaseApplication.get()
                     .getTokenManager()
                     .getSignalManager()
                     .sendMessage(message);
-
         }
     };
 
