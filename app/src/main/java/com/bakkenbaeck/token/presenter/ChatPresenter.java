@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.model.sofa.Message;
 import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.model.sofa.TxRequest;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
@@ -136,7 +137,14 @@ public final class ChatPresenter implements
             final String userInput = activity.getBinding().userInput.getText().toString();
             activity.getBinding().userInput.setText(null);
 
-            final ChatMessage message = new ChatMessage().makeTextMessage(remoteUser.getAddress(), true, userInput);
+
+            final Message sofaMessage = new Message()
+                    .setBody(userInput);
+
+            final Moshi moshi = new Moshi.Builder().build();
+            final JsonAdapter<Message> jsonAdapter = moshi.adapter(Message.class);
+            final String messageBody = SofaType.createHeader(SofaType.PLAIN_TEXT) +  jsonAdapter.toJson(sofaMessage);
+            final ChatMessage message = new ChatMessage().makeTextMessage(remoteUser.getAddress(), true, messageBody);
             BaseApplication.get()
                     .getTokenManager()
                     .getSignalManager()
