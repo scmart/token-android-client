@@ -2,8 +2,8 @@ package com.bakkenbaeck.token.manager;
 
 
 import com.bakkenbaeck.token.crypto.HDWallet;
-import com.bakkenbaeck.token.network.rest.BalanceService;
-import com.bakkenbaeck.token.network.rest.model.Balance;
+import com.bakkenbaeck.token.model.network.Balance;
+import com.bakkenbaeck.token.network.BalanceService;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 
@@ -25,8 +25,8 @@ public class BalanceManager {
     }
 
     private void syncBalanceWithServer(final HDWallet wallet) {
-        BalanceService.getApi()
-                .getBalance(wallet.getAddress())
+            BalanceService.getApi()
+                .getBalance(wallet.getWalletAddress())
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(new SingleSuccessSubscriber<Balance>() {

@@ -6,10 +6,16 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
 import android.widget.Toast;
 
-import com.bakkenbaeck.token.model.ChatMessage;
-import com.bakkenbaeck.token.model.User;
+import com.bakkenbaeck.token.model.local.ChatMessage;
+import com.bakkenbaeck.token.model.local.SendState;
+import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.model.sofa.Message;
+import com.bakkenbaeck.token.model.sofa.SofaAdapters;
+import com.bakkenbaeck.token.model.sofa.SofaType;
+import com.bakkenbaeck.token.model.sofa.TxRequest;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
+import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -30,6 +36,7 @@ public final class ChatPresenter implements
     private ChatMessageStore chatMessageStore;
     private User remoteUser;
     private SpeedyLinearLayoutManager layoutManager;
+    private SofaAdapters adapters;
 
     public void setRemoteUser(final User remoteUser) {
         this.remoteUser = remoteUser;
@@ -67,6 +74,7 @@ public final class ChatPresenter implements
         this.chatMessageStore.load(this.remoteUser.getAddress())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleLoadMessages);
+        this.adapters = new SofaAdapters();
     }
 
     private void initShortLivingObjects() {
@@ -118,27 +126,48 @@ public final class ChatPresenter implements
 
     private void initButtons() {
         this.activity.getBinding().sendButton.setOnClickListener(this.sendButtonClicked);
+        this.activity.getBinding().balanceBar.setOnRequestClicked(this.requestButtonClicked);
     }
 
-    private final View.OnClickListener sendButtonClicked = new View.OnClickListener() {
+    private final OnSingleClickListener sendButtonClicked = new OnSingleClickListener() {
         @Override
-        public void onClick(final View v) {
+        public void onSingleClick(final View v) {
             if (userInputInvalid()) {
                 return;
             }
 
             final String userInput = activity.getBinding().userInput.getText().toString();
-            activity.getBinding().userInput.setText(null);
-
-            final ChatMessage message = new ChatMessage().makeLocalMessage(remoteUser.getAddress(), userInput);
+            final Message sofaMessage = new Message().setBody(userInput);
+            final String messageBody = adapters.toJson(sofaMessage);
+            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getAddress(), SofaType.PLAIN_TEXT, true, messageBody);
             BaseApplication.get()
                     .getTokenManager()
                     .getSignalManager()
                     .sendMessage(message);
+
+            activity.getBinding().userInput.setText(null);
         }
 
         private boolean userInputInvalid() {
             return activity.getBinding().userInput.getText().toString().trim().length() == 0;
+        }
+    };
+
+    private final OnSingleClickListener requestButtonClicked = new OnSingleClickListener() {
+        @Override
+        public void onSingleClick(final View v) {
+            final TxRequest txRequest = new TxRequest()
+                    .setCurrency("USD")
+                    .setDestinationAddress(remoteUser.getAddress())
+                    .setSenderAddress(remoteUser.getAddress())
+                    .setValue(2.0d);
+
+            final String messageBody = adapters.toJson(txRequest);
+            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getAddress(), SofaType.PAYMENT_REQUEST, true, messageBody);
+            BaseApplication.get()
+                    .getTokenManager()
+                    .getSignalManager()
+                    .sendMessage(message);
         }
     };
 
@@ -154,11 +183,11 @@ public final class ChatPresenter implements
     private final OnNextSubscriber<ChatMessage> handleUpdatedMessage = new OnNextSubscriber<ChatMessage>() {
         @Override
         public void onNext(final ChatMessage chatMessage) {
-            if (chatMessage.getSendState() != ChatMessage.STATE_FAILED) {
+            if (chatMessage.getSendState() != SendState.STATE_FAILED) {
                 return;
             }
 
-            Toast.makeText(activity, "Failed to send: " + chatMessage.getText(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, "Failed to send: " + chatMessage.getPayload(), Toast.LENGTH_SHORT).show();
         }
     };
 

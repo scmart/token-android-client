@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="50dp"
@@ -8,12 +9,11 @@
 
     <LinearLayout
         android:id="@+id/balanceWrapper"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
         android:orientation="horizontal"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:layout_gravity="left"
         android:gravity="center_vertical">
 
         <TextView
@@ -55,6 +55,33 @@
             android:textColor="@color/textColorSecondary"
             android:layout_marginLeft="4dp"
             android:text="@string/my_balance" />
+
+        <android.support.v4.widget.Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/request_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/button_request"
+            android:visibility="gone"
+            tools:visibility="visible"
+            style="@style/FlatButton"/>
+
+        <android.support.v4.widget.Space
+            android:layout_width="8dp"
+            android:layout_height="match_parent" />
+
+        <Button
+            android:id="@+id/pay_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/button_pay"
+            android:visibility="gone"
+            tools:visibility="visible"
+            style="@style/FlatButton"/>
 
     </LinearLayout>
 

@@ -7,14 +7,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.bakkenbaeck.token.model.User;
-import com.bakkenbaeck.token.network.rest.IdService;
-import com.bakkenbaeck.token.network.rest.model.UserSearchResults;
+import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.model.network.UserSearchResults;
+import com.bakkenbaeck.token.network.IdService;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
-import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 import com.bakkenbaeck.token.view.activity.UserSearchActivity;
+import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 import com.bakkenbaeck.token.view.adapter.UserAdapter;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.jakewharton.rxbinding.widget.RxTextView;

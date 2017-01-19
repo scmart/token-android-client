@@ -1,7 +1,7 @@
 package com.bakkenbaeck.token.crypto.signal.network;
 
 
-import com.bakkenbaeck.token.network.rest.model.ServerTime;
+import com.bakkenbaeck.token.model.network.ServerTime;
 
 import retrofit2.http.GET;
 import rx.Single;

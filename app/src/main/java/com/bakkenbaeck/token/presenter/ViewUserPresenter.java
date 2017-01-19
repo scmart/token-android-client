@@ -7,8 +7,8 @@ import android.os.Looper;
 import android.view.View;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.model.User;
-import com.bakkenbaeck.token.network.rest.IdService;
+import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.network.IdService;
 import com.bakkenbaeck.token.presenter.store.ContactStore;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
@@ -132,6 +132,9 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     };
 
     private void renderQrCode(final Bitmap qrCodeBitmap) {
+        if (this.activity == null || this.activity.getBinding() == null) {
+            return;
+        }
         this.activity.getBinding().qrCodeImage.setAlpha(0.0f);
         this.activity.getBinding().qrCodeImage.setImageBitmap(qrCodeBitmap);
         this.activity.getBinding().qrCodeImage.animate().alpha(1f).setDuration(200).start();
@@ -145,5 +148,6 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     @Override
     public void onViewDestroyed() {
         this.activity = null;
+        this.handleQrCodeLoaded.unsubscribe();
     }
 }

@@ -6,11 +6,11 @@ import android.content.SharedPreferences;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
-import com.bakkenbaeck.token.model.User;
-import com.bakkenbaeck.token.network.rest.IdService;
-import com.bakkenbaeck.token.network.rest.model.ServerTime;
-import com.bakkenbaeck.token.network.rest.model.SignedUserDetails;
-import com.bakkenbaeck.token.network.rest.model.UserDetails;
+import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.model.network.ServerTime;
+import com.bakkenbaeck.token.model.network.SignedUserDetails;
+import com.bakkenbaeck.token.model.network.UserDetails;
+import com.bakkenbaeck.token.network.IdService;
 import com.bakkenbaeck.token.presenter.store.ContactStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
@@ -73,7 +73,9 @@ public class UserManager {
     }
 
     private void registerNewUser() {
-        IdService.getApi().getTimestamp().subscribe(new SingleSubscriber<ServerTime>() {
+        IdService.getApi()
+        .getTimestamp()
+        .subscribe(new SingleSubscriber<ServerTime>() {
             @Override
             public void onSuccess(final ServerTime serverTime) {
                 final long timestamp = serverTime.get();
@@ -91,7 +93,7 @@ public class UserManager {
 
     private void registerNewUserWithTimestamp(final long timestamp) {
         final UserDetails ud = new UserDetails().setTimestamp(timestamp);
-        final String signature = this.wallet.signString(JsonUtil.toJson(ud));
+        final String signature = this.wallet.signIdentity(JsonUtil.toJson(ud));
 
         final SignedUserDetails sud = new SignedUserDetails()
                 .setEthAddress(this.wallet.getAddress())
@@ -155,7 +157,7 @@ public class UserManager {
     }
 
     private void updateUserWithTimestamp(final UserDetails userDetails, final SingleSubscriber<Void> completionCallback) {
-        final String signature = this.wallet.signString(JsonUtil.toJson(userDetails));
+        final String signature = this.wallet.signIdentity(JsonUtil.toJson(userDetails));
 
         final SignedUserDetails sud = new SignedUserDetails()
                 .setEthAddress(this.wallet.getAddress())

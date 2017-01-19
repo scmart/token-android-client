@@ -1,7 +1,7 @@
 package com.bakkenbaeck.token.presenter.store;
 
 
-import com.bakkenbaeck.token.model.ChatMessage;
+import com.bakkenbaeck.token.model.local.ChatMessage;
 
 import java.util.concurrent.Callable;
 

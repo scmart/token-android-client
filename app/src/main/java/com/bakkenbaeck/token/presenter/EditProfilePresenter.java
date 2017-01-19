@@ -7,8 +7,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.model.User;
-import com.bakkenbaeck.token.network.rest.model.UserDetails;
+import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.model.network.UserDetails;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.view.BaseApplication;

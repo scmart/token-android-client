@@ -41,6 +41,15 @@
         <item name="android:foreground">?android:attr/selectableItemBackground</item>
     </style>
 
+    <style name="FlatButton" parent="android:Widget.Holo.Button">
+        <item name="android:padding">4dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:background">@null</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+    </style>
+
     <style name="ToolbarEditText" parent="android:Widget.Holo.EditText">
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/textColorContrast</item>

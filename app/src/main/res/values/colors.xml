@@ -8,6 +8,7 @@
     <color name="colorAccent">#33AFFF</color>
     <color name="textColorPrimary">#161621</color>
     <color name="textColorSecondary">#9F9FA3</color>
+    <color name="textColorTertiary">#73E37E</color>
     <color name="textColorContrast">#FFFFFF</color>
     <color name="textColorHint">#B2B4B8</color>
     <color name="textColorHintToolbar">#4DD199</color>

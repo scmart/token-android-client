@@ -7,9 +7,9 @@ import com.bakkenbaeck.token.crypto.signal.model.OutgoingSignedPreKeyState;
 import com.bakkenbaeck.token.crypto.signal.model.PreKeyStateWithTimestamp;
 import com.bakkenbaeck.token.crypto.signal.network.SignalInterface;
 import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
-import com.bakkenbaeck.token.network.rest.interceptor.LoggingInterceptor;
-import com.bakkenbaeck.token.network.rest.interceptor.UserAgentInterceptor;
-import com.bakkenbaeck.token.network.rest.model.ServerTime;
+import com.bakkenbaeck.token.model.network.ServerTime;
+import com.bakkenbaeck.token.network.interceptor.LoggingInterceptor;
+import com.bakkenbaeck.token.network.interceptor.UserAgentInterceptor;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.Moshi;
 
@@ -196,7 +196,7 @@ public final class SignalService extends SignalServiceAccountManager {
                 amendedTimestamp);
 
         final String payloadForSigning = JsonUtil.toJson(payload);
-        final String signature = this.wallet.signString(payloadForSigning);
+        final String signature = this.wallet.signIdentity(payloadForSigning);
         final OutgoingSignedPreKeyState outgoingEvent = new OutgoingSignedPreKeyState(payload, signature, this.wallet.getAddress());
         super.setPreKeysWithSignature(PREKEY_PATH, JsonUtil.toJson(outgoingEvent));
     }
