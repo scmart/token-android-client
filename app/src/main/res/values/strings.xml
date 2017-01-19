@@ -28,4 +28,7 @@
     <string name="button_pay">Pay</string>
     <string name="button_request">Request</string>
     <string name="request_sent">Request sent.</string>
+    <string name="money_request">Money Request</string>
+    <string name="button_reject">Reject</string>
+    <string name="button_approve">Approve</string>
 </resources>

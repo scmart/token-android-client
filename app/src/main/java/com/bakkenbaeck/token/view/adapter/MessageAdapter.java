@@ -51,7 +51,7 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         switch (viewType) {
 
             case SofaType.PAYMENT_REQUEST: {
-                final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__local_payment_request, parent, false);
+                final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__payment_request, parent, false);
                 return new LocalPaymentRequestViewHolder(v);
             }
 
@@ -93,8 +93,7 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
                 try {
                     final TxRequest request = this.adapters.txRequestFrom(requestPayload);
-                    vh.requestedAmount.setText(request.getValue() + " " + request.getCurrency());
-                    vh.secondaryAmount.setText(" · 0.0000 ETH");
+                    vh.setTxRequest(request, chatMessage.isSentByLocal());
                 } catch (final IOException e) {
                     LogUtil.print(getClass(), e.toString());
                 }
