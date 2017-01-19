@@ -16,8 +16,8 @@ public class SofaType {
     public static final int PAYMENT_REQUEST = 1;
 
 
-    private static final String plain_text = "SOFA::Text:";
-    private static final String payment_request = "SOFA::TxRequest:";
+    private static final String plain_text = "SOFA::Message:";
+    private static final String payment_request = "SOFA::PaymentRequest:";
 
     public static @SofaType.Type int getType(final String type) {
         switch (type) {
