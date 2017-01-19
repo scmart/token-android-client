@@ -93,7 +93,7 @@ public class UserManager {
 
     private void registerNewUserWithTimestamp(final long timestamp) {
         final UserDetails ud = new UserDetails().setTimestamp(timestamp);
-        final String signature = this.wallet.signString(JsonUtil.toJson(ud));
+        final String signature = this.wallet.signIdentity(JsonUtil.toJson(ud));
 
         final SignedUserDetails sud = new SignedUserDetails()
                 .setEthAddress(this.wallet.getAddress())
@@ -157,7 +157,7 @@ public class UserManager {
     }
 
     private void updateUserWithTimestamp(final UserDetails userDetails, final SingleSubscriber<Void> completionCallback) {
-        final String signature = this.wallet.signString(JsonUtil.toJson(userDetails));
+        final String signature = this.wallet.signIdentity(JsonUtil.toJson(userDetails));
 
         final SignedUserDetails sud = new SignedUserDetails()
                 .setEthAddress(this.wallet.getAddress())

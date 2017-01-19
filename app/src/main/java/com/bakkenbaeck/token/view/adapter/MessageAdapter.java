@@ -93,8 +93,8 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
                 try {
                     final TxRequest request = this.adapters.txRequestFrom(requestPayload);
-                    vh.requestedAmount.setText(request.getValue() + request.getCurrency());
-                    vh.secondaryAmount.setText(" · 0.1234 ETH");
+                    vh.requestedAmount.setText(request.getValue() + " " + request.getCurrency());
+                    vh.secondaryAmount.setText(" · 0.0000 ETH");
                 } catch (final IOException e) {
                     LogUtil.print(getClass(), e.toString());
                 }

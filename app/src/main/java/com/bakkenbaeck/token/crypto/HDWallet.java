@@ -82,7 +82,7 @@ public class HDWallet {
             final DeterministicSeed seed = new DeterministicSeed(masterSeed, null, "", 0);
             return Wallet.fromSeed(networkParameters, seed);
         } catch (final UnreadableWalletException e) {
-            throw new RuntimeException("Unable to crate wallet. Seed is invalid");
+            throw new RuntimeException("Unable to create wallet. Seed is invalid");
         }
     }
 
@@ -111,22 +111,17 @@ public class HDWallet {
         return ECKey.fromPrivate(key.getPrivKey());
     }
 
-    public String signHexString(final String hexString) {
-        try {
-            return sign(TypeConverter.StringHexToByteArray(hexString));
-        } catch (final Exception ex) {
-            LogUtil.e(getClass(), "Unable to sign. " + ex);
-        }
-        return null;
+    public String signIdentity(final String data) {
+        return sign(data.getBytes(), this.identityKey);
     }
 
-    public String signString(final String data) {
-        return sign(data.getBytes());
+    public String signTransaction(final String data) {
+        return sign(data.getBytes(), this.receivingKey);
     }
 
-    public String sign(final byte[] bytes) {
+    private String sign(final byte[] bytes, final ECKey key) {
         final byte[] msgHash = sha3(bytes);
-        final ECKey.ECDSASignature signature = this.receivingKey.sign(msgHash);
+        final ECKey.ECDSASignature signature = key.sign(msgHash);
         return signature.toHex();
     }
 
@@ -135,16 +130,16 @@ public class HDWallet {
     }
 
     private String getPrivateKey() {
-        return Hex.toHexString(this.receivingKey.getPrivKeyBytes());
+        return Hex.toHexString(this.identityKey.getPrivKeyBytes());
     }
 
     private String getPublicKey() {
-        return Hex.toHexString(this.receivingKey.getPubKey());
+        return Hex.toHexString(this.identityKey.getPubKey());
     }
 
     public String getAddress() {
-        if(receivingKey != null) {
-            return TypeConverter.toJsonHex(this.receivingKey.getAddress());
+        if(identityKey != null) {
+            return TypeConverter.toJsonHex(this.identityKey.getAddress());
         }
         return null;
     }

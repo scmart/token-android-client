@@ -196,7 +196,7 @@ public final class SignalService extends SignalServiceAccountManager {
                 amendedTimestamp);
 
         final String payloadForSigning = JsonUtil.toJson(payload);
-        final String signature = this.wallet.signString(payloadForSigning);
+        final String signature = this.wallet.signIdentity(payloadForSigning);
         final OutgoingSignedPreKeyState outgoingEvent = new OutgoingSignedPreKeyState(payload, signature, this.wallet.getAddress());
         super.setPreKeysWithSignature(PREKEY_PATH, JsonUtil.toJson(outgoingEvent));
     }
