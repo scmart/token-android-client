@@ -40,4 +40,8 @@ public class TokenManager {
     public final UserManager getUserManager() {
         return this.userManager;
     }
+
+    public final BalanceManager getBalanceManager() {
+        return this.balanceManager;
+    }
 }

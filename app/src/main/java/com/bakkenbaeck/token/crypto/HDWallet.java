@@ -144,6 +144,13 @@ public class HDWallet {
         return null;
     }
 
+    public String getWalletAddress() {
+        if(this.receivingKey != null) {
+            return TypeConverter.toJsonHex(this.receivingKey.getAddress());
+        }
+        return null;
+    }
+
     @Override
     public String toString() {
         return "Private: " + getPrivateKey() + "\nPublic: " + getPublicKey() + "\nAddress: " + getAddress();

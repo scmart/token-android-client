@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.util.LocaleUtil;
+import com.bakkenbaeck.token.view.BaseApplication;
 
 import java.math.BigDecimal;
 
@@ -40,6 +41,7 @@ public class BalanceBar extends LinearLayout {
     private void init() {
         inflate(getContext(), R.layout.view__balance_bar, this);
         setEmptyValues();
+        setBalance();
     }
 
     private void setEmptyValues() {
@@ -65,5 +67,14 @@ public class BalanceBar extends LinearLayout {
                 ((TextView)findViewById(R.id.eth_value)).setText(substring);
             }
         }, 200);
+    }
+
+    private void setBalance() {
+        final BigDecimal balance =
+                BaseApplication.get()
+                    .getTokenManager()
+                    .getBalanceManager()
+                    .getConfirmedBalanceAsEth();
+        setBalanceFromBigDecimal(balance);
     }
 }
