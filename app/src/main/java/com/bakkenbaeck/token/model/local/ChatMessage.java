@@ -42,7 +42,7 @@ public class ChatMessage extends RealmObject {
     }
 
     public ChatMessage setPayload(final String payload) {
-        this.payload = cleanPayload(payload);
+        this.payload = payload;
         return this;
     }
 
@@ -54,6 +54,10 @@ public class ChatMessage extends RealmObject {
     // Getters
 
     public String getPayload() {
+        return cleanPayload(this.payload);
+    }
+
+    public String getPayloadWithHeader() {
         return this.payload;
     }
 
