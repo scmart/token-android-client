@@ -30,6 +30,7 @@ public class PaymentRequest {
      */
     private String destinationAddress;
 
+    private ClientSideCustomData androidClientSideCustomData;
 
     public PaymentRequest setValue(final BigInteger value) {
         this.value = TypeConverter.toJsonHex(value);
@@ -41,7 +42,32 @@ public class PaymentRequest {
         return this;
     }
 
+    public String getDestinationAddresss() {
+        return this.destinationAddress;
+    }
+
     public BigInteger getValue() {
         return TypeConverter.StringHexToBigInteger(this.value);
+    }
+
+    public PaymentRequest setLocalPrice(final String localPrice) {
+        if (this.androidClientSideCustomData == null) {
+            this.androidClientSideCustomData = new ClientSideCustomData();
+        }
+
+        this.androidClientSideCustomData.localPrice = localPrice;
+        return this;
+    }
+
+    public String getLocalPrice() {
+        if (this.androidClientSideCustomData == null) {
+            return null;
+        }
+
+        return this.androidClientSideCustomData.localPrice;
+    }
+
+    private static class ClientSideCustomData {
+        private String localPrice;
     }
 }

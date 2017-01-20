@@ -2,6 +2,7 @@ package com.bakkenbaeck.token.network;
 
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.model.adapter.BigDecimalAdapter;
 import com.bakkenbaeck.token.model.adapter.BigIntegerAdapter;
 import com.bakkenbaeck.token.network.interceptor.LoggingInterceptor;
 import com.bakkenbaeck.token.network.interceptor.UserAgentInterceptor;
@@ -50,6 +51,7 @@ public class CurrencyService {
 
         final Moshi moshi = new Moshi.Builder()
                 .add(new BigIntegerAdapter())
+                .add(new BigDecimalAdapter())
                 .build();
 
         final Retrofit retrofit = new Retrofit.Builder()

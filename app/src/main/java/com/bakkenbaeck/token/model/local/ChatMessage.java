@@ -80,7 +80,7 @@ public class ChatMessage extends RealmObject {
     // Helper functions
 
     private String cleanPayload(final String payload) {
-        final String regexString = "\\{.*?\\}";
+        final String regexString = "\\{.*\\}";
         final Pattern pattern = Pattern.compile(regexString);
         final Matcher m = pattern.matcher(payload);
         if (m.find()) {

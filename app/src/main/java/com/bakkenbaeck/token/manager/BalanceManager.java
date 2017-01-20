@@ -3,7 +3,9 @@ package com.bakkenbaeck.token.manager;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.network.Balance;
+import com.bakkenbaeck.token.model.network.MarketRates;
 import com.bakkenbaeck.token.network.BalanceService;
+import com.bakkenbaeck.token.network.CurrencyService;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 
@@ -16,11 +18,17 @@ public class BalanceManager {
 
     private HDWallet wallet;
     private Balance balance;
+    private MarketRates rates;
+
+    public BalanceManager() {
+        this.balance = new Balance();
+        this.rates = new MarketRates();
+    }
 
     public BalanceManager init(final HDWallet wallet) {
         this.wallet = wallet;
-        this.balance = new Balance();
         syncBalanceWithServer(wallet);
+        getMarketRates();
         return this;
     }
 
@@ -34,6 +42,20 @@ public class BalanceManager {
                     public void onSuccess(final Balance balance) {
                         BalanceManager.this.balance = balance;
                         this.unsubscribe();
+                    }
+                });
+    }
+
+    private void getMarketRates() {
+        CurrencyService
+                .getApi()
+                .getRates("ETH")
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(new SingleSuccessSubscriber<MarketRates>() {
+                    @Override
+                    public void onSuccess(final MarketRates rates) {
+                        BalanceManager.this.rates = rates;
                     }
                 });
     }
@@ -105,5 +127,11 @@ public class BalanceManager {
 
     public double getEthValue(){
         return this.ethValue;
+    }
+
+    // Get the value of ethereum in another currency
+    public BigDecimal getMarketRate(final String currency, final BigDecimal ethAmount) {
+        final BigDecimal rate = this.rates.getRate(currency);
+        return rate.multiply(ethAmount);
     }
 }

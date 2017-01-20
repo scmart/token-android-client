@@ -173,9 +173,15 @@ public final class ChatPresenter implements
     private final OnSingleClickListener requestButtonClicked = new OnSingleClickListener() {
         @Override
         public void onSingleClick(final View v) {
+
+            final BigDecimal ethAmount = new BigDecimal("0.001");
+            final BigDecimal localAmount = BaseApplication.get().getTokenManager().getBalanceManager().getMarketRate("USD", ethAmount);
+            final String localAmountString = "$" + EthUtil.ethToEthString(localAmount) + " USD";
+
             final PaymentRequest paymentRequest = new PaymentRequest()
                     .setDestinationAddress(userWallet.getWalletAddress())
-                    .setValue(EthUtil.ethToWei(new BigDecimal("0.001")));
+                    .setLocalPrice(localAmountString)
+                    .setValue(EthUtil.ethToWei(ethAmount));
 
             final String messageBody = adapters.toJson(paymentRequest);
             final ChatMessage message = new ChatMessage().makeNew(remoteUser.getAddress(), SofaType.PAYMENT_REQUEST, true, messageBody);

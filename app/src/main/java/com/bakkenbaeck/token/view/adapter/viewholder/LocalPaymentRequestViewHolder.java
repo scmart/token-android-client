@@ -37,7 +37,7 @@ public final class LocalPaymentRequestViewHolder extends RecyclerView.ViewHolder
         if (sentByLocal) {
             this.localView.setVisibility(View.VISIBLE);
             this.remoteView.setVisibility(View.GONE);
-            //this.localRequestedAmount.setText(request.getValue() + " " + request.getCurrency());
+            this.localRequestedAmount.setText(request.getLocalPrice());
             final String ethAmount = String.format(
                     BaseApplication.get().getResources().getString(R.string.eth_amount),
                     EthUtil.weiToEthString(request.getValue()));
@@ -45,7 +45,7 @@ public final class LocalPaymentRequestViewHolder extends RecyclerView.ViewHolder
         } else {
             this.remoteView.setVisibility(View.VISIBLE);
             this.localView.setVisibility(View.GONE);
-            //this.remoteRequestedAmount.setText(request.getValue() + " " + request.getCurrency());
+            this.remoteRequestedAmount.setText(request.getLocalPrice());
             final String ethAmount = String.format(
                     BaseApplication.get().getResources().getString(R.string.eth_amount),
                     EthUtil.weiToEthString(request.getValue()));

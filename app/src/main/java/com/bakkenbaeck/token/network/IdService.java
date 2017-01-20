@@ -2,7 +2,6 @@ package com.bakkenbaeck.token.network;
 
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.model.adapter.BigIntegerAdapter;
 import com.bakkenbaeck.token.network.interceptor.LoggingInterceptor;
 import com.bakkenbaeck.token.network.interceptor.UserAgentInterceptor;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -47,9 +46,7 @@ public class IdService {
         addUserAgentHeader();
         addLogging();
 
-        final Moshi moshi = new Moshi.Builder()
-                                    .add(new BigIntegerAdapter())
-                                    .build();
+        final Moshi moshi = new Moshi.Builder().build();
 
         final Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BaseApplication.get().getResources().getString(R.string.id_url))
