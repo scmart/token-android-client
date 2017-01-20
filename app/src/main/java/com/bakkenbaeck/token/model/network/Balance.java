@@ -1,18 +1,23 @@
 package com.bakkenbaeck.token.model.network;
 
 
+import com.bakkenbaeck.token.crypto.util.TypeConverter;
+import com.squareup.moshi.Json;
+
 import java.math.BigInteger;
 
 public class Balance {
 
-    private BigInteger confirmed_balance = BigInteger.ZERO;
-    private BigInteger unconfirmed_balance  = BigInteger.ZERO;
+    @Json(name = "confirmed_balance")
+    private String confirmedBalanceAsHex;
+    @Json(name = "unconfirmed_balance")
+    private String unconfirmedBalanceAsHex;
 
     public BigInteger getConfirmedBalance() {
-        return confirmed_balance;
+        return TypeConverter.StringHexToBigInteger(confirmedBalanceAsHex);
     }
 
     public BigInteger getUnconfirmedBalance() {
-        return unconfirmed_balance;
+        return TypeConverter.StringHexToBigInteger(unconfirmedBalanceAsHex);
     }
 }

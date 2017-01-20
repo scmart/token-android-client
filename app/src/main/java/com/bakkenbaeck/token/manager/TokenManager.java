@@ -44,4 +44,17 @@ public class TokenManager {
     public final BalanceManager getBalanceManager() {
         return this.balanceManager;
     }
+
+    public Single<HDWallet> getWallet() {
+        return Single.fromCallable(new Callable<HDWallet>() {
+            @Override
+            public HDWallet call() throws Exception {
+                while (wallet == null) {
+                    Thread.sleep(200);
+                }
+                return wallet;
+            }
+        });
+    }
+
 }

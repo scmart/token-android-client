@@ -15,32 +15,32 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.moshi.MoshiConverterFactory;
 import rx.schedulers.Schedulers;
 
-public class BalanceService {
+public class CurrencyService {
 
-    private static BalanceService instance;
+    private static CurrencyService instance;
 
-    private final BalanceInterface balanceInterface;
+    private final CurrencyInterface currencyInterface;
     private final OkHttpClient.Builder client;
 
-    public static BalanceInterface getApi() {
-        return get().balanceInterface;
+    public static CurrencyInterface getApi() {
+        return get().currencyInterface;
     }
 
-    private static BalanceService get() {
+    private static CurrencyService get() {
         if (instance == null) {
             instance = getSync();
         }
         return instance;
     }
 
-    private static synchronized BalanceService getSync() {
+    private static synchronized CurrencyService getSync() {
         if (instance == null) {
-            instance = new BalanceService();
+            instance = new CurrencyService();
         }
         return instance;
     }
 
-    private BalanceService() {
+    private CurrencyService() {
         final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory
                 .createWithScheduler(Schedulers.io());
         this.client = new OkHttpClient.Builder();
@@ -49,16 +49,16 @@ public class BalanceService {
         addLogging();
 
         final Moshi moshi = new Moshi.Builder()
-                                    .add(new BigIntegerAdapter())
-                                    .build();
+                .add(new BigIntegerAdapter())
+                .build();
 
         final Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BaseApplication.get().getResources().getString(R.string.balance_url))
+                .baseUrl(BaseApplication.get().getResources().getString(R.string.currency_url))
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .addCallAdapterFactory(rxAdapter)
                 .client(client.build())
                 .build();
-        this.balanceInterface = retrofit.create(BalanceInterface.class);
+        this.currencyInterface = retrofit.create(CurrencyInterface.class);
     }
 
     private void addUserAgentHeader() {
@@ -67,7 +67,6 @@ public class BalanceService {
 
     private void addLogging() {
         final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor(new LoggingInterceptor());
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         this.client.addInterceptor(interceptor);
     }
 }
