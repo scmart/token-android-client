@@ -295,7 +295,8 @@ public final class ChatPresenter implements
     private void showControls(final List<Control> controls) {
         final ChipsLayoutManager chipsLayoutManager = ChipsLayoutManager.newBuilder(this.activity)
                 .setMaxViewsInRow(5)
-                .setScrollingEnabled(false)
+                .setRowStrategy(ChipsLayoutManager.STRATEGY_FILL_VIEW)
+                .withLastRow(true)
                 .build();
 
         this.activity.getBinding().controlRecycleView.setLayoutManager(chipsLayoutManager);
