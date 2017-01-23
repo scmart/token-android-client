@@ -27,7 +27,7 @@ import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
-import com.bakkenbaeck.token.view.adapter.ControlViewAdapter;
+import com.bakkenbaeck.token.view.adapter.ControlAdapter;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
 import com.bakkenbaeck.token.view.custom.SpaceDecoration;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
@@ -42,7 +42,8 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public final class ChatPresenter implements
-        Presenter<ChatActivity> {
+        Presenter<ChatActivity>,
+        ControlAdapter.OnControlClickListener {
 
     private ChatActivity activity;
     private MessageAdapter messageAdapter;
@@ -298,11 +299,22 @@ public final class ChatPresenter implements
                 .build();
 
         this.activity.getBinding().controlRecycleView.setLayoutManager(chipsLayoutManager);
-        this.activity.getBinding().controlRecycleView.setVisibility(View.VISIBLE);
-        final ControlViewAdapter adapter = new ControlViewAdapter(controls);
+        final ControlAdapter adapter = new ControlAdapter(controls);
         this.activity.getBinding().controlRecycleView.setAdapter(adapter);
         final int controlSpacing = this.activity.getResources().getDimensionPixelSize(R.dimen.control_spacing);
         this.activity.getBinding().controlRecycleView.addItemDecoration(new SpaceDecoration(controlSpacing));
+        this.activity.getBinding().controlRecycleView.setVisibility(View.VISIBLE);
+        adapter.setGroupedClickListener(this);
+    }
+
+    @Override
+    public void onGroupedControlItemClicked(List<Control> controls) {
+        LogUtil.d(getClass(), "onGroupedControlItemClicked");
+    }
+
+    @Override
+    public void onControlClicked(Control control) {
+        LogUtil.d(getClass(), "control label -> " + control.getLabel());
     }
 
     private void hideControls() {
