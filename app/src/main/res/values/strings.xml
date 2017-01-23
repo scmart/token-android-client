@@ -33,4 +33,6 @@
     <string name="button_approve">Approve</string>
     <string name="currency_url">https://api.coinbase.com</string>
     <string name="eth_amount"> · %1$s ETH</string>
+    <string name="payment_request__accepted">You aproved this request</string>
+    <string name="payment_request__rejected">You rejected this request</string>
 </resources>

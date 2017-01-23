@@ -1,6 +1,8 @@
 package com.bakkenbaeck.token.model.sofa;
 
 
+import android.support.annotation.IntDef;
+
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.squareup.moshi.Json;
 
@@ -13,6 +15,16 @@ import java.math.BigInteger;
  *
  */
 public class PaymentRequest {
+
+    @IntDef({
+            PENDING,
+            ACCEPTED,
+            REJECTED,
+    })
+    public @interface State {}
+    public static final int PENDING = 0;
+    public static final int REJECTED = 1;
+    public static final int ACCEPTED = 2;
 
     /**
      * Value
@@ -69,7 +81,25 @@ public class PaymentRequest {
         return this.androidClientSideCustomData.localPrice;
     }
 
+    public PaymentRequest setState(final @State int state) {
+        if (this.androidClientSideCustomData == null) {
+            this.androidClientSideCustomData = new ClientSideCustomData();
+        }
+
+        this.androidClientSideCustomData.state = state;
+        return this;
+    }
+
+    public @State int getState() {
+        if (this.androidClientSideCustomData == null) {
+            return PENDING;
+        }
+
+        return this.androidClientSideCustomData.state;
+    }
+
     private static class ClientSideCustomData {
         private String localPrice;
+        private @State int state;
     }
 }
