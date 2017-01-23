@@ -5,7 +5,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.model.sofa.TxRequest;
+import com.bakkenbaeck.token.model.sofa.PaymentRequest;
+import com.bakkenbaeck.token.util.EthUtil;
+import com.bakkenbaeck.token.view.BaseApplication;
 
 public final class LocalPaymentRequestViewHolder extends RecyclerView.ViewHolder {
 
@@ -31,17 +33,23 @@ public final class LocalPaymentRequestViewHolder extends RecyclerView.ViewHolder
 
     }
 
-    public void setTxRequest(final TxRequest request, final boolean sentByLocal) {
+    public void setTxRequest(final PaymentRequest request, final boolean sentByLocal) {
         if (sentByLocal) {
             this.localView.setVisibility(View.VISIBLE);
             this.remoteView.setVisibility(View.GONE);
-            this.localRequestedAmount.setText(request.getValue() + " " + request.getCurrency());
-            this.localSecondaryAmount.setText(" · 0.0000 ETH");
+            this.localRequestedAmount.setText(request.getLocalPrice());
+            final String ethAmount = String.format(
+                    BaseApplication.get().getResources().getString(R.string.eth_amount),
+                    EthUtil.weiToEthString(request.getValue()));
+            this.localSecondaryAmount.setText(ethAmount);
         } else {
             this.remoteView.setVisibility(View.VISIBLE);
             this.localView.setVisibility(View.GONE);
-            this.remoteRequestedAmount.setText(request.getValue() + " " + request.getCurrency());
-            this.remoteSecondaryAmount.setText(" · 0.0000 ETH");
+            this.remoteRequestedAmount.setText(request.getLocalPrice());
+            final String ethAmount = String.format(
+                    BaseApplication.get().getResources().getString(R.string.eth_amount),
+                    EthUtil.weiToEthString(request.getValue()));
+            this.remoteSecondaryAmount.setText(ethAmount);
         }
     }
 }

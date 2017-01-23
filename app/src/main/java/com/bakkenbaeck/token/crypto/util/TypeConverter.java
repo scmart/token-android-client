@@ -15,7 +15,11 @@ public class TypeConverter {
     }
 
     public static BigInteger StringHexToBigInteger(String input) {
-        String hexa = input.substring(2);
+        if (input == null) {
+            return BigInteger.ZERO;
+        }
+
+        String hexa = input.startsWith("0x") ? input.substring(2) : input;
         return new BigInteger(hexa, 16);
     }
 

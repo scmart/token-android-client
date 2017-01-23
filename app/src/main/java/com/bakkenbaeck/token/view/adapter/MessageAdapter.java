@@ -10,7 +10,7 @@ import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.sofa.Message;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
-import com.bakkenbaeck.token.model.sofa.TxRequest;
+import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.adapter.viewholder.LocalPaymentRequestViewHolder;
 import com.bakkenbaeck.token.view.adapter.viewholder.TextViewHolder;
@@ -92,7 +92,7 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 final LocalPaymentRequestViewHolder vh = (LocalPaymentRequestViewHolder) holder;
 
                 try {
-                    final TxRequest request = this.adapters.txRequestFrom(requestPayload);
+                    final PaymentRequest request = this.adapters.txRequestFrom(requestPayload);
                     vh.setTxRequest(request, chatMessage.isSentByLocal());
                 } catch (final IOException e) {
                     LogUtil.print(getClass(), e.toString());

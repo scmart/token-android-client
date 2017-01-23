@@ -161,7 +161,7 @@ public final class SignalManager {
             messageSender.sendMessage(
                     new SignalServiceAddress(message.getConversationId()),
                     SignalServiceDataMessage.newBuilder()
-                            .withBody(message.getPayload())
+                            .withBody(message.getAsSofaMessage())
                             .build());
             message.setSendState(SendState.STATE_SENT);
             this.chatMessageStore.update(message);

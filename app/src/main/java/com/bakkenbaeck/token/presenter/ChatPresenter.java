@@ -6,14 +6,16 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
 import android.widget.Toast;
 
+import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.SendState;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.sofa.Message;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
-import com.bakkenbaeck.token.model.sofa.TxRequest;
+import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
+import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
@@ -22,6 +24,8 @@ import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
+
+import java.math.BigDecimal;
 
 import io.realm.RealmResults;
 import rx.android.schedulers.AndroidSchedulers;
@@ -37,6 +41,7 @@ public final class ChatPresenter implements
     private User remoteUser;
     private SpeedyLinearLayoutManager layoutManager;
     private SofaAdapters adapters;
+    private HDWallet userWallet;
 
     public void setRemoteUser(final User remoteUser) {
         this.remoteUser = remoteUser;
@@ -75,6 +80,18 @@ public final class ChatPresenter implements
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleLoadMessages);
         this.adapters = new SofaAdapters();
+
+        BaseApplication.get()
+                .getTokenManager()
+                .getWallet()
+                .subscribeOn(Schedulers.io())
+                .subscribe(new SingleSuccessSubscriber<HDWallet>() {
+                    @Override
+                    public void onSuccess(final HDWallet wallet) {
+                        userWallet = wallet;
+                        this.unsubscribe();
+                    }
+                });
     }
 
     private void initShortLivingObjects() {
@@ -156,13 +173,17 @@ public final class ChatPresenter implements
     private final OnSingleClickListener requestButtonClicked = new OnSingleClickListener() {
         @Override
         public void onSingleClick(final View v) {
-            final TxRequest txRequest = new TxRequest()
-                    .setCurrency("USD")
-                    .setDestinationAddress(remoteUser.getAddress())
-                    .setSenderAddress(remoteUser.getAddress())
-                    .setValue(2.0d);
 
-            final String messageBody = adapters.toJson(txRequest);
+            final BigDecimal ethAmount = new BigDecimal("0.001");
+            final BigDecimal localAmount = BaseApplication.get().getTokenManager().getBalanceManager().getMarketRate("USD", ethAmount);
+            final String localAmountString = "$" + EthUtil.ethToEthString(localAmount) + " USD";
+
+            final PaymentRequest paymentRequest = new PaymentRequest()
+                    .setDestinationAddress(userWallet.getWalletAddress())
+                    .setLocalPrice(localAmountString)
+                    .setValue(EthUtil.ethToWei(ethAmount));
+
+            final String messageBody = adapters.toJson(paymentRequest);
             final ChatMessage message = new ChatMessage().makeNew(remoteUser.getAddress(), SofaType.PAYMENT_REQUEST, true, messageBody);
             BaseApplication.get()
                     .getTokenManager()

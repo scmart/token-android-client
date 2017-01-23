@@ -2,6 +2,8 @@ package com.bakkenbaeck.token.network;
 
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.model.adapter.BigDecimalAdapter;
+import com.bakkenbaeck.token.model.adapter.BigIntegerAdapter;
 import com.bakkenbaeck.token.network.interceptor.LoggingInterceptor;
 import com.bakkenbaeck.token.network.interceptor.UserAgentInterceptor;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -14,47 +16,51 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.moshi.MoshiConverterFactory;
 import rx.schedulers.Schedulers;
 
-public class IdService {
+public class CurrencyService {
 
-    private static IdService instance;
+    private static CurrencyService instance;
 
-    private final IdInterface idInterface;
+    private final CurrencyInterface currencyInterface;
     private final OkHttpClient.Builder client;
 
-    public static IdInterface getApi() {
-        return get().idInterface;
+    public static CurrencyInterface getApi() {
+        return get().currencyInterface;
     }
 
-    private static IdService get() {
+    private static CurrencyService get() {
         if (instance == null) {
             instance = getSync();
         }
         return instance;
     }
 
-    private static synchronized IdService getSync() {
+    private static synchronized CurrencyService getSync() {
         if (instance == null) {
-            instance = new IdService();
+            instance = new CurrencyService();
         }
         return instance;
     }
 
-    private IdService() {
-        final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io());
+    private CurrencyService() {
+        final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory
+                .createWithScheduler(Schedulers.io());
         this.client = new OkHttpClient.Builder();
 
         addUserAgentHeader();
         addLogging();
 
-        final Moshi moshi = new Moshi.Builder().build();
+        final Moshi moshi = new Moshi.Builder()
+                .add(new BigIntegerAdapter())
+                .add(new BigDecimalAdapter())
+                .build();
 
         final Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BaseApplication.get().getResources().getString(R.string.id_url))
+                .baseUrl(BaseApplication.get().getResources().getString(R.string.currency_url))
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .addCallAdapterFactory(rxAdapter)
                 .client(client.build())
                 .build();
-        this.idInterface = retrofit.create(IdInterface.class);
+        this.currencyInterface = retrofit.create(CurrencyInterface.class);
     }
 
     private void addUserAgentHeader() {
@@ -63,7 +69,6 @@ public class IdService {
 
     private void addLogging() {
         final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor(new LoggingInterceptor());
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         this.client.addInterceptor(interceptor);
     }
 }

@@ -42,7 +42,7 @@ public class ChatMessage extends RealmObject {
     }
 
     public ChatMessage setPayload(final String payload) {
-        this.payload = cleanPayload(payload);
+        this.payload = payload;
         return this;
     }
 
@@ -54,7 +54,14 @@ public class ChatMessage extends RealmObject {
     // Getters
 
     public String getPayload() {
-        return this.payload;
+        return cleanPayload(this.payload);
+    }
+
+    // Return message in the correct format for SOFA
+    public String getAsSofaMessage() {
+        // Strip away local-only data before sending via Signal
+        final String matcher = "\"" + SofaType.LOCAL_ONLY_PAYLOAD + "\":\\{.*?\\},";
+        return this.payload.replaceFirst(matcher, "");
     }
 
     public String getConversationId() {
@@ -76,7 +83,7 @@ public class ChatMessage extends RealmObject {
     // Helper functions
 
     private String cleanPayload(final String payload) {
-        final String regexString = "\\{.*?\\}";
+        final String regexString = "\\{.*\\}";
         final Pattern pattern = Pattern.compile(regexString);
         final Matcher m = pattern.matcher(payload);
         if (m.find()) {

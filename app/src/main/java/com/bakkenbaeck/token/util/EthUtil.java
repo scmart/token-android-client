@@ -13,8 +13,7 @@ public class EthUtil {
 
     public static String weiToEthString(final BigInteger wei) {
         final BigDecimal bd = weiToEth(wei);
-        formatting.setRoundingMode(RoundingMode.FLOOR);
-        return formatting.format(bd);
+        return ethToEthString(bd);
     }
 
     public static BigDecimal weiToEth(final BigInteger wei) {
@@ -26,5 +25,10 @@ public class EthUtil {
 
     public static BigInteger ethToWei(final BigDecimal amountInEth) {
         return amountInEth.multiply(weiToEthRatio).toBigInteger();
+    }
+
+    public static String ethToEthString(final BigDecimal eth) {
+        formatting.setRoundingMode(RoundingMode.FLOOR);
+        return formatting.format(eth);
     }
 }
