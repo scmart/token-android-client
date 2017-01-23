@@ -16,7 +16,7 @@ public class ControlViewAdapter extends RecyclerView.Adapter<ControlViewHolder> 
 
     private List<Control> controls;
 
-    private ControlViewAdapter(final List<Control> controls) {
+    public ControlViewAdapter(final List<Control> controls) {
         this.controls = new ArrayList<>(controls);
     }
 

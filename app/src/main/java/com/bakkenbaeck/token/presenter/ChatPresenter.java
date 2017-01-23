@@ -6,11 +6,13 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
 import android.widget.Toast;
 
+import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.SendState;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.SentTransaction;
+import com.bakkenbaeck.token.model.sofa.Control;
 import com.bakkenbaeck.token.model.sofa.Message;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
@@ -25,10 +27,14 @@ import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
+import com.bakkenbaeck.token.view.adapter.ControlViewAdapter;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
+import com.bakkenbaeck.token.view.custom.SpaceDecoration;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
+import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import io.realm.RealmResults;
 import rx.SingleSubscriber;
@@ -283,6 +289,24 @@ public final class ChatPresenter implements
         } else if (!shouldShowEmptyState && showingEmptyState) {
             this.activity.getBinding().emptyStateSwitcher.showNext();
         }
+    }
+
+    private void showControls(final List<Control> controls) {
+        final ChipsLayoutManager chipsLayoutManager = ChipsLayoutManager.newBuilder(this.activity)
+                .setMaxViewsInRow(5)
+                .setScrollingEnabled(false)
+                .build();
+
+        this.activity.getBinding().controlRecycleView.setLayoutManager(chipsLayoutManager);
+        this.activity.getBinding().controlRecycleView.setVisibility(View.VISIBLE);
+        final ControlViewAdapter adapter = new ControlViewAdapter(controls);
+        this.activity.getBinding().controlRecycleView.setAdapter(adapter);
+        final int controlSpacing = this.activity.getResources().getDimensionPixelSize(R.dimen.control_spacing);
+        this.activity.getBinding().controlRecycleView.addItemDecoration(new SpaceDecoration(controlSpacing));
+    }
+
+    private void hideControls() {
+        this.activity.getBinding().controlRecycleView.setVisibility(View.GONE);
     }
 
     @Override

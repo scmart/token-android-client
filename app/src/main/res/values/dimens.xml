@@ -15,4 +15,5 @@
     <dimen name="control_horizontal_padding">20dp</dimen>
     <dimen name="control_vertical_padding">15dp</dimen>
     <dimen name="control_radius_size">8dp</dimen>
+    <dimen name="control_spacing">8dp</dimen>
 </resources>
