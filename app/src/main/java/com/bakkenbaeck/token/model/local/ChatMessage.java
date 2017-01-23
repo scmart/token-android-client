@@ -57,8 +57,11 @@ public class ChatMessage extends RealmObject {
         return cleanPayload(this.payload);
     }
 
-    public String getPayloadWithHeader() {
-        return this.payload;
+    // Return message in the correct format for SOFA
+    public String getAsSofaMessage() {
+        // Strip away local-only data before sending via Signal
+        final String matcher = "\"" + SofaType.LOCAL_ONLY_PAYLOAD + "\":\\{.*?\\},";
+        return this.payload.replaceFirst(matcher, "");
     }
 
     public String getConversationId() {

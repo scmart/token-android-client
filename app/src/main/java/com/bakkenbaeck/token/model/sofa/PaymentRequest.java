@@ -2,6 +2,7 @@ package com.bakkenbaeck.token.model.sofa;
 
 
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
+import com.squareup.moshi.Json;
 
 import java.math.BigInteger;
 
@@ -30,6 +31,7 @@ public class PaymentRequest {
      */
     private String destinationAddress;
 
+    @Json(name = SofaType.LOCAL_ONLY_PAYLOAD)
     private ClientSideCustomData androidClientSideCustomData;
 
     public PaymentRequest setValue(final BigInteger value) {

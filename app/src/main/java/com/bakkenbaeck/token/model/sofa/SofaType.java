@@ -15,6 +15,7 @@ public class SofaType {
     public static final int PLAIN_TEXT = 0;
     public static final int PAYMENT_REQUEST = 1;
 
+    public static final String LOCAL_ONLY_PAYLOAD = "custom_local_only_payload";
 
     private static final String plain_text = "SOFA::Message:";
     private static final String payment_request = "SOFA::PaymentRequest:";
