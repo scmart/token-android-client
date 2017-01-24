@@ -25,6 +25,7 @@ public class User extends RealmObject implements Parcelable {
     private User(final Parcel in) {
         owner_address = in.readString();
         username = in.readString();
+        custom = in.readParcelable(CustomUserInformation.class.getClassLoader());
     }
 
     // Getters
@@ -45,8 +46,18 @@ public class User extends RealmObject implements Parcelable {
         return custom == null ? null : this.custom.getLocation();
     }
 
+    public String getPaymentAddress() {
+        return custom == null ? null : this.custom.getPaymentAddress();
+    }
+
     public Bitmap getImage() {
         return BitmapFactory.decodeResource(BaseApplication.get().getResources(), R.mipmap.launcher);
+    }
+
+    // Setters
+
+    public void setUsername(final String username) {
+        this.username = username;
     }
 
 
