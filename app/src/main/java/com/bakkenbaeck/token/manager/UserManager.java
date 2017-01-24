@@ -92,7 +92,9 @@ public class UserManager {
     }
 
     private void registerNewUserWithTimestamp(final long timestamp) {
-        final UserDetails ud = new UserDetails().setTimestamp(timestamp);
+        final UserDetails ud = new UserDetails()
+                .setTimestamp(timestamp)
+                .setWalletAddress(this.wallet.getWalletAddress());
         final String signature = this.wallet.signIdentity(JsonUtil.toJson(ud));
 
         final SignedUserDetails sud = new SignedUserDetails()

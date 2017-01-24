@@ -21,6 +21,12 @@ public class UserDetails {
         return this;
     }
 
+    public UserDetails setWalletAddress(final String address) {
+        initCustom();
+        this.custom.payment_address = address;
+        return this;
+    }
+
     public UserDetails setUsername(final String username) {
         this.username = username;
         return this;
@@ -51,5 +57,8 @@ public class UserDetails {
 
         @JsonProperty
         private String location;
+
+        @JsonProperty
+        private String payment_address;
     }
 }
