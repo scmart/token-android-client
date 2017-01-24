@@ -206,7 +206,7 @@ public final class ChatPresenter implements
             final TransactionRequest tr = new TransactionRequest()
                     .setValue(ethAmount)
                     .setFromAddress(userWallet.getWalletAddress())
-                    .setToAddress("0x0004DE837Ea93edbE51c093f45212AB22b4B35fc");
+                    .setToAddress(remoteUser.getPaymentAddress());
             BalanceService.getApi().createTransaction(tr)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
