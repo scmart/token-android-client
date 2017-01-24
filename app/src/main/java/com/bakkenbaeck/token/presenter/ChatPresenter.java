@@ -10,12 +10,18 @@ import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.SendState;
 import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.model.network.SentTransaction;
+import com.bakkenbaeck.token.model.network.SignedTransaction;
+import com.bakkenbaeck.token.model.network.TransactionRequest;
+import com.bakkenbaeck.token.model.network.UnsignedTransaction;
 import com.bakkenbaeck.token.model.sofa.Message;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
+import com.bakkenbaeck.token.network.BalanceService;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.EthUtil;
+import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
@@ -144,6 +150,7 @@ public final class ChatPresenter implements
     private void initButtons() {
         this.activity.getBinding().sendButton.setOnClickListener(this.sendButtonClicked);
         this.activity.getBinding().balanceBar.setOnRequestClicked(this.requestButtonClicked);
+        this.activity.getBinding().balanceBar.setOnPayClicked(this.payButtonClicked);
     }
 
     private final OnSingleClickListener sendButtonClicked = new OnSingleClickListener() {
@@ -189,6 +196,39 @@ public final class ChatPresenter implements
                     .getTokenManager()
                     .getSignalManager()
                     .sendMessage(message);
+        }
+    };
+
+    private final OnSingleClickListener payButtonClicked = new OnSingleClickListener() {
+        @Override
+        public void onSingleClick(final View v) {
+            final BigDecimal ethAmount = new BigDecimal("0.001");
+            final TransactionRequest tr = new TransactionRequest()
+                    .setValue(ethAmount)
+                    .setFromAddress(userWallet.getWalletAddress())
+                    .setToAddress("0x0004DE837Ea93edbE51c093f45212AB22b4B35fc");
+            BalanceService.getApi().createTransaction(tr)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new SingleSuccessSubscriber<UnsignedTransaction>() {
+                        @Override
+                        public void onSuccess(final UnsignedTransaction value) {
+                            final String signedTransaction = userWallet.signTransaction(value.getTransaction());
+                            final SignedTransaction st = new SignedTransaction()
+                                    .setEncodedTransaction(value.getTransaction())
+                                    .setSignature(signedTransaction);
+                            BalanceService.getApi()
+                                    .sendSignedTransaction(st)
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(new SingleSuccessSubscriber<SentTransaction>() {
+                                        @Override
+                                        public void onSuccess(final SentTransaction value) {
+                                            LogUtil.print(ChatPresenter.this.getClass(), "Done!");
+                                        }
+                                    });
+                        }
+                    });
         }
     };
 
