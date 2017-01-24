@@ -19,6 +19,7 @@ public final class LocalPaymentRequestViewHolder extends RecyclerView.ViewHolder
     private TextView remoteRequestedAmount;
     private TextView localSecondaryAmount;
     private TextView remoteSecondaryAmount;
+    private TextView remoteStatus;
 
     public LocalPaymentRequestViewHolder(final View v) {
         super(v);
@@ -30,7 +31,7 @@ public final class LocalPaymentRequestViewHolder extends RecyclerView.ViewHolder
         this.remoteRequestedAmount = (TextView) v.findViewById(R.id.remote_requested_amount);
         this.localSecondaryAmount = (TextView) v.findViewById(R.id.local_eth_amount);
         this.remoteSecondaryAmount = (TextView) v.findViewById(R.id.remote_eth_amount);
-
+        this.remoteStatus = (TextView) v.findViewById(R.id.request_status);
     }
 
     public void setTxRequest(final PaymentRequest request, final boolean sentByLocal) {
@@ -50,6 +51,24 @@ public final class LocalPaymentRequestViewHolder extends RecyclerView.ViewHolder
                     BaseApplication.get().getResources().getString(R.string.eth_amount),
                     EthUtil.weiToEthString(request.getValue()));
             this.remoteSecondaryAmount.setText(ethAmount);
+            setStatus(request.getState());
+        }
+    }
+
+    private void setStatus(final @PaymentRequest.State int state) {
+        switch (state) {
+            case PaymentRequest.ACCEPTED:
+                this.remoteStatus.setVisibility(View.VISIBLE);
+                this.remoteStatus.setText(R.string.payment_request__accepted);
+                break;
+            case PaymentRequest.REJECTED:
+                this.remoteStatus.setVisibility(View.VISIBLE);
+                this.remoteStatus.setText(R.string.payment_request__rejected);
+                break;
+            case PaymentRequest.PENDING:
+            default:
+                this.remoteStatus.setVisibility(View.GONE);
+                break;
         }
     }
 }

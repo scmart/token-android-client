@@ -1,16 +1,21 @@
 package com.bakkenbaeck.token.model.network;
 
 
+import com.bakkenbaeck.token.crypto.util.TypeConverter;
+import com.bakkenbaeck.token.util.EthUtil;
+
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public class TransactionRequest {
 
-    private BigInteger amount;
+    private String value;
     private String from;
     private String to;
 
-    public TransactionRequest setAmount(final BigInteger amountInWei) {
-        this.amount = amountInWei;
+    public TransactionRequest setValue(final BigDecimal ethAmount) {
+        final BigInteger weiAmount = EthUtil.ethToWei(ethAmount);
+        this.value = TypeConverter.toJsonHex(weiAmount);
         return this;
     }
 

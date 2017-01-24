@@ -116,7 +116,13 @@ public class HDWallet {
     }
 
     public String signTransaction(final String data) {
-        return sign(data.getBytes(), this.receivingKey);
+        try {
+            final byte[] transactionBytes = TypeConverter.StringHexToByteArray(data);
+            return sign(transactionBytes, this.receivingKey);
+        } catch (final Exception e) {
+            LogUtil.print(getClass(), "Unable to sign transaction. " + e);
+            return null;
+        }
     }
 
     private String sign(final byte[] bytes, final ECKey key) {
