@@ -12,7 +12,7 @@ import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.util.LogUtil;
-import com.bakkenbaeck.token.view.adapter.viewholder.LocalPaymentRequestViewHolder;
+import com.bakkenbaeck.token.view.adapter.viewholder.PaymentRequestViewHolder;
 import com.bakkenbaeck.token.view.adapter.viewholder.TextViewHolder;
 
 import java.io.IOException;
@@ -52,7 +52,7 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
             case SofaType.PAYMENT_REQUEST: {
                 final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__payment_request, parent, false);
-                return new LocalPaymentRequestViewHolder(v);
+                return new PaymentRequestViewHolder(v);
             }
 
             case SofaType.UNKNOWN:
@@ -89,7 +89,7 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             }
 
             case SofaType.PAYMENT_REQUEST: {
-                final LocalPaymentRequestViewHolder vh = (LocalPaymentRequestViewHolder) holder;
+                final PaymentRequestViewHolder vh = (PaymentRequestViewHolder) holder;
 
                 try {
                     final PaymentRequest request = this.adapters.txRequestFrom(requestPayload);
