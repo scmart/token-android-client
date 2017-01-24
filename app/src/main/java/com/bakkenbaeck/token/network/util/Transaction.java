@@ -13,20 +13,33 @@ import java.math.BigDecimal;
 import rx.SingleSubscriber;
 import rx.schedulers.Schedulers;
 
-public class TransactionProcessor {
+public class Transaction {
 
-    // Responsible for creating, signing, and broadcasting an ethereum transaction
-    // to the ethereum network.
-    public final void process(
+    private final BigDecimal ethAmount;
+    private final String toAddress;
+    private final HDWallet userWallet;
+    private final SingleSubscriber<SentTransaction> callback;
+
+    public Transaction(
             final BigDecimal ethAmount,
             final String toAddress,
             final HDWallet userWallet,
             final SingleSubscriber<SentTransaction> callback) {
+        this.ethAmount = ethAmount;
+        this.toAddress = toAddress;
+        this.userWallet = userWallet;
+        this.callback = callback;
+
+    }
+
+    // Responsible for creating, signing, and broadcasting an ethereum transaction
+    // to the ethereum network.
+    public final void process() {
 
         final TransactionRequest transactionRequest = new TransactionRequest()
-                .setValue(ethAmount)
-                .setFromAddress(userWallet.getWalletAddress())
-                .setToAddress(toAddress);
+                .setValue(this.ethAmount)
+                .setFromAddress(this.userWallet.getWalletAddress())
+                .setToAddress(this.toAddress);
 
         BalanceService.getApi().createTransaction(transactionRequest)
                 .subscribeOn(Schedulers.io())

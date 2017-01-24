@@ -15,7 +15,7 @@ import com.bakkenbaeck.token.model.sofa.Message;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
-import com.bakkenbaeck.token.network.util.TransactionProcessor;
+import com.bakkenbaeck.token.network.util.Transaction;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LogUtil;
@@ -46,7 +46,7 @@ public final class ChatPresenter implements
     private SpeedyLinearLayoutManager layoutManager;
     private SofaAdapters adapters;
     private HDWallet userWallet;
-    private TransactionProcessor transactionProcessor;
+    private Transaction transaction;
 
     public void setRemoteUser(final User remoteUser) {
         this.remoteUser = remoteUser;
@@ -85,7 +85,6 @@ public final class ChatPresenter implements
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleLoadMessages);
         this.adapters = new SofaAdapters();
-        this.transactionProcessor = new TransactionProcessor();
 
         BaseApplication.get()
                 .getTokenManager()
@@ -204,7 +203,8 @@ public final class ChatPresenter implements
         @Override
         public void onSingleClick(final View v) {
             final BigDecimal ethAmount = new BigDecimal("0.001");
-            transactionProcessor.process(ethAmount, remoteUser.getPaymentAddress(), userWallet, this.paymentCallback);
+            final Transaction transaction = new Transaction(ethAmount, remoteUser.getPaymentAddress(), userWallet, this.paymentCallback);
+            transaction.process();
         }
 
         public SingleSubscriber<SentTransaction> paymentCallback = new SingleSubscriber<SentTransaction>() {
