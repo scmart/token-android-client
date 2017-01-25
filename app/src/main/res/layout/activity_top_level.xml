@@ -23,7 +23,7 @@
                             android:layout_height="wrap_content"
                             android:scaleType="fitCenter"
                             android:background="@android:color/transparent"
-                            app:srcCompat="@drawable/ic_close"
+                            app:srcCompat="@drawable/ic_arrow_back"
                             android:tint="@color/textColorContrast"
                             android:padding="16dp" />
 
