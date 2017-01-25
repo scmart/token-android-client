@@ -4,6 +4,7 @@ package com.bakkenbaeck.token.network;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.adapter.BigIntegerAdapter;
 import com.bakkenbaeck.token.network.interceptor.LoggingInterceptor;
+import com.bakkenbaeck.token.network.interceptor.SigningInterceptor;
 import com.bakkenbaeck.token.network.interceptor.UserAgentInterceptor;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.Moshi;
@@ -26,14 +27,7 @@ public class BalanceService {
         return get().balanceInterface;
     }
 
-    private static BalanceService get() {
-        if (instance == null) {
-            instance = getSync();
-        }
-        return instance;
-    }
-
-    private static synchronized BalanceService getSync() {
+    private static synchronized BalanceService get() {
         if (instance == null) {
             instance = new BalanceService();
         }
@@ -46,6 +40,7 @@ public class BalanceService {
         this.client = new OkHttpClient.Builder();
 
         addUserAgentHeader();
+        addSigningInterceptor();
         addLogging();
 
         final Moshi moshi = new Moshi.Builder()
@@ -63,6 +58,10 @@ public class BalanceService {
 
     private void addUserAgentHeader() {
         this.client.addInterceptor(new UserAgentInterceptor());
+    }
+
+    private void addSigningInterceptor() {
+        this.client.addInterceptor(new SigningInterceptor());
     }
 
     private void addLogging() {
