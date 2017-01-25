@@ -46,7 +46,6 @@ public final class ChatPresenter implements
     private SpeedyLinearLayoutManager layoutManager;
     private SofaAdapters adapters;
     private HDWallet userWallet;
-    private Transaction transaction;
 
     public void setRemoteUser(final User remoteUser) {
         this.remoteUser = remoteUser;

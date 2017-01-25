@@ -3,6 +3,7 @@ package com.bakkenbaeck.token.network.util;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.network.SentTransaction;
+import com.bakkenbaeck.token.model.network.ServerTime;
 import com.bakkenbaeck.token.model.network.SignedTransaction;
 import com.bakkenbaeck.token.model.network.TransactionRequest;
 import com.bakkenbaeck.token.model.network.UnsignedTransaction;
@@ -47,26 +48,52 @@ public class Transaction {
                 .subscribe(new SingleSubscriber<UnsignedTransaction>() {
                     @Override
                     public void onSuccess(final UnsignedTransaction unsignedTransaction) {
-                        final String signature = userWallet.signTransaction(unsignedTransaction.getTransaction());
-                        final SignedTransaction signedTransaction = new SignedTransaction()
-                                .setEncodedTransaction(unsignedTransaction.getTransaction())
-                                .setSignature(signature);
+                        fetchServerTimeForUnsignedTransaction(unsignedTransaction);
+                    }
 
-                        BalanceService.getApi()
-                                .sendSignedTransaction(signedTransaction)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io())
-                                .subscribe(new SingleSubscriber<SentTransaction>() {
-                                    @Override
-                                    public void onSuccess(final SentTransaction sentTransaction) {
-                                        callback.onSuccess(sentTransaction);
-                                    }
+                    @Override
+                    public void onError(final Throwable error) {
+                        callback.onError(error);
+                    }
+                });
+    }
 
-                                    @Override
-                                    public void onError(final Throwable error) {
-                                        callback.onError(error);
-                                    }
-                                });
+    private void fetchServerTimeForUnsignedTransaction(final UnsignedTransaction unsignedTransaction) {
+        BalanceService
+                .getApi()
+                .getTimestamp()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(new SingleSubscriber<ServerTime>() {
+                    @Override
+                    public void onSuccess(final ServerTime serverTime) {
+                        signTransactionWithTimeStamp(unsignedTransaction, serverTime.get());
+                    }
+
+                    @Override
+                    public void onError(final Throwable error) {
+                        callback.onError(error);
+                    }
+                });
+    }
+
+    private void signTransactionWithTimeStamp(
+            final UnsignedTransaction unsignedTransaction,
+            final long timestamp) {
+
+        final String signature = userWallet.signTransaction(unsignedTransaction.getTransaction());
+        final SignedTransaction signedTransaction = new SignedTransaction()
+                .setEncodedTransaction(unsignedTransaction.getTransaction())
+                .setSignature(signature);
+
+        BalanceService.getApi()
+                .sendSignedTransaction(timestamp, signedTransaction)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(new SingleSubscriber<SentTransaction>() {
+                    @Override
+                    public void onSuccess(final SentTransaction sentTransaction) {
+                        callback.onSuccess(sentTransaction);
                     }
 
                     @Override

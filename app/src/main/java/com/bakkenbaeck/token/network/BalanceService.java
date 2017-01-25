@@ -2,8 +2,10 @@ package com.bakkenbaeck.token.network;
 
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.adapter.BigIntegerAdapter;
 import com.bakkenbaeck.token.network.interceptor.LoggingInterceptor;
+import com.bakkenbaeck.token.network.interceptor.SigningInterceptor;
 import com.bakkenbaeck.token.network.interceptor.UserAgentInterceptor;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.Moshi;
@@ -21,6 +23,12 @@ public class BalanceService {
 
     private final BalanceInterface balanceInterface;
     private final OkHttpClient.Builder client;
+    private final HDWallet wallet;
+
+    public static BalanceInterface init(final HDWallet wallet) {
+        instance = new BalanceService(wallet);
+        return getApi();
+    }
 
     public static BalanceInterface getApi() {
         return get().balanceInterface;
@@ -35,17 +43,19 @@ public class BalanceService {
 
     private static synchronized BalanceService getSync() {
         if (instance == null) {
-            instance = new BalanceService();
+            throw new RuntimeException("BalanceService needs to be initialised before use.");
         }
         return instance;
     }
 
-    private BalanceService() {
+    private BalanceService(final HDWallet wallet) {
+        this.wallet = wallet;
         final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory
                 .createWithScheduler(Schedulers.io());
         this.client = new OkHttpClient.Builder();
 
         addUserAgentHeader();
+        addSigningInterceptor();
         addLogging();
 
         final Moshi moshi = new Moshi.Builder()
@@ -63,6 +73,10 @@ public class BalanceService {
 
     private void addUserAgentHeader() {
         this.client.addInterceptor(new UserAgentInterceptor());
+    }
+
+    private void addSigningInterceptor() {
+        this.client.addInterceptor(new SigningInterceptor(this.wallet));
     }
 
     private void addLogging() {
