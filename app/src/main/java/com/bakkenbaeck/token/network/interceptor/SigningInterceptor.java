@@ -5,6 +5,8 @@ import android.util.Base64;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.crypto.util.HashUtil;
+import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
+import com.bakkenbaeck.token.view.BaseApplication;
 
 import java.io.IOException;
 
@@ -23,15 +25,24 @@ public class SigningInterceptor implements Interceptor {
     private final String SIGNATURE_HEADER = "Token-Signature";
     private final String TIMESTAMP_HEADER = "Token-Timestamp";
 
-    public SigningInterceptor(final HDWallet wallet) {
-        this.wallet = wallet;
+    public SigningInterceptor() {
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getWallet()
+                .subscribe(new SingleSuccessSubscriber<HDWallet>() {
+                    @Override
+                    public void onSuccess(final HDWallet wallet) {
+                        SigningInterceptor.this.wallet = wallet;
+                    }
+                });
     }
 
     @Override
     public Response intercept(final Chain chain) throws IOException {
         final Request original = chain.request();
         final String timestamp = original.url().queryParameter(TIMESTAMP_QUERY_PARAMETER);
-        if (timestamp == null) {
+        if (this.wallet == null || timestamp == null) {
             // Only signing outgoing requests that have a timestamp argument
             return chain.proceed(original);
         }

@@ -34,7 +34,7 @@ public class BalanceManager {
 
     private void syncBalanceWithServer(final HDWallet wallet) {
             BalanceService
-                .init(wallet)
+                .getApi()
                 .getBalance(wallet.getWalletAddress())
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())

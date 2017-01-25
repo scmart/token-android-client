@@ -2,7 +2,6 @@ package com.bakkenbaeck.token.network;
 
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.adapter.BigIntegerAdapter;
 import com.bakkenbaeck.token.network.interceptor.LoggingInterceptor;
 import com.bakkenbaeck.token.network.interceptor.SigningInterceptor;
@@ -23,33 +22,19 @@ public class BalanceService {
 
     private final BalanceInterface balanceInterface;
     private final OkHttpClient.Builder client;
-    private final HDWallet wallet;
-
-    public static BalanceInterface init(final HDWallet wallet) {
-        instance = new BalanceService(wallet);
-        return getApi();
-    }
 
     public static BalanceInterface getApi() {
         return get().balanceInterface;
     }
 
-    private static BalanceService get() {
+    private static synchronized BalanceService get() {
         if (instance == null) {
-            instance = getSync();
+            instance = new BalanceService();
         }
         return instance;
     }
 
-    private static synchronized BalanceService getSync() {
-        if (instance == null) {
-            throw new RuntimeException("BalanceService needs to be initialised before use.");
-        }
-        return instance;
-    }
-
-    private BalanceService(final HDWallet wallet) {
-        this.wallet = wallet;
+    private BalanceService() {
         final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory
                 .createWithScheduler(Schedulers.io());
         this.client = new OkHttpClient.Builder();
@@ -76,7 +61,7 @@ public class BalanceService {
     }
 
     private void addSigningInterceptor() {
-        this.client.addInterceptor(new SigningInterceptor(this.wallet));
+        this.client.addInterceptor(new SigningInterceptor());
     }
 
     private void addLogging() {
