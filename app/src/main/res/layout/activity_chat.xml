@@ -55,52 +55,62 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <ViewSwitcher
-            android:id="@+id/empty_state__switcher"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
 
-            <LinearLayout
-                android:id="@+id/empty_state"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="center"
-                android:gravity="center_horizontal">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_chat_empty_state"/>
-
-                <android.support.v4.widget.Space
-                    android:layout_width="0dp"
-                    android:layout_height="8dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/chat__empty_state"
-                    android:textColor="@color/textColorSecondary"
-                    android:layout_gravity="center"
-                    android:gravity="center_horizontal"
-                    />
-            </LinearLayout>
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/messages_list"
+            <ViewSwitcher
+                android:id="@+id/empty_state__switcher"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingTop="@dimen/textBubbleHalfPadding"
-                android:paddingBottom="50dp"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/messageListRightMargin"
-                android:clipToPadding="false"/>
+                android:layout_height="match_parent">
 
-        </ViewSwitcher>
+                <LinearLayout
+                    android:id="@+id/empty_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_gravity="center"
+                    android:gravity="center_horizontal">
 
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/ic_chat_empty_state"/>
 
+                    <android.support.v4.widget.Space
+                        android:layout_width="0dp"
+                        android:layout_height="8dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/chat__empty_state"
+                        android:textColor="@color/textColorSecondary"
+                        android:layout_gravity="center"
+                        android:gravity="center_horizontal"
+                        />
+                </LinearLayout>
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/messages_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingTop="@dimen/textBubbleHalfPadding"
+                    android:paddingBottom="50dp"
+                    android:paddingLeft="@dimen/activity_horizontal_margin"
+                    android:paddingRight="@dimen/messageListRightMargin"
+                    android:clipToPadding="false"/>
+
+            </ViewSwitcher>
+
+            <com.bakkenbaeck.token.view.custom.ControlView
+                android:id="@+id/control_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"/>
+
+        </FrameLayout>
 
         <include layout="@layout/horizontal_divider"/>
 

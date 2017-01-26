@@ -19,4 +19,8 @@
 
     <color name="levelPrimary">#FFFF9A56</color>
     <color name="levelSecondary">#33FF9A56</color>
+
+    <color name="control_border_color">#0D000000</color>
+    <color name="control_text_color">#2DB5EE</color>
+    <color name="control_selected_text_color">#B2B2B2</color>
 </resources>

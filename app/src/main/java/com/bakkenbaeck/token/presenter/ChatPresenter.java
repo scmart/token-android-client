@@ -11,6 +11,8 @@ import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.SendState;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.SentTransaction;
+import com.bakkenbaeck.token.model.sofa.Command;
+import com.bakkenbaeck.token.model.sofa.Control;
 import com.bakkenbaeck.token.model.sofa.Message;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
@@ -26,6 +28,7 @@ import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
+import com.bakkenbaeck.token.view.custom.ControlView;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 
 import java.math.BigDecimal;
@@ -145,11 +148,34 @@ public final class ChatPresenter implements
         updateEmptyState();
     }
 
+    private void sendCommandMessage(final Control control) {
+        final Command command = new Command()
+                .setBody(control.getLabel())
+                .setValue(control.getValue());
+        final String commandPayload = adapters.toJson(command);
+
+        final ChatMessage sofaCommandMessage = new ChatMessage()
+                .makeNew(remoteUser.getAddress(), SofaType.COMMAND_REQUEST, true, commandPayload);
+
+        BaseApplication.get()
+                .getTokenManager()
+                .getSignalManager()
+                .sendMessage(sofaCommandMessage);
+    }
+
     private void initButtons() {
         this.activity.getBinding().sendButton.setOnClickListener(this.sendButtonClicked);
         this.activity.getBinding().balanceBar.setOnRequestClicked(this.requestButtonClicked);
         this.activity.getBinding().balanceBar.setOnPayClicked(this.payButtonClicked);
+        this.activity.getBinding().controlView.setOnControlClickedListener(this.controlClicked);
     }
+
+    private final ControlView.OnControlClickedListener controlClicked = new ControlView.OnControlClickedListener() {
+        @Override
+        public void onControlClicked(Control control) {
+            sendCommandMessage(control);
+        }
+    };
 
     private final OnSingleClickListener sendButtonClicked = new OnSingleClickListener() {
         @Override
@@ -246,11 +272,29 @@ public final class ChatPresenter implements
                 messageAdapter.addMessages(chatMessages);
                 forceScrollToBottom();
                 updateEmptyState();
+
+                final ChatMessage lastChatMessage = chatMessages.get(chatMessages.size() - 1);
+                if (lastChatMessage != null) {
+                    setControlView(lastChatMessage);
+                }
             }
 
             this.unsubscribe();
         }
     };
+
+    private void setControlView(final ChatMessage chatMessage) {
+        try {
+            final Message message = adapters.messageFrom(chatMessage.getPayload());
+            final boolean notNullAndNotZero = message.getControls() != null && message.getControls().size() > 0;
+
+            if (notNullAndNotZero) {
+                this.activity.getBinding().controlView.showControls(message.getControls());
+            }
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void tryScrollToBottom(final boolean animate) {
         if (this.activity == null || this.layoutManager == null || this.messageAdapter.getItemCount() == 0) {

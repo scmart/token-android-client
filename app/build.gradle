@@ -88,7 +88,9 @@ dependencies {
             'org.bitcoinj:bitcoinj-core:0.14.3',
             'com.github.tokenbrowser:libsignal-service-java:59fbd58',
             'com.madgag.spongycastle:core:1.54.0.0',
-            'com.madgag.spongycastle:prov:1.54.0.0'
+            'com.madgag.spongycastle:prov:1.54.0.0',
+            //UI
+            'com.beloo.widget:ChipsLayoutManager:0.3.4.1@aar'
     )
 
     compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {

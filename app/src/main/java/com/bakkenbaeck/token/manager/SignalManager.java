@@ -131,7 +131,11 @@ public final class SignalManager {
                 dbThreadExecutor.submit(new Runnable() {
                     @Override
                     public void run() {
-                        sendMessageToBackend(message);
+                        if (message.getType() == SofaType.COMMAND_REQUEST) {
+                            sendCommandMessageToBackend(message);
+                        } else if(message.getType() == SofaType.PLAIN_TEXT) {
+                            sendMessageToBackend(message);
+                        }
                     }
                 });
             }
@@ -169,6 +173,28 @@ public final class SignalManager {
             LogUtil.error(getClass(), ex.toString());
             message.setSendState(SendState.STATE_FAILED);
             this.chatMessageStore.update(message);
+        }
+    }
+
+    private void sendCommandMessageToBackend(final ChatMessage chatMessage) {
+        final SignalServiceMessageSender messageSender = new SignalServiceMessageSender(
+                BaseApplication.get().getResources().getString(R.string.chat_url),
+                this.trustStore,
+                this.wallet.getAddress(),
+                this.protocolStore.getPassword(),
+                this.protocolStore,
+                this.userAgent,
+                null
+        );
+
+        try {
+            messageSender.sendMessage(
+                    new SignalServiceAddress(chatMessage.getConversationId()),
+                    SignalServiceDataMessage.newBuilder()
+                            .withBody(chatMessage.getAsSofaMessage())
+                            .build());
+        } catch (final UntrustedIdentityException | IOException ex) {
+            LogUtil.error(getClass(), ex.toString());
         }
     }
 

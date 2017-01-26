@@ -11,4 +11,10 @@
     <dimen name="defaultTextSize">15sp</dimen>
     <dimen name="subTitleSize">18sp</dimen>
     <dimen name="qr_code_size">170dp</dimen>
+
+    <dimen name="control_horizontal_padding">20dp</dimen>
+    <dimen name="control_vertical_padding">15dp</dimen>
+    <dimen name="control_radius_size">8dp</dimen>
+    <dimen name="control_spacing">8dp</dimen>
+    <dimen name="control_group_recycleview_padding">24dp</dimen>
 </resources>
