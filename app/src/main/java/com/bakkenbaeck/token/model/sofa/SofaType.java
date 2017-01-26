@@ -9,16 +9,19 @@ public class SofaType {
             UNKNOWN,
             PLAIN_TEXT,
             PAYMENT_REQUEST,
+            COMMAND_REQUEST,
     })
     public @interface Type {}
     public static final int UNKNOWN = -1;
     public static final int PLAIN_TEXT = 0;
     public static final int PAYMENT_REQUEST = 1;
+    public static final int COMMAND_REQUEST = 2;
 
     public static final String LOCAL_ONLY_PAYLOAD = "custom_local_only_payload";
     public static final String WEB_VIEW = "webview:";
 
     private static final String plain_text = "SOFA::Message:";
+    private static final String command_request = "SOFA::Command:";
     private static final String payment_request = "SOFA::PaymentRequest:";
 
     public static @SofaType.Type int getType(final String type) {
@@ -33,6 +36,7 @@ public class SofaType {
         switch (type) {
             case PLAIN_TEXT: return plain_text;
             case PAYMENT_REQUEST: return payment_request;
+            case COMMAND_REQUEST: return command_request;
             default: return null;
         }
     }

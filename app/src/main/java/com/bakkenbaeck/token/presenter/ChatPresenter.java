@@ -11,6 +11,7 @@ import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.SendState;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.SentTransaction;
+import com.bakkenbaeck.token.model.sofa.Command;
 import com.bakkenbaeck.token.model.sofa.Control;
 import com.bakkenbaeck.token.model.sofa.Message;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
@@ -154,6 +155,21 @@ public final class ChatPresenter implements
         updateEmptyState();
     }
 
+    private void sendCommandMessage(final Control control) {
+        final Command command = new Command()
+                .setBody(control.getLabel())
+                .setValue(control.getValue());
+        final String commandPayload = adapters.toJson(command);
+
+        final ChatMessage sofaCommandMessage = new ChatMessage()
+                .makeNew(remoteUser.getAddress(), SofaType.COMMAND_REQUEST, true, commandPayload);
+
+        BaseApplication.get()
+                .getTokenManager()
+                .getSignalManager()
+                .sendMessage(sofaCommandMessage);
+    }
+
     private void initButtons() {
         this.activity.getBinding().sendButton.setOnClickListener(this.sendButtonClicked);
         this.activity.getBinding().balanceBar.setOnRequestClicked(this.requestButtonClicked);
@@ -164,7 +180,7 @@ public final class ChatPresenter implements
     private final ControlView.OnControlClickedListener controlClicked = new ControlView.OnControlClickedListener() {
         @Override
         public void onControlClicked(Control control) {
-
+            sendCommandMessage(control);
         }
     };
 

@@ -10,7 +10,6 @@ import android.widget.LinearLayout;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.sofa.Control;
-import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.adapter.ControlAdapter;
 import com.bakkenbaeck.token.view.adapter.ControlGroupAdapter;
@@ -124,7 +123,12 @@ public class ControlView extends LinearLayout implements ControlAdapter.OnContro
         adapter.setOnItemClickListener(new ControlGroupAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(Control control) {
-                LogUtil.d(getClass(), "onItemClicked -> " + control.getLabel());}
+                if (listener == null) {
+                    return;
+                }
+
+                listener.onControlClicked(control);
+            }
         });
     }
 
