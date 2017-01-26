@@ -11,15 +11,7 @@ public class UserDetails {
     private String username;
 
     @JsonProperty
-    private long timestamp;
-
-    @JsonProperty
     private CustomPayload custom;
-
-    public UserDetails setTimestamp(final long timestamp) {
-        this.timestamp = timestamp;
-        return this;
-    }
 
     public UserDetails setWalletAddress(final String address) {
         initCustom();

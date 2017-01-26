@@ -3,6 +3,7 @@ package com.bakkenbaeck.token.network;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.network.interceptor.LoggingInterceptor;
+import com.bakkenbaeck.token.network.interceptor.SigningInterceptor;
 import com.bakkenbaeck.token.network.interceptor.UserAgentInterceptor;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.Moshi;
@@ -44,6 +45,7 @@ public class IdService {
         this.client = new OkHttpClient.Builder();
 
         addUserAgentHeader();
+        addSigningInterceptor();
         addLogging();
 
         final Moshi moshi = new Moshi.Builder().build();
@@ -59,6 +61,10 @@ public class IdService {
 
     private void addUserAgentHeader() {
         this.client.addInterceptor(new UserAgentInterceptor());
+    }
+
+    private void addSigningInterceptor() {
+        this.client.addInterceptor(new SigningInterceptor());
     }
 
     private void addLogging() {

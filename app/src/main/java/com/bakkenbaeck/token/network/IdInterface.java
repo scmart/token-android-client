@@ -3,7 +3,7 @@ package com.bakkenbaeck.token.network;
 
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.ServerTime;
-import com.bakkenbaeck.token.model.network.SignedUserDetails;
+import com.bakkenbaeck.token.model.network.UserDetails;
 import com.bakkenbaeck.token.model.network.UserSearchResults;
 
 import retrofit2.http.Body;
@@ -20,13 +20,16 @@ public interface IdInterface {
     Single<ServerTime> getTimestamp();
 
     @POST("/v1/user")
-    Single<User> registerUser(@Body SignedUserDetails details);
+    Single<User> registerUser(@Body UserDetails details,
+                              @Query("timestamp") long timestamp);
 
     @GET("/v1/user/{id}")
     Single<User> getUser(@Path("id") String userId);
 
     @PUT("/v1/user/{id}")
-    Single<User> updateUser(@Path("id") String userId, @Body SignedUserDetails details);
+    Single<User> updateUser(@Path("id") String userId,
+                            @Body UserDetails details,
+                            @Query("timestamp") long timestamp);
 
     @GET("/v1/search/user")
     Single<UserSearchResults> searchByUsername(@Query("query") String username);
