@@ -2,6 +2,7 @@ package com.bakkenbaeck.token.model.sofa;
 
 
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
+import com.bakkenbaeck.token.model.local.Transaction;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.Json;
@@ -16,6 +17,12 @@ public class Payment {
 
     @Json(name = SofaType.LOCAL_ONLY_PAYLOAD)
     private ClientSideCustomData androidClientSideCustomData;
+
+    public Payment() {}
+
+    public Payment(final Transaction transaction) {
+        setValue(transaction.getEthAmount());
+    }
 
     public Payment setTxHash(final String txHash) {
         this.txHash = txHash;

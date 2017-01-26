@@ -1,8 +1,6 @@
 package com.bakkenbaeck.token.presenter;
 
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
@@ -11,19 +9,16 @@ import android.widget.Toast;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.SendState;
+import com.bakkenbaeck.token.model.local.Transaction;
 import com.bakkenbaeck.token.model.local.User;
-import com.bakkenbaeck.token.model.network.SentTransaction;
 import com.bakkenbaeck.token.model.sofa.Command;
 import com.bakkenbaeck.token.model.sofa.Control;
 import com.bakkenbaeck.token.model.sofa.Message;
-import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
-import com.bakkenbaeck.token.network.util.Transaction;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.EthUtil;
-import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
@@ -37,7 +32,6 @@ import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 import java.math.BigDecimal;
 
 import io.realm.RealmResults;
-import rx.SingleSubscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -162,8 +156,8 @@ public final class ChatPresenter implements
 
         BaseApplication.get()
                 .getTokenManager()
-                .getSignalManager()
-                .sendMessage(sofaCommandMessage);
+                .getChatMessageManager()
+                .sendCommand(sofaCommandMessage);
     }
 
     private void initButtons() {
@@ -228,34 +222,12 @@ public final class ChatPresenter implements
         @Override
         public void onSingleClick(final View v) {
             final BigDecimal ethAmount = new BigDecimal("0.001");
-            final Transaction transaction = new Transaction(ethAmount, remoteUser.getPaymentAddress(), userWallet, this.paymentCallback);
-            transaction.process();
-
-            final Payment payment = new Payment().setValue(ethAmount);
-            final String messageBody = adapters.toJson(payment);
-            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getAddress(), SofaType.PAYMENT, true, messageBody);
+            final Transaction transaction = new Transaction(ethAmount, remoteUser.getPaymentAddress());
             BaseApplication.get()
                     .getTokenManager()
-                    .getChatMessageManager()
-                    .sendMessage(message);
+                    .getTransactionManager()
+                    .sendTransaction(transaction);
         }
-
-        public SingleSubscriber<SentTransaction> paymentCallback = new SingleSubscriber<SentTransaction>() {
-            @Override
-            public void onSuccess(final SentTransaction value) {
-                LogUtil.print(ChatPresenter.this.getClass(), "Success");
-            }
-
-            @Override
-            public void onError(final Throwable error) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(activity, "Failed to make payment: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        };
     };
 
     private final OnNextSubscriber<ChatMessage> handleNewMessage = new OnNextSubscriber<ChatMessage>() {
