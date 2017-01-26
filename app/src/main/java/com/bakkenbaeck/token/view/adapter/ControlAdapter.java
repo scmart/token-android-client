@@ -19,7 +19,7 @@ public class ControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private final static int CONTROL_VIEW_GROUPED = 2;
 
     public interface OnControlClickListener {
-        void onGroupedControlItemClicked(final List<Control> controls);
+        void onGroupedControlItemClicked(final Control control);
         void onControlClicked(final Control control);
     }
 
@@ -30,8 +30,14 @@ public class ControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         this.controls = new ArrayList<>(controls);
     }
 
-    public void setGroupedClickListener(final OnControlClickListener listener) {
+    public void setControlClickedListener(final OnControlClickListener listener) {
         this.listener = listener;
+    }
+
+    public void setControls(final List<Control> controls) {
+        this.controls.clear();
+        this.controls.addAll(controls);
+        this.notifyDataSetChanged();
     }
 
     @Override

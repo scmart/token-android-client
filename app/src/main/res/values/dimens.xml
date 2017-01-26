@@ -16,4 +16,5 @@
     <dimen name="control_vertical_padding">15dp</dimen>
     <dimen name="control_radius_size">8dp</dimen>
     <dimen name="control_spacing">8dp</dimen>
+    <dimen name="control_group_recycleview_padding">24dp</dimen>
 </resources>

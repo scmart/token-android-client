@@ -6,7 +6,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
 import android.widget.Toast;
 
-import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.SendState;
@@ -27,14 +26,12 @@ import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
-import com.bakkenbaeck.token.view.adapter.ControlAdapter;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
-import com.bakkenbaeck.token.view.custom.SpaceDecoration;
+import com.bakkenbaeck.token.view.custom.ControlView;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
-import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.ArrayList;
 
 import io.realm.RealmResults;
 import rx.SingleSubscriber;
@@ -42,8 +39,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public final class ChatPresenter implements
-        Presenter<ChatActivity>,
-        ControlAdapter.OnControlClickListener {
+        Presenter<ChatActivity> {
 
     private ChatActivity activity;
     private MessageAdapter messageAdapter;
@@ -68,6 +64,12 @@ public final class ChatPresenter implements
             initLongLivingObjects();
         }
         initShortLivingObjects();
+        initControlView();
+    }
+
+    //Placing it here for now. Initiating with an empty control array
+    private void initControlView() {
+        this.activity.getBinding().controlView.showControls(new ArrayList<Control>());
     }
 
     private void initToolbar() {
@@ -156,7 +158,15 @@ public final class ChatPresenter implements
         this.activity.getBinding().sendButton.setOnClickListener(this.sendButtonClicked);
         this.activity.getBinding().balanceBar.setOnRequestClicked(this.requestButtonClicked);
         this.activity.getBinding().balanceBar.setOnPayClicked(this.payButtonClicked);
+        this.activity.getBinding().controlView.setOnControlClickedListener(this.controlClicked);
     }
+
+    private final ControlView.OnControlClickedListener controlClicked = new ControlView.OnControlClickedListener() {
+        @Override
+        public void onControlClicked(Control control) {
+
+        }
+    };
 
     private final OnSingleClickListener sendButtonClicked = new OnSingleClickListener() {
         @Override
@@ -290,36 +300,6 @@ public final class ChatPresenter implements
         } else if (!shouldShowEmptyState && showingEmptyState) {
             this.activity.getBinding().emptyStateSwitcher.showNext();
         }
-    }
-
-    private void showControls(final List<Control> controls) {
-        final ChipsLayoutManager chipsLayoutManager = ChipsLayoutManager.newBuilder(this.activity)
-                .setMaxViewsInRow(5)
-                .setRowStrategy(ChipsLayoutManager.STRATEGY_FILL_VIEW)
-                .withLastRow(true)
-                .build();
-
-        this.activity.getBinding().controlRecycleView.setLayoutManager(chipsLayoutManager);
-        final ControlAdapter adapter = new ControlAdapter(controls);
-        this.activity.getBinding().controlRecycleView.setAdapter(adapter);
-        final int controlSpacing = this.activity.getResources().getDimensionPixelSize(R.dimen.control_spacing);
-        this.activity.getBinding().controlRecycleView.addItemDecoration(new SpaceDecoration(controlSpacing));
-        this.activity.getBinding().controlRecycleView.setVisibility(View.VISIBLE);
-        adapter.setGroupedClickListener(this);
-    }
-
-    @Override
-    public void onGroupedControlItemClicked(List<Control> controls) {
-        LogUtil.d(getClass(), "onGroupedControlItemClicked");
-    }
-
-    @Override
-    public void onControlClicked(Control control) {
-        LogUtil.d(getClass(), "control label -> " + control.getLabel());
-    }
-
-    private void hideControls() {
-        this.activity.getBinding().controlRecycleView.setVisibility(View.GONE);
     }
 
     @Override

@@ -31,7 +31,7 @@ public class ControlGroupViewHolder extends RecyclerView.ViewHolder {
                     return;
                 }
 
-                listener.onGroupedControlItemClicked(control.getControls());
+                listener.onGroupedControlItemClicked(control);
             }
         });
     }

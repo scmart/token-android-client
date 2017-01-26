@@ -55,7 +55,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp" />
 
-        <RelativeLayout
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
@@ -104,16 +104,13 @@
 
             </ViewSwitcher>
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/control_recycle_view"
+            <com.bakkenbaeck.token.view.custom.ControlView
+                android:id="@+id/control_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                android:visibility="gone" />
+                android:layout_gravity="bottom"/>
 
-        </RelativeLayout>
+        </FrameLayout>
 
         <include layout="@layout/horizontal_divider"/>
 
