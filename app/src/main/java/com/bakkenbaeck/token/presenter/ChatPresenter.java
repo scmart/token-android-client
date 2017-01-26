@@ -32,7 +32,6 @@ import com.bakkenbaeck.token.view.custom.ControlView;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 
 import io.realm.RealmResults;
 import rx.SingleSubscriber;
@@ -65,12 +64,6 @@ public final class ChatPresenter implements
             initLongLivingObjects();
         }
         initShortLivingObjects();
-        initControlView();
-    }
-
-    //Placing it here for now. Initiating with an empty control array
-    private void initControlView() {
-        this.activity.getBinding().controlView.showControls(new ArrayList<Control>());
     }
 
     private void initToolbar() {
@@ -279,11 +272,29 @@ public final class ChatPresenter implements
                 messageAdapter.addMessages(chatMessages);
                 forceScrollToBottom();
                 updateEmptyState();
+
+                final ChatMessage lastChatMessage = chatMessages.get(chatMessages.size() - 1);
+                if (lastChatMessage != null) {
+                    setControlView(lastChatMessage);
+                }
             }
 
             this.unsubscribe();
         }
     };
+
+    private void setControlView(final ChatMessage chatMessage) {
+        try {
+            final Message message = adapters.messageFrom(chatMessage.getPayload());
+            final boolean notNullAndNotZero = message.getControls() != null && message.getControls().size() > 0;
+
+            if (notNullAndNotZero) {
+                this.activity.getBinding().controlView.showControls(message.getControls());
+            }
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void tryScrollToBottom(final boolean animate) {
         if (this.activity == null || this.layoutManager == null || this.messageAdapter.getItemCount() == 0) {
