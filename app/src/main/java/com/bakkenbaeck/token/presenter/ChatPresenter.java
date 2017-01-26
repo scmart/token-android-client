@@ -193,7 +193,7 @@ public final class ChatPresenter implements
             final ChatMessage message = new ChatMessage().makeNew(remoteUser.getAddress(), SofaType.PLAIN_TEXT, true, messageBody);
             BaseApplication.get()
                     .getTokenManager()
-                    .getSignalManager()
+                    .getChatMessageManager()
                     .sendMessage(message);
 
             activity.getBinding().userInput.setText(null);
@@ -218,7 +218,7 @@ public final class ChatPresenter implements
             final ChatMessage message = new ChatMessage().makeNew(remoteUser.getAddress(), SofaType.PAYMENT_REQUEST, true, messageBody);
             BaseApplication.get()
                     .getTokenManager()
-                    .getSignalManager()
+                    .getChatMessageManager()
                     .sendMessage(message);
         }
     };
@@ -236,7 +236,7 @@ public final class ChatPresenter implements
             final ChatMessage message = new ChatMessage().makeNew(remoteUser.getAddress(), SofaType.PAYMENT, true, messageBody);
             BaseApplication.get()
                     .getTokenManager()
-                    .getSignalManager()
+                    .getChatMessageManager()
                     .sendMessage(message);
         }
 

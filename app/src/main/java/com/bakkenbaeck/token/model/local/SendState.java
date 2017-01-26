@@ -9,7 +9,8 @@ public class SendState {
             STATE_SENDING,
             STATE_SENT,
             STATE_FAILED,
-            STATE_RECEIVED
+            STATE_RECEIVED,
+            STATE_LOCAL_ONLY
     })
     public @interface State {}
 
@@ -17,4 +18,5 @@ public class SendState {
     public static final int STATE_SENT = 1;
     public static final int STATE_FAILED = 2;
     public static final int STATE_RECEIVED = 3;
+    public static final int STATE_LOCAL_ONLY = 4;
 }
