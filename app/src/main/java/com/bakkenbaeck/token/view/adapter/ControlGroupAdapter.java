@@ -14,7 +14,16 @@ import java.util.List;
 
 public class ControlGroupAdapter extends RecyclerView.Adapter<ControlGroupPopupHolder> {
 
+    public interface OnItemClickListener {
+        void onItemClicked(final Control control);
+    }
+
     private List<Control> controls;
+    private OnItemClickListener listener;
+
+    public void setOnItemClickListener(final OnItemClickListener listener) {
+        this.listener = listener;
+    }
 
     public ControlGroupAdapter(final List<Control> controls) {
         this.controls = new ArrayList<>(controls);
@@ -36,6 +45,7 @@ public class ControlGroupAdapter extends RecyclerView.Adapter<ControlGroupPopupH
     public void onBindViewHolder(ControlGroupPopupHolder holder, int position) {
         final Control control = this.controls.get(position);
         holder.setText(control.getLabel());
+        holder.bind(control, listener);
     }
 
     @Override
