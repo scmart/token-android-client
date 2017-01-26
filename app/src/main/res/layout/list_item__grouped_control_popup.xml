@@ -8,8 +8,7 @@
         android:id="@+id/label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_gravity="center"
+        android:layout_gravity="center_vertical"
         android:paddingLeft="@dimen/control_group_recycleview_padding"
         android:paddingRight="@dimen/control_group_recycleview_padding" />
 

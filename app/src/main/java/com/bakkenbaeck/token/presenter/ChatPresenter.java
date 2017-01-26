@@ -69,7 +69,7 @@ public final class ChatPresenter implements
 
     //Placing it here for now. Initiating with an empty control array
     private void initControlView() {
-        this.activity.getBinding().controlView.showControls(new ArrayList<Control>());
+       this.activity.getBinding().controlView.showControls(new ArrayList<Control>());
     }
 
     private void initToolbar() {

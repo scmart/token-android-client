@@ -114,10 +114,12 @@ public class ControlView extends LinearLayout implements ControlAdapter.OnContro
     private void initGroupControlView(final List<Control> controls) {
         final RecyclerView controlGroupRv = (RecyclerView) findViewById(R.id.control_grouped_recycle_view);
         final ControlGroupAdapter adapter = new ControlGroupAdapter(controls);
+        final int padding = getResources().getDimensionPixelSize(R.dimen.control_group_recycleview_padding);
 
         controlGroupRv.setLayoutManager(new LinearLayoutManager(this.getContext()));
         controlGroupRv.setAdapter(adapter);
         controlGroupRv.setVisibility(View.VISIBLE);
+        controlGroupRv.addItemDecoration(new RecycleviewDivider(this.getContext(), padding));
     }
 
     private void hideGroupedControlsView() {
