@@ -25,6 +25,7 @@ public class ControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private List<Control> controls;
     private OnControlClickListener listener;
+    private int selectedPosition = -1;
 
     public ControlAdapter(final List<Control> controls) {
         this.controls = new ArrayList<>(controls);
@@ -38,6 +39,23 @@ public class ControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         this.controls.clear();
         this.controls.addAll(controls);
         this.notifyDataSetChanged();
+    }
+
+    public void updateView(final int position) {
+        this.notifyItemChanged(this.selectedPosition);
+        this.selectedPosition = position;
+    }
+
+    public int getSelectedPos() {
+        return this.selectedPosition;
+    }
+
+    public OnControlClickListener getControlClickListener() {
+        return this.listener;
+    }
+
+    public Control getControl(final int position) {
+        return this.controls.get(position);
     }
 
     @Override
@@ -63,7 +81,14 @@ public class ControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             case CONTROL_VIEW_GROUPED: {
                 final ControlGroupViewHolder vh = (ControlGroupViewHolder) holder;
                 vh.setText(control.getLabel());
-                vh.bind(control, this.listener);
+                vh.bind(position, this);
+
+                if (this.selectedPosition == position) {
+                    vh.unSelect(listener);
+                } else {
+                    vh.unselectView();
+                }
+
                 break;
             }
             case CONTROL_VIEW:
