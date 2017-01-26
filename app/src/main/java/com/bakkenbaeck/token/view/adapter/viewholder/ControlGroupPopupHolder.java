@@ -2,6 +2,7 @@ package com.bakkenbaeck.token.view.adapter.viewholder;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
@@ -10,10 +11,12 @@ import com.bakkenbaeck.token.view.adapter.ControlGroupAdapter;
 
 public class ControlGroupPopupHolder extends RecyclerView.ViewHolder {
     private TextView label;
+    private ImageView arrow;
 
     public ControlGroupPopupHolder(View itemView) {
         super(itemView);
         this.label = (TextView) itemView.findViewById(R.id.label);
+        this.arrow = (ImageView) itemView.findViewById(R.id.arrow);
     }
 
     public void setText(final String text) {
@@ -31,5 +34,13 @@ public class ControlGroupPopupHolder extends RecyclerView.ViewHolder {
                 listener.onItemClicked(control);
             }
         });
+    }
+
+    public void showArrow() {
+        this.arrow.setVisibility(View.VISIBLE);
+    }
+
+    public void hideArrow() {
+        this.arrow.setVisibility(View.GONE);
     }
 }

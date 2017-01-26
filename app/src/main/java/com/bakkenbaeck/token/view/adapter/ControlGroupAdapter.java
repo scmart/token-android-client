@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.sofa.Control;
+import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.view.adapter.viewholder.ControlGroupPopupHolder;
 
 import java.util.ArrayList;
@@ -46,6 +47,12 @@ public class ControlGroupAdapter extends RecyclerView.Adapter<ControlGroupPopupH
         final Control control = this.controls.get(position);
         holder.setText(control.getLabel());
         holder.bind(control, listener);
+
+        if (control.getAction().toLowerCase().contains(SofaType.WEB_VIEW)) {
+            holder.showArrow();
+        } else {
+            holder.hideArrow();
+        }
     }
 
     @Override
