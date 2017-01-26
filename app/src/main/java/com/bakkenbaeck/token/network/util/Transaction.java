@@ -18,6 +18,7 @@ public class Transaction {
 
     private final BigDecimal ethAmount;
     private final String toAddress;
+
     private final HDWallet userWallet;
     private final SingleSubscriber<SentTransaction> callback;
 

@@ -1,6 +1,8 @@
 package com.bakkenbaeck.token.presenter;
 
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
@@ -14,6 +16,7 @@ import com.bakkenbaeck.token.model.network.SentTransaction;
 import com.bakkenbaeck.token.model.sofa.Command;
 import com.bakkenbaeck.token.model.sofa.Control;
 import com.bakkenbaeck.token.model.sofa.Message;
+import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
@@ -206,12 +209,9 @@ public final class ChatPresenter implements
         public void onSingleClick(final View v) {
 
             final BigDecimal ethAmount = new BigDecimal("0.001");
-            final BigDecimal localAmount = BaseApplication.get().getTokenManager().getBalanceManager().getMarketRate("USD", ethAmount);
-            final String localAmountString = "$" + EthUtil.ethToEthString(localAmount) + " USD";
 
             final PaymentRequest paymentRequest = new PaymentRequest()
                     .setDestinationAddress(userWallet.getWalletAddress())
-                    .setLocalPrice(localAmountString)
                     .setValue(EthUtil.ethToWei(ethAmount));
 
             final String messageBody = adapters.toJson(paymentRequest);
@@ -230,6 +230,14 @@ public final class ChatPresenter implements
             final BigDecimal ethAmount = new BigDecimal("0.001");
             final Transaction transaction = new Transaction(ethAmount, remoteUser.getPaymentAddress(), userWallet, this.paymentCallback);
             transaction.process();
+
+            final Payment payment = new Payment().setValue(ethAmount);
+            final String messageBody = adapters.toJson(payment);
+            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getAddress(), SofaType.PAYMENT, true, messageBody);
+            BaseApplication.get()
+                    .getTokenManager()
+                    .getSignalManager()
+                    .sendMessage(message);
         }
 
         public SingleSubscriber<SentTransaction> paymentCallback = new SingleSubscriber<SentTransaction>() {
@@ -240,7 +248,12 @@ public final class ChatPresenter implements
 
             @Override
             public void onError(final Throwable error) {
-                LogUtil.print(ChatPresenter.this.getClass(), "Error");
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(activity, "Failed to make payment: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         };
     };

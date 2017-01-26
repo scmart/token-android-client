@@ -4,6 +4,7 @@ package com.bakkenbaeck.token.model.sofa;
 import android.support.annotation.IntDef;
 
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
+import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.Json;
 
 import java.math.BigInteger;
@@ -48,6 +49,8 @@ public class PaymentRequest {
 
     public PaymentRequest setValue(final BigInteger value) {
         this.value = TypeConverter.toJsonHex(value);
+        final String localAmount = BaseApplication.get().getTokenManager().getBalanceManager().getMarketRateInLocalCurrency(value);
+        setLocalPrice(localAmount);
         return this;
     }
 
@@ -64,7 +67,7 @@ public class PaymentRequest {
         return TypeConverter.StringHexToBigInteger(this.value);
     }
 
-    public PaymentRequest setLocalPrice(final String localPrice) {
+    private PaymentRequest setLocalPrice(final String localPrice) {
         if (this.androidClientSideCustomData == null) {
             this.androidClientSideCustomData = new ClientSideCustomData();
         }
