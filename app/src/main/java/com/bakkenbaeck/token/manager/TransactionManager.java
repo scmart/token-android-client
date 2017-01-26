@@ -85,7 +85,7 @@ public class TransactionManager {
     private ChatMessage generateMessageForTransaction(final Transaction transaction) {
         final Payment payment = new Payment(transaction);
         final String messageBody = this.adapters.toJson(payment);
-        return new ChatMessage().makeNew(transaction.getToAddress(), SofaType.PAYMENT, true, messageBody);
+        return new ChatMessage().makeNew(transaction.getOwnerAddress(), SofaType.PAYMENT, true, messageBody);
     }
 
     private void storeMessage(final ChatMessage message) {

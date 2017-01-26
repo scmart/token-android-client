@@ -80,7 +80,7 @@ public final class ChatPresenter implements
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleUpdatedMessage);
-        this.chatMessageStore.load(this.remoteUser.getAddress())
+        this.chatMessageStore.load(this.remoteUser.getOwnerAddress())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleLoadMessages);
         this.adapters = new SofaAdapters();
@@ -152,7 +152,7 @@ public final class ChatPresenter implements
         final String commandPayload = adapters.toJson(command);
 
         final ChatMessage sofaCommandMessage = new ChatMessage()
-                .makeNew(remoteUser.getAddress(), SofaType.COMMAND_REQUEST, true, commandPayload);
+                .makeNew(remoteUser.getOwnerAddress(), SofaType.COMMAND_REQUEST, true, commandPayload);
 
         BaseApplication.get()
                 .getTokenManager()
@@ -184,7 +184,7 @@ public final class ChatPresenter implements
             final String userInput = activity.getBinding().userInput.getText().toString();
             final Message sofaMessage = new Message().setBody(userInput);
             final String messageBody = adapters.toJson(sofaMessage);
-            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getAddress(), SofaType.PLAIN_TEXT, true, messageBody);
+            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getOwnerAddress(), SofaType.PLAIN_TEXT, true, messageBody);
             BaseApplication.get()
                     .getTokenManager()
                     .getChatMessageManager()
@@ -209,7 +209,7 @@ public final class ChatPresenter implements
                     .setValue(EthUtil.ethToWei(ethAmount));
 
             final String messageBody = adapters.toJson(paymentRequest);
-            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getAddress(), SofaType.PAYMENT_REQUEST, true, messageBody);
+            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getOwnerAddress(), SofaType.PAYMENT_REQUEST, true, messageBody);
             BaseApplication.get()
                     .getTokenManager()
                     .getChatMessageManager()
@@ -222,7 +222,10 @@ public final class ChatPresenter implements
         @Override
         public void onSingleClick(final View v) {
             final BigDecimal ethAmount = new BigDecimal("0.001");
-            final Transaction transaction = new Transaction(ethAmount, remoteUser.getPaymentAddress());
+            final Transaction transaction = new Transaction(
+                    ethAmount,
+                    remoteUser.getPaymentAddress(),
+                    remoteUser.getOwnerAddress());
             BaseApplication.get()
                     .getTokenManager()
                     .getTransactionManager()
@@ -233,6 +236,9 @@ public final class ChatPresenter implements
     private final OnNextSubscriber<ChatMessage> handleNewMessage = new OnNextSubscriber<ChatMessage>() {
         @Override
         public void onNext(final ChatMessage chatMessage) {
+            if (!messageBelongsInThisConversation(chatMessage)) {
+                return;
+            }
             messageAdapter.addMessage(chatMessage);
             updateEmptyState();
             tryScrollToBottom(true);
@@ -242,13 +248,22 @@ public final class ChatPresenter implements
     private final OnNextSubscriber<ChatMessage> handleUpdatedMessage = new OnNextSubscriber<ChatMessage>() {
         @Override
         public void onNext(final ChatMessage chatMessage) {
+            if (!messageBelongsInThisConversation(chatMessage)) {
+                return;
+            }
+
             if (chatMessage.getSendState() != SendState.STATE_FAILED) {
                 return;
             }
 
+            messageAdapter.updateMessage(chatMessage);
             Toast.makeText(activity, "Failed to send: " + chatMessage.getPayload(), Toast.LENGTH_SHORT).show();
         }
     };
+
+    private boolean messageBelongsInThisConversation(final ChatMessage chatMessage) {
+        return chatMessage.getConversationId().equals(remoteUser.getOwnerAddress());
+    }
 
     private final SingleSuccessSubscriber<RealmResults<ChatMessage>> handleLoadMessages = new SingleSuccessSubscriber<RealmResults<ChatMessage>>() {
         @Override

@@ -34,7 +34,7 @@ public class User extends RealmObject implements Parcelable {
         return username;
     }
 
-    public String getAddress() {
+    public String getOwnerAddress() {
         return owner_address;
     }
 

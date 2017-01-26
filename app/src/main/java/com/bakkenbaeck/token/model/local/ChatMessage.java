@@ -53,6 +53,10 @@ public class ChatMessage extends RealmObject {
 
     // Getters
 
+    private String getPrivateKey() {
+        return this.privateKey;
+    }
+
     public String getPayload() {
         return cleanPayload(this.payload);
     }
@@ -103,5 +107,19 @@ public class ChatMessage extends RealmObject {
                         .setType(type)
                         .setSentByLocal(sentByLocal)
                         .setPayload(sofaPayload);
+    }
+
+    @Override
+    public boolean equals(Object other){
+        if (other == null) return false;
+        if (other == this) return true;
+        if (!(other instanceof ChatMessage))return false;
+        final ChatMessage otherChatMessage = (ChatMessage) other;
+        return otherChatMessage.getPrivateKey().equals(this.privateKey);
+    }
+
+    @Override
+    public int hashCode() {
+        return privateKey.hashCode();
     }
 }

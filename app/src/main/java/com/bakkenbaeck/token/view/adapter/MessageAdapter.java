@@ -42,6 +42,17 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         notifyItemInserted(this.chatMessages.size() - 1);
     }
 
+    public final void updateMessage(final ChatMessage chatMessage) {
+        final int position = this.chatMessages.indexOf(chatMessage);
+        if (position == -1) {
+            addMessage(chatMessage);
+            return;
+        }
+
+        this.chatMessages.set(position, chatMessage);
+        notifyItemChanged(position);
+    }
+
     @Override
     public int getItemViewType(final int position) {
         final ChatMessage chatMessage = this.chatMessages.get(position);
@@ -100,7 +111,10 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
                 try {
                     final Payment payment = this.adapters.paymentFrom(payload);
-                    vh.setPayment(payment, chatMessage.isSentByLocal());
+                    vh.setPayment(payment)
+                            .setSendState(chatMessage.getSendState())
+                            .setSentByLocal(chatMessage.isSentByLocal())
+                            .draw();
                 } catch (final IOException e) {
                     LogUtil.print(getClass(), e.toString());
                 }
