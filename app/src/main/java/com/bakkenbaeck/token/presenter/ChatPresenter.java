@@ -7,7 +7,6 @@ import android.view.animation.PathInterpolator;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.local.ChatMessage;
-import com.bakkenbaeck.token.model.local.SendState;
 import com.bakkenbaeck.token.model.local.Transaction;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.sofa.Command;
@@ -248,10 +247,6 @@ public final class ChatPresenter implements
         @Override
         public void onNext(final ChatMessage chatMessage) {
             if (!messageBelongsInThisConversation(chatMessage)) {
-                return;
-            }
-
-            if (chatMessage.getSendState() != SendState.STATE_FAILED) {
                 return;
             }
 

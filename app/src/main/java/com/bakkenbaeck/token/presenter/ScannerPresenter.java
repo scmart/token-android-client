@@ -50,13 +50,17 @@ public final class ScannerPresenter implements Presenter<ScannerFragment> {
 
     @Override
     public void onViewDetached() {
-        this.capture.onPause();
+        if (this.capture != null) {
+            this.capture.onPause();
+        }
         this.fragment = null;
     }
 
     @Override
     public void onViewDestroyed() {
-        this.capture.onDestroy();
+        if (this.capture != null) {
+            this.capture.onDestroy();
+        }
         this.fragment = null;
     }
 }
