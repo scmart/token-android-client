@@ -18,6 +18,7 @@ import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -192,7 +193,19 @@ public class TransactionManager {
                 .subscribe(new SingleSubscriber<SentTransaction>() {
                     @Override
                     public void onSuccess(final SentTransaction sentTransaction) {
+                        final String newPayload = embedTxHashInPayload(sentTransaction.getTxHash(), chatMessage.getPayload());
+                        chatMessage.setPayload(newPayload);
                         updateMessageToSent(chatMessage);
+                    }
+
+                    private String embedTxHashInPayload(final String txHash, final String payload) {
+                        try {
+                            final Payment payment = adapters.paymentFrom(payload);
+                            payment.setTxHash(txHash);
+                            return adapters.toJson(payment);
+                        } catch (IOException e) {
+                            return payload;
+                        }
                     }
 
                     @Override
