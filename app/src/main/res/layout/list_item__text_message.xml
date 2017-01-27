@@ -24,23 +24,48 @@
         android:textSize="@dimen/defaultTextSize"
         tools:text="This is a remote message!"/>
 
-    <TextView
-        android:id="@+id/local_message"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/btn_with_radius"
-        android:layout_marginBottom="@dimen/bubbleMargin"
-        android:layout_marginTop="@dimen/bubbleMargin"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
-        android:gravity="center"
-        android:lineSpacingExtra="2dp"
+        android:orientation="vertical"
+        android:id="@+id/local_container"
         android:layout_gravity="right"
-        android:minWidth="50dp"
-        android:textColor="@color/textColorContrast"
-        android:textSize="@dimen/defaultTextSize"
-        tools:text="This is a locally sent message!"/>
+        >
+
+        <TextView
+            android:id="@+id/local_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_with_radius"
+            android:layout_marginBottom="@dimen/bubbleMargin"
+            android:layout_marginTop="@dimen/bubbleMargin"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:gravity="center"
+            android:lineSpacingExtra="2dp"
+            android:minWidth="50dp"
+            android:textColor="@color/textColorContrast"
+            android:textSize="@dimen/defaultTextSize"
+            android:layout_gravity="right"
+            tools:text="This is a locally sent message!"/>
+
+        <TextView
+            android:id="@+id/sent_fail_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/textColorSecondary"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_vertical"
+            android:drawableLeft="@drawable/ic_error_black_24dp"
+            android:drawableTint="@color/textColorSecondary"
+            android:drawablePadding="8dp"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:text="@string/error__message_failed"/>
+    </LinearLayout>
+
+
 
 </FrameLayout>

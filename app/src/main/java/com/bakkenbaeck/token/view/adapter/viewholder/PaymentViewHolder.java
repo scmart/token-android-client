@@ -20,6 +20,7 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
     private TextView remoteRequestedAmount;
     private TextView localSecondaryAmount;
     private TextView remoteSecondaryAmount;
+    private TextView sentFailedMessage;
 
 
     private Payment payment;
@@ -36,6 +37,7 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
         this.remoteRequestedAmount = (TextView) v.findViewById(R.id.remote_requested_amount);
         this.localSecondaryAmount = (TextView) v.findViewById(R.id.local_eth_amount);
         this.remoteSecondaryAmount = (TextView) v.findViewById(R.id.remote_eth_amount);
+        this.sentFailedMessage = (TextView) v.findViewById(R.id.sent_fail_message);
     }
 
     public PaymentViewHolder setPayment(final Payment payment) {
@@ -57,11 +59,16 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
         if (this.sentByLocal) {
             this.localView.setVisibility(View.VISIBLE);
             this.remoteView.setVisibility(View.GONE);
+            this.sentFailedMessage.setVisibility(View.GONE);
             this.localRequestedAmount.setText(this.payment.getLocalPrice());
             final String ethAmount = String.format(
                     BaseApplication.get().getResources().getString(R.string.eth_amount),
                     EthUtil.weiToEthString(this.payment.getValue()));
             this.localSecondaryAmount.setText(ethAmount);
+
+            if (this.sendState == SendState.STATE_FAILED) {
+                this.sentFailedMessage.setVisibility(View.VISIBLE);
+            }
         } else {
             this.remoteView.setVisibility(View.VISIBLE);
             this.localView.setVisibility(View.GONE);

@@ -4,7 +4,6 @@ import android.os.Build;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
-import android.widget.Toast;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.local.ChatMessage;
@@ -257,7 +256,6 @@ public final class ChatPresenter implements
             }
 
             messageAdapter.updateMessage(chatMessage);
-            Toast.makeText(activity, "Failed to send: " + chatMessage.getPayload(), Toast.LENGTH_SHORT).show();
         }
     };
 

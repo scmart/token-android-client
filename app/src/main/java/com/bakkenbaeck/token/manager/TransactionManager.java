@@ -16,6 +16,7 @@ import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.network.BalanceService;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
+import com.bakkenbaeck.token.view.BaseApplication;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -94,6 +95,12 @@ public class TransactionManager {
             public void run() {
                 message.setSendState(SendState.STATE_SENDING);
                 chatMessageStore.save(message);
+
+                BaseApplication
+                        .get()
+                        .getTokenManager()
+                        .getChatMessageManager()
+                        .sendCommand(message);
             }
         });
     }

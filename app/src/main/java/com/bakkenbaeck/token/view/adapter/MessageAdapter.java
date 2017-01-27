@@ -98,7 +98,11 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 final TextViewHolder vh = (TextViewHolder) holder;
                 try {
                     final Message message = this.adapters.messageFrom(payload);
-                    vh.setText(message.getBody(), chatMessage.isSentByLocal());
+                    vh
+                        .setText(message.getBody())
+                        .setSentByLocal(chatMessage.isSentByLocal())
+                        .setSendState(chatMessage.getSendState())
+                        .draw();
                 } catch (final IOException e) {
                     LogUtil.print(getClass(), e.toString());
                 }
