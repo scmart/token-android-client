@@ -68,6 +68,10 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
 
             if (this.sendState == SendState.STATE_FAILED) {
                 this.sentFailedMessage.setVisibility(View.VISIBLE);
+                this.sentFailedMessage.setText(R.string.error__transaction_failed);
+            } else if (this.sendState == SendState.STATE_SENT) {
+                this.sentFailedMessage.setVisibility(View.VISIBLE);
+                this.sentFailedMessage.setText(R.string.error__transaction_succeeded);
             }
         } else {
             this.remoteView.setVisibility(View.VISIBLE);

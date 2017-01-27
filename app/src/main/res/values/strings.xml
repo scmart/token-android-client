@@ -39,4 +39,5 @@
     <string name="money_received">Money received</string>
     <string name="error__transaction_failed">Money failed to send</string>
     <string name="error__message_failed">Message did not send</string>
+    <string name="error__transaction_succeeded">Transaction sent</string>
 </resources>

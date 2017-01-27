@@ -95,12 +95,6 @@ public class TransactionManager {
             public void run() {
                 message.setSendState(SendState.STATE_SENDING);
                 chatMessageStore.save(message);
-
-                BaseApplication
-                        .get()
-                        .getTokenManager()
-                        .getChatMessageManager()
-                        .sendCommand(message);
             }
         });
     }
@@ -121,6 +115,12 @@ public class TransactionManager {
             public void run() {
                 message.setSendState(SendState.STATE_SENT);
                 chatMessageStore.update(message);
+
+                BaseApplication
+                        .get()
+                        .getTokenManager()
+                        .getChatMessageManager()
+                        .sendCommand(message);
             }
         });
     }

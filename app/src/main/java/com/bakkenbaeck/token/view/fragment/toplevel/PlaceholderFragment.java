@@ -17,6 +17,8 @@ import com.bakkenbaeck.token.view.fragment.BasePresenterFragment;
 
 public class PlaceholderFragment extends BasePresenterFragment<PlaceholderPresenter, PlaceholderFragment> {
 
+    private TextView textView;
+
     public static PlaceholderFragment newInstance(final CharSequence title) {
         final PlaceholderFragment f = new PlaceholderFragment();
         final Bundle b = new Bundle();
@@ -31,6 +33,8 @@ public class PlaceholderFragment extends BasePresenterFragment<PlaceholderPresen
         final CharSequence title = getArguments().getCharSequence("title", null);
         final View v =  inflater.inflate(R.layout.fragment_placeholder, container, false);
         ((TextView)v.findViewById(R.id.title)).setText(title);
+
+        this.textView = (TextView) v.findViewById(R.id.placeholder_text);
         return v;
     }
 
@@ -48,5 +52,11 @@ public class PlaceholderFragment extends BasePresenterFragment<PlaceholderPresen
     @Override
     protected int loaderId() {
         return 0;
+    }
+
+    public void setText(final String text) {
+        if (this.textView != null) {
+            this.textView.setText(text);
+        }
     }
 }
