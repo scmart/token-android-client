@@ -17,7 +17,7 @@ public final class PlaceholderPresenter implements Presenter<PlaceholderFragment
             @Override
             public void onSuccess(final HDWallet wallet) {
                 if (fragment != null) {
-                    final String text = "To add funds to your wallet.\n\nGo to: https://token-eth-faucet.herokuapp.com?w=" + wallet.getWalletAddress();
+                    final String text = "\uD83E\uDD11<br><br>Use the <a href=\"https://token-eth-faucet.herokuapp.com?wei=100000000000000000&address=" + wallet.getWalletAddress() + "\">Faucet</a> to add funds to your wallet.";
                     fragment.setText(text);
                 }
             }

@@ -30,7 +30,6 @@
         android:layout_height="match_parent"
         android:textSize="18sp"
         android:gravity="center"
-        android:autoLink="web"
         android:text="Loading..."/>
 
 </LinearLayout>

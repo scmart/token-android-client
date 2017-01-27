@@ -4,6 +4,8 @@ package com.bakkenbaeck.token.view.fragment.toplevel;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,7 +58,8 @@ public class PlaceholderFragment extends BasePresenterFragment<PlaceholderPresen
 
     public void setText(final String text) {
         if (this.textView != null) {
-            this.textView.setText(text);
+            this.textView.setText(Html.fromHtml(text));
+            this.textView.setMovementMethod(LinkMovementMethod.getInstance());
         }
     }
 }
