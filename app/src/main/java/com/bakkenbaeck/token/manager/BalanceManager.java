@@ -135,4 +135,15 @@ public class BalanceManager {
         final BigDecimal rate = this.rates.getRate(currency);
         return rate.multiply(ethAmount);
     }
+
+    // Currently hard-coded to USD
+    public String getMarketRateInLocalCurrency(final BigInteger wei) {
+        final BigDecimal ethAmount = EthUtil.weiToEth(wei);
+        return getMarketRateInLocalCurrency(ethAmount);
+    }
+
+    public String getMarketRateInLocalCurrency(final BigDecimal ethAmount) {
+        final BigDecimal marketRate = getMarketRate("USD", ethAmount);
+        return "$" + EthUtil.ethToEthString(marketRate) + " USD";
+    }
 }

@@ -10,4 +10,8 @@ public class SentTransaction {
     public List<TokenError> getErrors() {
         return this.errors;
     }
+
+    public String getTxHash() {
+        return this.tx_hash;
+    }
 }

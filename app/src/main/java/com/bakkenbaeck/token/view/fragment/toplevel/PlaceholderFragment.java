@@ -4,6 +4,8 @@ package com.bakkenbaeck.token.view.fragment.toplevel;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,8 @@ import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
 import com.bakkenbaeck.token.view.fragment.BasePresenterFragment;
 
 public class PlaceholderFragment extends BasePresenterFragment<PlaceholderPresenter, PlaceholderFragment> {
+
+    private TextView textView;
 
     public static PlaceholderFragment newInstance(final CharSequence title) {
         final PlaceholderFragment f = new PlaceholderFragment();
@@ -31,6 +35,8 @@ public class PlaceholderFragment extends BasePresenterFragment<PlaceholderPresen
         final CharSequence title = getArguments().getCharSequence("title", null);
         final View v =  inflater.inflate(R.layout.fragment_placeholder, container, false);
         ((TextView)v.findViewById(R.id.title)).setText(title);
+
+        this.textView = (TextView) v.findViewById(R.id.placeholder_text);
         return v;
     }
 
@@ -48,5 +54,12 @@ public class PlaceholderFragment extends BasePresenterFragment<PlaceholderPresen
     @Override
     protected int loaderId() {
         return 0;
+    }
+
+    public void setText(final String text) {
+        if (this.textView != null) {
+            this.textView.setText(Html.fromHtml(text));
+            this.textView.setMovementMethod(LinkMovementMethod.getInstance());
+        }
     }
 }

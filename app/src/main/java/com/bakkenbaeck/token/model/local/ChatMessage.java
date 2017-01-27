@@ -53,6 +53,10 @@ public class ChatMessage extends RealmObject {
 
     // Getters
 
+    private String getPrivateKey() {
+        return this.privateKey;
+    }
+
     public String getPayload() {
         return cleanPayload(this.payload);
     }
@@ -92,16 +96,41 @@ public class ChatMessage extends RealmObject {
         return payload;
     }
 
+    private String getSofaHeader(final String payload) {
+        final String regexString = "SOFA::.+?:";
+        final Pattern pattern = Pattern.compile(regexString);
+        final Matcher m = pattern.matcher(payload);
+        if (m.find()) {
+            return m.group();
+        }
+        return null;
+    }
+
     public ChatMessage makeNew(
             final String conversationId,
-            final @SofaType.Type int type,
             final boolean sentByLocal,
             final String sofaPayload) {
-        return
-                setConversationId(conversationId)
+                final String sofaHeader = getSofaHeader(sofaPayload);
+                final @SofaType.Type int sofaType = SofaType.getType(sofaHeader);
+
+                return setConversationId(conversationId)
                         .setSendState(SendState.STATE_SENDING)
-                        .setType(type)
+                        .setType(sofaType)
                         .setSentByLocal(sentByLocal)
                         .setPayload(sofaPayload);
+    }
+
+    @Override
+    public boolean equals(Object other){
+        if (other == null) return false;
+        if (other == this) return true;
+        if (!(other instanceof ChatMessage))return false;
+        final ChatMessage otherChatMessage = (ChatMessage) other;
+        return otherChatMessage.getPrivateKey().equals(this.privateKey);
+    }
+
+    @Override
+    public int hashCode() {
+        return privateKey.hashCode();
     }
 }

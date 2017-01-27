@@ -11,13 +11,15 @@ public class TokenManager {
 
     private BalanceManager balanceManager;
     private HDWallet wallet;
-    private SignalManager signalManager;
+    private ChatMessageManager chatMessageManager;
+    private TransactionManager transactionManager;
     private UserManager userManager;
 
     public TokenManager() {
         this.balanceManager = new BalanceManager();
         this.userManager = new UserManager();
-        this.signalManager = new SignalManager();
+        this.chatMessageManager = new ChatMessageManager();
+        this.transactionManager = new TransactionManager();
     }
 
     public Single<TokenManager> init() {
@@ -26,15 +28,20 @@ public class TokenManager {
             public TokenManager call() throws Exception {
                 TokenManager.this.wallet = new HDWallet().init();
                 TokenManager.this.balanceManager.init(TokenManager.this.wallet);
-                TokenManager.this.signalManager.init(TokenManager.this.wallet);
+                TokenManager.this.chatMessageManager.init(TokenManager.this.wallet);
+                TokenManager.this.transactionManager.init(TokenManager.this.wallet);
                 TokenManager.this.userManager.init(TokenManager.this.wallet);
                 return TokenManager.this;
             }
         });
     }
 
-    public final SignalManager getSignalManager() {
-        return this.signalManager;
+    public final ChatMessageManager getChatMessageManager() {
+        return this.chatMessageManager;
+    }
+
+    public final TransactionManager getTransactionManager() {
+        return this.transactionManager;
     }
 
     public final UserManager getUserManager() {

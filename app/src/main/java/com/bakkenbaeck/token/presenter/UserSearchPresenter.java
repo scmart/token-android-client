@@ -127,7 +127,7 @@ public final class UserSearchPresenter
     @Override
     public void onItemClick(final User clickedUser) {
         final Intent intent = new Intent(this.activity, ViewUserActivity.class);
-        intent.putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, clickedUser.getAddress());
+        intent.putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, clickedUser.getOwnerAddress());
         this.activity.startActivity(intent);
     }
 }

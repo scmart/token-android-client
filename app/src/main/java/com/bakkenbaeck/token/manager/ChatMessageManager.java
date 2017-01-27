@@ -8,8 +8,12 @@ import com.bakkenbaeck.token.crypto.signal.SignalPreferences;
 import com.bakkenbaeck.token.crypto.signal.SignalService;
 import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
 import com.bakkenbaeck.token.crypto.signal.store.SignalTrustStore;
+import com.bakkenbaeck.token.manager.model.ChatMessageTask;
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.SendState;
+import com.bakkenbaeck.token.model.sofa.Payment;
+import com.bakkenbaeck.token.model.sofa.PaymentRequest;
+import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.LogUtil;
@@ -43,8 +47,8 @@ import rx.SingleSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
-public final class SignalManager {
-    private final PublishSubject<ChatMessage> sendMessageSubject = PublishSubject.create();
+public final class ChatMessageManager {
+    private final PublishSubject<ChatMessageTask> chatMessageQueue = PublishSubject.create();
 
     private SignalService signalService;
     private HDWallet wallet;
@@ -54,22 +58,59 @@ public final class SignalManager {
     private ChatMessageStore chatMessageStore;
     private ExecutorService dbThreadExecutor;
     private String userAgent;
+    private SofaAdapters adapters;
     private boolean receiveMessages;
 
-    public final SignalManager init(final HDWallet wallet) {
+    public final ChatMessageManager init(final HDWallet wallet) {
         this.wallet = wallet;
         this.userAgent = "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME +  ":" + BuildConfig.VERSION_CODE;
+        this.adapters = new SofaAdapters();
         new Thread(new Runnable() {
             @Override
             public void run() {
-                initSignalManager();
+                initEverything();
             }
         }).start();
 
         return this;
     }
 
-    private void initSignalManager() {
+    // Will send the message to a remote peer
+    // and store the message in the local database
+    public final void sendAndSaveMessage(final ChatMessage message) {
+        final ChatMessageTask messageTask = new ChatMessageTask(message, ChatMessageTask.SEND_AND_SAVE);
+        this.chatMessageQueue.onNext(messageTask);
+    }
+
+    // Will send the message to a remote peer
+    // but not store the message in the local database
+    public final void sendMessage(final ChatMessage command) {
+        final ChatMessageTask messageTask = new ChatMessageTask(command, ChatMessageTask.SEND_ONLY);
+        this.chatMessageQueue.onNext(messageTask);
+    }
+
+    // Will store the message in the local database
+    // but not send the message to a remote peer
+    public final void saveMessage(final ChatMessage message) {
+        final ChatMessageTask messageTask = new ChatMessageTask(message, ChatMessageTask.SAVE_ONLY);
+        this.chatMessageQueue.onNext(messageTask);
+    }
+
+    public final void resumeMessageReceiving() {
+        if (haveRegisteredWithServer() && this.wallet != null) {
+            receiveMessagesAsync();
+        }
+    }
+
+    public final void disconnect() {
+        this.receiveMessages = false;
+        if (this.messagePipe != null) {
+            this.messagePipe.shutdown();
+            this.messagePipe = null;
+        }
+    }
+
+    private void initEverything() {
         generateStores();
         initDatabase();
         registerIfNeeded();
@@ -81,7 +122,7 @@ public final class SignalManager {
         this.dbThreadExecutor.submit(new Runnable() {
             @Override
             public void run() {
-                SignalManager.this.chatMessageStore = new ChatMessageStore();
+                ChatMessageManager.this.chatMessageStore = new ChatMessageStore();
             }
         });
     }
@@ -122,19 +163,21 @@ public final class SignalManager {
     }
 
     private void attachSubscribers() {
-        this.sendMessageSubject
+        this.chatMessageQueue
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new OnNextSubscriber<ChatMessage>() {
+                .subscribe(new OnNextSubscriber<ChatMessageTask>() {
             @Override
-            public void onNext(final ChatMessage message) {
+            public void onNext(final ChatMessageTask messageTask) {
                 dbThreadExecutor.submit(new Runnable() {
                     @Override
                     public void run() {
-                        if (message.getType() == SofaType.COMMAND_REQUEST) {
-                            sendCommandMessageToBackend(message);
-                        } else if(message.getType() == SofaType.PLAIN_TEXT) {
-                            sendMessageToBackend(message);
+                        if (messageTask.getAction() == ChatMessageTask.SEND_AND_SAVE) {
+                            sendMessageToRemotePeer(messageTask.getChatMessage(), true);
+                        } else if (messageTask.getAction() == ChatMessageTask.SAVE_ONLY) {
+                            storeMessage(messageTask.getChatMessage());
+                        } else {
+                            sendMessageToRemotePeer(messageTask.getChatMessage(), false);
                         }
                     }
                 });
@@ -142,13 +185,7 @@ public final class SignalManager {
         });
     }
 
-
-
-    public final void sendMessage(final ChatMessage message) {
-        this.sendMessageSubject.onNext(message);
-    }
-
-    private void sendMessageToBackend(final ChatMessage message) {
+    private void sendMessageToRemotePeer(final ChatMessage message, final boolean saveMessageToDatabase) {
         final SignalServiceMessageSender messageSender = new SignalServiceMessageSender(
                 BaseApplication.get().getResources().getString(R.string.chat_url),
                 this.trustStore,
@@ -159,7 +196,9 @@ public final class SignalManager {
                 null
         );
 
-        this.chatMessageStore.save(message);
+        if (saveMessageToDatabase) {
+            this.chatMessageStore.save(message);
+        }
 
         try {
             messageSender.sendMessage(
@@ -167,49 +206,23 @@ public final class SignalManager {
                     SignalServiceDataMessage.newBuilder()
                             .withBody(message.getAsSofaMessage())
                             .build());
-            message.setSendState(SendState.STATE_SENT);
-            this.chatMessageStore.update(message);
+
+            if (saveMessageToDatabase) {
+                message.setSendState(SendState.STATE_SENT);
+                this.chatMessageStore.update(message);
+            }
         } catch (final UntrustedIdentityException | IOException ex) {
             LogUtil.error(getClass(), ex.toString());
-            message.setSendState(SendState.STATE_FAILED);
-            this.chatMessageStore.update(message);
+            if (saveMessageToDatabase) {
+                message.setSendState(SendState.STATE_FAILED);
+                this.chatMessageStore.update(message);
+            }
         }
     }
 
-    private void sendCommandMessageToBackend(final ChatMessage chatMessage) {
-        final SignalServiceMessageSender messageSender = new SignalServiceMessageSender(
-                BaseApplication.get().getResources().getString(R.string.chat_url),
-                this.trustStore,
-                this.wallet.getAddress(),
-                this.protocolStore.getPassword(),
-                this.protocolStore,
-                this.userAgent,
-                null
-        );
-
-        try {
-            messageSender.sendMessage(
-                    new SignalServiceAddress(chatMessage.getConversationId()),
-                    SignalServiceDataMessage.newBuilder()
-                            .withBody(chatMessage.getAsSofaMessage())
-                            .build());
-        } catch (final UntrustedIdentityException | IOException ex) {
-            LogUtil.error(getClass(), ex.toString());
-        }
-    }
-
-    public final void resumeMessageReceiving() {
-        if (haveRegisteredWithServer() && this.wallet != null) {
-            receiveMessagesAsync();
-        }
-    }
-
-    public final void disconnect() {
-        this.receiveMessages = false;
-        if (this.messagePipe != null) {
-            this.messagePipe.shutdown();
-            this.messagePipe = null;
-        }
+    private void storeMessage(final ChatMessage message) {
+        message.setSendState(SendState.STATE_LOCAL_ONLY);
+        this.chatMessageStore.save(message);
     }
 
     private void receiveMessagesAsync() {
@@ -247,7 +260,7 @@ public final class SignalManager {
             if (dataMessage != null) {
                 final String messageSource = envelope.getSource();
                 final String messageBody = dataMessage.getBody().get();
-                saveMessageToDatabase(messageSource, messageBody);
+                saveIncomingMessageToDatabase(messageSource, messageBody);
                 BaseApplication.get().getTokenManager().getUserManager().tryAddContact(messageSource);
             }
         } catch (final TimeoutException ex) {
@@ -257,12 +270,37 @@ public final class SignalManager {
         }
     }
 
-    private void saveMessageToDatabase(final String messageSource, final String messageBody) {
+    private void saveIncomingMessageToDatabase(final String messageSource, final String messageBody) {
         this.dbThreadExecutor.submit(new Runnable() {
             @Override
             public void run() {
-                final ChatMessage remoteMessage = new ChatMessage().makeNew(messageSource, SofaType.PLAIN_TEXT, false, messageBody);
-                SignalManager.this.chatMessageStore.save(remoteMessage);
+                final ChatMessage remoteMessage = new ChatMessage().makeNew(messageSource, false, messageBody);
+                if (remoteMessage.getType() == SofaType.PAYMENT_REQUEST) {
+                    embedLocalAmountIntoPaymentRequest(remoteMessage);
+                } else if(remoteMessage.getType() == SofaType.PAYMENT) {
+                    embedLocalAmountIntoPayment(remoteMessage);
+                }
+                ChatMessageManager.this.chatMessageStore.save(remoteMessage);
+            }
+
+            private void embedLocalAmountIntoPayment(final ChatMessage remoteMessage) {
+                try {
+                    final Payment payment = adapters.paymentFrom(remoteMessage.getPayload());
+                    payment.generateLocalPrice();
+                    remoteMessage.setPayload(adapters.toJson(payment));
+                } catch (IOException e) {
+                    // No-op
+                }
+            }
+
+            private void embedLocalAmountIntoPaymentRequest(final ChatMessage remoteMessage) {
+                try {
+                    final PaymentRequest request = adapters.txRequestFrom(remoteMessage.getPayload());
+                    request.generateLocalPrice();
+                    remoteMessage.setPayload(adapters.toJson(request));
+                } catch (IOException e) {
+                    // No-op
+                }
             }
         });
     }

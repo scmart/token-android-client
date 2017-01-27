@@ -35,4 +35,9 @@
     <string name="eth_amount"> · %1$s ETH</string>
     <string name="payment_request__accepted">You approved this request</string>
     <string name="payment_request__rejected">You rejected this request</string>
+    <string name="money_sent">Money sent.</string>
+    <string name="money_received">Money received</string>
+    <string name="error__transaction_failed">Money failed to send</string>
+    <string name="error__message_failed">Message did not send</string>
+    <string name="error__transaction_succeeded">Transaction sent</string>
 </resources>

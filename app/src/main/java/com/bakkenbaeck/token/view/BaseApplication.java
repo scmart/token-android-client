@@ -70,7 +70,7 @@ public final class BaseApplication extends MultiDexApplication {
     public void applicationResumed() {
         if (this.inBackground) {
             this.inBackground = false;
-            this.tokenManager.getSignalManager().resumeMessageReceiving();
+            this.tokenManager.getChatMessageManager().resumeMessageReceiving();
         }
     }
 
@@ -80,7 +80,7 @@ public final class BaseApplication extends MultiDexApplication {
         // http://stackoverflow.com/a/19920353
         if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
             this.inBackground = true;
-            this.tokenManager.getSignalManager().disconnect();
+            this.tokenManager.getChatMessageManager().disconnect();
         }
         super.onTrimMemory(level);
     }

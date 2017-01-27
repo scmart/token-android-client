@@ -4,23 +4,18 @@ import android.os.Build;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
-import android.widget.Toast;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.local.ChatMessage;
-import com.bakkenbaeck.token.model.local.SendState;
+import com.bakkenbaeck.token.model.local.Transaction;
 import com.bakkenbaeck.token.model.local.User;
-import com.bakkenbaeck.token.model.network.SentTransaction;
 import com.bakkenbaeck.token.model.sofa.Command;
 import com.bakkenbaeck.token.model.sofa.Control;
 import com.bakkenbaeck.token.model.sofa.Message;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
-import com.bakkenbaeck.token.model.sofa.SofaType;
-import com.bakkenbaeck.token.network.util.Transaction;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.EthUtil;
-import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
@@ -34,7 +29,6 @@ import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 import java.math.BigDecimal;
 
 import io.realm.RealmResults;
-import rx.SingleSubscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -83,7 +77,7 @@ public final class ChatPresenter implements
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleUpdatedMessage);
-        this.chatMessageStore.load(this.remoteUser.getAddress())
+        this.chatMessageStore.load(this.remoteUser.getOwnerAddress())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleLoadMessages);
         this.adapters = new SofaAdapters();
@@ -155,11 +149,11 @@ public final class ChatPresenter implements
         final String commandPayload = adapters.toJson(command);
 
         final ChatMessage sofaCommandMessage = new ChatMessage()
-                .makeNew(remoteUser.getAddress(), SofaType.COMMAND_REQUEST, true, commandPayload);
+                .makeNew(remoteUser.getOwnerAddress(), true, commandPayload);
 
         BaseApplication.get()
                 .getTokenManager()
-                .getSignalManager()
+                .getChatMessageManager()
                 .sendMessage(sofaCommandMessage);
     }
 
@@ -187,11 +181,11 @@ public final class ChatPresenter implements
             final String userInput = activity.getBinding().userInput.getText().toString();
             final Message sofaMessage = new Message().setBody(userInput);
             final String messageBody = adapters.toJson(sofaMessage);
-            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getAddress(), SofaType.PLAIN_TEXT, true, messageBody);
+            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getOwnerAddress(), true, messageBody);
             BaseApplication.get()
                     .getTokenManager()
-                    .getSignalManager()
-                    .sendMessage(message);
+                    .getChatMessageManager()
+                    .sendAndSaveMessage(message);
 
             activity.getBinding().userInput.setText(null);
         }
@@ -206,20 +200,17 @@ public final class ChatPresenter implements
         public void onSingleClick(final View v) {
 
             final BigDecimal ethAmount = new BigDecimal("0.001");
-            final BigDecimal localAmount = BaseApplication.get().getTokenManager().getBalanceManager().getMarketRate("USD", ethAmount);
-            final String localAmountString = "$" + EthUtil.ethToEthString(localAmount) + " USD";
 
             final PaymentRequest paymentRequest = new PaymentRequest()
                     .setDestinationAddress(userWallet.getWalletAddress())
-                    .setLocalPrice(localAmountString)
                     .setValue(EthUtil.ethToWei(ethAmount));
 
             final String messageBody = adapters.toJson(paymentRequest);
-            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getAddress(), SofaType.PAYMENT_REQUEST, true, messageBody);
+            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getOwnerAddress(), true, messageBody);
             BaseApplication.get()
                     .getTokenManager()
-                    .getSignalManager()
-                    .sendMessage(message);
+                    .getChatMessageManager()
+                    .sendAndSaveMessage(message);
         }
     };
 
@@ -228,26 +219,23 @@ public final class ChatPresenter implements
         @Override
         public void onSingleClick(final View v) {
             final BigDecimal ethAmount = new BigDecimal("0.001");
-            final Transaction transaction = new Transaction(ethAmount, remoteUser.getPaymentAddress(), userWallet, this.paymentCallback);
-            transaction.process();
+            final Transaction transaction = new Transaction(
+                    ethAmount,
+                    remoteUser.getPaymentAddress(),
+                    remoteUser.getOwnerAddress());
+            BaseApplication.get()
+                    .getTokenManager()
+                    .getTransactionManager()
+                    .sendTransaction(transaction);
         }
-
-        public SingleSubscriber<SentTransaction> paymentCallback = new SingleSubscriber<SentTransaction>() {
-            @Override
-            public void onSuccess(final SentTransaction value) {
-                LogUtil.print(ChatPresenter.this.getClass(), "Success");
-            }
-
-            @Override
-            public void onError(final Throwable error) {
-                LogUtil.print(ChatPresenter.this.getClass(), "Error");
-            }
-        };
     };
 
     private final OnNextSubscriber<ChatMessage> handleNewMessage = new OnNextSubscriber<ChatMessage>() {
         @Override
         public void onNext(final ChatMessage chatMessage) {
+            if (!messageBelongsInThisConversation(chatMessage)) {
+                return;
+            }
             messageAdapter.addMessage(chatMessage);
             updateEmptyState();
             tryScrollToBottom(true);
@@ -257,13 +245,17 @@ public final class ChatPresenter implements
     private final OnNextSubscriber<ChatMessage> handleUpdatedMessage = new OnNextSubscriber<ChatMessage>() {
         @Override
         public void onNext(final ChatMessage chatMessage) {
-            if (chatMessage.getSendState() != SendState.STATE_FAILED) {
+            if (!messageBelongsInThisConversation(chatMessage)) {
                 return;
             }
 
-            Toast.makeText(activity, "Failed to send: " + chatMessage.getPayload(), Toast.LENGTH_SHORT).show();
+            messageAdapter.updateMessage(chatMessage);
         }
     };
+
+    private boolean messageBelongsInThisConversation(final ChatMessage chatMessage) {
+        return chatMessage.getConversationId().equals(remoteUser.getOwnerAddress());
+    }
 
     private final SingleSuccessSubscriber<RealmResults<ChatMessage>> handleLoadMessages = new SingleSuccessSubscriber<RealmResults<ChatMessage>>() {
         @Override

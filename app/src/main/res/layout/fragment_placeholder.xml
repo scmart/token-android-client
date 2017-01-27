@@ -25,10 +25,11 @@
     </android.support.v7.widget.Toolbar>
 
     <TextView
+        android:id="@+id/placeholder_text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:textSize="18sp"
         android:gravity="center"
-        android:text="This page is still under development"/>
+        android:text="Loading..."/>
 
 </LinearLayout>

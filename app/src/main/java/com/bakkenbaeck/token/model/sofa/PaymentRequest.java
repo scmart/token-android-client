@@ -4,8 +4,11 @@ package com.bakkenbaeck.token.model.sofa;
 import android.support.annotation.IntDef;
 
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
+import com.bakkenbaeck.token.util.EthUtil;
+import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.Json;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
@@ -48,7 +51,15 @@ public class PaymentRequest {
 
     public PaymentRequest setValue(final BigInteger value) {
         this.value = TypeConverter.toJsonHex(value);
+        generateLocalPrice();
         return this;
+    }
+
+    public void generateLocalPrice() {
+        final BigInteger weiAmount = TypeConverter.StringHexToBigInteger(this.value);
+        final BigDecimal ethAmount = EthUtil.weiToEth(weiAmount);
+        final String localAmount = BaseApplication.get().getTokenManager().getBalanceManager().getMarketRateInLocalCurrency(ethAmount);
+        setLocalPrice(localAmount);
     }
 
     public PaymentRequest setDestinationAddress(final String destinationAddress) {
@@ -64,7 +75,7 @@ public class PaymentRequest {
         return TypeConverter.StringHexToBigInteger(this.value);
     }
 
-    public PaymentRequest setLocalPrice(final String localPrice) {
+    private PaymentRequest setLocalPrice(final String localPrice) {
         if (this.androidClientSideCustomData == null) {
             this.androidClientSideCustomData = new ClientSideCustomData();
         }

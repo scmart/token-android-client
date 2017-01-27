@@ -54,7 +54,7 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
         }
 
         this.fragment.getBinding().name.setText(this.localUser.getUsername());
-        this.fragment.getBinding().username.setText(this.localUser.getAddress());
+        this.fragment.getBinding().username.setText(this.localUser.getOwnerAddress());
         this.fragment.getBinding().about.setText(this.localUser.getAbout());
         this.fragment.getBinding().location.setText(this.localUser.getLocation());
 
@@ -102,7 +102,7 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
     }
 
     private void generateQrCode() {
-        ImageUtil.generateQrCodeForWalletAddress(this.localUser.getAddress())
+        ImageUtil.generateQrCodeForWalletAddress(this.localUser.getOwnerAddress())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleQrCodeGenerated);
