@@ -8,15 +8,12 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.ServerTime;
-import com.bakkenbaeck.token.model.network.SignedUserDetails;
 import com.bakkenbaeck.token.model.network.UserDetails;
 import com.bakkenbaeck.token.network.IdService;
 import com.bakkenbaeck.token.presenter.store.ContactStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
-
-import org.whispersystems.signalservice.internal.util.JsonUtil;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -93,17 +90,10 @@ public class UserManager {
 
     private void registerNewUserWithTimestamp(final long timestamp) {
         final UserDetails ud = new UserDetails()
-                .setTimestamp(timestamp)
                 .setWalletAddress(this.wallet.getWalletAddress());
-        final String signature = this.wallet.signIdentity(JsonUtil.toJson(ud));
-
-        final SignedUserDetails sud = new SignedUserDetails()
-                .setEthAddress(this.wallet.getAddress())
-                .setUserDetails(ud)
-                .setSignature(signature);
 
         IdService.getApi()
-                .registerUser(sud)
+                .registerUser(ud, timestamp)
                 .subscribe(newUserSubscriber);
     }
 
@@ -139,35 +129,31 @@ public class UserManager {
 
     public void updateUser(final UserDetails userDetails, final SingleSubscriber<Void> completionCallback) {
         IdService
-        .getApi()
-        .getTimestamp()
-        .subscribe(new SingleSubscriber<ServerTime>() {
-            @Override
-            public void onSuccess(final ServerTime serverTime) {
-                final long timestamp = serverTime.get();
-                userDetails.setTimestamp(timestamp);
-                updateUserWithTimestamp(userDetails, completionCallback);
-                this.unsubscribe();
-            }
+            .getApi()
+            .getTimestamp()
+            .subscribe(new SingleSubscriber<ServerTime>() {
+                @Override
+                public void onSuccess(final ServerTime serverTime) {
+                    final long timestamp = serverTime.get();
+                    updateUserWithTimestamp(userDetails, timestamp, completionCallback);
+                    this.unsubscribe();
+                }
 
-            @Override
-            public void onError(final Throwable error) {
-                this.unsubscribe();
-                completionCallback.onError(error);
-            }
-        });
+                @Override
+                public void onError(final Throwable error) {
+                    this.unsubscribe();
+                    completionCallback.onError(error);
+                }
+            });
     }
 
-    private void updateUserWithTimestamp(final UserDetails userDetails, final SingleSubscriber<Void> completionCallback) {
-        final String signature = this.wallet.signIdentity(JsonUtil.toJson(userDetails));
-
-        final SignedUserDetails sud = new SignedUserDetails()
-                .setEthAddress(this.wallet.getAddress())
-                .setUserDetails(userDetails)
-                .setSignature(signature);
+    private void updateUserWithTimestamp(
+            final UserDetails userDetails,
+            final long timestamp,
+            final SingleSubscriber<Void> completionCallback) {
 
         IdService.getApi()
-                .updateUser(this.wallet.getAddress(), sud)
+                .updateUser(this.wallet.getAddress(), userDetails, timestamp)
                 .subscribe(new SingleSubscriber<User>() {
                     @Override
                     public void onSuccess(final User user) {
