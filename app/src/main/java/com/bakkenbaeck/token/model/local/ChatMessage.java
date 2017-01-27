@@ -96,15 +96,26 @@ public class ChatMessage extends RealmObject {
         return payload;
     }
 
+    private String getSofaHeader(final String payload) {
+        final String regexString = "SOFA::.+?:";
+        final Pattern pattern = Pattern.compile(regexString);
+        final Matcher m = pattern.matcher(payload);
+        if (m.find()) {
+            return m.group();
+        }
+        return null;
+    }
+
     public ChatMessage makeNew(
             final String conversationId,
-            final @SofaType.Type int type,
             final boolean sentByLocal,
             final String sofaPayload) {
-        return
-                setConversationId(conversationId)
+                final String sofaHeader = getSofaHeader(sofaPayload);
+                final @SofaType.Type int sofaType = SofaType.getType(sofaHeader);
+
+                return setConversationId(conversationId)
                         .setSendState(SendState.STATE_SENDING)
-                        .setType(type)
+                        .setType(sofaType)
                         .setSentByLocal(sentByLocal)
                         .setPayload(sofaPayload);
     }

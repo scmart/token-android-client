@@ -12,7 +12,6 @@ import com.bakkenbaeck.token.model.network.TransactionRequest;
 import com.bakkenbaeck.token.model.network.UnsignedTransaction;
 import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
-import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.network.BalanceService;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
@@ -87,7 +86,7 @@ public class TransactionManager {
     private ChatMessage generateMessageForTransaction(final Transaction transaction) {
         final Payment payment = new Payment(transaction);
         final String messageBody = this.adapters.toJson(payment);
-        return new ChatMessage().makeNew(transaction.getOwnerAddress(), SofaType.PAYMENT, true, messageBody);
+        return new ChatMessage().makeNew(transaction.getOwnerAddress(), true, messageBody);
     }
 
     private void storeMessage(final ChatMessage message) {
@@ -121,7 +120,7 @@ public class TransactionManager {
                         .get()
                         .getTokenManager()
                         .getChatMessageManager()
-                        .sendCommand(message);
+                        .sendMessage(message);
             }
         });
     }

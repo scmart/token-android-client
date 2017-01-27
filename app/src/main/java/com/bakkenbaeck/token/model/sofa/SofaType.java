@@ -36,4 +36,14 @@ public class SofaType {
             default: return null;
         }
     }
+
+    public static @Type int getType(final String header) {
+        switch (header) {
+            case plain_text: return PLAIN_TEXT;
+            case payment_request: return PAYMENT_REQUEST;
+            case command_request: return COMMAND_REQUEST;
+            case payment: return PAYMENT;
+            default: return UNKNOWN;
+        }
+    }
 }

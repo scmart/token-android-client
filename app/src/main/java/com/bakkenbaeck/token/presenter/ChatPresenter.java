@@ -14,7 +14,6 @@ import com.bakkenbaeck.token.model.sofa.Control;
 import com.bakkenbaeck.token.model.sofa.Message;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
-import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
@@ -150,12 +149,12 @@ public final class ChatPresenter implements
         final String commandPayload = adapters.toJson(command);
 
         final ChatMessage sofaCommandMessage = new ChatMessage()
-                .makeNew(remoteUser.getOwnerAddress(), SofaType.COMMAND_REQUEST, true, commandPayload);
+                .makeNew(remoteUser.getOwnerAddress(), true, commandPayload);
 
         BaseApplication.get()
                 .getTokenManager()
                 .getChatMessageManager()
-                .sendCommand(sofaCommandMessage);
+                .sendMessage(sofaCommandMessage);
     }
 
     private void initButtons() {
@@ -182,11 +181,11 @@ public final class ChatPresenter implements
             final String userInput = activity.getBinding().userInput.getText().toString();
             final Message sofaMessage = new Message().setBody(userInput);
             final String messageBody = adapters.toJson(sofaMessage);
-            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getOwnerAddress(), SofaType.PLAIN_TEXT, true, messageBody);
+            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getOwnerAddress(), true, messageBody);
             BaseApplication.get()
                     .getTokenManager()
                     .getChatMessageManager()
-                    .sendMessage(message);
+                    .sendAndSaveMessage(message);
 
             activity.getBinding().userInput.setText(null);
         }
@@ -207,11 +206,11 @@ public final class ChatPresenter implements
                     .setValue(EthUtil.ethToWei(ethAmount));
 
             final String messageBody = adapters.toJson(paymentRequest);
-            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getOwnerAddress(), SofaType.PAYMENT_REQUEST, true, messageBody);
+            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getOwnerAddress(), true, messageBody);
             BaseApplication.get()
                     .getTokenManager()
                     .getChatMessageManager()
-                    .sendMessage(message);
+                    .sendAndSaveMessage(message);
         }
     };
 

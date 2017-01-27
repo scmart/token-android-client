@@ -11,7 +11,6 @@ import com.bakkenbaeck.token.crypto.signal.store.SignalTrustStore;
 import com.bakkenbaeck.token.manager.model.ChatMessageTask;
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.SendState;
-import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
@@ -72,14 +71,14 @@ public final class ChatMessageManager {
 
     // Will send the message to a remote peer
     // and store the message in the local database
-    public final void sendMessage(final ChatMessage message) {
+    public final void sendAndSaveMessage(final ChatMessage message) {
         final ChatMessageTask messageTask = new ChatMessageTask(message, ChatMessageTask.SEND_AND_SAVE);
         this.chatMessageQueue.onNext(messageTask);
     }
 
     // Will send the message to a remote peer
     // but not store the message in the local database
-    public final void sendCommand(final ChatMessage command) {
+    public final void sendMessage(final ChatMessage command) {
         final ChatMessageTask messageTask = new ChatMessageTask(command, ChatMessageTask.SEND_ONLY);
         this.chatMessageQueue.onNext(messageTask);
     }
@@ -255,7 +254,7 @@ public final class ChatMessageManager {
             if (dataMessage != null) {
                 final String messageSource = envelope.getSource();
                 final String messageBody = dataMessage.getBody().get();
-                saveMessageToDatabase(messageSource, messageBody);
+                saveIncomingMessageToDatabase(messageSource, messageBody);
                 BaseApplication.get().getTokenManager().getUserManager().tryAddContact(messageSource);
             }
         } catch (final TimeoutException ex) {
@@ -265,11 +264,11 @@ public final class ChatMessageManager {
         }
     }
 
-    private void saveMessageToDatabase(final String messageSource, final String messageBody) {
+    private void saveIncomingMessageToDatabase(final String messageSource, final String messageBody) {
         this.dbThreadExecutor.submit(new Runnable() {
             @Override
             public void run() {
-                final ChatMessage remoteMessage = new ChatMessage().makeNew(messageSource, SofaType.PLAIN_TEXT, false, messageBody);
+                final ChatMessage remoteMessage = new ChatMessage().makeNew(messageSource, false, messageBody);
                 ChatMessageManager.this.chatMessageStore.save(remoteMessage);
             }
         });
