@@ -32,8 +32,7 @@ public class Payment {
     public Payment setValue(final BigDecimal ethAmount) {
         final BigInteger weiAmount = EthUtil.ethToWei(ethAmount);
         this.value = TypeConverter.toJsonHex(weiAmount);
-        final String localAmount = BaseApplication.get().getTokenManager().getBalanceManager().getMarketRateInLocalCurrency(ethAmount);
-        setLocalPrice(localAmount);
+        generateLocalPrice();
         return this;
     }
 
@@ -56,6 +55,13 @@ public class Payment {
         }
 
         return this.androidClientSideCustomData.localPrice;
+    }
+
+    public void generateLocalPrice() {
+        final BigInteger weiAmount = TypeConverter.StringHexToBigInteger(this.value);
+        final BigDecimal ethAmount = EthUtil.weiToEth(weiAmount);
+        final String localAmount = BaseApplication.get().getTokenManager().getBalanceManager().getMarketRateInLocalCurrency(ethAmount);
+        setLocalPrice(localAmount);
     }
 
     private static class ClientSideCustomData {

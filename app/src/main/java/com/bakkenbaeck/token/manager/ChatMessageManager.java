@@ -11,6 +11,10 @@ import com.bakkenbaeck.token.crypto.signal.store.SignalTrustStore;
 import com.bakkenbaeck.token.manager.model.ChatMessageTask;
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.SendState;
+import com.bakkenbaeck.token.model.sofa.Payment;
+import com.bakkenbaeck.token.model.sofa.PaymentRequest;
+import com.bakkenbaeck.token.model.sofa.SofaAdapters;
+import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
@@ -54,11 +58,13 @@ public final class ChatMessageManager {
     private ChatMessageStore chatMessageStore;
     private ExecutorService dbThreadExecutor;
     private String userAgent;
+    private SofaAdapters adapters;
     private boolean receiveMessages;
 
     public final ChatMessageManager init(final HDWallet wallet) {
         this.wallet = wallet;
         this.userAgent = "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME +  ":" + BuildConfig.VERSION_CODE;
+        this.adapters = new SofaAdapters();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -269,7 +275,32 @@ public final class ChatMessageManager {
             @Override
             public void run() {
                 final ChatMessage remoteMessage = new ChatMessage().makeNew(messageSource, false, messageBody);
+                if (remoteMessage.getType() == SofaType.PAYMENT_REQUEST) {
+                    embedLocalAmountIntoPaymentRequest(remoteMessage);
+                } else if(remoteMessage.getType() == SofaType.PAYMENT) {
+                    embedLocalAmountIntoPayment(remoteMessage);
+                }
                 ChatMessageManager.this.chatMessageStore.save(remoteMessage);
+            }
+
+            private void embedLocalAmountIntoPayment(final ChatMessage remoteMessage) {
+                try {
+                    final Payment payment = adapters.paymentFrom(remoteMessage.getPayload());
+                    payment.generateLocalPrice();
+                    remoteMessage.setPayload(adapters.toJson(payment));
+                } catch (IOException e) {
+                    // No-op
+                }
+            }
+
+            private void embedLocalAmountIntoPaymentRequest(final ChatMessage remoteMessage) {
+                try {
+                    final PaymentRequest request = adapters.txRequestFrom(remoteMessage.getPayload());
+                    request.generateLocalPrice();
+                    remoteMessage.setPayload(adapters.toJson(request));
+                } catch (IOException e) {
+                    // No-op
+                }
             }
         });
     }
