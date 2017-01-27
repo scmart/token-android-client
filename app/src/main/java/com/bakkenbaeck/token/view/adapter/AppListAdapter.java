@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.adapter.viewholder.AppListViewHolder;
 
 import java.util.List;
@@ -13,9 +14,14 @@ import java.util.List;
 public class AppListAdapter extends RecyclerView.Adapter<AppListViewHolder> {
 
     private List<String> apps;
+    private OnItemClickListener listener;
 
     public AppListAdapter(final List<String> apps) {
         this.apps = apps;
+    }
+
+    public void setOnItemClickListener(final OnItemClickListener listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -30,6 +36,7 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListViewHolder> {
 
         holder.setAppName(app);
         holder.setAppImage(R.drawable.green_circle);
+        holder.bind(position, listener);
     }
 
     @Override

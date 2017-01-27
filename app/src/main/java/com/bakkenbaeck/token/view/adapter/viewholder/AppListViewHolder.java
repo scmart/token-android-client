@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 
 public class AppListViewHolder extends RecyclerView.ViewHolder {
     private ImageView appImage;
@@ -24,5 +25,18 @@ public class AppListViewHolder extends RecyclerView.ViewHolder {
 
     public void setAppImage(final int imageRef) {
         this.appImage.setImageResource(imageRef);
+    }
+
+    public void bind(final int position, final OnItemClickListener listener) {
+        this.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (listener == null) {
+                    return;
+                }
+
+                listener.onItemClick(position);
+            }
+        });
     }
 }
