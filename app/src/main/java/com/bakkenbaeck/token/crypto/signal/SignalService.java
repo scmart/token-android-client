@@ -3,12 +3,12 @@ package com.bakkenbaeck.token.crypto.signal;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
-import com.bakkenbaeck.token.crypto.signal.model.OutgoingSignedPreKeyState;
-import com.bakkenbaeck.token.crypto.signal.model.PreKeyStateWithTimestamp;
+import com.bakkenbaeck.token.crypto.signal.model.SignalBootstrap;
 import com.bakkenbaeck.token.crypto.signal.network.SignalInterface;
 import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
 import com.bakkenbaeck.token.model.network.ServerTime;
 import com.bakkenbaeck.token.network.interceptor.LoggingInterceptor;
+import com.bakkenbaeck.token.network.interceptor.SigningInterceptor;
 import com.bakkenbaeck.token.network.interceptor.UserAgentInterceptor;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.Moshi;
@@ -32,6 +32,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.moshi.MoshiConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 import rx.SingleSubscriber;
 import rx.schedulers.Schedulers;
 
@@ -73,6 +74,7 @@ public final class SignalService extends SignalServiceAccountManager {
         final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io());
 
         addUserAgentHeader();
+        addSigningInterceptor();
         addLogging();
 
         final Moshi moshi = new Moshi.Builder()
@@ -80,6 +82,7 @@ public final class SignalService extends SignalServiceAccountManager {
 
         final Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(this.url)
+                .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .addCallAdapterFactory(rxAdapter)
                 .client(client.build())
@@ -91,8 +94,13 @@ public final class SignalService extends SignalServiceAccountManager {
         this.client.addInterceptor(new UserAgentInterceptor());
     }
 
+    private void addSigningInterceptor() {
+        this.client.addInterceptor(new SigningInterceptor());
+    }
+
     private void addLogging() {
         final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor(new LoggingInterceptor());
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         this.client.addInterceptor(interceptor);
     }
 
@@ -138,8 +146,8 @@ public final class SignalService extends SignalServiceAccountManager {
                                     registrationId,
                                     signalingKey,
                                     signedPreKey,
-                                    preKeys);
-                            registrationSubscriber.onSuccess(null);
+                                    preKeys,
+                                    registrationSubscriber);
                         } catch (final IOException ex) {
                             registrationSubscriber.onError(ex);
                         }
@@ -160,7 +168,8 @@ public final class SignalService extends SignalServiceAccountManager {
             final int registrationId,
             final String signalingKey,
             final SignedPreKeyRecord signedPreKey,
-            final List<PreKeyRecord> preKeys) throws IOException {
+            final List<PreKeyRecord> preKeys,
+            final SingleSubscriber<Void> registrationSubscriber) throws IOException {
 
         final long startTime = System.currentTimeMillis();
 
@@ -185,19 +194,30 @@ public final class SignalService extends SignalServiceAccountManager {
         final long elapsedSeconds = (endTime - startTime) / 1000;
         final long amendedTimestamp = timestamp + elapsedSeconds;
 
-        final PreKeyStateWithTimestamp payload = new PreKeyStateWithTimestamp(
+        final SignalBootstrap payload = new SignalBootstrap(
                 entities,
                 lastResortEntity,
                 password,
                 registrationId,
                 signalingKey,
                 signedPreKeyEntity,
-                identityKey,
-                amendedTimestamp);
+                identityKey);
 
         final String payloadForSigning = JsonUtil.toJson(payload);
-        final String signature = this.wallet.signIdentity(payloadForSigning);
-        final OutgoingSignedPreKeyState outgoingEvent = new OutgoingSignedPreKeyState(payload, signature, this.wallet.getAddress());
-        super.setPreKeysWithSignature(PREKEY_PATH, JsonUtil.toJson(outgoingEvent));
+
+        this.signalInterface.register(payloadForSigning, amendedTimestamp)
+                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new SingleSubscriber<Void>() {
+                    @Override
+                    public void onSuccess(final Void unused) {
+                        registrationSubscriber.onSuccess(unused);
+                    }
+
+                    @Override
+                    public void onError(final Throwable throwable) {
+                        registrationSubscriber.onError(throwable);
+                    }
+                });
     }
 }

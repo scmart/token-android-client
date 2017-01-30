@@ -14,7 +14,7 @@ import org.whispersystems.signalservice.internal.util.JsonUtil;
 import java.util.List;
 
 @JsonPropertyOrder(alphabetic=true)
-public class PreKeyStateWithTimestamp {
+public class SignalBootstrap {
     @JsonProperty
     @JsonSerialize(using = JsonUtil.IdentityKeySerializer.class)
     @JsonDeserialize(using = JsonUtil.IdentityKeyDeserializer.class)
@@ -38,19 +38,15 @@ public class PreKeyStateWithTimestamp {
     @JsonProperty
     private final SignedPreKeyEntity signedPreKey;
 
-    @JsonProperty
-    private final long timestamp;
 
-
-    public PreKeyStateWithTimestamp(
+    public SignalBootstrap(
             final List<PreKeyEntity> preKeys,
             final PreKeyEntity lastResortKey,
             final String password,
             final int registrationId,
             final String signalingKey,
             final SignedPreKeyEntity signedPreKey,
-            final IdentityKey identityKey,
-            final long timestamp) {
+            final IdentityKey identityKey) {
         this.preKeys = preKeys;
         this.lastResortKey = lastResortKey;
         this.password = password;
@@ -58,7 +54,6 @@ public class PreKeyStateWithTimestamp {
         this.signalingKey = signalingKey;
         this.signedPreKey = signedPreKey;
         this.identityKey = identityKey;
-        this.timestamp = timestamp;
     }
 
 }
