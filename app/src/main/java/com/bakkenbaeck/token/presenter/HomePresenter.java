@@ -1,5 +1,6 @@
 package com.bakkenbaeck.token.presenter;
 
+import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.view.View;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.view.activity.AmountActivity;
 import com.bakkenbaeck.token.view.adapter.AppListAdapter;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.fragment.toplevel.HomeFragment;
@@ -30,7 +32,6 @@ public class HomePresenter implements Presenter<HomeFragment> {
         setBalance();
         assignSubscribers();
         assignClickListeners();
-
         initView();
     }
 
@@ -79,7 +80,8 @@ public class HomePresenter implements Presenter<HomeFragment> {
     private View.OnClickListener payClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-
+            final Intent intent = new Intent(fragment.getActivity(), AmountActivity.class);
+            fragment.getActivity().startActivity(intent);
         }
     };
 
