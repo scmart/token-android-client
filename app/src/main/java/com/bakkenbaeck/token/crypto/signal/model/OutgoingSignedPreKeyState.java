@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder(alphabetic=true)
 public class OutgoingSignedPreKeyState {
     @JsonProperty
-    private PreKeyStateWithTimestamp payload;
+    private SignalBootstrap payload;
 
     @JsonProperty
     private String address;
@@ -17,7 +17,7 @@ public class OutgoingSignedPreKeyState {
 
 
     public OutgoingSignedPreKeyState(
-            final PreKeyStateWithTimestamp payload,
+            final SignalBootstrap payload,
             final String signature,
             final String address) {
         this.payload = payload;
