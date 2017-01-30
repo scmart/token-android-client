@@ -7,22 +7,70 @@ import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.view.adapter.viewholder.AmountInputViewHolder;
+import com.bakkenbaeck.token.view.adapter.viewholder.AmountInputViewHolderBackspace;
 
-public class AmountInputAdapter extends RecyclerView.Adapter<AmountInputViewHolder> {
+public class AmountInputAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final Integer[] valueArray = new Integer[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    private static final int REGULAR_TYPE = 1;
+    private static final int BACKSPACE_TYPE = 2;
 
-    @Override
-    public AmountInputViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_amount_input, parent, false);
-        return new AmountInputViewHolder(v);
+    private final String[] valueArray = new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "backspace"};
+    private OnKeyboardItemClicked listener;
+
+    public void setOnKeyboardItemClickListener(final OnKeyboardItemClicked listener) {
+        this.listener = listener;
+    }
+
+    public interface OnKeyboardItemClicked {
+        void onNumberClicked(final String value);
+        void onBackSpaceClicked();
+        void onDotClicked();
     }
 
     @Override
-    public void onBindViewHolder(AmountInputViewHolder holder, int position) {
-        final int value = valueArray[position];
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        switch (viewType) {
+            case BACKSPACE_TYPE: {
+                final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_amount_input_backspace, parent, false);
+                return new AmountInputViewHolderBackspace(v);
+            }
+            case REGULAR_TYPE:
+            default: {
+                final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_amount_input, parent, false);
+                return new AmountInputViewHolder(v);
+            }
+        }
+    }
 
-        holder.setText(String.valueOf(value));
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        final String value = valueArray[position];
+
+        switch (holder.getItemViewType()) {
+            case REGULAR_TYPE : {
+                final AmountInputViewHolder vh = (AmountInputViewHolder) holder;
+                vh.setText(String.valueOf(value));
+                vh.bind(value, listener);
+
+                if (value.equals("0") || value.equals(".")) {
+                    vh.hideDivider();
+                }
+
+                break;
+            }
+            case BACKSPACE_TYPE : {
+                final AmountInputViewHolderBackspace vh = (AmountInputViewHolderBackspace) holder;
+                vh.bind(listener);
+            }
+        }
+    }
+
+
+    @Override
+    public int getItemViewType(int position) {
+        return this.valueArray[position].equals("backspace")
+                ? BACKSPACE_TYPE
+                : REGULAR_TYPE;
     }
 
     @Override
