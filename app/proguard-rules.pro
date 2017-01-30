@@ -71,3 +71,6 @@
 
 # signal
 -keep class org.whispersystems.** { *; }
+
+# ChipsLayoutManager
+-dontwarn com.beloo.widget.chipslayoutmanager.**
