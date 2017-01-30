@@ -76,7 +76,7 @@
             android:weightSum="4">
 
             <LinearLayout
-                android:id="@+id/pay_mon"
+                android:id="@+id/pay_money"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

@@ -23,6 +23,14 @@ public class HomePresenter implements Presenter<HomeFragment> {
     @Override
     public void onViewAttached(HomeFragment view) {
         this.fragment = view;
+        init();
+    }
+
+    private void init() {
+        setBalance();
+        assignSubscribers();
+        assignClickListeners();
+
         initView();
     }
 
@@ -62,7 +70,7 @@ public class HomePresenter implements Presenter<HomeFragment> {
     }
 
     private void assignClickListeners() {
-        this.fragment.getBinding().payMon.setOnClickListener(this.payClickListener);
+        this.fragment.getBinding().payMoney.setOnClickListener(this.payClickListener);
         this.fragment.getBinding().requestMoney.setOnClickListener(this.requestClickListener);
         this.fragment.getBinding().addMoney.setOnClickListener(this.addMoneyClickListener);
         this.fragment.getBinding().scanQr.setOnClickListener(this.scanQrClickListener);
