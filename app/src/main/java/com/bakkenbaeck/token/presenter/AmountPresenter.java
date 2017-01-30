@@ -2,6 +2,7 @@ package com.bakkenbaeck.token.presenter;
 
 import android.view.View;
 
+import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
 import com.bakkenbaeck.token.view.custom.AmountInputView;
 
@@ -13,6 +14,7 @@ public class AmountPresenter implements Presenter<AmountActivity> {
     public void onViewAttached(AmountActivity view) {
         this.activity = view;
         initView();
+        initToolbar();
     }
 
     private void initView() {
@@ -26,6 +28,18 @@ public class AmountPresenter implements Presenter<AmountActivity> {
         @Override
         public void onClick(View view) {
             //Show contacts view
+        }
+    };
+
+    private void initToolbar() {
+        this.activity.getBinding().title.setText(this.activity.getString(R.string.send));
+        this.activity.getBinding().closeButton.setOnClickListener(this.backButtonClickListener);
+    }
+
+    private View.OnClickListener backButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            activity.finish();
         }
     };
 
