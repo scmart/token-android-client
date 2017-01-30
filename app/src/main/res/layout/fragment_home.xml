@@ -48,16 +48,14 @@
                 android:id="@+id/balance_usd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/textColorPrimary"
-                android:text="$ 123.45 USD"/>
+                android:textColor="@color/textColorPrimary" />
 
             <TextView
                 android:id="@+id/balance_eth"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
-                android:textColor="@color/textColorSecondary"
-                android:text="0.0435 ETH"/>
+                android:textColor="@color/textColorSecondary" />
 
         </FrameLayout>
 

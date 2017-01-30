@@ -1,6 +1,5 @@
 package com.bakkenbaeck.token.presenter;
 
-import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -42,6 +41,10 @@ public class HomePresenter implements Presenter<HomeFragment> {
         final AppListAdapter adapter = new AppListAdapter(apps);
         adapter.setOnItemClickListener(this.appItemClickListener);
         rv.setAdapter(adapter);
+
+        setBalance();
+        assignSubscribers();
+        assignClickListeners();
     }
 
     private void setBalance() {
@@ -50,7 +53,7 @@ public class HomePresenter implements Presenter<HomeFragment> {
         this.fragment.getBinding().balanceEth.setText(ethConfirmedFormatted);
 
         final BigDecimal localAmount = BaseApplication.get().getTokenManager().getBalanceManager().getMarketRate("USD", confirmedBalance);
-        final String localAmountString = this.fragment.getString(R.string.usd_balance, EthUtil.ethToEthString(localAmount));
+        final String localAmountString = this.fragment.getString(R.string.usd_balance, EthUtil.ethToEthString(localAmount), "USD");
         this.fragment.getBinding().balanceUsd.setText(localAmountString);
     }
 

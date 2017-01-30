@@ -45,4 +45,6 @@
     <string name="request">Request</string>
     <string name="add_money">Add Money</string>
     <string name="scan_qr">Scan QR</string>
+    <string name="usd_balance">$ %1$s %2$s</string>
+    <string name="eth_balance">%1$s ETH</string>
 </resources>
