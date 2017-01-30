@@ -120,9 +120,6 @@
             android:textColor="@color/textColorSecondary"
             android:layout_gravity="center_horizontal"
             android:gravity="center_vertical"
-            android:drawableLeft="@drawable/ic_error_black_24dp"
-            android:drawableTint="@color/textColorSecondary"
-            android:drawablePadding="8dp"
             android:visibility="gone"
             tools:visibility="visible"
             android:text="@string/error__transaction_failed"/>
