@@ -70,6 +70,8 @@ dependencies {
             'com.android.support:design:25.1.0',
             'com.android.support:multidex:1.0.0',
             'com.aurelhubert:ahbottomnavigation:2.0.2',
+            // Push notifications
+            'com.google.android.gms:play-services-gcm:10.0.1',
             // Networking
             'com.squareup.retrofit2:retrofit:2.1.0',
             'com.squareup.retrofit2:converter-moshi:2.1.0',
@@ -91,7 +93,7 @@ dependencies {
             'com.madgag.spongycastle:core:1.54.0.0',
             'com.madgag.spongycastle:prov:1.54.0.0',
             //UI
-            'com.beloo.widget:ChipsLayoutManager:0.3.4.1@aar'
+            'com.beloo.widget:ChipsLayoutManager:0.3.4.1@aar',
     )
 
     compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {
@@ -103,3 +105,5 @@ dependencies {
             'org.hamcrest:hamcrest-library:1.3'
     )
 }
+
+apply plugin: 'com.google.gms.google-services'

@@ -1,6 +1,7 @@
 package com.bakkenbaeck.token.view.activity;
 
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,6 +11,7 @@ import com.bakkenbaeck.token.databinding.ActivityMainBinding;
 import com.bakkenbaeck.token.presenter.MainPresenter;
 import com.bakkenbaeck.token.presenter.factory.MainPresenterFactory;
 import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
+import com.bakkenbaeck.token.service.RegistrationIntentService;
 
 public class MainActivity extends BasePresenterActivity<MainPresenter, MainActivity> {
 
@@ -20,6 +22,7 @@ public class MainActivity extends BasePresenterActivity<MainPresenter, MainActiv
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         init();
+        startGcmRegistration();
     }
 
     private void init() {
@@ -44,5 +47,10 @@ public class MainActivity extends BasePresenterActivity<MainPresenter, MainActiv
 
     public final ActivityMainBinding getBinding() {
         return this.binding;
+    }
+
+    private void startGcmRegistration() {
+        final Intent intent = new Intent(this, RegistrationIntentService.class);
+        startService(intent);
     }
 }

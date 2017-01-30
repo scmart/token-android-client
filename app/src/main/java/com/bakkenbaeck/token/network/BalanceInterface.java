@@ -1,6 +1,8 @@
 package com.bakkenbaeck.token.network;
 
+import com.bakkenbaeck.token.model.network.Addresses;
 import com.bakkenbaeck.token.model.network.Balance;
+import com.bakkenbaeck.token.model.network.GcmRegistration;
 import com.bakkenbaeck.token.model.network.SentTransaction;
 import com.bakkenbaeck.token.model.network.ServerTime;
 import com.bakkenbaeck.token.model.network.SignedTransaction;
@@ -30,4 +32,15 @@ public interface BalanceInterface {
 
     @GET("/v1/timestamp")
     Single<ServerTime> getTimestamp();
+
+    @POST("/v1/gcm/register")
+    Single<Void> registerGcm(
+            @Query("timestamp") long timestamp,
+            @Body GcmRegistration gcmRegistration);
+
+    @POST("/v1/register")
+    Single<Void> startWatchingAddresses(
+            @Query("timestamp") long timestamp,
+            @Body Addresses addresses);
+
 }
