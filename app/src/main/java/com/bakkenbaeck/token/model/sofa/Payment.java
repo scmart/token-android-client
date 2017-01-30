@@ -1,6 +1,5 @@
 package com.bakkenbaeck.token.model.sofa;
 
-
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.bakkenbaeck.token.model.local.Transaction;
 import com.bakkenbaeck.token.util.EthUtil;
@@ -13,6 +12,7 @@ import java.math.BigInteger;
 public class Payment {
 
     private String txHash;
+    private String status;
     private String value;
 
     @Json(name = SofaType.LOCAL_ONLY_PAYLOAD)
