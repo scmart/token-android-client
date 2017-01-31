@@ -131,7 +131,7 @@ public class TransactionManager {
 
         final TransactionRequest transactionRequest = new TransactionRequest()
                 .setValue(transaction.getEthAmount())
-                .setFromAddress(this.wallet.getWalletAddress())
+                .setFromAddress(this.wallet.getPaymentAddress())
                 .setToAddress(transaction.getToAddress());
 
         BalanceService.getApi().createTransaction(transactionRequest)

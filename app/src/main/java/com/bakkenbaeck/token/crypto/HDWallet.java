@@ -143,14 +143,14 @@ public class HDWallet {
         return Hex.toHexString(this.identityKey.getPubKey());
     }
 
-    public String getAddress() {
+    public String getOwnerAddress() {
         if(identityKey != null) {
             return TypeConverter.toJsonHex(this.identityKey.getAddress());
         }
         return null;
     }
 
-    public String getWalletAddress() {
+    public String getPaymentAddress() {
         if(this.receivingKey != null) {
             return TypeConverter.toJsonHex(this.receivingKey.getAddress());
         }
@@ -159,7 +159,7 @@ public class HDWallet {
 
     @Override
     public String toString() {
-        return "Private: " + getPrivateKey() + "\nPublic: " + getPublicKey() + "\nAddress: " + getAddress();
+        return "Private: " + getPrivateKey() + "\nPublic: " + getPublicKey() + "\nAddress: " + getOwnerAddress();
     }
 
     private String readMasterSeedFromStorage() {

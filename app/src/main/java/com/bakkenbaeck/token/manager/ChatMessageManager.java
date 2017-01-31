@@ -189,7 +189,7 @@ public final class ChatMessageManager {
         final SignalServiceMessageSender messageSender = new SignalServiceMessageSender(
                 BaseApplication.get().getResources().getString(R.string.chat_url),
                 this.trustStore,
-                this.wallet.getAddress(),
+                this.wallet.getOwnerAddress(),
                 this.protocolStore.getPassword(),
                 this.protocolStore,
                 this.userAgent,
@@ -241,11 +241,11 @@ public final class ChatMessageManager {
         final SignalServiceMessageReceiver messageReceiver = new SignalServiceMessageReceiver(
                 BaseApplication.get().getResources().getString(R.string.chat_url),
                 this.trustStore,
-                this.wallet.getAddress(),
+                this.wallet.getOwnerAddress(),
                 this.protocolStore.getPassword(),
                 this.protocolStore.getSignalingKey(),
                 this.userAgent);
-        final SignalServiceAddress localAddress = new SignalServiceAddress(this.wallet.getAddress());
+        final SignalServiceAddress localAddress = new SignalServiceAddress(this.wallet.getOwnerAddress());
         final SignalServiceCipher cipher = new SignalServiceCipher(localAddress, this.protocolStore);
 
 

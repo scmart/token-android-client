@@ -68,7 +68,7 @@ public class SigningInterceptor implements Interceptor {
                 .method(original.method(), original.body())
                 .addHeader(TIMESTAMP_HEADER, timestamp)
                 .addHeader(SIGNATURE_HEADER, signature)
-                .addHeader(ADDRESS_HEADER, this.wallet.getAddress())
+                .addHeader(ADDRESS_HEADER, this.wallet.getOwnerAddress())
                 .url(url)
                 .build();
 

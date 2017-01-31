@@ -52,7 +52,7 @@ public final class SignalService extends SignalServiceAccountManager {
         this(BaseApplication.get().getResources().getString(R.string.chat_url),
                 trustStore,
                 wallet,
-                wallet.getAddress(),
+                wallet.getOwnerAddress(),
                 protocolStore.getPassword(),
                 userAgent);
     }
