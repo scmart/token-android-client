@@ -65,4 +65,8 @@ public class ChatMessageStore {
     private void broadcastUpdatedChatMessage(final ChatMessage updatedMessage) {
         updatedMessageObservable.onNext(updatedMessage);
     }
+
+    private void close() {
+        this.realm.close();
+    }
 }
