@@ -17,9 +17,9 @@
 package com.bakkenbaeck.token.service;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.bakkenbaeck.token.R;
@@ -43,12 +43,13 @@ public class RegistrationIntentService extends IntentService {
 
     public static final String SENT_TOKEN_TO_SERVER = "sentTokenToServer";
     public static final String REGISTRATION_COMPLETE = "registrationComplete";
+    public static final String WATCHING_TRANSACTIONS = "watchingTransactions";
 
     private final SharedPreferences sharedPreferences;
 
     public RegistrationIntentService() {
         super("RegIntentService");
-        this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        this.sharedPreferences = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.gcm_pref_filename), Context.MODE_PRIVATE);
     }
 
     @Override
@@ -129,7 +130,6 @@ public class RegistrationIntentService extends IntentService {
     }
 
     private void registerForTransactionsOnWallet(final long timestamp, final HDWallet wallet) {
-        LogUtil.d(getClass(), "registerAddress -> " + wallet.getWalletAddress());
         final List<String> list = new ArrayList<>();
         list.add(wallet.getWalletAddress());
 
@@ -143,7 +143,7 @@ public class RegistrationIntentService extends IntentService {
                 .subscribe(new SingleSubscriber<Void>() {
                     @Override
                     public void onSuccess(final Void value) {
-                        LogUtil.e(getClass(), "onSuccess");
+                        sharedPreferences.edit().putBoolean(SENT_TOKEN_TO_SERVER, true).apply();
                     }
 
                     @Override

@@ -39,8 +39,8 @@ public class GcmMessageReceiver extends GcmListenerService {
 
     @Override
     public void onMessageReceived(final String from, final Bundle data) {
-        LogUtil.d(getClass(), "onMessageReceived");
         final String message = data.getString("message");
+        LogUtil.d(getClass(), "onMessageReceived: " + message);
 
         try {
             final SofaAdapters adapters = new SofaAdapters();
