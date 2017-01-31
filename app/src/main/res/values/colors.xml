@@ -16,6 +16,7 @@
     <color name="input_bg">#FFFFFF</color>
     <color name="balance_bar__bg">#FFFFFF</color>
     <color name="divider">#EBEBEB</color>
+    <color name="divider_amount">#E7E9EA</color>
 
     <color name="levelPrimary">#FFFF9A56</color>
     <color name="levelSecondary">#33FF9A56</color>

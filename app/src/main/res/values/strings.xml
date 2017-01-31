@@ -40,4 +40,13 @@
     <string name="error__transaction_failed">Money failed to send</string>
     <string name="error__message_failed">Message did not send</string>
     <string name="error__transaction_succeeded">Transaction sent</string>
+    <string name="balance">Balance</string>
+    <string name="pay">Pay</string>
+    <string name="request">Request</string>
+    <string name="add_money">Add Money</string>
+    <string name="scan_qr">Scan QR</string>
+    <string name="usd_balance">$ %1$s %2$s</string>
+    <string name="eth_balance">%1$s ETH</string>
+    <string name="continue_">Continue</string>
+    <string name="send">Send</string>
 </resources>

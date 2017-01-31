@@ -28,6 +28,7 @@
         <activity android:name="com.bakkenbaeck.token.view.activity.ViewUserActivity" />
         <activity android:name="com.bakkenbaeck.token.view.activity.ProfileActivity" />
         <activity android:name="com.bakkenbaeck.token.view.activity.UserSearchActivity" />
+        <activity android:name="com.bakkenbaeck.token.view.activity.AmountActivity" />
 
         <meta-data
             android:name="io.fabric.ApiKey"

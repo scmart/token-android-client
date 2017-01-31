@@ -8,6 +8,7 @@ import android.support.v7.widget.PopupMenu;
 import android.view.Menu;
 
 import com.bakkenbaeck.token.view.fragment.toplevel.ContactsContainerFragment;
+import com.bakkenbaeck.token.view.fragment.toplevel.HomeFragment;
 import com.bakkenbaeck.token.view.fragment.toplevel.PlaceholderFragment;
 import com.bakkenbaeck.token.view.fragment.toplevel.ScannerFragment;
 import com.bakkenbaeck.token.view.fragment.toplevel.SettingsContainerFragment;
@@ -26,7 +27,7 @@ public class NavigationAdapter extends FragmentPagerAdapter {
         activity.getMenuInflater().inflate(menuRes, menu);
 
         fragments.clear();
-        fragments.add(PlaceholderFragment.newInstance(menu.getItem(0).getTitle()));
+        fragments.add(HomeFragment.newInstance());
         fragments.add(PlaceholderFragment.newInstance(menu.getItem(1).getTitle()));
         fragments.add(ScannerFragment.newInstance());
         fragments.add(ContactsContainerFragment.newInstance());
