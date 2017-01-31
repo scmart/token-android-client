@@ -65,7 +65,7 @@ public class UserManager {
 
     private boolean userExistsInPrefs() {
         final String userId = this.prefs.getString(USER_ID, null);
-        final String expectedAddress = wallet.getAddress();
+        final String expectedAddress = wallet.getOwnerAddress();
         return userId != null && userId.equals(expectedAddress);
     }
 
@@ -90,7 +90,7 @@ public class UserManager {
 
     private void registerNewUserWithTimestamp(final long timestamp) {
         final UserDetails ud = new UserDetails()
-                .setWalletAddress(this.wallet.getWalletAddress());
+                .setWalletAddress(this.wallet.getPaymentAddress());
 
         IdService.getApi()
                 .registerUser(ud, timestamp)
@@ -123,7 +123,7 @@ public class UserManager {
 
     private void getExistingUser() {
         IdService.getApi()
-                .getUser(this.wallet.getAddress())
+                .getUser(this.wallet.getOwnerAddress())
                 .subscribe(this.newUserSubscriber);
     }
 
@@ -153,7 +153,7 @@ public class UserManager {
             final SingleSubscriber<Void> completionCallback) {
 
         IdService.getApi()
-                .updateUser(this.wallet.getAddress(), userDetails, timestamp)
+                .updateUser(this.wallet.getOwnerAddress(), userDetails, timestamp)
                 .subscribe(new SingleSubscriber<User>() {
                     @Override
                     public void onSuccess(final User user) {

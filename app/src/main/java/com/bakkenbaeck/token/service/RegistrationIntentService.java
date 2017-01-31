@@ -131,7 +131,7 @@ public class RegistrationIntentService extends IntentService {
 
     private void registerForTransactionsOnWallet(final long timestamp, final HDWallet wallet) {
         final List<String> list = new ArrayList<>();
-        list.add(wallet.getWalletAddress());
+        list.add(wallet.getPaymentAddress());
 
         final Addresses addresses = new Addresses(list);
 

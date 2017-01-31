@@ -202,7 +202,7 @@ public final class ChatPresenter implements
             final BigDecimal ethAmount = new BigDecimal("0.001");
 
             final PaymentRequest paymentRequest = new PaymentRequest()
-                    .setDestinationAddress(userWallet.getWalletAddress())
+                    .setDestinationAddress(userWallet.getPaymentAddress())
                     .setValue(EthUtil.ethToWei(ethAmount));
 
             final String messageBody = adapters.toJson(paymentRequest);
