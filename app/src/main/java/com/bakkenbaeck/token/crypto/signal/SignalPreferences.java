@@ -14,7 +14,7 @@ public class SignalPreferences {
     private static final String SIGNALING_KEY_PREF = "signaling_key_pref";
     private static final String SIGNED_PRE_KEY_ID_PREF = "signed_pre_key_id";
     private static final String PASSWORD_PREF = "password_pref";
-    private static final String REGISTERED_WITH_SERVER_PREF = "registered_with_server_pref";
+    private static final String REGISTERED_WITH_SERVER_PREF = "have_registered_with_server_pref";
 
 
     public static boolean getRegisteredWithServer() {
