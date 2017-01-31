@@ -25,6 +25,9 @@ public class SofaType {
 
     public static final String LOCAL_ONLY_PAYLOAD = "custom_local_only_payload";
     public static final String WEB_VIEW = "webview:";
+    public static final String PAYMENT_ADDRESS = "paymentAddress";
+    public static final String LANGUAGE = "language";
+
 
     private static final String plain_text = "SOFA::Message:";
     private static final String command_request = "SOFA::Command:";

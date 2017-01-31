@@ -91,7 +91,6 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             return;
         }
 
-
         switch (holder.getItemViewType()) {
 
             case SofaType.PLAIN_TEXT: {
