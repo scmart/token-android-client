@@ -13,6 +13,8 @@ public class SofaAdapters {
     private final JsonAdapter<PaymentRequest> paymentRequestAdapter;
     private final JsonAdapter<Command> commandAdapter;
     private final JsonAdapter<Payment> paymentAdapter;
+    private final JsonAdapter<Init> initAdapter;
+    private final JsonAdapter<InitRequest> initRequestJsonAdapter;
 
     public SofaAdapters() {
         this.moshi = new Moshi.Builder().build();
@@ -20,6 +22,8 @@ public class SofaAdapters {
         this.paymentRequestAdapter = moshi.adapter(PaymentRequest.class);
         this.commandAdapter = moshi.adapter(Command.class);
         this.paymentAdapter = moshi.adapter(Payment.class);
+        this.initAdapter = moshi.adapter(Init.class);
+        this.initRequestJsonAdapter = moshi.adapter(InitRequest.class);
     }
 
     public String toJson(final Message sofaMessage) {
@@ -37,6 +41,10 @@ public class SofaAdapters {
         return SofaType.createHeader(SofaType.PAYMENT) + this.paymentAdapter.toJson(payment);
     }
 
+    public String toJson(final Init init) {
+        return SofaType.createHeader(SofaType.INIT) + this.initAdapter.toJson(init);
+    }
+
     public Message messageFrom(final String payload) throws IOException {
         return messageAdapter.fromJson(payload);
     }
@@ -47,5 +55,9 @@ public class SofaAdapters {
 
     public Payment paymentFrom(final String payload) throws IOException {
         return paymentAdapter.fromJson(payload);
+    }
+
+    public InitRequest initRequestFrom(final String payload) throws IOException {
+        return initRequestJsonAdapter.fromJson(payload);
     }
 }
