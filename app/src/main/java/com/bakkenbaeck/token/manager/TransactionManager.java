@@ -3,6 +3,7 @@ package com.bakkenbaeck.token.manager;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.local.ChatMessage;
+import com.bakkenbaeck.token.model.local.PendingTransaction;
 import com.bakkenbaeck.token.model.local.SendState;
 import com.bakkenbaeck.token.model.network.SentTransaction;
 import com.bakkenbaeck.token.model.network.ServerTime;
@@ -13,9 +14,9 @@ import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.network.BalanceService;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
+import com.bakkenbaeck.token.presenter.store.PendingTransactionsStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
-import com.bakkenbaeck.token.view.BaseApplication;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,6 +31,7 @@ public class TransactionManager {
 
     private HDWallet wallet;
     private ChatMessageStore chatMessageStore;
+    private PendingTransactionsStore pendingTransactionsStore;
     private ExecutorService dbThreadExecutor;
     private SofaAdapters adapters;
 
@@ -64,6 +66,7 @@ public class TransactionManager {
             @Override
             public void run() {
                 TransactionManager.this.chatMessageStore = new ChatMessageStore();
+                TransactionManager.this.pendingTransactionsStore = new PendingTransactionsStore();
             }
         });
     }
@@ -74,20 +77,21 @@ public class TransactionManager {
                 .subscribeOn(Schedulers.io())
                 .subscribe(new OnNextSubscriber<Payment>() {
                     @Override
-                    public void onNext(final Payment transaction) {
-                        final ChatMessage chatMessage = generateMessageFromPayment(transaction);
+                    public void onNext(final Payment payment) {
+                        final ChatMessage chatMessage = generateMessageFromPayment(payment);
                         storeMessage(chatMessage);
-                        final TransactionRequest transactionRequest = createTransactionRequest(transaction);
+                        final TransactionRequest transactionRequest = createTransactionRequest(payment);
                         processTransactionRequest(
                                 transactionRequest,
                                 chatMessage,
                                 new SingleSubscriber<String>() {
                                     @Override
                                     public void onSuccess(final String txHash) {
-                                        transaction.setTxHash(txHash);
-                                        final ChatMessage updatedMessage = generateMessageFromPayment(transaction);
+                                        payment.setTxHash(txHash);
+                                        final ChatMessage updatedMessage = generateMessageFromPayment(payment);
                                         chatMessage.setPayload(updatedMessage.getPayload());
                                         updateMessageToSent(chatMessage);
+                                        storeUnconfirmedTransaction(txHash, chatMessage);
                                     }
 
                                     @Override
@@ -116,6 +120,20 @@ public class TransactionManager {
         });
     }
 
+    private void storeUnconfirmedTransaction(final String txHash, final ChatMessage message) {
+        dbThreadExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                final PendingTransaction pendingTransaction =
+                        new PendingTransaction()
+                        .setChatMessage(message)
+                        .setTxHash(txHash);
+
+                pendingTransactionsStore.save(pendingTransaction);
+            }
+        });
+    }
+
     private void updateMessageToFailed(final ChatMessage message) {
         dbThreadExecutor.execute(new Runnable() {
             @Override
@@ -132,12 +150,6 @@ public class TransactionManager {
             public void run() {
                 message.setSendState(SendState.STATE_SENT);
                 chatMessageStore.update(message);
-
-                BaseApplication
-                        .get()
-                        .getTokenManager()
-                        .getChatMessageManager()
-                        .sendMessage(message);
             }
         });
     }
@@ -219,12 +231,7 @@ public class TransactionManager {
                 .subscribe(new SingleSubscriber<SentTransaction>() {
                     @Override
                     public void onSuccess(final SentTransaction sentTransaction) {
-                        addTxHashToChatMessage(sentTransaction.getTxHash());
-                        updateMessageToSent(chatMessage);
-                    }
-
-                    private void addTxHashToChatMessage(final String txHash) {
-                        callback.onSuccess(txHash);
+                        callback.onSuccess(sentTransaction.getTxHash());
                     }
 
                     @Override
