@@ -48,7 +48,9 @@ public class ControlGroupAdapter extends RecyclerView.Adapter<ControlGroupPopupH
         holder.setText(control.getLabel());
         holder.bind(control, listener);
 
-        if (control.getAction().toLowerCase().contains(SofaType.WEB_VIEW)) {
+        final boolean actionIsNotNull = control.getAction() != null;
+        final boolean actionIsWebview = control.getAction().toLowerCase().contains(SofaType.WEB_VIEW);
+        if (actionIsNotNull && actionIsWebview) {
             holder.showArrow();
         } else {
             holder.hideArrow();
