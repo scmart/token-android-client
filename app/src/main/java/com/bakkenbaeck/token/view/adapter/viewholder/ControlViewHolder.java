@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
+import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.sofa.Control;
 import com.bakkenbaeck.token.view.adapter.ControlAdapter;
 
@@ -12,7 +13,7 @@ public class ControlViewHolder extends RecyclerView.ViewHolder {
 
     public ControlViewHolder(View itemView) {
         super(itemView);
-        this.item = (TextView) itemView;
+        this.item = (TextView) itemView.findViewById(R.id.control_label);
     }
 
     public void setText(final String text) {
@@ -20,7 +21,7 @@ public class ControlViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bind(final Control control, final ControlAdapter.OnControlClickListener listener) {
-        this.item.setOnClickListener(new View.OnClickListener() {
+        this.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (listener == null) {

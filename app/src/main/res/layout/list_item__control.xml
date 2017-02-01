@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="47dp"
-    android:paddingTop="@dimen/control_vertical_padding"
-    android:paddingBottom="@dimen/control_vertical_padding"
-    android:paddingLeft="@dimen/control_horizontal_padding"
-    android:paddingRight="@dimen/control_horizontal_padding"
-    android:gravity="center"
-    android:layout_gravity="center"
-    android:textColor="@color/control_text_color"
-    android:background="@drawable/control_background_with_border" />
+    android:background="@drawable/control_background_with_border" >
+
+    <TextView
+        android:id="@+id/control_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/control_horizontal_padding"
+        android:paddingRight="@dimen/control_horizontal_padding"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textColor="@color/control_text_color" />
+
+</FrameLayout>
