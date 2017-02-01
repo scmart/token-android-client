@@ -24,6 +24,21 @@
                 android:text="@string/tab_2"/>
 
         </android.support.v7.widget.Toolbar>
+
+        <EditText
+            android:id="@+id/search"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:hint="@string/search_or_type_the_url"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:background="@null"/>
+        
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="10dp"
+            android:background="@color/divider_amount"/>
+
     </LinearLayout>
 
 </layout>
