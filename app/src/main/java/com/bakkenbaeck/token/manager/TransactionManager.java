@@ -14,10 +14,10 @@ import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.network.BalanceService;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
+import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -78,7 +78,26 @@ public class TransactionManager {
                     public void onNext(final Transaction transaction) {
                         final ChatMessage chatMessage = generateMessageForTransaction(transaction);
                         storeMessage(chatMessage);
-                        processTransaction(transaction, chatMessage);
+                        final TransactionRequest transactionRequest = createTransactionRequest(transaction);
+                        processTransactionRequest(
+                                transactionRequest,
+                                chatMessage,
+                                new SingleSubscriber<String>() {
+                                    @Override
+                                    public void onSuccess(final String txHash) {
+                                        transaction.setTxHash(txHash);
+                                        final ChatMessage updatedMessage = generateMessageForTransaction(transaction);
+                                        chatMessage.setPayload(updatedMessage.getPayload());
+                                        updateMessageToSent(chatMessage);
+                                    }
+
+                                    @Override
+                                    public void onError(final Throwable error) {
+                                        LogUtil.e(getClass(), "Error creating transaction: " + error);
+                                        updateMessageToFailed(chatMessage);
+                                    }
+                                }
+                        );
                     }
                 });
     }
@@ -125,34 +144,42 @@ public class TransactionManager {
         });
     }
 
-    private final void processTransaction(
-            final Transaction transaction,
-            final ChatMessage chatMessage) {
+    private void processTransactionRequest(
+            final TransactionRequest transactionRequest,
+            final ChatMessage chatMessage,
+            final SingleSubscriber<String> callback) {
 
-        final TransactionRequest transactionRequest = new TransactionRequest()
-                .setValue(transaction.getEthAmount())
-                .setFromAddress(this.wallet.getPaymentAddress())
-                .setToAddress(transaction.getToAddress());
-
-        BalanceService.getApi().createTransaction(transactionRequest)
+        BalanceService.getApi()
+                .createTransaction(transactionRequest)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(new SingleSubscriber<UnsignedTransaction>() {
                     @Override
                     public void onSuccess(final UnsignedTransaction unsignedTransaction) {
-                        fetchServerTimeForUnsignedTransaction(unsignedTransaction, chatMessage);
+                        fetchServerTimeForUnsignedTransaction(
+                                unsignedTransaction,
+                                chatMessage,
+                                callback);
                     }
 
                     @Override
                     public void onError(final Throwable error) {
-                        updateMessageToFailed(chatMessage);
+                        callback.onError(error);
                     }
                 });
     }
 
+    private TransactionRequest createTransactionRequest(final Transaction transaction) {
+        return new TransactionRequest()
+                .setValue(transaction.getEthAmount())
+                .setFromAddress(this.wallet.getPaymentAddress())
+                .setToAddress(transaction.getToAddress());
+    }
+
     private void fetchServerTimeForUnsignedTransaction(
             final UnsignedTransaction unsignedTransaction,
-            final ChatMessage chatMessage) {
+            final ChatMessage chatMessage,
+            final SingleSubscriber<String> callback) {
 
         BalanceService
                 .getApi()
@@ -165,12 +192,13 @@ public class TransactionManager {
                         signTransactionWithTimeStamp(
                                 unsignedTransaction,
                                 chatMessage,
-                                serverTime.get());
+                                serverTime.get(),
+                                callback);
                     }
 
                     @Override
                     public void onError(final Throwable error) {
-                        updateMessageToFailed(chatMessage);
+                        callback.onError(error);
                     }
                 });
     }
@@ -178,7 +206,8 @@ public class TransactionManager {
     private void signTransactionWithTimeStamp(
             final UnsignedTransaction unsignedTransaction,
             final ChatMessage chatMessage,
-            final long timestamp) {
+            final long timestamp,
+            final SingleSubscriber<String> callback) {
 
         final String signature = wallet.signTransaction(unsignedTransaction.getTransaction());
         final SignedTransaction signedTransaction = new SignedTransaction()
@@ -192,24 +221,17 @@ public class TransactionManager {
                 .subscribe(new SingleSubscriber<SentTransaction>() {
                     @Override
                     public void onSuccess(final SentTransaction sentTransaction) {
-                        final String newPayload = embedTxHashInPayload(sentTransaction.getTxHash(), chatMessage.getPayload());
-                        chatMessage.setPayload(newPayload);
+                        addTxHashToChatMessage(sentTransaction.getTxHash());
                         updateMessageToSent(chatMessage);
                     }
 
-                    private String embedTxHashInPayload(final String txHash, final String payload) {
-                        try {
-                            final Payment payment = adapters.paymentFrom(payload);
-                            payment.setTxHash(txHash);
-                            return adapters.toJson(payment);
-                        } catch (IOException e) {
-                            return payload;
-                        }
+                    private void addTxHashToChatMessage(final String txHash) {
+                        callback.onSuccess(txHash);
                     }
 
                     @Override
                     public void onError(final Throwable error) {
-                        updateMessageToFailed(chatMessage);
+                        callback.onError(error);
                     }
                 });
     }

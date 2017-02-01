@@ -5,9 +5,10 @@ import java.math.BigDecimal;
 
 public class Transaction {
 
-    private final BigDecimal ethAmount;
-    private final String toAddress;
-    private final String ownerAddress;
+    private String txHash;
+    private BigDecimal ethAmount;
+    private String toAddress;
+    private String ownerAddress;
 
     public Transaction(
             final BigDecimal ethAmount,
@@ -28,5 +29,13 @@ public class Transaction {
 
     public String getOwnerAddress() {
         return this.ownerAddress;
+    }
+
+    public String getTxHash() {
+        return this.txHash;
+    }
+
+    public void setTxHash(final String txHash) {
+        this.txHash = txHash;
     }
 }
