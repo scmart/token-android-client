@@ -5,10 +5,13 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.bakkenbaeck.token.model.local.SendState;
 import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
+
+import java.math.BigInteger;
 
 public final class PaymentViewHolder extends RecyclerView.ViewHolder {
 
@@ -56,14 +59,15 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void draw() {
+        final String ethAmount = getFormattedEthAmount();
+
         if (this.sentByLocal) {
             this.localView.setVisibility(View.VISIBLE);
             this.remoteView.setVisibility(View.GONE);
             this.sentFailedMessage.setVisibility(View.GONE);
             this.localRequestedAmount.setText(this.payment.getLocalPrice());
-            final String ethAmount = String.format(
-                    BaseApplication.get().getResources().getString(R.string.eth_amount),
-                    EthUtil.weiToEthString(this.payment.getValue()));
+
+
             this.localSecondaryAmount.setText(ethAmount);
 
             if (this.sendState == SendState.STATE_FAILED) {
@@ -77,13 +81,18 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
             this.remoteView.setVisibility(View.VISIBLE);
             this.localView.setVisibility(View.GONE);
             this.remoteRequestedAmount.setText(this.payment.getLocalPrice());
-            final String ethAmount = String.format(
-                    BaseApplication.get().getResources().getString(R.string.eth_amount),
-                    EthUtil.weiToEthString(this.payment.getValue()));
             this.remoteSecondaryAmount.setText(ethAmount);
         }
 
         this.payment = null;
+    }
+
+    private String getFormattedEthAmount() {
+        final BigInteger weiAmount = TypeConverter.StringHexToBigInteger(this.payment.getValue());
+        final String ethAmount = EthUtil.weiToEthString(weiAmount);
+        return String.format(
+                BaseApplication.get().getResources().getString(R.string.eth_amount),
+                ethAmount);
     }
 
 }

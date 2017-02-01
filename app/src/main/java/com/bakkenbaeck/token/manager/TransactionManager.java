@@ -4,7 +4,6 @@ package com.bakkenbaeck.token.manager;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.SendState;
-import com.bakkenbaeck.token.model.local.Transaction;
 import com.bakkenbaeck.token.model.network.SentTransaction;
 import com.bakkenbaeck.token.model.network.ServerTime;
 import com.bakkenbaeck.token.model.network.SignedTransaction;
@@ -27,7 +26,7 @@ import rx.subjects.PublishSubject;
 
 public class TransactionManager {
 
-    private final PublishSubject<Transaction> transactionQueue = PublishSubject.create();
+    private final PublishSubject<Payment> paymentQueue = PublishSubject.create();
 
     private HDWallet wallet;
     private ChatMessageStore chatMessageStore;
@@ -45,8 +44,8 @@ public class TransactionManager {
         return this;
     }
 
-    public final void sendTransaction(final Transaction transaction) {
-        this.transactionQueue.onNext(transaction);
+    public final void sendPayment(final Payment payment) {
+        this.paymentQueue.onNext(payment);
     }
 
     private void initEverything() {
@@ -70,13 +69,13 @@ public class TransactionManager {
     }
 
     private void attachSubscribers() {
-        this.transactionQueue
+        this.paymentQueue
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new OnNextSubscriber<Transaction>() {
+                .subscribe(new OnNextSubscriber<Payment>() {
                     @Override
-                    public void onNext(final Transaction transaction) {
-                        final ChatMessage chatMessage = generateMessageForTransaction(transaction);
+                    public void onNext(final Payment transaction) {
+                        final ChatMessage chatMessage = generateMessageFromPayment(transaction);
                         storeMessage(chatMessage);
                         final TransactionRequest transactionRequest = createTransactionRequest(transaction);
                         processTransactionRequest(
@@ -86,7 +85,7 @@ public class TransactionManager {
                                     @Override
                                     public void onSuccess(final String txHash) {
                                         transaction.setTxHash(txHash);
-                                        final ChatMessage updatedMessage = generateMessageForTransaction(transaction);
+                                        final ChatMessage updatedMessage = generateMessageFromPayment(transaction);
                                         chatMessage.setPayload(updatedMessage.getPayload());
                                         updateMessageToSent(chatMessage);
                                     }
@@ -102,10 +101,9 @@ public class TransactionManager {
                 });
     }
 
-    private ChatMessage generateMessageForTransaction(final Transaction transaction) {
-        final Payment payment = new Payment(transaction);
+    private ChatMessage generateMessageFromPayment(final Payment payment) {
         final String messageBody = this.adapters.toJson(payment);
-        return new ChatMessage().makeNew(transaction.getOwnerAddress(), true, messageBody);
+        return new ChatMessage().makeNew(payment.getOwnerAddress(), true, messageBody);
     }
 
     private void storeMessage(final ChatMessage message) {
@@ -169,11 +167,11 @@ public class TransactionManager {
                 });
     }
 
-    private TransactionRequest createTransactionRequest(final Transaction transaction) {
+    private TransactionRequest createTransactionRequest(final Payment payment) {
         return new TransactionRequest()
-                .setValue(transaction.getEthAmount())
+                .setValue(payment.getValue())
                 .setFromAddress(this.wallet.getPaymentAddress())
-                .setToAddress(transaction.getToAddress());
+                .setToAddress(payment.getToAddress());
     }
 
     private void fetchServerTimeForUnsignedTransaction(
