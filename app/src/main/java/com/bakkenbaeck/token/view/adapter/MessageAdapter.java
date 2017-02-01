@@ -24,7 +24,7 @@ import java.util.List;
 
 
 public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private List<ChatMessage> chatMessages;
+    private final List<ChatMessage> chatMessages;
     private final SofaAdapters adapters;
 
     public MessageAdapter() {
@@ -33,8 +33,22 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public final void addMessages(final Collection<ChatMessage> chatMessages) {
-        this.chatMessages.addAll(chatMessages);
+        this.chatMessages.clear();
+
+        for (ChatMessage chatMessage : chatMessages) {
+            if (shouldShowChatMessage(chatMessage)) {
+                this.chatMessages.add(chatMessage);
+            }
+        }
+
         notifyDataSetChanged();
+    }
+
+    private boolean shouldShowChatMessage(final ChatMessage chatMessage) {
+        return chatMessage.getType() != SofaType.UNKNOWN
+                && chatMessage.getType() != SofaType.INIT
+                && chatMessage.getType() != SofaType.INIT_REQUEST
+                && chatMessage.getType() != SofaType.COMMAND_REQUEST;
     }
 
     public final void addMessage(final ChatMessage chatMessage) {
@@ -87,6 +101,7 @@ public final class  MessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public final void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         final ChatMessage chatMessage = this.chatMessages.get(position);
         final String payload = chatMessage.getPayload();
+
         if (payload == null) {
             return;
         }

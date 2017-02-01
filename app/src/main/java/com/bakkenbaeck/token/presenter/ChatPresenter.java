@@ -297,8 +297,6 @@ public final class ChatPresenter implements
     private final SingleSuccessSubscriber<RealmResults<ChatMessage>> handleLoadMessages = new SingleSuccessSubscriber<RealmResults<ChatMessage>>() {
         @Override
         public void onSuccess(final RealmResults<ChatMessage> chatMessages) {
-
-
             if (chatMessages.size() > 0) {
                 messageAdapter.addMessages(chatMessages);
                 forceScrollToBottom();
