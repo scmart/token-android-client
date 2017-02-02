@@ -8,13 +8,19 @@ import java.util.concurrent.Callable;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import rx.Single;
+import rx.subjects.PublishSubject;
 
-public class PendingTransactionsStore {
+public class PendingTransactionStore {
 
+    private final static PublishSubject<PendingTransaction> pendingTransactionObservable = PublishSubject.create();
     private final Realm realm;
 
-    public PendingTransactionsStore() {
+    public PendingTransactionStore() {
         this.realm = Realm.getDefaultInstance();
+    }
+
+    public PublishSubject<PendingTransaction> getPendingTransactionObservable() {
+        return pendingTransactionObservable;
     }
 
     public void save(final PendingTransaction pendingTransaction) {
@@ -36,6 +42,10 @@ public class PendingTransactionsStore {
         final RealmQuery<PendingTransaction> query = realm.where(PendingTransaction.class);
         query.equalTo(fieldName, value);
         return query.findFirst();
+    }
+
+    private void broadcastPendingTransaction(final PendingTransaction pendingTransaction) {
+        pendingTransactionObservable.onNext(pendingTransaction);
     }
 
     private void close() {
