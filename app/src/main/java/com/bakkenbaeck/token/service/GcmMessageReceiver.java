@@ -40,6 +40,7 @@ public class GcmMessageReceiver extends GcmListenerService {
     public void onMessageReceived(final String from, final Bundle data) {
         try {
             final String message = data.getString("message");
+            LogUtil.i(getClass(), "Incoming PN: " + message);
             final ChatMessage chatMessage = new ChatMessage().makeNew(message);
 
             if (chatMessage.getType() == SofaType.PAYMENT) {

@@ -8,6 +8,7 @@ import android.view.animation.PathInterpolator;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.bakkenbaeck.token.model.local.ChatMessage;
+import com.bakkenbaeck.token.model.local.PendingTransaction;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.sofa.Command;
 import com.bakkenbaeck.token.model.sofa.Control;
@@ -19,6 +20,7 @@ import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
+import com.bakkenbaeck.token.presenter.store.PendingTransactionStore;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
@@ -45,6 +47,7 @@ public final class ChatPresenter implements
     private MessageAdapter messageAdapter;
     private boolean firstViewAttachment = true;
     private ChatMessageStore chatMessageStore;
+    private PendingTransactionStore pendingTransactionStore;
     private User remoteUser;
     private SpeedyLinearLayoutManager layoutManager;
     private SofaAdapters adapters;
@@ -74,19 +77,10 @@ public final class ChatPresenter implements
 
     private void initLongLivingObjects() {
         this.messageAdapter = new MessageAdapter();
-        this.chatMessageStore = new ChatMessageStore();
-        this.chatMessageStore.getNewMessageObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleNewMessage);
-        this.chatMessageStore.getUpdatedMessageObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleUpdatedMessage);
-        this.chatMessageStore.load(this.remoteUser.getOwnerAddress())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleLoadMessages);
         this.adapters = new SofaAdapters();
+
+        initChatMessageStore();
+        initPendingTransactionStore();
 
         BaseApplication.get()
                 .getTokenManager()
@@ -99,6 +93,30 @@ public final class ChatPresenter implements
                         this.unsubscribe();
                     }
                 });
+    }
+
+    private void initPendingTransactionStore() {
+        this.pendingTransactionStore = new PendingTransactionStore();
+        this.pendingTransactionStore
+                .getPendingTransactionObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this.handlePendingTransactionChange);
+    }
+
+    private void initChatMessageStore() {
+        this.chatMessageStore = new ChatMessageStore();
+        this.chatMessageStore.getNewMessageObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this.handleNewMessage);
+        this.chatMessageStore.getUpdatedMessageObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this.handleUpdatedMessage);
+        this.chatMessageStore.load(this.remoteUser.getOwnerAddress())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this.handleLoadMessages);
     }
 
     private void initShortLivingObjects() {
@@ -264,6 +282,13 @@ public final class ChatPresenter implements
             }
 
             messageAdapter.updateMessage(chatMessage);
+        }
+    };
+
+    private final OnNextSubscriber<PendingTransaction> handlePendingTransactionChange = new OnNextSubscriber<PendingTransaction>() {
+        @Override
+        public void onNext(final PendingTransaction pendingTransaction) {
+            handleUpdatedMessage.onNext(pendingTransaction.getChatMessage());
         }
     };
 

@@ -27,6 +27,7 @@ public class PendingTransactionStore {
         this.realm.beginTransaction();
         this.realm.insertOrUpdate(pendingTransaction);
         this.realm.commitTransaction();
+        broadcastPendingTransaction(pendingTransaction);
     }
 
     public Single<PendingTransaction> load(final String txHash) {
