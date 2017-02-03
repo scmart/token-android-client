@@ -6,14 +6,15 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
+import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.bakkenbaeck.token.model.local.ChatMessage;
-import com.bakkenbaeck.token.model.local.Transaction;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.sofa.Command;
 import com.bakkenbaeck.token.model.sofa.Control;
 import com.bakkenbaeck.token.model.sofa.Init;
 import com.bakkenbaeck.token.model.sofa.InitRequest;
 import com.bakkenbaeck.token.model.sofa.Message;
+import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
@@ -223,15 +224,15 @@ public final class ChatPresenter implements
 
         @Override
         public void onSingleClick(final View v) {
-            final BigDecimal ethAmount = new BigDecimal("0.001");
-            final Transaction transaction = new Transaction(
-                    ethAmount,
-                    remoteUser.getPaymentAddress(),
-                    remoteUser.getOwnerAddress());
+            final String ethAmount = TypeConverter.toJsonHex(EthUtil.ethToWei(new BigDecimal("0.001")));
+            final Payment payment = new Payment()
+                    .setValue(ethAmount)
+                    .setOwnerAddress(remoteUser.getOwnerAddress())
+                    .setToAddress(remoteUser.getPaymentAddress());
             BaseApplication.get()
                     .getTokenManager()
                     .getTransactionManager()
-                    .sendTransaction(transaction);
+                    .sendPayment(payment);
         }
     };
 

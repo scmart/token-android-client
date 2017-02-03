@@ -5,10 +5,13 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.bakkenbaeck.token.model.local.SendState;
 import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
+
+import java.math.BigInteger;
 
 public final class PaymentViewHolder extends RecyclerView.ViewHolder {
 
@@ -56,34 +59,58 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void draw() {
+        final String ethAmount = getFormattedEthAmount();
+
         if (this.sentByLocal) {
             this.localView.setVisibility(View.VISIBLE);
             this.remoteView.setVisibility(View.GONE);
-            this.sentFailedMessage.setVisibility(View.GONE);
             this.localRequestedAmount.setText(this.payment.getLocalPrice());
-            final String ethAmount = String.format(
-                    BaseApplication.get().getResources().getString(R.string.eth_amount),
-                    EthUtil.weiToEthString(this.payment.getValue()));
-            this.localSecondaryAmount.setText(ethAmount);
 
-            if (this.sendState == SendState.STATE_FAILED) {
-                this.sentFailedMessage.setVisibility(View.VISIBLE);
-                this.sentFailedMessage.setText(R.string.error__transaction_failed);
-            } else if (this.sendState == SendState.STATE_SENT) {
-                this.sentFailedMessage.setVisibility(View.VISIBLE);
-                this.sentFailedMessage.setText(R.string.error__transaction_succeeded);
-            }
+
+            this.localSecondaryAmount.setText(ethAmount);
+            renderPaymentStatusMessage();
         } else {
             this.remoteView.setVisibility(View.VISIBLE);
             this.localView.setVisibility(View.GONE);
             this.remoteRequestedAmount.setText(this.payment.getLocalPrice());
-            final String ethAmount = String.format(
-                    BaseApplication.get().getResources().getString(R.string.eth_amount),
-                    EthUtil.weiToEthString(this.payment.getValue()));
             this.remoteSecondaryAmount.setText(ethAmount);
         }
 
         this.payment = null;
+    }
+
+    private void renderPaymentStatusMessage() {
+
+        if (this.payment.getStatus() != null && this.payment.getStatus().equals("confirmed")) {
+            this.sentFailedMessage.setVisibility(View.VISIBLE);
+            this.sentFailedMessage.setText(R.string.error__transaction_succeeded);
+            return;
+        }
+
+        switch (this.sendState) {
+            case SendState.STATE_FAILED:
+                this.sentFailedMessage.setVisibility(View.VISIBLE);
+                this.sentFailedMessage.setText(R.string.error__transaction_failed);
+                break;
+            case SendState.STATE_SENDING:
+            case SendState.STATE_SENT:
+                this.sentFailedMessage.setVisibility(View.VISIBLE);
+                this.sentFailedMessage.setText(R.string.error__transaction_pending);
+                break;
+            case SendState.STATE_RECEIVED:
+            case SendState.STATE_LOCAL_ONLY:
+            default:
+                this.sentFailedMessage.setVisibility(View.GONE);
+                break;
+        }
+    }
+
+    private String getFormattedEthAmount() {
+        final BigInteger weiAmount = TypeConverter.StringHexToBigInteger(this.payment.getValue());
+        final String ethAmount = EthUtil.weiToEthString(weiAmount);
+        return String.format(
+                BaseApplication.get().getResources().getString(R.string.eth_amount),
+                ethAmount);
     }
 
 }

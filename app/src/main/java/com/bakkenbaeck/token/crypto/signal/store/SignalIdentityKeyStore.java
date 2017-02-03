@@ -49,8 +49,12 @@ public class SignalIdentityKeyStore implements IdentityKeyStore {
 
     private void writeObjectToDatabase(final RealmObject object) {
         final Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        realm.copyToRealmOrUpdate(object);
-        realm.commitTransaction();
+        try {
+            realm.beginTransaction();
+            realm.copyToRealmOrUpdate(object);
+            realm.commitTransaction();
+        } finally {
+            realm.close();
+        }
     }
 }

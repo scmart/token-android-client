@@ -1,7 +1,6 @@
 package com.bakkenbaeck.token.model.sofa;
 
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
-import com.bakkenbaeck.token.model.local.Transaction;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.Json;
@@ -11,17 +10,47 @@ import java.math.BigInteger;
 
 public class Payment {
 
+    private String value;
+    private String toAddress;
+    private String ownerAddress;
     private String txHash;
     private String status;
-    private String value;
 
     @Json(name = SofaType.LOCAL_ONLY_PAYLOAD)
     private ClientSideCustomData androidClientSideCustomData;
 
     public Payment() {}
 
-    public Payment(final Transaction transaction) {
-        setValue(transaction.getEthAmount());
+    public Payment setValue(final String value) {
+        this.value = value;
+        generateLocalPrice();
+        return this;
+    }
+
+    public String getValue() {
+        return this.value;
+    }
+
+    public String getToAddress() {
+        return this.toAddress;
+    }
+
+    public Payment setToAddress(final String toAddress) {
+        this.toAddress = toAddress;
+        return this;
+    }
+
+    public String getOwnerAddress() {
+        return this.ownerAddress;
+    }
+
+    public Payment setOwnerAddress(final String ownerAddress) {
+        this.ownerAddress = ownerAddress;
+        return this;
+    }
+
+    public String getTxHash() {
+        return this.txHash;
     }
 
     public Payment setTxHash(final String txHash) {
@@ -29,16 +58,15 @@ public class Payment {
         return this;
     }
 
-    public Payment setValue(final BigDecimal ethAmount) {
-        final BigInteger weiAmount = EthUtil.ethToWei(ethAmount);
-        this.value = TypeConverter.toJsonHex(weiAmount);
-        generateLocalPrice();
+    public String getStatus() {
+        return this.status;
+    }
+
+    public Payment setStatus(final String status) {
+        this.status = status;
         return this;
     }
 
-    public BigInteger getValue() {
-        return TypeConverter.StringHexToBigInteger(this.value);
-    }
 
     private Payment setLocalPrice(final String localPrice) {
         if (this.androidClientSideCustomData == null) {

@@ -49,5 +49,8 @@ public class ContactStore {
         return query.findFirst();
     }
 
+    private void close() {
+        this.realm.close();
+    }
 
 }

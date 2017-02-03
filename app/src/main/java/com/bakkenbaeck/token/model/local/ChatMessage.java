@@ -23,6 +23,16 @@ public class ChatMessage extends RealmObject {
         this.creationTime = System.currentTimeMillis();
     }
 
+    public ChatMessage(final ChatMessage chatMessage) {
+        this.privateKey = chatMessage.getPrivateKey();
+        this.creationTime = chatMessage.getCreationTime();
+        this.type = chatMessage.getType();
+        this.sendState = chatMessage.getSendState();
+        this.conversationId = chatMessage.getConversationId();
+        this.payload = chatMessage.getPayload();
+        this.sentByLocal = chatMessage.isSentByLocal();
+    }
+
     // Setters
 
     private ChatMessage setType(final @SofaType.Type int type) {
@@ -84,6 +94,10 @@ public class ChatMessage extends RealmObject {
         return this.sentByLocal;
     }
 
+    private long getCreationTime() {
+        return this.creationTime;
+    }
+
     // Helper functions
 
     private String cleanPayload(final String payload) {
@@ -110,14 +124,22 @@ public class ChatMessage extends RealmObject {
             final String conversationId,
             final boolean sentByLocal,
             final String sofaPayload) {
-                final String sofaHeader = getSofaHeader(sofaPayload);
-                final @SofaType.Type int sofaType = SofaType.getType(sofaHeader);
+        final String sofaHeader = getSofaHeader(sofaPayload);
+        final @SofaType.Type int sofaType = SofaType.getType(sofaHeader);
 
-                return setConversationId(conversationId)
-                        .setSendState(SendState.STATE_SENDING)
-                        .setType(sofaType)
-                        .setSentByLocal(sentByLocal)
-                        .setPayload(sofaPayload);
+        return setConversationId(conversationId)
+                .setSendState(SendState.STATE_SENDING)
+                .setType(sofaType)
+                .setSentByLocal(sentByLocal)
+                .setPayload(sofaPayload);
+    }
+
+    public ChatMessage makeNew(final String sofaPayload) {
+        final String sofaHeader = getSofaHeader(sofaPayload);
+        final @SofaType.Type int sofaType = SofaType.getType(sofaHeader);
+
+        return setType(sofaType)
+                .setPayload(sofaPayload);
     }
 
     @Override
