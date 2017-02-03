@@ -7,7 +7,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
-import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.bakkenbaeck.token.model.local.ActivityResultHolder;
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.PendingTransaction;
@@ -23,7 +22,6 @@ import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
 import com.bakkenbaeck.token.presenter.store.PendingTransactionStore;
-import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
@@ -37,7 +35,6 @@ import com.bakkenbaeck.token.view.custom.ControlView;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 
 import io.realm.RealmResults;
 import rx.android.schedulers.AndroidSchedulers;
@@ -49,6 +46,7 @@ public final class ChatPresenter implements
         Presenter<ChatActivity> {
 
     private static final int REQUEST_RESULT_CODE = 1;
+    private static final int PAY_RESULT_CODE = 2;
 
     private ChatActivity activity;
     private MessageAdapter messageAdapter;
@@ -236,18 +234,10 @@ public final class ChatPresenter implements
     };
 
     private final OnSingleClickListener payButtonClicked = new OnSingleClickListener() {
-
         @Override
         public void onSingleClick(final View v) {
-            final String ethAmount = TypeConverter.toJsonHex(EthUtil.ethToWei(new BigDecimal("0.001")));
-            final Payment payment = new Payment()
-                    .setValue(ethAmount)
-                    .setOwnerAddress(remoteUser.getOwnerAddress())
-                    .setToAddress(remoteUser.getPaymentAddress());
-            BaseApplication.get()
-                    .getTokenManager()
-                    .getTransactionManager()
-                    .sendPayment(payment);
+            final Intent intent = new Intent(activity, AmountActivity.class);
+            activity.startActivityForResult(intent, PAY_RESULT_CODE);
         }
     };
 
@@ -415,20 +405,39 @@ public final class ChatPresenter implements
 
         if (resultHolder.getRequestCode() == REQUEST_RESULT_CODE) {
             final String value = resultHolder.getIntent().getStringExtra(AmountPresenter.INTENT_EXTRA__ETH_AMOUNT);
-            final PaymentRequest request = new PaymentRequest()
-                    .setDestinationAddress(userWallet.getPaymentAddress())
-                    .setValue(value);
-            final String messageBody = this.adapters.toJson(request);
-            final ChatMessage message = new ChatMessage().makeNew(
-                    remoteUser.getOwnerAddress(),
-                    true,
-                    messageBody);
-
-            BaseApplication
-                    .get()
-                    .getTokenManager()
-                    .getChatMessageManager()
-                    .sendAndSaveMessage(message);
+            sendPaymentRequestWithValue(value);
+        } else if(resultHolder.getRequestCode() == PAY_RESULT_CODE) {
+            final String value = resultHolder.getIntent().getStringExtra(AmountPresenter.INTENT_EXTRA__ETH_AMOUNT);
+            sendPaymentWithValue(value);
         }
+    }
+
+    private void sendPaymentWithValue(final String value) {
+        final Payment payment = new Payment()
+                .setValue(value)
+                .setOwnerAddress(remoteUser.getOwnerAddress())
+                .setToAddress(remoteUser.getPaymentAddress());
+
+        BaseApplication.get()
+                .getTokenManager()
+                .getTransactionManager()
+                .sendPayment(payment);
+    }
+
+    private void sendPaymentRequestWithValue(final String value) {
+        final PaymentRequest request = new PaymentRequest()
+                .setDestinationAddress(userWallet.getPaymentAddress())
+                .setValue(value);
+        final String messageBody = this.adapters.toJson(request);
+        final ChatMessage message = new ChatMessage().makeNew(
+                remoteUser.getOwnerAddress(),
+                true,
+                messageBody);
+
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getChatMessageManager()
+                .sendAndSaveMessage(message);
     }
 }
