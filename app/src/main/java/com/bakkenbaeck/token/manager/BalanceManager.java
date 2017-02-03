@@ -7,10 +7,13 @@ import com.bakkenbaeck.token.model.network.MarketRates;
 import com.bakkenbaeck.token.network.BalanceService;
 import com.bakkenbaeck.token.network.CurrencyService;
 import com.bakkenbaeck.token.util.EthUtil;
+import com.bakkenbaeck.token.util.LocaleUtil;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
+import java.text.NumberFormat;
 
 import rx.schedulers.Schedulers;
 
@@ -130,20 +133,34 @@ public class BalanceManager {
         return this.ethValue;
     }
 
-    // Get the value of ethereum in another currency
-    public BigDecimal getMarketRate(final String currency, final BigDecimal ethAmount) {
-        final BigDecimal rate = this.rates.getRate(currency);
-        return rate.multiply(ethAmount);
+    // Currently hard-coded to USD
+    public String convertEthToLocalCurrencyString(final BigDecimal ethAmount) {
+        final BigDecimal marketRate = getEthMarketRate("USD");
+        final BigDecimal localAmount = marketRate.multiply(ethAmount);
+
+        final NumberFormat numberFormat = NumberFormat.getNumberInstance(LocaleUtil.getLocale());
+        numberFormat.setGroupingUsed(true);
+        numberFormat.setMaximumFractionDigits(4);
+        numberFormat.setMinimumFractionDigits(2);
+
+        final String localAmountAsString = numberFormat.format(localAmount);
+        return "$" + localAmountAsString + " USD ";
     }
 
     // Currently hard-coded to USD
-    public String getMarketRateInLocalCurrency(final BigInteger wei) {
-        final BigDecimal ethAmount = EthUtil.weiToEth(wei);
-        return getMarketRateInLocalCurrency(ethAmount);
+    public BigDecimal convertEthToLocalCurrency(final BigDecimal ethAmount) {
+        final BigDecimal marketRate = getEthMarketRate("USD");
+        return marketRate.multiply(ethAmount);
     }
 
-    public String getMarketRateInLocalCurrency(final BigDecimal ethAmount) {
-        final BigDecimal marketRate = getMarketRate("USD", ethAmount);
-        return "$" + EthUtil.ethToEthString(marketRate) + " USD";
+    // Currently hard-coded to USD
+    public BigDecimal convertLocalCurrencyToEth(final BigDecimal localAmount) {
+        final BigDecimal marketRate = getEthMarketRate("USD");
+        return localAmount.divide(marketRate, 8, RoundingMode.HALF_DOWN);
+    }
+
+    // Get the value of ethereum in another currency
+    private BigDecimal getEthMarketRate(final String currency) {
+        return this.rates.getRate(currency);
     }
 }

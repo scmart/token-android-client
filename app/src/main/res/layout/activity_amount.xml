@@ -47,7 +47,7 @@
                 android:layout_height="wrap_content">
 
                 <TextView
-                    android:id="@+id/usd"
+                    android:id="@+id/local_currency"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -57,7 +57,7 @@
                     android:text="@string/dollar"/>
 
                 <TextView
-                    android:id="@+id/usd_value"
+                    android:id="@+id/local_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -72,7 +72,16 @@
                 android:layout_height="wrap_content">
 
                 <TextView
-                    android:id="@+id/eth"
+                    android:id="@+id/eth_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="5dp"
+                    android:textColor="@color/textColorSecondary"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/eth_currency"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -81,15 +90,6 @@
                     android:textSize="14sp"
                     android:layout_marginRight="4dp"
                     android:text="@string/my_balance"/>
-
-                <TextView
-                    android:id="@+id/eth_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="5dp"
-                    android:textColor="@color/textColorSecondary"
-                    android:textSize="14sp" />
 
             </LinearLayout>
 
@@ -109,16 +109,13 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#E7E9EA"/>
+            android:background="@color/divider_amount"/>
 
-        <TextView
+        <Button
             android:id="@+id/btn_continue"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:textColor="@color/colorPrimary"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:textSize="16sp"
+            style="@style/FlatButton"
             android:text="@string/continue_"/>
 
     </LinearLayout>

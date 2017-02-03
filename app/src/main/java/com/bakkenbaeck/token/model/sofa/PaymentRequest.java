@@ -49,8 +49,8 @@ public class PaymentRequest {
     @Json(name = SofaType.LOCAL_ONLY_PAYLOAD)
     private ClientSideCustomData androidClientSideCustomData;
 
-    public PaymentRequest setValue(final BigInteger value) {
-        this.value = TypeConverter.toJsonHex(value);
+    public PaymentRequest setValue(final String value) {
+        this.value = value;
         generateLocalPrice();
         return this;
     }
@@ -58,7 +58,7 @@ public class PaymentRequest {
     public void generateLocalPrice() {
         final BigInteger weiAmount = TypeConverter.StringHexToBigInteger(this.value);
         final BigDecimal ethAmount = EthUtil.weiToEth(weiAmount);
-        final String localAmount = BaseApplication.get().getTokenManager().getBalanceManager().getMarketRateInLocalCurrency(ethAmount);
+        final String localAmount = BaseApplication.get().getTokenManager().getBalanceManager().convertEthToLocalCurrencyString(ethAmount);
         setLocalPrice(localAmount);
     }
 

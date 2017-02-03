@@ -6,25 +6,36 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.util.LocaleUtil;
 import com.bakkenbaeck.token.view.adapter.viewholder.AmountInputViewHolder;
 import com.bakkenbaeck.token.view.adapter.viewholder.AmountInputViewHolderBackspace;
+
+import java.text.DecimalFormatSymbols;
 
 public class AmountInputAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final int REGULAR_TYPE = 1;
     private static final int BACKSPACE_TYPE = 2;
+    private static final char BACKSPACE = '<';
 
-    private final String[] valueArray = new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "backspace"};
+    private final char ZERO;
+    private final char[] valueArray;
     private OnKeyboardItemClicked listener;
+
+    public AmountInputAdapter() {
+        final DecimalFormatSymbols dcf = LocaleUtil.getDecimalFormatSymbols();
+        final char decimalSeparator = dcf.getMonetaryDecimalSeparator();
+        ZERO = dcf.getZeroDigit();
+        this.valueArray = new char[] {'1', '2', '3', '4', '5', '6', '7', '8', '9', decimalSeparator, ZERO, BACKSPACE};
+    }
 
     public void setOnKeyboardItemClickListener(final OnKeyboardItemClicked listener) {
         this.listener = listener;
     }
 
     public interface OnKeyboardItemClicked {
-        void onNumberClicked(final String value);
+        void onValueClicked(final char value);
         void onBackSpaceClicked();
-        void onDotClicked();
     }
 
     @Override
@@ -44,15 +55,15 @@ public class AmountInputAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        final String value = valueArray[position];
+        final char value = valueArray[position];
 
         switch (holder.getItemViewType()) {
             case REGULAR_TYPE : {
                 final AmountInputViewHolder vh = (AmountInputViewHolder) holder;
-                vh.setText(String.valueOf(value));
-                vh.bind(value, listener);
+                vh.setText(value);
+                vh.bind(listener);
 
-                if (value.equals("0") || value.equals(".")) {
+                if (isOnLastRow(position)) {
                     vh.hideDivider();
                 }
 
@@ -65,10 +76,14 @@ public class AmountInputAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
+    private boolean isOnLastRow(final int position) {
+        return position >= getItemCount() - 3;
+    }
+
 
     @Override
     public int getItemViewType(int position) {
-        return this.valueArray[position].equals("backspace")
+        return this.valueArray[position] == BACKSPACE
                 ? BACKSPACE_TYPE
                 : REGULAR_TYPE;
     }

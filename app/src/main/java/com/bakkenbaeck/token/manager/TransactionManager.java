@@ -16,7 +16,7 @@ import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.network.BalanceService;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
-import com.bakkenbaeck.token.presenter.store.PendingTransactionsStore;
+import com.bakkenbaeck.token.presenter.store.PendingTransactionStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 
@@ -35,7 +35,7 @@ public class TransactionManager {
 
     private HDWallet wallet;
     private ChatMessageStore chatMessageStore;
-    private PendingTransactionsStore pendingTransactionsStore;
+    private PendingTransactionStore pendingTransactionStore;
     private ExecutorService dbThreadExecutor;
     private SofaAdapters adapters;
 
@@ -74,7 +74,7 @@ public class TransactionManager {
             @Override
             public void run() {
                 TransactionManager.this.chatMessageStore = new ChatMessageStore();
-                TransactionManager.this.pendingTransactionsStore = new PendingTransactionsStore();
+                TransactionManager.this.pendingTransactionStore = new PendingTransactionStore();
             }
         });
     }
@@ -176,7 +176,7 @@ public class TransactionManager {
                                 .setChatMessage(message)
                                 .setTxHash(txHash);
 
-                pendingTransactionsStore.save(pendingTransaction);
+                pendingTransactionStore.save(pendingTransaction);
             }
         });
     }
@@ -185,7 +185,7 @@ public class TransactionManager {
         dbThreadExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                pendingTransactionsStore
+                pendingTransactionStore
                     .load(txHash)
                     .subscribe(new SingleSubscriber<PendingTransaction>() {
                         @Override
@@ -196,7 +196,7 @@ public class TransactionManager {
                                         .setTxHash(txHash)
                                         .setChatMessage(updatedMessage);
 
-                                pendingTransactionsStore.save(updatedPendingTransaction);
+                                pendingTransactionStore.save(updatedPendingTransaction);
                                 unsubscribe();
                             } catch (final IOException ex) {
                                 LogUtil.e(getClass(), "Error updating PendingTransaction. " + ex);

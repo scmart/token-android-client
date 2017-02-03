@@ -61,9 +61,8 @@ public class HomePresenter implements Presenter<HomeFragment> {
         final String ethConfirmedFormatted = this.fragment.getString(R.string.eth_balance, EthUtil.ethToEthString(confirmedBalance));
         this.fragment.getBinding().balanceEth.setText(ethConfirmedFormatted);
 
-        final BigDecimal localAmount = BaseApplication.get().getTokenManager().getBalanceManager().getMarketRate("USD", confirmedBalance);
-        final String localAmountString = this.fragment.getString(R.string.usd_balance, EthUtil.ethToEthString(localAmount), "USD");
-        this.fragment.getBinding().balanceUsd.setText(localAmountString);
+        final String localAmount = BaseApplication.get().getTokenManager().getBalanceManager().convertEthToLocalCurrencyString(confirmedBalance);
+        this.fragment.getBinding().balanceUsd.setText(localAmount);
     }
 
     private void assignSubscribers() {
