@@ -88,8 +88,8 @@ public class Payment {
     public void generateLocalPrice() {
         final BigInteger weiAmount = TypeConverter.StringHexToBigInteger(this.value);
         final BigDecimal ethAmount = EthUtil.weiToEth(weiAmount);
-        final BigDecimal localAmount = BaseApplication.get().getTokenManager().getBalanceManager().convertEthToLocalCurrency(ethAmount);
-        setLocalPrice(localAmount.toPlainString());
+        final String localAmount = BaseApplication.get().getTokenManager().getBalanceManager().convertEthToLocalCurrencyString(ethAmount);
+        setLocalPrice(localAmount);
     }
 
     private static class ClientSideCustomData {

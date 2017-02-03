@@ -7,11 +7,13 @@ import com.bakkenbaeck.token.model.network.MarketRates;
 import com.bakkenbaeck.token.network.BalanceService;
 import com.bakkenbaeck.token.network.CurrencyService;
 import com.bakkenbaeck.token.util.EthUtil;
+import com.bakkenbaeck.token.util.LocaleUtil;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.text.NumberFormat;
 
 import rx.schedulers.Schedulers;
 
@@ -129,6 +131,20 @@ public class BalanceManager {
 
     public double getEthValue(){
         return this.ethValue;
+    }
+
+    // Currently hard-coded to USD
+    public String convertEthToLocalCurrencyString(final BigDecimal ethAmount) {
+        final BigDecimal marketRate = getEthMarketRate("USD");
+        final BigDecimal localAmount = marketRate.multiply(ethAmount);
+
+        final NumberFormat numberFormat = NumberFormat.getNumberInstance(LocaleUtil.getLocale());
+        numberFormat.setGroupingUsed(true);
+        numberFormat.setMaximumFractionDigits(4);
+        numberFormat.setMinimumFractionDigits(2);
+
+        final String localAmountAsString = numberFormat.format(localAmount);
+        return "$" + localAmountAsString + " USD ";
     }
 
     // Currently hard-coded to USD
