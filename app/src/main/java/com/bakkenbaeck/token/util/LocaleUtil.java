@@ -6,6 +6,7 @@ import android.os.Build;
 
 import com.bakkenbaeck.token.view.BaseApplication;
 
+import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
 public class LocaleUtil {
@@ -23,5 +24,9 @@ public class LocaleUtil {
             // Default to something!
             return Locale.ENGLISH;
         }
+    }
+
+    public static DecimalFormatSymbols getDecimalFormatSymbols() {
+        return new DecimalFormatSymbols(getLocale());
     }
 }

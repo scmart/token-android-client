@@ -58,8 +58,8 @@ public class PaymentRequest {
     public void generateLocalPrice() {
         final BigInteger weiAmount = TypeConverter.StringHexToBigInteger(this.value);
         final BigDecimal ethAmount = EthUtil.weiToEth(weiAmount);
-        final String localAmount = BaseApplication.get().getTokenManager().getBalanceManager().getMarketRateInLocalCurrency(ethAmount);
-        setLocalPrice(localAmount);
+        final BigDecimal localAmount = BaseApplication.get().getTokenManager().getBalanceManager().convertEthToLocalCurrency(ethAmount);
+        setLocalPrice(localAmount.toPlainString());
     }
 
     public PaymentRequest setDestinationAddress(final String destinationAddress) {

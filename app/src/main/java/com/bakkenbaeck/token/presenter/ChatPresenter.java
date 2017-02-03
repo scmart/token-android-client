@@ -1,5 +1,6 @@
 package com.bakkenbaeck.token.presenter;
 
+import android.content.Intent;
 import android.os.Build;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
@@ -16,7 +17,6 @@ import com.bakkenbaeck.token.model.sofa.Init;
 import com.bakkenbaeck.token.model.sofa.InitRequest;
 import com.bakkenbaeck.token.model.sofa.Message;
 import com.bakkenbaeck.token.model.sofa.Payment;
-import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
@@ -28,6 +28,7 @@ import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.view.activity.AmountActivity;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
 import com.bakkenbaeck.token.view.custom.ControlView;
@@ -223,19 +224,8 @@ public final class ChatPresenter implements
     private final OnSingleClickListener requestButtonClicked = new OnSingleClickListener() {
         @Override
         public void onSingleClick(final View v) {
-
-            final BigDecimal ethAmount = new BigDecimal("0.001");
-
-            final PaymentRequest paymentRequest = new PaymentRequest()
-                    .setDestinationAddress(userWallet.getPaymentAddress())
-                    .setValue(EthUtil.ethToWei(ethAmount));
-
-            final String messageBody = adapters.toJson(paymentRequest);
-            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getOwnerAddress(), true, messageBody);
-            BaseApplication.get()
-                    .getTokenManager()
-                    .getChatMessageManager()
-                    .sendAndSaveMessage(message);
+            final Intent intent = new Intent(activity, AmountActivity.class);
+            activity.startActivityForResult(intent, 1);
         }
     };
 
