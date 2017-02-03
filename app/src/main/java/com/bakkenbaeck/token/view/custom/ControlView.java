@@ -15,6 +15,7 @@ import com.bakkenbaeck.token.view.adapter.ControlAdapter;
 import com.bakkenbaeck.token.view.adapter.ControlGroupAdapter;
 import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ControlView extends LinearLayout implements ControlAdapter.OnControlClickListener {
@@ -46,27 +47,16 @@ public class ControlView extends LinearLayout implements ControlAdapter.OnContro
 
     private void init() {
         inflate(getContext(), R.layout.control_view, this);
+        initControls();
     }
 
-    public void showControls(final List<Control> controls) {
-        final RecyclerView controlRv = (RecyclerView) findViewById(R.id.control_recycle_view);
-        final ControlAdapter adapter = (ControlAdapter) controlRv.getAdapter();
-
-        if (adapter == null) {
-            initControls(controls);
-        } else {
-            adapter.setControls(controls);
-            controlRv.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void initControls(final List<Control> controls) {
+    private void initControls() {
         final ChipsLayoutManager chipsLayoutManager = ChipsLayoutManager.newBuilder(this.getContext())
                 .setMaxViewsInRow(5)
                 .setRowStrategy(ChipsLayoutManager.STRATEGY_FILL_VIEW)
                 .withLastRow(true)
                 .build();
-        final ControlAdapter adapter = new ControlAdapter(controls);
+        final ControlAdapter adapter = new ControlAdapter(new ArrayList<Control>());
         final int controlSpacing = BaseApplication.get().getResources().getDimensionPixelSize(R.dimen.control_spacing);
         final RecyclerView controlRv = (RecyclerView) findViewById(R.id.control_recycle_view);
 
@@ -77,8 +67,24 @@ public class ControlView extends LinearLayout implements ControlAdapter.OnContro
         adapter.setControlClickedListener(this);
     }
 
-    public void hideControls() {
+    public void showControls(final List<Control> controls) {
+        final RecyclerView controlRv = (RecyclerView) findViewById(R.id.control_recycle_view);
+        final ControlAdapter adapter = (ControlAdapter) controlRv.getAdapter();
+        controlRv.setVisibility(View.VISIBLE);
+        adapter.setControls(controls);
+    }
+
+    private void hideControls() {
         findViewById(R.id.control_recycle_view).setVisibility(GONE);
+    }
+
+    private void hideGroupedControlsView() {
+        findViewById(R.id.control_grouped_recycle_view).setVisibility(View.GONE);
+    }
+
+    public void hideView() {
+        hideControls();
+        hideGroupedControlsView();
     }
 
     @Override
@@ -130,9 +136,5 @@ public class ControlView extends LinearLayout implements ControlAdapter.OnContro
                 listener.onControlClicked(control);
             }
         });
-    }
-
-    private void hideGroupedControlsView() {
-        findViewById(R.id.control_grouped_recycle_view).setVisibility(View.GONE);
     }
 }

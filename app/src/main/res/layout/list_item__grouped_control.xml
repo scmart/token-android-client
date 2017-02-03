@@ -5,8 +5,6 @@
     android:layout_width="wrap_content"
     android:layout_height="47dp"
     android:minWidth="120dp"
-    android:paddingTop="@dimen/control_vertical_padding"
-    android:paddingBottom="@dimen/control_vertical_padding"
     android:paddingRight="11dp"
     android:paddingLeft="11dp"
     android:background="@drawable/control_background_with_border">

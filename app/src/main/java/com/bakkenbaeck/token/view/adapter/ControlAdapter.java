@@ -23,7 +23,7 @@ public class ControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         void onControlClicked(final Control control);
     }
 
-    private List<Control> controls;
+    private final List<Control> controls;
     private OnControlClickListener listener;
     private int selectedPosition = -1;
 

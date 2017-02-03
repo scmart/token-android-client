@@ -173,6 +173,7 @@ public final class ChatPresenter implements
     private final ControlView.OnControlClickedListener controlClicked = new ControlView.OnControlClickedListener() {
         @Override
         public void onControlClicked(Control control) {
+            activity.getBinding().controlView.hideView();
             sendCommandMessage(control);
         }
     };
@@ -248,6 +249,7 @@ public final class ChatPresenter implements
                 return;
             }
 
+            setControlView(chatMessage);
             messageAdapter.addMessage(chatMessage);
             updateEmptyState();
             tryScrollToBottom(true);
@@ -304,9 +306,7 @@ public final class ChatPresenter implements
                 updateEmptyState();
 
                 final ChatMessage lastChatMessage = chatMessages.get(chatMessages.size() - 1);
-                if (lastChatMessage != null) {
-                    setControlView(lastChatMessage);
-                }
+                setControlView(lastChatMessage);
             }
 
             this.unsubscribe();
@@ -314,9 +314,14 @@ public final class ChatPresenter implements
     };
 
     private void setControlView(final ChatMessage chatMessage) {
+        if (chatMessage == null) {
+            return;
+        }
+
         try {
             final Message message = adapters.messageFrom(chatMessage.getPayload());
             final boolean notNullAndNotZero = message.getControls() != null && message.getControls().size() > 0;
+            this.activity.getBinding().controlView.hideView();
 
             if (notNullAndNotZero) {
                 this.activity.getBinding().controlView.showControls(message.getControls());
