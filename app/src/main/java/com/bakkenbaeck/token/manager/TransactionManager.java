@@ -109,12 +109,14 @@ public class TransactionManager {
                                     chatMessage.setPayload(updatedMessage.getPayload());
                                     updateMessageState(chatMessage, SendState.STATE_SENT);
                                     storeUnconfirmedTransaction(txHash, chatMessage);
+                                    unsubscribe();
                                 }
 
                                 @Override
                                 public void onError(final Throwable error) {
                                     LogUtil.e(getClass(), "Error creating transaction: " + error);
                                     updateMessageState(chatMessage, SendState.STATE_FAILED);
+                                    unsubscribe();
                                 }
                             }
                     );
@@ -195,6 +197,7 @@ public class TransactionManager {
                                         .setChatMessage(updatedMessage);
 
                                 pendingTransactionsStore.save(updatedPendingTransaction);
+                                unsubscribe();
                             } catch (final IOException ex) {
                                 LogUtil.e(getClass(), "Error updating PendingTransaction. " + ex);
                             }
@@ -203,6 +206,7 @@ public class TransactionManager {
                         @Override
                         public void onError(final Throwable error) {
                             storeUnconfirmedTransaction(txHash, newMessage);
+                            unsubscribe();
                         }
                     });
             }
@@ -239,11 +243,13 @@ public class TransactionManager {
                                 unsignedTransaction,
                                 chatMessage,
                                 callback);
+                        unsubscribe();
                     }
 
                     @Override
                     public void onError(final Throwable error) {
                         callback.onError(error);
+                        unsubscribe();
                     }
                 });
     }
@@ -273,11 +279,13 @@ public class TransactionManager {
                                 chatMessage,
                                 serverTime.get(),
                                 callback);
+                        unsubscribe();
                     }
 
                     @Override
                     public void onError(final Throwable error) {
                         callback.onError(error);
+                        unsubscribe();
                     }
                 });
     }
@@ -301,11 +309,13 @@ public class TransactionManager {
                     @Override
                     public void onSuccess(final SentTransaction sentTransaction) {
                         callback.onSuccess(sentTransaction.getTxHash());
+                        unsubscribe();
                     }
 
                     @Override
                     public void onError(final Throwable error) {
                         callback.onError(error);
+                        unsubscribe();
                     }
                 });
     }
