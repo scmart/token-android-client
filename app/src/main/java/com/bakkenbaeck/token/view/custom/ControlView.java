@@ -58,13 +58,18 @@ public class ControlView extends LinearLayout implements ControlAdapter.OnContro
                 .build();
         final ControlAdapter adapter = new ControlAdapter(new ArrayList<Control>());
         final int controlSpacing = BaseApplication.get().getResources().getDimensionPixelSize(R.dimen.control_spacing);
-        final RecyclerView controlRv = (RecyclerView) findViewById(R.id.control_recycle_view);
+        final ControlRecyclerView controlRv = (ControlRecyclerView) findViewById(R.id.control_recycle_view);
 
         controlRv.setLayoutManager(chipsLayoutManager);
         controlRv.setAdapter(adapter);
         controlRv.addItemDecoration(new SpaceDecoration(controlSpacing));
         controlRv.setVisibility(View.VISIBLE);
         adapter.setControlClickedListener(this);
+    }
+
+    public void setOnSizeChangedListener(final ControlRecyclerView.OnSizeChangedListener listener) {
+        final ControlRecyclerView controlRv = (ControlRecyclerView) findViewById(R.id.control_recycle_view);
+        controlRv.setOnSizedChangedListener(listener);
     }
 
     public void showControls(final List<Control> controls) {

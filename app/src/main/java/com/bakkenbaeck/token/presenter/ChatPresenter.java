@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
 
+import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.local.ActivityResultHolder;
 import com.bakkenbaeck.token.model.local.ChatMessage;
@@ -32,6 +33,7 @@ import com.bakkenbaeck.token.view.activity.AmountActivity;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
 import com.bakkenbaeck.token.view.custom.ControlView;
+import com.bakkenbaeck.token.view.custom.ControlRecyclerView;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 
 import java.io.IOException;
@@ -66,6 +68,7 @@ public final class ChatPresenter implements
     public void onViewAttached(final ChatActivity activity) {
         this.activity = activity;
         initToolbar();
+        initControlView();
 
         if (firstViewAttachment) {
             firstViewAttachment = false;
@@ -136,6 +139,17 @@ public final class ChatPresenter implements
         this.activity.getBinding().messagesList.setLayoutManager(this.layoutManager);
     }
 
+    private void initControlView() {
+        this.activity.getBinding().controlView.setOnSizeChangedListener(this.controlViewSizeChangedListener);
+    }
+
+    private ControlRecyclerView.OnSizeChangedListener controlViewSizeChangedListener = new ControlRecyclerView.OnSizeChangedListener() {
+        @Override
+        public void onSizeChanged(int height) {
+            setPadding(height);
+        }
+    };
+
     private void initAdapterAnimation() {
         final SlideUpAnimator anim;
         if (Build.VERSION.SDK_INT >= 21) {
@@ -197,6 +211,7 @@ public final class ChatPresenter implements
         @Override
         public void onControlClicked(Control control) {
             activity.getBinding().controlView.hideView();
+            removePadding();
             sendCommandMessage(control);
         }
     };
@@ -336,10 +351,26 @@ public final class ChatPresenter implements
 
             if (notNullAndNotZero) {
                 this.activity.getBinding().controlView.showControls(message.getControls());
+            } else {
+                removePadding();
             }
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void setPadding(final int height) {
+        final int paddingRight = this.activity.getBinding().messagesList.getPaddingRight();
+        final int paddingLeft = this.activity.getBinding().messagesList.getPaddingLeft();
+        this.activity.getBinding().messagesList.setPadding(paddingLeft, 0 , paddingRight, height);
+        this.activity.getBinding().messagesList.scrollToPosition(this.messageAdapter.getItemCount() - 1);
+    }
+
+    private void removePadding() {
+        final int paddingRight = this.activity.getBinding().messagesList.getPaddingRight();
+        final int paddingLeft = this.activity.getBinding().messagesList.getPaddingLeft();
+        final int paddingBottom = this.activity.getResources().getDimensionPixelSize(R.dimen.message_list_bottom_padding);
+        this.activity.getBinding().messagesList.setPadding(paddingLeft, 0 , paddingRight, paddingBottom);
     }
 
     private void tryScrollToBottom(final boolean animate) {
