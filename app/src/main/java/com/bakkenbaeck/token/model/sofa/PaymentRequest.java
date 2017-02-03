@@ -49,8 +49,8 @@ public class PaymentRequest {
     @Json(name = SofaType.LOCAL_ONLY_PAYLOAD)
     private ClientSideCustomData androidClientSideCustomData;
 
-    public PaymentRequest setValue(final BigInteger value) {
-        this.value = TypeConverter.toJsonHex(value);
+    public PaymentRequest setValue(final String value) {
+        this.value = value;
         generateLocalPrice();
         return this;
     }

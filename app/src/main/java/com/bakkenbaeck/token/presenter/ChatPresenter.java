@@ -8,6 +8,7 @@ import android.view.animation.PathInterpolator;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
+import com.bakkenbaeck.token.model.local.ActivityResultHolder;
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.PendingTransaction;
 import com.bakkenbaeck.token.model.local.User;
@@ -17,6 +18,7 @@ import com.bakkenbaeck.token.model.sofa.Init;
 import com.bakkenbaeck.token.model.sofa.InitRequest;
 import com.bakkenbaeck.token.model.sofa.Message;
 import com.bakkenbaeck.token.model.sofa.Payment;
+import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
@@ -41,8 +43,12 @@ import io.realm.RealmResults;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
+import static android.app.Activity.RESULT_OK;
+
 public final class ChatPresenter implements
         Presenter<ChatActivity> {
+
+    private static final int REQUEST_RESULT_CODE = 1;
 
     private ChatActivity activity;
     private MessageAdapter messageAdapter;
@@ -225,7 +231,7 @@ public final class ChatPresenter implements
         @Override
         public void onSingleClick(final View v) {
             final Intent intent = new Intent(activity, AmountActivity.class);
-            activity.startActivityForResult(intent, 1);
+            activity.startActivityForResult(intent, REQUEST_RESULT_CODE);
         }
     };
 
@@ -401,4 +407,28 @@ public final class ChatPresenter implements
             activity.onBackPressed();
         }
     };
+
+    public void handleActivityResult(final ActivityResultHolder resultHolder) {
+        if (resultHolder.getResultCode() != RESULT_OK) {
+            return;
+        }
+
+        if (resultHolder.getRequestCode() == REQUEST_RESULT_CODE) {
+            final String value = resultHolder.getIntent().getStringExtra(AmountPresenter.INTENT_EXTRA__ETH_AMOUNT);
+            final PaymentRequest request = new PaymentRequest()
+                    .setDestinationAddress(userWallet.getPaymentAddress())
+                    .setValue(value);
+            final String messageBody = this.adapters.toJson(request);
+            final ChatMessage message = new ChatMessage().makeNew(
+                    remoteUser.getOwnerAddress(),
+                    true,
+                    messageBody);
+
+            BaseApplication
+                    .get()
+                    .getTokenManager()
+                    .getChatMessageManager()
+                    .sendAndSaveMessage(message);
+        }
+    }
 }

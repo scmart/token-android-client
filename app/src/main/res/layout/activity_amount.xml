@@ -111,14 +111,11 @@
             android:layout_height="1dp"
             android:background="@color/divider_amount"/>
 
-        <TextView
+        <Button
             android:id="@+id/btn_continue"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:textColor="@color/colorPrimary"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:textSize="16sp"
+            style="@style/FlatButton"
             android:text="@string/continue_"/>
 
     </LinearLayout>

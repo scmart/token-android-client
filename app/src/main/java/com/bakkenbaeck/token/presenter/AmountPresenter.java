@@ -1,22 +1,29 @@
 package com.bakkenbaeck.token.presenter;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.view.View;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.crypto.util.TypeConverter;
+import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LocaleUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
 import com.bakkenbaeck.token.view.adapter.AmountInputAdapter;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.DecimalFormatSymbols;
 
 public class AmountPresenter implements Presenter<AmountActivity> {
 
+    public static final String INTENT_EXTRA__ETH_AMOUNT = "eth_amount";
     private AmountActivity activity;
     private char separator;
     private char zero;
+    private String encodedEthAmount;
 
     @Override
     public void onViewAttached(AmountActivity view) {
@@ -40,8 +47,15 @@ public class AmountPresenter implements Presenter<AmountActivity> {
 
     private View.OnClickListener continueClickListener = new View.OnClickListener() {
         @Override
-        public void onClick(View view) {
-            //Show contacts view
+        public void onClick(final View unused) {
+            if (encodedEthAmount == null) {
+                return;
+            }
+
+            final Intent intent = new Intent();
+            intent.putExtra(INTENT_EXTRA__ETH_AMOUNT, encodedEthAmount);
+            activity.setResult(Activity.RESULT_OK, intent);
+            activity.finish();
         }
     };
 
@@ -112,6 +126,10 @@ public class AmountPresenter implements Presenter<AmountActivity> {
             return;
         }
 
+        if (currentLocalValue.length() == 0 && value == zero) {
+            return;
+        }
+
         final String newLocalValue = currentLocalValue + value;
         this.activity.getBinding().localValue.setText(newLocalValue);
     }
@@ -126,6 +144,10 @@ public class AmountPresenter implements Presenter<AmountActivity> {
                 .convertLocalCurrencyToEth(localValue);
 
         this.activity.getBinding().ethValue.setText(ethAmount.toPlainString());
+        this.activity.getBinding().btnContinue.setEnabled(ethAmount.compareTo(BigDecimal.ZERO) != 0);
+
+        final BigInteger weiAmount = EthUtil.ethToWei(ethAmount);
+        this.encodedEthAmount = TypeConverter.toJsonHex(weiAmount);
     }
 
     @NonNull

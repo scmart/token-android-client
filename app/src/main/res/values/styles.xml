@@ -36,7 +36,7 @@
         <item name="android:paddingRight">30dp</item>
         <item name="android:textSize">16sp</item>
         <item name="android:background">@drawable/general_button_background</item>
-        <item name="android:textColor">@color/general_button_text</item>
+        <item name="android:textColor">@color/general_button</item>
         <item name="android:textStyle">bold</item>
         <item name="android:foreground">?android:attr/selectableItemBackground</item>
     </style>
@@ -45,8 +45,9 @@
         <item name="android:padding">4dp</item>
         <item name="android:textSize">16sp</item>
         <item name="android:background">@null</item>
-        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textColor">@color/flat_button</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:gravity">center</item>
         <item name="android:foreground">?android:attr/selectableItemBackground</item>
     </style>
 
@@ -54,7 +55,7 @@
         <item name="android:padding">4dp</item>
         <item name="android:textSize">16sp</item>
         <item name="android:background">@null</item>
-        <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="android:textColor">@color/general_button</item>
         <item name="android:textStyle">bold</item>
         <item name="android:foreground">?android:attr/selectableItemBackground</item>
         <item name="android:layout_gravity">center_horizontal</item>
