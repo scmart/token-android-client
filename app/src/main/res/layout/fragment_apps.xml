@@ -1,44 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout  xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<layout  xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:fillViewport="true">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:gravity="center_vertical"
-            style="@style/ToolbarTheme">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:gravity="center_vertical"
+                style="@style/ToolbarTheme">
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    style="@style/Toolbar.TitleText"
+                    android:text="@string/tab_2"/>
+
+            </android.support.v7.widget.Toolbar>
+
+            <EditText
+                android:id="@+id/search"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:hint="@string/search_or_type_the_url"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:background="@null"/>
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="10dp"
+                android:background="@color/divider_amount"/>
 
             <TextView
-                android:id="@+id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                style="@style/Toolbar.TitleText"
-                android:text="@string/tab_2"/>
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="22dp"
+                android:layout_marginBottom="22dp"
+                android:textColor="@color/textColorSecondary"
+                android:textSize="14sp"
+                android:text="@string/recommended"/>
 
-        </android.support.v7.widget.Toolbar>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_view_recommended_apps"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:clipToPadding="false"/>
 
-        <EditText
-            android:id="@+id/search"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:hint="@string/search_or_type_the_url"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:background="@null"/>
-        
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="10dp"
-            android:background="@color/divider_amount"/>
-
-    </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 
 </layout>
