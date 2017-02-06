@@ -27,11 +27,17 @@ import java.util.List;
 public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final List<ChatMessage> chatMessages;
     private final SofaAdapters adapters;
+    private OnItemClickListener<ChatMessage> onPaymentRequestApproveListener;
     private OnItemClickListener<ChatMessage> onPaymentRequestRejectListener;
 
     public MessageAdapter() {
         this.chatMessages = new ArrayList<>();
         this.adapters = new SofaAdapters();
+    }
+
+    public final MessageAdapter addOnPaymentRequestApproveListener(final OnItemClickListener<ChatMessage> listener) {
+        this.onPaymentRequestApproveListener = listener;
+        return this;
     }
 
     public final MessageAdapter addOnPaymentRequestRejectListener(final OnItemClickListener<ChatMessage> listener) {
@@ -157,7 +163,8 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
                 final PaymentRequest request = this.adapters.txRequestFrom(payload);
                 vh.setPaymentRequest(request)
                   .setSentByLocal(chatMessage.isSentByLocal())
-                  .setOnRejectListener(this.handleOnRejectPressed)
+                  .setOnApproveListener(this.handleOnPaymentRequestApproved)
+                  .setOnRejectListener(this.handleOnPaymentRequestRejected)
                   .draw();
                 break;
             }
@@ -169,12 +176,20 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
         return this.chatMessages.size();
     }
 
-    private final OnItemClickListener<Integer> handleOnRejectPressed = new OnItemClickListener<Integer>() {
+    private final OnItemClickListener<Integer> handleOnPaymentRequestApproved = new OnItemClickListener<Integer>() {
         @Override
         public void onItemClick(final Integer position) {
-            if (onPaymentRequestRejectListener == null) {
-                return;
-            }
+            if (onPaymentRequestApproveListener == null) return;
+
+            final ChatMessage chatMessage = chatMessages.get(position);
+            onPaymentRequestApproveListener.onItemClick(chatMessage);
+        }
+    };
+
+    private final OnItemClickListener<Integer> handleOnPaymentRequestRejected = new OnItemClickListener<Integer>() {
+        @Override
+        public void onItemClick(final Integer position) {
+            if (onPaymentRequestRejectListener == null) return;
 
             final ChatMessage chatMessage = chatMessages.get(position);
             onPaymentRequestRejectListener.onItemClick(chatMessage);

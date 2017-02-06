@@ -21,8 +21,10 @@ public final class PaymentRequestViewHolder extends RecyclerView.ViewHolder {
     private TextView remoteSecondaryAmount;
     private TextView remoteStatus;
     private View buttonsContainer;
+    private Button approveButton;
     private Button rejectButton;
 
+    private OnItemClickListener<Integer> onApproveListener;
     private OnItemClickListener<Integer> onRejectListener;
 
     private PaymentRequest request;
@@ -38,6 +40,7 @@ public final class PaymentRequestViewHolder extends RecyclerView.ViewHolder {
         this.remoteSecondaryAmount = (TextView) v.findViewById(R.id.remote_eth_amount);
         this.remoteStatus = (TextView) v.findViewById(R.id.request_status);
         this.buttonsContainer = v.findViewById(R.id.buttons_container);
+        this.approveButton = (Button) v.findViewById(R.id.approve_button);
         this.rejectButton = (Button) v.findViewById(R.id.reject_button);
     }
 
@@ -48,6 +51,11 @@ public final class PaymentRequestViewHolder extends RecyclerView.ViewHolder {
 
     public PaymentRequestViewHolder setSentByLocal(final boolean sentByLocal) {
         this.sentByLocal = sentByLocal;
+        return this;
+    }
+
+    public PaymentRequestViewHolder setOnApproveListener(final OnItemClickListener<Integer> onApproveListener) {
+        this.onApproveListener = onApproveListener;
         return this;
     }
 
@@ -94,17 +102,23 @@ public final class PaymentRequestViewHolder extends RecyclerView.ViewHolder {
                 this.buttonsContainer.setVisibility(View.VISIBLE);
                 this.remoteStatus.setVisibility(View.GONE);
                 this.rejectButton.setOnClickListener(this.handleOnRejectPressed);
+                this.approveButton.setOnClickListener(this.handleOnApprovePressed);
                 break;
         }
     }
 
+    private final View.OnClickListener handleOnApprovePressed = new View.OnClickListener() {
+        @Override
+        public void onClick(final View v) {
+            if (onApproveListener == null) return;
+            onApproveListener.onItemClick(getAdapterPosition());
+        }
+    };
+
     private final View.OnClickListener handleOnRejectPressed = new View.OnClickListener() {
         @Override
         public void onClick(final View v) {
-            if (onRejectListener == null) {
-                return;
-            }
-
+            if (onRejectListener == null) return;
             onRejectListener.onItemClick(getAdapterPosition());
         }
     };

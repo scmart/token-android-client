@@ -105,6 +105,7 @@ public final class ChatPresenter implements
     private void initMessageAdapter() {
         this.adapters = new SofaAdapters();
         this.messageAdapter = new MessageAdapter()
+                .addOnPaymentRequestApproveListener(this.handlePaymentRequestApprove)
                 .addOnPaymentRequestRejectListener(this.handlePaymentRequestReject);
     }
 
@@ -261,24 +262,36 @@ public final class ChatPresenter implements
         }
     };
 
+    private final OnItemClickListener<ChatMessage> handlePaymentRequestApprove = new OnItemClickListener<ChatMessage>() {
+        @Override
+        public void onItemClick(final ChatMessage existingMessage) {
+            updatePaymentRequestState(existingMessage, PaymentRequest.ACCEPTED);
+        }
+    };
+
     private final OnItemClickListener<ChatMessage> handlePaymentRequestReject = new OnItemClickListener<ChatMessage>() {
         @Override
         public void onItemClick(final ChatMessage existingMessage) {
-            try {
-
-                final PaymentRequest paymentRequest = adapters
-                        .txRequestFrom(existingMessage.getPayload())
-                        .setState(PaymentRequest.REJECTED);
-
-                final String updatedPayload = adapters.toJson(paymentRequest);
-                final ChatMessage updatedMessage = new ChatMessage(existingMessage).setPayload(updatedPayload);
-
-                chatMessageStore.update(updatedMessage);
-            } catch (final IOException ex) {
-                LogUtil.e(ChatPresenter.this.getClass(), "Error handling payment reject. " + ex);
-            }
+            updatePaymentRequestState(existingMessage, PaymentRequest.REJECTED);
         }
     };
+
+    private void updatePaymentRequestState(
+            final ChatMessage existingMessage,
+            final @PaymentRequest.State int newState) {
+        try {
+            final PaymentRequest paymentRequest = adapters
+                    .txRequestFrom(existingMessage.getPayload())
+                    .setState(newState);
+
+            final String updatedPayload = adapters.toJson(paymentRequest);
+            final ChatMessage updatedMessage = new ChatMessage(existingMessage).setPayload(updatedPayload);
+
+            chatMessageStore.update(updatedMessage);
+        } catch (final IOException ex) {
+            LogUtil.e(ChatPresenter.this.getClass(), "Error change Payment Request state. " + ex);
+        }
+    }
 
     private final OnNextSubscriber<ChatMessage> handleNewMessage = new OnNextSubscriber<ChatMessage>() {
         @Override
