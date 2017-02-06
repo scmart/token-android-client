@@ -265,7 +265,8 @@ public final class ChatPresenter implements
     private final OnItemClickListener<ChatMessage> handlePaymentRequestApprove = new OnItemClickListener<ChatMessage>() {
         @Override
         public void onItemClick(final ChatMessage existingMessage) {
-            updatePaymentRequestState(existingMessage, PaymentRequest.ACCEPTED);
+            final PaymentRequest request = updatePaymentRequestState(existingMessage, PaymentRequest.ACCEPTED);
+            sendPaymentWithValue(request.getValue());
         }
     };
 
@@ -276,7 +277,7 @@ public final class ChatPresenter implements
         }
     };
 
-    private void updatePaymentRequestState(
+    private PaymentRequest updatePaymentRequestState(
             final ChatMessage existingMessage,
             final @PaymentRequest.State int newState) {
         try {
@@ -288,9 +289,12 @@ public final class ChatPresenter implements
             final ChatMessage updatedMessage = new ChatMessage(existingMessage).setPayload(updatedPayload);
 
             chatMessageStore.update(updatedMessage);
+            return paymentRequest;
+
         } catch (final IOException ex) {
             LogUtil.e(ChatPresenter.this.getClass(), "Error change Payment Request state. " + ex);
         }
+        return null;
     }
 
     private final OnNextSubscriber<ChatMessage> handleNewMessage = new OnNextSubscriber<ChatMessage>() {

@@ -1,6 +1,8 @@
 package com.bakkenbaeck.token.util;
 
 
+import com.bakkenbaeck.token.crypto.util.TypeConverter;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -11,9 +13,15 @@ public class EthUtil {
     private static final BigDecimal weiToEthRatio = new BigDecimal("1000000000000000000");
     private static final DecimalFormat formatting = new DecimalFormat("#0.##########");
 
+
+    public static String valueToEthString(final String hexEncodedWei) {
+        final BigInteger wei = TypeConverter.StringHexToBigInteger(hexEncodedWei);
+        return weiToEthString(wei);
+    }
+
     public static String weiToEthString(final BigInteger wei) {
-        final BigDecimal bd = weiToEth(wei);
-        return ethToEthString(bd);
+        final BigDecimal eth = weiToEth(wei);
+        return ethToEthString(eth);
     }
 
     public static BigDecimal weiToEth(final BigInteger wei) {
