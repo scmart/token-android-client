@@ -27,6 +27,7 @@ import org.whispersystems.libsignal.InvalidMessageException;
 import org.whispersystems.libsignal.InvalidVersionException;
 import org.whispersystems.libsignal.LegacyMessageException;
 import org.whispersystems.libsignal.NoSessionException;
+import org.whispersystems.libsignal.util.guava.Optional;
 import org.whispersystems.signalservice.api.SignalServiceMessagePipe;
 import org.whispersystems.signalservice.api.SignalServiceMessageReceiver;
 import org.whispersystems.signalservice.api.SignalServiceMessageSender;
@@ -193,7 +194,7 @@ public final class ChatMessageManager {
                 this.protocolStore.getPassword(),
                 this.protocolStore,
                 this.userAgent,
-                null
+                Optional.<SignalServiceMessageSender.EventListener>absent()
         );
 
         if (saveMessageToDatabase) {
@@ -256,11 +257,13 @@ public final class ChatMessageManager {
         try {
             final SignalServiceEnvelope envelope = messagePipe.read(10, TimeUnit.SECONDS);
             final SignalServiceContent message = cipher.decrypt(envelope);
-            final SignalServiceDataMessage dataMessage = message.getDataMessage().get();
-            if (dataMessage != null) {
+            final Optional<SignalServiceDataMessage> dataMessage = message.getDataMessage();
+            if (dataMessage.isPresent()) {
                 final String messageSource = envelope.getSource();
-                final String messageBody = dataMessage.getBody().get();
-                saveIncomingMessageToDatabase(messageSource, messageBody);
+                final Optional<String> messageBody = dataMessage.get().getBody();
+                if (messageBody.isPresent()) {
+                    saveIncomingMessageToDatabase(messageSource, messageBody.get());
+                }
                 BaseApplication.get().getTokenManager().getUserManager().tryAddContact(messageSource);
             }
         } catch (final TimeoutException ex) {
