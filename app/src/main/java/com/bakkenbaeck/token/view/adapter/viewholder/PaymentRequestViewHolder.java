@@ -2,58 +2,86 @@ package com.bakkenbaeck.token.view.adapter.viewholder;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 
 public final class PaymentRequestViewHolder extends RecyclerView.ViewHolder {
 
     private View localView;
     private View remoteView;
-    private TextView localMessageText;
-    private TextView remoteMessageText;
     private TextView localRequestedAmount;
     private TextView remoteRequestedAmount;
     private TextView localSecondaryAmount;
     private TextView remoteSecondaryAmount;
     private TextView remoteStatus;
     private View buttonsContainer;
+    private Button approveButton;
+    private Button rejectButton;
+
+    private OnItemClickListener<Integer> onApproveListener;
+    private OnItemClickListener<Integer> onRejectListener;
+
+    private PaymentRequest request;
+    private boolean sentByLocal;
 
     public PaymentRequestViewHolder(final View v) {
         super(v);
         this.localView = v.findViewById(R.id.local);
         this.remoteView = v.findViewById(R.id.remote);
-        this.localMessageText = (TextView) v.findViewById(R.id.local_message);
-        this.remoteMessageText = (TextView) v.findViewById(R.id.remote_message);
         this.localRequestedAmount = (TextView) v.findViewById(R.id.local_requested_amount);
         this.remoteRequestedAmount = (TextView) v.findViewById(R.id.remote_requested_amount);
         this.localSecondaryAmount = (TextView) v.findViewById(R.id.local_eth_amount);
         this.remoteSecondaryAmount = (TextView) v.findViewById(R.id.remote_eth_amount);
         this.remoteStatus = (TextView) v.findViewById(R.id.request_status);
         this.buttonsContainer = v.findViewById(R.id.buttons_container);
+        this.approveButton = (Button) v.findViewById(R.id.approve_button);
+        this.rejectButton = (Button) v.findViewById(R.id.reject_button);
     }
 
-    public void setTxRequest(final PaymentRequest request, final boolean sentByLocal) {
-        if (sentByLocal) {
+    public PaymentRequestViewHolder setPaymentRequest(final PaymentRequest request) {
+        this.request = request;
+        return this;
+    }
+
+    public PaymentRequestViewHolder setSentByLocal(final boolean sentByLocal) {
+        this.sentByLocal = sentByLocal;
+        return this;
+    }
+
+    public PaymentRequestViewHolder setOnApproveListener(final OnItemClickListener<Integer> onApproveListener) {
+        this.onApproveListener = onApproveListener;
+        return this;
+    }
+
+    public PaymentRequestViewHolder setOnRejectListener(final OnItemClickListener<Integer> onRejectListener) {
+        this.onRejectListener = onRejectListener;
+        return this;
+    }
+
+    public void draw() {
+        if (this.sentByLocal) {
             this.localView.setVisibility(View.VISIBLE);
             this.remoteView.setVisibility(View.GONE);
-            this.localRequestedAmount.setText(request.getLocalPrice());
+            this.localRequestedAmount.setText(this.request.getLocalPrice());
             final String ethAmount = String.format(
                     BaseApplication.get().getResources().getString(R.string.eth_amount),
-                    EthUtil.weiToEthString(request.getValue()));
+                    EthUtil.valueToEthString(this.request.getValue()));
             this.localSecondaryAmount.setText(ethAmount);
         } else {
             this.remoteView.setVisibility(View.VISIBLE);
             this.localView.setVisibility(View.GONE);
-            this.remoteRequestedAmount.setText(request.getLocalPrice());
+            this.remoteRequestedAmount.setText(this.request.getLocalPrice());
             final String ethAmount = String.format(
                     BaseApplication.get().getResources().getString(R.string.eth_amount),
-                    EthUtil.weiToEthString(request.getValue()));
+                    EthUtil.valueToEthString(this.request.getValue()));
             this.remoteSecondaryAmount.setText(ethAmount);
-            setStatus(request.getState());
+            setStatus(this.request.getState());
         }
     }
 
@@ -73,7 +101,25 @@ public final class PaymentRequestViewHolder extends RecyclerView.ViewHolder {
             default:
                 this.buttonsContainer.setVisibility(View.VISIBLE);
                 this.remoteStatus.setVisibility(View.GONE);
+                this.rejectButton.setOnClickListener(this.handleOnRejectPressed);
+                this.approveButton.setOnClickListener(this.handleOnApprovePressed);
                 break;
         }
     }
+
+    private final View.OnClickListener handleOnApprovePressed = new View.OnClickListener() {
+        @Override
+        public void onClick(final View v) {
+            if (onApproveListener == null) return;
+            onApproveListener.onItemClick(getAdapterPosition());
+        }
+    };
+
+    private final View.OnClickListener handleOnRejectPressed = new View.OnClickListener() {
+        @Override
+        public void onClick(final View v) {
+            if (onRejectListener == null) return;
+            onRejectListener.onItemClick(getAdapterPosition());
+        }
+    };
 }

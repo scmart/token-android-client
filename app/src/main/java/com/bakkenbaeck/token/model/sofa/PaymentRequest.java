@@ -71,8 +71,8 @@ public class PaymentRequest {
         return this.destinationAddress;
     }
 
-    public BigInteger getValue() {
-        return TypeConverter.StringHexToBigInteger(this.value);
+    public String getValue() {
+        return this.value;
     }
 
     private PaymentRequest setLocalPrice(final String localPrice) {

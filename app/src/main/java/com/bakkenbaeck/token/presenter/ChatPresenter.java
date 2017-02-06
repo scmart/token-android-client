@@ -32,8 +32,9 @@ import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
-import com.bakkenbaeck.token.view.custom.ControlView;
+import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.custom.ControlRecyclerView;
+import com.bakkenbaeck.token.view.custom.ControlView;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 
 import java.io.IOException;
@@ -84,9 +85,7 @@ public final class ChatPresenter implements
     }
 
     private void initLongLivingObjects() {
-        this.messageAdapter = new MessageAdapter();
-        this.adapters = new SofaAdapters();
-
+        initMessageAdapter();
         initChatMessageStore();
         initPendingTransactionStore();
 
@@ -101,6 +100,13 @@ public final class ChatPresenter implements
                         this.unsubscribe();
                     }
                 });
+    }
+
+    private void initMessageAdapter() {
+        this.adapters = new SofaAdapters();
+        this.messageAdapter = new MessageAdapter()
+                .addOnPaymentRequestApproveListener(this.handlePaymentRequestApprove)
+                .addOnPaymentRequestRejectListener(this.handlePaymentRequestReject);
     }
 
     private void initPendingTransactionStore() {
@@ -255,6 +261,41 @@ public final class ChatPresenter implements
             activity.startActivityForResult(intent, PAY_RESULT_CODE);
         }
     };
+
+    private final OnItemClickListener<ChatMessage> handlePaymentRequestApprove = new OnItemClickListener<ChatMessage>() {
+        @Override
+        public void onItemClick(final ChatMessage existingMessage) {
+            final PaymentRequest request = updatePaymentRequestState(existingMessage, PaymentRequest.ACCEPTED);
+            sendPaymentWithValue(request.getValue());
+        }
+    };
+
+    private final OnItemClickListener<ChatMessage> handlePaymentRequestReject = new OnItemClickListener<ChatMessage>() {
+        @Override
+        public void onItemClick(final ChatMessage existingMessage) {
+            updatePaymentRequestState(existingMessage, PaymentRequest.REJECTED);
+        }
+    };
+
+    private PaymentRequest updatePaymentRequestState(
+            final ChatMessage existingMessage,
+            final @PaymentRequest.State int newState) {
+        try {
+            final PaymentRequest paymentRequest = adapters
+                    .txRequestFrom(existingMessage.getPayload())
+                    .setState(newState);
+
+            final String updatedPayload = adapters.toJson(paymentRequest);
+            final ChatMessage updatedMessage = new ChatMessage(existingMessage).setPayload(updatedPayload);
+
+            chatMessageStore.update(updatedMessage);
+            return paymentRequest;
+
+        } catch (final IOException ex) {
+            LogUtil.e(ChatPresenter.this.getClass(), "Error change Payment Request state. " + ex);
+        }
+        return null;
+    }
 
     private final OnNextSubscriber<ChatMessage> handleNewMessage = new OnNextSubscriber<ChatMessage>() {
         @Override

@@ -17,8 +17,6 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
 
     private View localView;
     private View remoteView;
-    private TextView localMessageText;
-    private TextView remoteMessageText;
     private TextView localRequestedAmount;
     private TextView remoteRequestedAmount;
     private TextView localSecondaryAmount;
@@ -34,8 +32,6 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
         super(v);
         this.localView = v.findViewById(R.id.local);
         this.remoteView = v.findViewById(R.id.remote);
-        this.localMessageText = (TextView) v.findViewById(R.id.local_message);
-        this.remoteMessageText = (TextView) v.findViewById(R.id.remote_message);
         this.localRequestedAmount = (TextView) v.findViewById(R.id.local_requested_amount);
         this.remoteRequestedAmount = (TextView) v.findViewById(R.id.remote_requested_amount);
         this.localSecondaryAmount = (TextView) v.findViewById(R.id.local_eth_amount);
@@ -112,5 +108,4 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
                 BaseApplication.get().getResources().getString(R.string.eth_amount),
                 ethAmount);
     }
-
 }
