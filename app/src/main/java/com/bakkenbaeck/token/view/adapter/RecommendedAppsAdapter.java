@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.adapter.viewholder.RecommendedAppsViewHolder;
 
 import java.util.List;
@@ -31,6 +30,7 @@ public class RecommendedAppsAdapter extends RecyclerView.Adapter<RecommendedApps
 
         holder.setLabel(app);
         holder.setCategory("Bot");
+        holder.setRating(3.6);
     }
 
     @Override

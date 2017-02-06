@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="11dp"
+    android:height="11dp"
+    android:viewportWidth="11"
+    android:viewportHeight="11">
+
+    <group
+        android:name="main-pages">
+        <group
+            android:name="Apps-Copy-3"
+            android:translateX="-43.000000"
+            android:translateY="-372.000000">
+            <group
+                android:name="Group-5"
+                android:translateX="43.000000"
+                android:translateY="372.000000">
+                <path
+                    android:name="Combined-Shape"
+                    android:fillColor="#ED6E00"
+                    android:strokeWidth="1"
+                    android:pathData="M5.5,0 L4.17083333,4.125 L0,4.125 L3.40083333,6.545 L2.09916667,10.5416667
+L5.5,8.06666667 L5.5,1.11022302e-15 Z" />
+                <path
+                    android:name="Combined-Shape"
+                    android:fillColor="#D1D1D1"
+                    android:strokeWidth="1"
+                    android:pathData="M5.5,0 L6.82916667,4.125 L11,4.125 L7.59916667,6.545 L8.90083333,10.5416667
+L5.5,8.06666667 L5.5,0 Z" />
+            </group>
+        </group>
+    </group>
+</vector>

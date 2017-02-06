@@ -22,4 +22,5 @@
     <dimen name="amount_view_vertical_spacing">18dp</dimen>
 
     <dimen name="message_list_bottom_padding">30dp</dimen>
+    <dimen name="star_right_margin">2dp</dimen>
 </resources>
