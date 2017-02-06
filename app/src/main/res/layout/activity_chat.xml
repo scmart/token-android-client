@@ -129,10 +129,11 @@
                 android:background="@android:color/transparent"
                 app:srcCompat="@drawable/ic_add_circle_black_24px"
                 android:padding="12dp" />
+
             <EditText
                 android:id="@+id/user_input"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:maxLines="1"
                 android:inputType="text"
