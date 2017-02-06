@@ -155,6 +155,10 @@ public class BalanceManager {
 
     // Currently hard-coded to USD
     public BigDecimal convertLocalCurrencyToEth(final BigDecimal localAmount) {
+        if (localAmount.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+
         final BigDecimal marketRate = getEthMarketRate("USD");
         return localAmount.divide(marketRate, 8, RoundingMode.HALF_DOWN);
     }
