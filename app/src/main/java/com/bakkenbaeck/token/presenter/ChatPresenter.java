@@ -32,8 +32,9 @@ import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
-import com.bakkenbaeck.token.view.custom.ControlView;
+import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.custom.ControlRecyclerView;
+import com.bakkenbaeck.token.view.custom.ControlView;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 
 import java.io.IOException;
@@ -84,9 +85,7 @@ public final class ChatPresenter implements
     }
 
     private void initLongLivingObjects() {
-        this.messageAdapter = new MessageAdapter();
-        this.adapters = new SofaAdapters();
-
+        initMessageAdapter();
         initChatMessageStore();
         initPendingTransactionStore();
 
@@ -101,6 +100,12 @@ public final class ChatPresenter implements
                         this.unsubscribe();
                     }
                 });
+    }
+
+    private void initMessageAdapter() {
+        this.adapters = new SofaAdapters();
+        this.messageAdapter = new MessageAdapter()
+                .addOnPaymentRequestRejectListener(this.handlePaymentRequestReject);
     }
 
     private void initPendingTransactionStore() {
@@ -253,6 +258,25 @@ public final class ChatPresenter implements
         public void onSingleClick(final View v) {
             final Intent intent = new Intent(activity, AmountActivity.class);
             activity.startActivityForResult(intent, PAY_RESULT_CODE);
+        }
+    };
+
+    private final OnItemClickListener<ChatMessage> handlePaymentRequestReject = new OnItemClickListener<ChatMessage>() {
+        @Override
+        public void onItemClick(final ChatMessage existingMessage) {
+            try {
+
+                final PaymentRequest paymentRequest = adapters
+                        .txRequestFrom(existingMessage.getPayload())
+                        .setState(PaymentRequest.REJECTED);
+
+                final String updatedPayload = adapters.toJson(paymentRequest);
+                final ChatMessage updatedMessage = new ChatMessage(existingMessage).setPayload(updatedPayload);
+
+                chatMessageStore.update(updatedMessage);
+            } catch (final IOException ex) {
+                LogUtil.e(ChatPresenter.this.getClass(), "Error handling payment reject. " + ex);
+            }
         }
     };
 
