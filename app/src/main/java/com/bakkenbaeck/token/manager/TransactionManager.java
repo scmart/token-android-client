@@ -1,8 +1,5 @@
 package com.bakkenbaeck.token.manager;
 
-
-import android.support.annotation.NonNull;
-
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.PendingTransaction;
@@ -25,7 +22,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import rx.Observable;
-import rx.SingleSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
@@ -80,8 +76,8 @@ public class TransactionManager {
 
     private void attachNewPaymentSubscriber() {
         this.newPaymentQueue
-            .observeOn(Schedulers.io())
-            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.from(dbThreadExecutor))
+            .subscribeOn(Schedulers.from(dbThreadExecutor))
             .subscribe(this::processNewPayment);
     }
 
@@ -90,26 +86,28 @@ public class TransactionManager {
         final ChatMessage storedChatMessage = storePayment(payment);
 
         sendNewTransaction(payment)
-        .subscribe(new OnNextSubscriber<SentTransaction>() {
-            @Override
-            public void onError(final Throwable error) {
-                LogUtil.e(getClass(), "Error creating transaction: " + error);
-                updateMessageState(storedChatMessage, SendState.STATE_FAILED);
-                unsubscribe();
-            }
+                .observeOn(Schedulers.from(dbThreadExecutor))
+                .subscribeOn(Schedulers.from(dbThreadExecutor))
+                .subscribe(new OnNextSubscriber<SentTransaction>() {
+                    @Override
+                    public void onError(final Throwable error) {
+                        LogUtil.e(getClass(), "Error creating transaction: " + error);
+                        updateMessageState(storedChatMessage, SendState.STATE_FAILED);
+                        unsubscribe();
+                    }
 
-            @Override
-            public void onNext(final SentTransaction sentTransaction) {
-                final String txHash = sentTransaction.getTxHash();
-                payment.setTxHash(txHash);
+                    @Override
+                    public void onNext(final SentTransaction sentTransaction) {
+                        final String txHash = sentTransaction.getTxHash();
+                        payment.setTxHash(txHash);
 
-                final ChatMessage updatedMessage = generateMessageFromPayment(payment);
-                storedChatMessage.setPayload(updatedMessage.getPayload());
-                updateMessageState(storedChatMessage, SendState.STATE_SENT);
-                storeUnconfirmedTransaction(txHash, storedChatMessage);
-                unsubscribe();
-            }
-        });
+                        final ChatMessage updatedMessage = generateMessageFromPayment(payment);
+                        storedChatMessage.setPayload(updatedMessage.getPayload());
+                        updateMessageState(storedChatMessage, SendState.STATE_SENT);
+                        storeUnconfirmedTransaction(txHash, storedChatMessage);
+                        unsubscribe();
+                    }
+                });
     }
 
     private ChatMessage storePayment(final Payment payment) {
@@ -153,118 +151,76 @@ public class TransactionManager {
                 .toObservable();
     }
 
-
-    // -----------------------------------------
-    // -----------------------------------------
-    // -----------------------------------------
-    // -----------------------------------------
-    // -----------------------------------------
-    // -----------------------------------------
-    // -----------------------------------------
-    // -----------------------------------------
-
-
-
-    private void attachUpdatePaymentSubscriber() {
-        this.updatePaymentQueue
-            .observeOn(Schedulers.io())
-            .subscribeOn(Schedulers.io())
-            .subscribe(new OnNextSubscriber<Payment>() {
-                @Override
-                public void onNext(final Payment payment) {
-                    final String txHash = payment.getTxHash();
-                    final ChatMessage chatMessage = generateMessageFromPayment(payment);
-                    updateUnconfirmedTransaction(txHash, chatMessage);
-                }
-            });
-    }
-
-    private ChatMessage generateMessageFromPayment(final Payment payment) {
-        final String messageBody = this.adapters.toJson(payment);
-        return new ChatMessage().makeNew(payment.getOwnerAddress(), true, messageBody);
-    }
-
-    private void storeMessage(final ChatMessage message) {
-        dbThreadExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                message.setSendState(SendState.STATE_SENDING);
-                chatMessageStore.save(message);
-            }
-        });
-    }
-
     private void updateMessageState(final ChatMessage message, final @SendState.State int sendState) {
         message.setSendState(sendState);
         updateMessage(message);
     }
 
     private void updateMessage(final ChatMessage message) {
-        dbThreadExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                chatMessageStore.update(message);
-            }
-        });
+        this.chatMessageStore.update(message);
+    }
+
+
+    private ChatMessage generateMessageFromPayment(final Payment payment) {
+        final String messageBody = this.adapters.toJson(payment);
+        return new ChatMessage().makeNew(payment.getOwnerAddress(), true, messageBody);
+    }
+
+
+    private void attachUpdatePaymentSubscriber() {
+        this.updatePaymentQueue
+            .observeOn(Schedulers.io())
+            .subscribeOn(Schedulers.io())
+            .subscribe(this::processUpdatedPayment);
+    }
+
+    private void processUpdatedPayment(final Payment payment) {
+        pendingTransactionStore
+                .load(payment.getTxHash())
+                .subscribeOn(Schedulers.from(dbThreadExecutor))
+                .observeOn(Schedulers.from(dbThreadExecutor))
+                .toObservable()
+                .subscribe(pendingTransaction -> updatePendingTransaction(pendingTransaction, payment));
+    }
+
+    private void storeMessage(final ChatMessage message) {
+        message.setSendState(SendState.STATE_SENDING);
+        this.chatMessageStore.save(message);
     }
 
     private void storeUnconfirmedTransaction(final String txHash, final ChatMessage message) {
-        dbThreadExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                final PendingTransaction pendingTransaction =
-                        new PendingTransaction()
-                                .setChatMessage(message)
-                                .setTxHash(txHash);
-
-                pendingTransactionStore.save(pendingTransaction);
-            }
-        });
+        final PendingTransaction pendingTransaction = new PendingTransaction()
+                                                            .setChatMessage(message)
+                                                            .setTxHash(txHash);
+        this.pendingTransactionStore.save(pendingTransaction);
     }
 
-    private void updateUnconfirmedTransaction(final String txHash, final ChatMessage newMessage) {
-        dbThreadExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                pendingTransactionStore
-                    .load(txHash)
-                    .subscribe(new SingleSubscriber<PendingTransaction>() {
-                        @Override
-                        public void onSuccess(final PendingTransaction pendingTransaction) {
-                            try {
-                                final ChatMessage updatedMessage = updateStatusFromPendingTransaction(pendingTransaction, newMessage);
-                                final PendingTransaction updatedPendingTransaction = new PendingTransaction()
-                                        .setTxHash(txHash)
-                                        .setChatMessage(updatedMessage);
+    private void updatePendingTransaction(final PendingTransaction pendingTransaction, final Payment updatedPayment) {
 
-                                pendingTransactionStore.save(updatedPendingTransaction);
-                                unsubscribe();
-                            } catch (final IOException ex) {
-                                LogUtil.e(getClass(), "Error updating PendingTransaction. " + ex);
-                            }
-                        }
+        final ChatMessage updatedMessage;
+        try {
+            updatedMessage = updateStatusFromPendingTransaction(pendingTransaction, updatedPayment);
+        } catch (final IOException ex) {
+            LogUtil.e(getClass(), "Unable to update pending transaction. " + ex);
+            return;
+        }
 
-                        @Override
-                        public void onError(final Throwable error) {
-                            storeUnconfirmedTransaction(txHash, newMessage);
-                            unsubscribe();
-                        }
-                    });
-            }
+        final PendingTransaction updatedPendingTransaction = new PendingTransaction()
+                .setTxHash(pendingTransaction.getTxHash())
+                .setChatMessage(updatedMessage);
 
-            @NonNull
-            private ChatMessage updateStatusFromPendingTransaction(final PendingTransaction pendingTransaction, final ChatMessage newMessage) throws IOException {
-                final ChatMessage existingMessage = pendingTransaction.getChatMessage();
-                final Payment existingPayment = adapters.paymentFrom(existingMessage.getPayload());
+        this.pendingTransactionStore.save(updatedPendingTransaction);
+    }
 
-                final Payment newPayment = adapters.paymentFrom(newMessage.getPayload());
-                existingPayment.setStatus(newPayment.getStatus());
+    private ChatMessage updateStatusFromPendingTransaction(final PendingTransaction pendingTransaction, final Payment updatedPayment) throws IOException {
+        final ChatMessage existingMessage = pendingTransaction.getChatMessage();
+        final Payment existingPayment = adapters.paymentFrom(existingMessage.getPayload());
 
-                final String messageBody = adapters.toJson(existingPayment);
+        existingPayment.setStatus(updatedPayment.getStatus());
 
-                final ChatMessage updatedMessage = new ChatMessage(existingMessage);
-                return updatedMessage.setPayload(messageBody);
-            }
-        });
+        final String messageBody = adapters.toJson(existingPayment);
+
+        final ChatMessage updatedMessage = new ChatMessage(existingMessage);
+        return updatedMessage.setPayload(messageBody);
     }
 }
