@@ -86,6 +86,7 @@ dependencies {
             'com.squareup.okhttp3:logging-interceptor:3.3.1',
             'com.neovisionaries:nv-websocket-client:1.30',
             'com.artemzin.rxjava:proguard-rules:1.1.9.0',
+            'com.github.bumptech.glide:glide:3.7.0',
             // Reactive
             'io.reactivex:rxandroid:1.2.1',
             'com.jakewharton.rxbinding:rxbinding:1.0.0',
