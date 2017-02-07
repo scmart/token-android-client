@@ -66,8 +66,9 @@ public class AppsPresenter implements Presenter<AppsFragment>{
     }
 
     private void initRecyclerViews() {
-        final RecyclerView recommendedApps = this.fragment.getBinding().recyclerViewRecommendedApps;
         final int spacing = this.fragment.getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
+
+        final RecyclerView recommendedApps = this.fragment.getBinding().recyclerViewRecommendedApps;
         recommendedApps.setLayoutManager(new LinearLayoutManager(this.fragment.getContext(), LinearLayoutManager.HORIZONTAL, false));
         recommendedApps.addItemDecoration(new RightSpaceItemDecoration(spacing));
         recommendedApps.setAdapter(new RecommendedAppsAdapter(new ArrayList<App>()));
@@ -96,6 +97,18 @@ public class AppsPresenter implements Presenter<AppsFragment>{
 
         updateViewState();
         subscriptions.add(sub);
+    }
+
+    private void updateViewState() {
+        final boolean shouldShowSearchResult = this.fragment.getBinding().search.getText().toString().length() > 0;
+
+        if (shouldShowSearchResult) {
+            this.fragment.getBinding().searchList.setVisibility(View.VISIBLE);
+            this.fragment.getBinding().scrollView.setVisibility(View.GONE);
+        } else {
+            this.fragment.getBinding().searchList.setVisibility(View.GONE);
+            this.fragment.getBinding().scrollView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void search(final String searchString) {
@@ -128,18 +141,6 @@ public class AppsPresenter implements Presenter<AppsFragment>{
                 });
 
         subscriptions.add(sub);
-    }
-
-    private void updateViewState() {
-        final boolean shouldShowSearchResult = this.fragment.getBinding().search.getText().toString().length() > 0;
-
-        if (shouldShowSearchResult) {
-            this.fragment.getBinding().searchList.setVisibility(View.VISIBLE);
-            this.fragment.getBinding().scrollView.setVisibility(View.GONE);
-        } else {
-            this.fragment.getBinding().searchList.setVisibility(View.GONE);
-            this.fragment.getBinding().scrollView.setVisibility(View.VISIBLE);
-        }
     }
 
     private void addAppsToRecyclerView(final List<App> apps) {
