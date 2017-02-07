@@ -23,4 +23,5 @@
 
     <dimen name="message_list_bottom_padding">30dp</dimen>
     <dimen name="star_right_margin">2dp</dimen>
+    <dimen name="search_vertical_list_space">16dp</dimen>
 </resources>

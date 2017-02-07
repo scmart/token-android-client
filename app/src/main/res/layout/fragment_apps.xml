@@ -25,50 +25,69 @@
 
         </android.support.v7.widget.Toolbar>
 
-        <ScrollView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fillViewport="true">
+            android:orientation="vertical">
 
-            <LinearLayout
+            <EditText
+                android:id="@+id/search"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_height="54dp"
+                android:hint="@string/search_or_type_the_url"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:background="@null"/>
 
-                <EditText
-                    android:id="@+id/search"
+            <ViewSwitcher
+                android:id="@+id/view_switcher"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ScrollView
+                    android:id="@+id/scroll_view"
                     android:layout_width="match_parent"
-                    android:layout_height="54dp"
-                    android:hint="@string/search_or_type_the_url"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp"
-                    android:background="@null"/>
-
-                <View
-                    android:layout_width="wrap_content"
-                    android:layout_height="10dp"
-                    android:background="@color/divider_amount"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginTop="22dp"
-                    android:layout_marginBottom="22dp"
-                    android:textColor="@color/textColorSecondary"
-                    android:textSize="14sp"
-                    android:text="@string/recommended"/>
+                    android:fillViewport="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <View
+                            android:layout_width="wrap_content"
+                            android:layout_height="10dp"
+                            android:background="@color/divider_amount"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginBottom="16dp"
+                            android:textColor="@color/textColorSecondary"
+                            android:textSize="14sp"
+                            android:text="@string/recommended"/>
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/recycler_view_recommended_apps"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingLeft="@dimen/activity_horizontal_margin"
+                            android:paddingRight="@dimen/activity_horizontal_margin"
+                            android:clipToPadding="false"/>
+
+                    </LinearLayout>
+                </ScrollView>
 
                 <android.support.v7.widget.RecyclerView
-                    android:id="@+id/recycler_view_recommended_apps"
+                    android:id="@+id/search_list"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="@dimen/activity_horizontal_margin"
-                    android:paddingRight="@dimen/activity_horizontal_margin"
-                    android:clipToPadding="false"/>
+                    android:layout_height="wrap_content" />
 
-            </LinearLayout>
-        </ScrollView>
+            </ViewSwitcher>
+        </LinearLayout>
     </LinearLayout>
 
 </layout>
