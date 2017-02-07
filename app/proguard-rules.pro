@@ -74,3 +74,6 @@
 
 # ChipsLayoutManager
 -dontwarn com.beloo.widget.chipslayoutmanager.**
+
+# Retrolambda
+-dontwarn java.lang.invoke.*

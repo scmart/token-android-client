@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import rx.Observable;
 import rx.SingleSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
@@ -41,12 +42,7 @@ public class TransactionManager {
 
     public TransactionManager init(final HDWallet wallet) {
         this.wallet = wallet;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                initEverything();
-            }
-        }).start();
+        new Thread(this::initEverything).start();
         return this;
     }
 
@@ -70,12 +66,9 @@ public class TransactionManager {
 
     private void initDatabase() {
         this.dbThreadExecutor = Executors.newSingleThreadExecutor();
-        this.dbThreadExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                TransactionManager.this.chatMessageStore = new ChatMessageStore();
-                TransactionManager.this.pendingTransactionStore = new PendingTransactionStore();
-            }
+        this.dbThreadExecutor.submit(() -> {
+            TransactionManager.this.chatMessageStore = new ChatMessageStore();
+            TransactionManager.this.pendingTransactionStore = new PendingTransactionStore();
         });
     }
 
@@ -84,45 +77,93 @@ public class TransactionManager {
         attachUpdatePaymentSubscriber();
     }
 
+
     private void attachNewPaymentSubscriber() {
         this.newPaymentQueue
             .observeOn(Schedulers.io())
             .subscribeOn(Schedulers.io())
-            .subscribe(new OnNextSubscriber<Payment>() {
-                @Override
-                public void onNext(final Payment payment) {
-                    processNewPayment(payment);
-                }
-
-                private void processNewPayment(final Payment payment) {
-                    final ChatMessage chatMessage = generateMessageFromPayment(payment);
-                    storeMessage(chatMessage);
-                    final TransactionRequest transactionRequest = createTransactionRequest(payment);
-                    processTransactionRequest(
-                            transactionRequest,
-                            chatMessage,
-                            new SingleSubscriber<String>() {
-                                @Override
-                                public void onSuccess(final String txHash) {
-                                    payment.setTxHash(txHash);
-                                    final ChatMessage updatedMessage = generateMessageFromPayment(payment);
-                                    chatMessage.setPayload(updatedMessage.getPayload());
-                                    updateMessageState(chatMessage, SendState.STATE_SENT);
-                                    storeUnconfirmedTransaction(txHash, chatMessage);
-                                    unsubscribe();
-                                }
-
-                                @Override
-                                public void onError(final Throwable error) {
-                                    LogUtil.e(getClass(), "Error creating transaction: " + error);
-                                    updateMessageState(chatMessage, SendState.STATE_FAILED);
-                                    unsubscribe();
-                                }
-                            }
-                    );
-                }
-            });
+            .subscribe(this::processNewPayment);
     }
+
+    private void processNewPayment(final Payment payment) {
+
+        final ChatMessage storedChatMessage = storePayment(payment);
+
+        sendNewTransaction(payment)
+        .subscribe(new OnNextSubscriber<SentTransaction>() {
+            @Override
+            public void onError(final Throwable error) {
+                LogUtil.e(getClass(), "Error creating transaction: " + error);
+                updateMessageState(storedChatMessage, SendState.STATE_FAILED);
+                unsubscribe();
+            }
+
+            @Override
+            public void onNext(final SentTransaction sentTransaction) {
+                final String txHash = sentTransaction.getTxHash();
+                payment.setTxHash(txHash);
+
+                final ChatMessage updatedMessage = generateMessageFromPayment(payment);
+                storedChatMessage.setPayload(updatedMessage.getPayload());
+                updateMessageState(storedChatMessage, SendState.STATE_SENT);
+                storeUnconfirmedTransaction(txHash, storedChatMessage);
+                unsubscribe();
+            }
+        });
+    }
+
+    private ChatMessage storePayment(final Payment payment) {
+        final ChatMessage chatMessage = generateMessageFromPayment(payment);
+        storeMessage(chatMessage);
+        return chatMessage;
+    }
+
+    private Observable<SentTransaction> sendNewTransaction(final Payment payment) {
+        final TransactionRequest transactionRequest = generateTransactionRequest(payment);
+        return BalanceService.getApi()
+                .createTransaction(transactionRequest)
+                .toObservable()
+                .switchMap(this::signAndSendTransaction);
+    }
+
+    private TransactionRequest generateTransactionRequest(final Payment payment) {
+        return new TransactionRequest()
+                .setValue(payment.getValue())
+                .setFromAddress(this.wallet.getPaymentAddress())
+                .setToAddress(payment.getToAddress());
+    }
+
+    private Observable<SentTransaction> signAndSendTransaction(final UnsignedTransaction unsignedTransaction) {
+        return BalanceService
+                .getApi()
+                .getTimestamp()
+                .flatMapObservable(st -> signAndSendTransactionWithTimestamp(unsignedTransaction, st));
+    }
+
+    private Observable<SentTransaction> signAndSendTransactionWithTimestamp(final UnsignedTransaction unsignedTransaction, final ServerTime serverTime) {
+        final String signature = this.wallet.signTransaction(unsignedTransaction.getTransaction());
+        final SignedTransaction signedTransaction = new SignedTransaction()
+                .setEncodedTransaction(unsignedTransaction.getTransaction())
+                .setSignature(signature);
+
+        final long timestamp = serverTime.get();
+
+        return BalanceService.getApi()
+                .sendSignedTransaction(timestamp, signedTransaction)
+                .toObservable();
+    }
+
+
+    // -----------------------------------------
+    // -----------------------------------------
+    // -----------------------------------------
+    // -----------------------------------------
+    // -----------------------------------------
+    // -----------------------------------------
+    // -----------------------------------------
+    // -----------------------------------------
+
+
 
     private void attachUpdatePaymentSubscriber() {
         this.updatePaymentQueue
@@ -225,98 +266,5 @@ public class TransactionManager {
                 return updatedMessage.setPayload(messageBody);
             }
         });
-    }
-
-    private void processTransactionRequest(
-            final TransactionRequest transactionRequest,
-            final ChatMessage chatMessage,
-            final SingleSubscriber<String> callback) {
-
-        BalanceService.getApi()
-                .createTransaction(transactionRequest)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe(new SingleSubscriber<UnsignedTransaction>() {
-                    @Override
-                    public void onSuccess(final UnsignedTransaction unsignedTransaction) {
-                        fetchServerTimeForUnsignedTransaction(
-                                unsignedTransaction,
-                                chatMessage,
-                                callback);
-                        unsubscribe();
-                    }
-
-                    @Override
-                    public void onError(final Throwable error) {
-                        callback.onError(error);
-                        unsubscribe();
-                    }
-                });
-    }
-
-    private TransactionRequest createTransactionRequest(final Payment payment) {
-        return new TransactionRequest()
-                .setValue(payment.getValue())
-                .setFromAddress(this.wallet.getPaymentAddress())
-                .setToAddress(payment.getToAddress());
-    }
-
-    private void fetchServerTimeForUnsignedTransaction(
-            final UnsignedTransaction unsignedTransaction,
-            final ChatMessage chatMessage,
-            final SingleSubscriber<String> callback) {
-
-        BalanceService
-                .getApi()
-                .getTimestamp()
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe(new SingleSubscriber<ServerTime>() {
-                    @Override
-                    public void onSuccess(final ServerTime serverTime) {
-                        signTransactionWithTimeStamp(
-                                unsignedTransaction,
-                                chatMessage,
-                                serverTime.get(),
-                                callback);
-                        unsubscribe();
-                    }
-
-                    @Override
-                    public void onError(final Throwable error) {
-                        callback.onError(error);
-                        unsubscribe();
-                    }
-                });
-    }
-
-    private void signTransactionWithTimeStamp(
-            final UnsignedTransaction unsignedTransaction,
-            final ChatMessage chatMessage,
-            final long timestamp,
-            final SingleSubscriber<String> callback) {
-
-        final String signature = wallet.signTransaction(unsignedTransaction.getTransaction());
-        final SignedTransaction signedTransaction = new SignedTransaction()
-                .setEncodedTransaction(unsignedTransaction.getTransaction())
-                .setSignature(signature);
-
-        BalanceService.getApi()
-                .sendSignedTransaction(timestamp, signedTransaction)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe(new SingleSubscriber<SentTransaction>() {
-                    @Override
-                    public void onSuccess(final SentTransaction sentTransaction) {
-                        callback.onSuccess(sentTransaction.getTxHash());
-                        unsubscribe();
-                    }
-
-                    @Override
-                    public void onError(final Throwable error) {
-                        callback.onError(error);
-                        unsubscribe();
-                    }
-                });
     }
 }
