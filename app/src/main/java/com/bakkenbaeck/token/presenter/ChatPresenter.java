@@ -60,6 +60,7 @@ public final class ChatPresenter implements
     private SpeedyLinearLayoutManager layoutManager;
     private SofaAdapters adapters;
     private HDWallet userWallet;
+    private int lastVisibleMessagePosition;
 
     public void setRemoteUser(final User remoteUser) {
         this.remoteUser = remoteUser;
@@ -188,6 +189,7 @@ public final class ChatPresenter implements
             }
         });
 
+        this.activity.getBinding().messagesList.getLayoutManager().scrollToPosition(this.lastVisibleMessagePosition);
         updateEmptyState();
     }
 
@@ -449,6 +451,7 @@ public final class ChatPresenter implements
 
     @Override
     public void onViewDetached() {
+        this.lastVisibleMessagePosition = this.layoutManager.findLastVisibleItemPosition();
         this.activity = null;
     }
 
