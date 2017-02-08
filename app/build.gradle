@@ -83,8 +83,7 @@ dependencies {
             'com.squareup.retrofit2:converter-moshi:2.1.0',
             'com.squareup.retrofit2:adapter-rxjava:2.1.0',
             'com.squareup.retrofit2:converter-scalars:2.1.0',
-            'com.squareup.okhttp3:logging-interceptor:3.3.1',
-            'com.neovisionaries:nv-websocket-client:1.30',
+            'com.squareup.okhttp3:logging-interceptor:3.5.0',
             'com.artemzin.rxjava:proguard-rules:1.1.9.0',
             // Reactive
             'io.reactivex:rxandroid:1.2.1',
@@ -95,7 +94,7 @@ dependencies {
             'com.journeyapps:zxing-android-embedded:3.3.0',
             // Crypto
             'org.bitcoinj:bitcoinj-core:0.14.3',
-            'com.github.tokenbrowser:libsignal-service-java:59fbd58',
+            'com.github.WhisperSystems:libsignal-service-java:05a516705d',
             'com.madgag.spongycastle:core:1.54.0.0',
             'com.madgag.spongycastle:prov:1.54.0.0',
             //UI
