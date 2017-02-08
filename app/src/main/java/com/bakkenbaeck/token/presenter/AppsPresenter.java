@@ -6,6 +6,7 @@ import android.view.View;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.network.App;
+import com.bakkenbaeck.token.model.network.AppSearch;
 import com.bakkenbaeck.token.model.network.Apps;
 import com.bakkenbaeck.token.network.DirectoryService;
 import com.bakkenbaeck.token.util.LogUtil;
@@ -18,12 +19,13 @@ import com.jakewharton.rxbinding.widget.RxTextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import retrofit2.Response;
 import rx.Observable;
-import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -81,21 +83,47 @@ public class AppsPresenter implements Presenter<AppsFragment>{
 
     private void initSearchView() {
         final Subscription sub = RxTextView.textChanges(this.fragment.getBinding().search)
+                .skip(1)
+                .debounce(400, TimeUnit.MILLISECONDS)
                 .map(new Func1<CharSequence, String>() {
                     @Override
                     public String call(CharSequence charSequence) {
                         return charSequence.toString();
                     }
                 })
-                .subscribe(new OnNextSubscriber<String>() {
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(new Action1<String>() {
                     @Override
-                    public void onNext(String s) {
+                    public void call(String s) {
                         updateViewState();
-                        search(s);
+                    }
+                })
+                .flatMap(new Func1<String, Observable<Response<AppSearch>>>() {
+                    @Override
+                    public Observable<Response<AppSearch>> call(String s) {
+                        return DirectoryService
+                                .getApi()
+                                .searchApps(s)
+                                .subscribeOn(Schedulers.io());
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new OnNextSubscriber<Response<AppSearch>>() {
+                    @Override
+                    public void onError(Throwable e) {
+                        LogUtil.e(getClass(), e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(Response<AppSearch> response) {
+                        if (response.code() == 200) {
+                            addAppsToRecyclerView(response.body().getResults());
+                        } else {
+                            LogUtil.e(getClass(), response.message());
+                        }
                     }
                 });
 
-        updateViewState();
         subscriptions.add(sub);
     }
 
@@ -109,38 +137,6 @@ public class AppsPresenter implements Presenter<AppsFragment>{
             this.fragment.getBinding().searchList.setVisibility(View.GONE);
             this.fragment.getBinding().scrollView.setVisibility(View.VISIBLE);
         }
-    }
-
-    private void search(final String searchString) {
-        if (apps == null) {
-            return;
-        }
-
-        final Subscription sub = Observable.create(new Observable.OnSubscribe<List<App>>() {
-            @Override
-            public void call(Subscriber<? super List<App>> subscriber) {
-                final List<App> searchList = new ArrayList<>();
-
-                for (App app : apps) {
-                    final String appName = app.getDisplayName().toLowerCase();
-                    if (appName.contains(searchString)) {
-                        searchList.add(app);
-                    }
-                }
-
-                subscriber.onNext(searchList);
-                subscriber.onCompleted();
-            }
-        }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new OnNextSubscriber<List<App>>() {
-                    @Override
-                    public void onNext(List<App> apps) {
-                        addAppsToRecyclerView(apps);
-                    }
-                });
-
-        subscriptions.add(sub);
     }
 
     private void addAppsToRecyclerView(final List<App> apps) {
