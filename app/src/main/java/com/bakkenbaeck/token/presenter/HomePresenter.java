@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.model.network.Balance;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
@@ -17,22 +18,35 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.android.schedulers.AndroidSchedulers;
+
 
 public class HomePresenter implements Presenter<HomeFragment> {
 
     private HomeFragment fragment;
 
+    private boolean firstTimeAttaching = true;
+    private Balance balance;
+
     @Override
     public void onViewAttached(HomeFragment view) {
         this.fragment = view;
-        init();
+
+        if (this.firstTimeAttaching) {
+            this.firstTimeAttaching = false;
+            initLongTermObjects();
+        }
+        initShortTermObjects();
     }
 
-    private void init() {
-        setBalance();
+    private void initLongTermObjects() {
         assignSubscribers();
+    }
+
+    private void initShortTermObjects() {
         assignClickListeners();
         initView();
+        refreshBalance();
     }
 
     private void initView() {
@@ -51,13 +65,16 @@ public class HomePresenter implements Presenter<HomeFragment> {
         adapter.setOnItemClickListener(this.appItemClickListener);
         rv.setAdapter(adapter);
 
-        setBalance();
         assignSubscribers();
         assignClickListeners();
     }
 
-    private void setBalance() {
-        final BigDecimal confirmedBalance = BaseApplication.get().getTokenManager().getBalanceManager().getConfirmedBalanceAsEth();
+    private void refreshBalance() {
+        if (this.fragment == null || this.balance == null) {
+            return;
+        }
+
+        final BigDecimal confirmedBalance = EthUtil.weiToEth(balance.getConfirmedBalance());
         final String ethConfirmedFormatted = this.fragment.getString(R.string.eth_balance, EthUtil.ethToEthString(confirmedBalance));
         this.fragment.getBinding().balanceEth.setText(ethConfirmedFormatted);
 
@@ -66,7 +83,18 @@ public class HomePresenter implements Presenter<HomeFragment> {
     }
 
     private void assignSubscribers() {
+        BaseApplication
+            .get()
+            .getTokenManager()
+            .getBalanceManager()
+            .getBalanceObservable()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(this::handleNewBalance);
+    }
 
+    private void handleNewBalance(final Balance balance) {
+        this.balance = balance;
+        refreshBalance();
     }
 
     private void assignClickListeners() {
