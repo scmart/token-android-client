@@ -10,7 +10,6 @@ import com.bakkenbaeck.token.model.network.AppSearch;
 import com.bakkenbaeck.token.model.network.Apps;
 import com.bakkenbaeck.token.network.DirectoryService;
 import com.bakkenbaeck.token.util.LogUtil;
-import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.view.adapter.RecommendedAppsAdapter;
 import com.bakkenbaeck.token.view.adapter.SearchAppAdapter;
 import com.bakkenbaeck.token.view.custom.RightSpaceItemDecoration;
@@ -25,8 +24,6 @@ import retrofit2.Response;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
@@ -85,46 +82,33 @@ public class AppsPresenter implements Presenter<AppsFragment>{
         final Subscription sub = RxTextView.textChanges(this.fragment.getBinding().search)
                 .skip(1)
                 .debounce(400, TimeUnit.MILLISECONDS)
-                .map(new Func1<CharSequence, String>() {
-                    @Override
-                    public String call(CharSequence charSequence) {
-                        return charSequence.toString();
-                    }
-                })
+                .map(CharSequence::toString)
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(new Action1<String>() {
-                    @Override
-                    public void call(String s) {
-                        updateViewState();
-                    }
-                })
-                .flatMap(new Func1<String, Observable<Response<AppSearch>>>() {
-                    @Override
-                    public Observable<Response<AppSearch>> call(String s) {
-                        return DirectoryService
-                                .getApi()
-                                .searchApps(s)
-                                .subscribeOn(Schedulers.io());
-                    }
-                })
+                .doOnNext(searchString -> updateViewState())
+                .flatMap(this::runSearchQuery)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new OnNextSubscriber<Response<AppSearch>>() {
-                    @Override
-                    public void onError(Throwable e) {
-                        LogUtil.e(getClass(), e.getMessage());
-                    }
-
-                    @Override
-                    public void onNext(Response<AppSearch> response) {
-                        if (response.code() == 200) {
-                            addAppsToRecyclerView(response.body().getResults());
-                        } else {
-                            LogUtil.e(getClass(), response.message());
-                        }
-                    }
-                });
+                .subscribe(this::handleSearchResponse, this::handleSearchErrorResponse);
 
         subscriptions.add(sub);
+    }
+
+    private Observable<Response<AppSearch>> runSearchQuery(final String searchString) {
+        return DirectoryService
+                .getApi()
+                .searchApps(searchString)
+                .subscribeOn(Schedulers.io());
+    }
+
+    private void handleSearchResponse(final Response<AppSearch> response) {
+        if (response.code() == 200) {
+            addAppsToRecyclerView(response.body().getResults());
+        } else {
+            LogUtil.e(getClass(), response.message());
+        }
+    }
+
+    private void handleSearchErrorResponse(final Throwable throwable) {
+        LogUtil.e(getClass(), throwable.getMessage());
     }
 
     private void updateViewState() {
@@ -150,25 +134,23 @@ public class AppsPresenter implements Presenter<AppsFragment>{
                 .getApps()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new OnNextSubscriber<Response<Apps>>() {
-                    @Override
-                    public void onError(Throwable e) {
-                        LogUtil.e(getClass(), e.getMessage());
-                    }
-
-                    @Override
-                    public void onNext(final Response<Apps> response) {
-                        if (response.code() == 200) {
-                            final List<App> apps = response.body().getApps();
-                            AppsPresenter.this.apps = apps;
-                            addAppsData(apps);
-                        } else {
-                            LogUtil.e(getClass(), response.message());
-                        }
-                    }
-                });
+                .subscribe(this::handleRecommendedAppsResponse, this::handleRecommendedAppsErrorResponse);
 
         subscriptions.add(sub);
+    }
+
+    private void handleRecommendedAppsResponse(final Response<Apps> response) {
+        if (response.code() == 200) {
+            final List<App> apps = response.body().getApps();
+            AppsPresenter.this.apps = apps;
+            addAppsData(apps);
+        } else {
+            LogUtil.e(getClass(), response.message());
+        }
+    }
+
+    private void handleRecommendedAppsErrorResponse(final Throwable throwable) {
+        LogUtil.e(getClass(), throwable.getMessage());
     }
 
     private void addAppsData(final List<App> apps) {
