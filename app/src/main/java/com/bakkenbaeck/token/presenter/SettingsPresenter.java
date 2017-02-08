@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.bakkenbaeck.token.BuildConfig;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
@@ -29,6 +30,7 @@ public final class SettingsPresenter implements
         this.fragment = fragment;
 
         addListeners();
+        setVersionName();
         initRecyclerView();
         updateUi();
     }
@@ -42,6 +44,11 @@ public final class SettingsPresenter implements
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleUserLoaded);
+    }
+
+    private void setVersionName() {
+        final String versionName = BuildConfig.VERSION_NAME;
+        this.fragment.getBinding().version.setText(versionName);
     }
 
     private void initRecyclerView() {
