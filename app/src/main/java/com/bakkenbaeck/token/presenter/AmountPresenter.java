@@ -153,7 +153,7 @@ public class AmountPresenter implements Presenter<AmountActivity> {
     @NonNull
     private BigDecimal getLocalValueAsBigDecimal() {
         final String currentLocalValue = this.activity.getBinding().localValue.getText().toString();
-        if (currentLocalValue.length() == 0) {
+        if (currentLocalValue.length() == 0 || currentLocalValue.equals(String.valueOf(separator))) {
             return BigDecimal.ZERO;
         }
 
