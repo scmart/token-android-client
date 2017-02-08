@@ -53,4 +53,5 @@
     <string name="payment_received">Payment received from: %1$s</string>
     <string name="payment_amount">Amount: %1$s</string>
     <string name="error__transaction_pending">Transaction pending</string>
+    <string name="version">Version</string>
 </resources>
