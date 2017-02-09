@@ -28,6 +28,7 @@ public class NavigationAdapter extends FragmentPagerAdapter {
         fragments.clear();
         fragments.add(HomeFragment.newInstance());
         fragments.add(AppsFragment.newInstance());
+        fragments.add(AppsFragment.newInstance());
         fragments.add(ContactsContainerFragment.newInstance());
         fragments.add(SettingsContainerFragment.newInstance());
     }
