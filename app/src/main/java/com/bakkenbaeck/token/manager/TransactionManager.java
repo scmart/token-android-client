@@ -1,6 +1,7 @@
 package com.bakkenbaeck.token.manager;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
+import com.bakkenbaeck.token.exception.UnknownTransactionException;
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.PendingTransaction;
 import com.bakkenbaeck.token.model.local.SendState;
@@ -200,8 +201,8 @@ public class TransactionManager {
         final ChatMessage updatedMessage;
         try {
             updatedMessage = updateStatusFromPendingTransaction(pendingTransaction, updatedPayment);
-        } catch (final IOException ex) {
-            LogUtil.e(getClass(), "Unable to update pending transaction. " + ex);
+        } catch (final IOException | UnknownTransactionException ex) {
+            LogUtil.e(getClass(), "Unable to update pending transaction. " + ex.getMessage());
             return;
         }
 
@@ -212,7 +213,11 @@ public class TransactionManager {
         this.pendingTransactionStore.save(updatedPendingTransaction);
     }
 
-    private ChatMessage updateStatusFromPendingTransaction(final PendingTransaction pendingTransaction, final Payment updatedPayment) throws IOException {
+    private ChatMessage updateStatusFromPendingTransaction(final PendingTransaction pendingTransaction, final Payment updatedPayment) throws IOException, UnknownTransactionException {
+        if (pendingTransaction == null) {
+            throw new UnknownTransactionException("PendingTransaction could not be found. This transaction probably came from outside of Token.");
+        }
+
         final ChatMessage existingMessage = pendingTransaction.getChatMessage();
         final Payment existingPayment = adapters.paymentFrom(existingMessage.getPayload());
 
