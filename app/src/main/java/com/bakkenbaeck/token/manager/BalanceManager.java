@@ -99,6 +99,9 @@ public class BalanceManager {
         }
 
         final BigDecimal marketRate = getEthMarketRate("USD");
+        if (marketRate.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
         return localAmount.divide(marketRate, 8, RoundingMode.HALF_DOWN);
     }
 
