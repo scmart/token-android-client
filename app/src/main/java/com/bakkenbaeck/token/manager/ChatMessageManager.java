@@ -37,6 +37,7 @@ import org.whispersystems.signalservice.api.messages.SignalServiceContent;
 import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage;
 import org.whispersystems.signalservice.api.messages.SignalServiceEnvelope;
 import org.whispersystems.signalservice.api.push.SignalServiceAddress;
+import org.whispersystems.signalservice.internal.push.SignalServiceUrl;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -61,11 +62,13 @@ public final class ChatMessageManager {
     private String userAgent;
     private SofaAdapters adapters;
     private boolean receiveMessages;
+    private SignalServiceUrl[] signalServiceUrls;
 
     public final ChatMessageManager init(final HDWallet wallet) {
         this.wallet = wallet;
         this.userAgent = "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME +  ":" + BuildConfig.VERSION_CODE;
         this.adapters = new SofaAdapters();
+        this.signalServiceUrls = new SignalServiceUrl[1];
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -131,7 +134,12 @@ public final class ChatMessageManager {
     private void generateStores() {
         this.protocolStore = new ProtocolStore().init();
         this.trustStore = new SignalTrustStore();
-        this.signalService = new SignalService(this.trustStore, this.wallet, this.protocolStore, this.userAgent);
+
+        final SignalServiceUrl signalServiceUrl = new SignalServiceUrl(
+                BaseApplication.get().getResources().getString(R.string.chat_url),
+                this.trustStore);
+        this.signalServiceUrls[0] = signalServiceUrl;
+        this.signalService = new SignalService(this.signalServiceUrls, this.wallet, this.protocolStore, this.userAgent);
     }
 
     private void registerIfNeeded() {
@@ -188,13 +196,13 @@ public final class ChatMessageManager {
 
     private void sendMessageToRemotePeer(final ChatMessage message, final boolean saveMessageToDatabase) {
         final SignalServiceMessageSender messageSender = new SignalServiceMessageSender(
-                BaseApplication.get().getResources().getString(R.string.chat_url),
-                this.trustStore,
+                this.signalServiceUrls,
                 this.wallet.getOwnerAddress(),
                 this.protocolStore.getPassword(),
                 this.protocolStore,
                 this.userAgent,
-                Optional.<SignalServiceMessageSender.EventListener>absent()
+                Optional.absent(),
+                Optional.absent()
         );
 
         if (saveMessageToDatabase) {
@@ -239,9 +247,15 @@ public final class ChatMessageManager {
     }
 
     private void receiveMessages() {
+        final SignalServiceUrl[] urls = {
+                new SignalServiceUrl(
+                        BaseApplication.get().getResources().getString(R.string.chat_url),
+                        this.trustStore
+                )
+        };
+
         final SignalServiceMessageReceiver messageReceiver = new SignalServiceMessageReceiver(
-                BaseApplication.get().getResources().getString(R.string.chat_url),
-                this.trustStore,
+                urls,
                 this.wallet.getOwnerAddress(),
                 this.protocolStore.getPassword(),
                 this.protocolStore.getSignalingKey(),

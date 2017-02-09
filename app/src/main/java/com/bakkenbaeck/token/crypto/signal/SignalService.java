@@ -1,7 +1,6 @@
 package com.bakkenbaeck.token.crypto.signal;
 
 
-import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.crypto.signal.model.SignalBootstrap;
 import com.bakkenbaeck.token.crypto.signal.network.SignalInterface;
@@ -10,7 +9,6 @@ import com.bakkenbaeck.token.model.network.ServerTime;
 import com.bakkenbaeck.token.network.interceptor.LoggingInterceptor;
 import com.bakkenbaeck.token.network.interceptor.SigningInterceptor;
 import com.bakkenbaeck.token.network.interceptor.UserAgentInterceptor;
-import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.Moshi;
 
 import org.whispersystems.libsignal.IdentityKey;
@@ -19,8 +17,8 @@ import org.whispersystems.libsignal.state.PreKeyRecord;
 import org.whispersystems.libsignal.state.SignedPreKeyRecord;
 import org.whispersystems.signalservice.api.SignalServiceAccountManager;
 import org.whispersystems.signalservice.api.push.SignedPreKeyEntity;
-import org.whispersystems.signalservice.api.push.TrustStore;
 import org.whispersystems.signalservice.internal.push.PreKeyEntity;
+import org.whispersystems.signalservice.internal.push.SignalServiceUrl;
 import org.whispersystems.signalservice.internal.util.JsonUtil;
 
 import java.io.IOException;
@@ -38,34 +36,32 @@ import rx.schedulers.Schedulers;
 
 public final class SignalService extends SignalServiceAccountManager {
 
-    private static final String PREKEY_PATH = "/v1/accounts/bootstrap/";
     private final HDWallet wallet;
     private final SignalInterface signalInterface;
     private final OkHttpClient.Builder client;
     private final String url;
 
     public SignalService(
-            final TrustStore trustStore,
+            final SignalServiceUrl[] urls,
             final HDWallet wallet,
             final ProtocolStore protocolStore,
             final String userAgent) {
-        this(BaseApplication.get().getResources().getString(R.string.chat_url),
-                trustStore,
+
+        this(   urls,
                 wallet,
                 wallet.getOwnerAddress(),
                 protocolStore.getPassword(),
                 userAgent);
     }
 
-    private SignalService(final String url,
-                          final TrustStore trustStore,
+    private SignalService(final SignalServiceUrl[] urls,
                           final HDWallet wallet,
                           final String user,
                           final String password,
                           final String userAgent) {
-        super(url, trustStore, user, password, userAgent);
+        super(urls, user, password, userAgent);
         this.wallet = wallet;
-        this.url = url;
+        this.url = urls[0].getUrl();
         this.client = new OkHttpClient.Builder();
         this.signalInterface = generateSignalInterface();
     }
