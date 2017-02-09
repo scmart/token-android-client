@@ -36,8 +36,8 @@ public class Balance {
         this.localBalance = localBalance;
     }
 
-    public String getFormattedConfirmedBalance() {
-        final BigDecimal confirmedEthBalance = EthUtil.weiToEth(getConfirmedBalance());
-        return BaseApplication.get().getString(R.string.eth_balance, EthUtil.ethToEthString(confirmedEthBalance));
+    public String getFormattedUnconfirmedBalance() {
+        final BigDecimal unconfirmedEthBalance = EthUtil.weiToEth(getUnconfirmedBalance());
+        return BaseApplication.get().getString(R.string.eth_balance, EthUtil.ethToEthString(unconfirmedEthBalance));
     }
 }

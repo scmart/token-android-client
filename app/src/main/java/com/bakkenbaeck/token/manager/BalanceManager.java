@@ -47,7 +47,7 @@ public class BalanceManager {
 
     private void handleNewBalance(final Balance balance) {
         this.balance = balance;
-        final BigDecimal ethAmount = EthUtil.weiToEth(this.balance.getConfirmedBalance());
+        final BigDecimal ethAmount = EthUtil.weiToEth(this.balance.getUnconfirmedBalance());
         this.balance.setFormattedLocalBalance(convertEthToLocalCurrencyString(ethAmount));
 
         balanceObservable.onNext(balance);

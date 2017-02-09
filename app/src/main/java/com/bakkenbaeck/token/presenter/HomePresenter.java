@@ -70,7 +70,7 @@ public class HomePresenter implements Presenter<HomeFragment> {
         if (this.fragment == null || this.balance == null) {
             return;
         }
-        this.fragment.getBinding().balanceEth.setText(this.balance.getFormattedConfirmedBalance());
+        this.fragment.getBinding().balanceEth.setText(this.balance.getFormattedUnconfirmedBalance());
         this.fragment.getBinding().balanceUsd.setText(this.balance.getFormattedLocalBalance());
     }
 

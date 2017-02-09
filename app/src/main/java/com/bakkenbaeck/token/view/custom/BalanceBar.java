@@ -64,7 +64,7 @@ public class BalanceBar extends LinearLayout {
     }
 
     private void handleNewBalance(final Balance balance) {
-        setEthBalanceFromBigInteger(balance.getConfirmedBalance());
+        setEthBalanceFromBigInteger(balance.getUnconfirmedBalance());
         setLocalBalance(balance.getFormattedLocalBalance());
     }
 
