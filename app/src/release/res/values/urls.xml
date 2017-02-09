@@ -3,4 +3,5 @@
     <string name="id_url">https://token-id-service.herokuapp.com</string>
     <string name="balance_url">https://token-eth-service.herokuapp.com/</string>
     <string name="chat_url">https://token-chat-service.herokuapp.com</string>
+    <string name="directory_url">https://token-directory-service.herokuapp.com/</string>
 </resources>
