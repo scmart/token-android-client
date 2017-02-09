@@ -1,10 +1,11 @@
 package com.bakkenbaeck.token.presenter;
 
 import android.content.Intent;
+import android.view.View;
 
 import com.bakkenbaeck.token.model.local.ScanResult;
-import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 import com.bakkenbaeck.token.view.activity.ScannerActivity;
+import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 import com.google.zxing.ResultPoint;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
@@ -24,6 +25,15 @@ public final class ScannerPresenter implements Presenter<ScannerActivity> {
     }
 
     private void init() {
+        initCloseButton();
+        initScanner();
+    }
+
+    private void initCloseButton() {
+        this.activity.getBinding().closeButton.setOnClickListener((View v) -> activity.finish());
+    }
+
+    private void initScanner() {
         if (this.capture == null) {
             this.capture = new CaptureManager(this.activity, this.activity.getBinding().scanner);
         }
