@@ -5,16 +5,13 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.network.Balance;
-import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
 import com.bakkenbaeck.token.view.adapter.AppListAdapter;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.fragment.toplevel.HomeFragment;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,13 +70,8 @@ public class HomePresenter implements Presenter<HomeFragment> {
         if (this.fragment == null || this.balance == null) {
             return;
         }
-
-        final BigDecimal confirmedBalance = EthUtil.weiToEth(balance.getConfirmedBalance());
-        final String ethConfirmedFormatted = this.fragment.getString(R.string.eth_balance, EthUtil.ethToEthString(confirmedBalance));
-        this.fragment.getBinding().balanceEth.setText(ethConfirmedFormatted);
-
-        final String localAmount = BaseApplication.get().getTokenManager().getBalanceManager().convertEthToLocalCurrencyString(confirmedBalance);
-        this.fragment.getBinding().balanceUsd.setText(localAmount);
+        this.fragment.getBinding().balanceEth.setText(this.balance.getFormattedConfirmedBalance());
+        this.fragment.getBinding().balanceUsd.setText(this.balance.getFormattedLocalBalance());
     }
 
     private void assignSubscribers() {

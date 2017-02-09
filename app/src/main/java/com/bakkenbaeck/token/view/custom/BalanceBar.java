@@ -50,32 +50,32 @@ public class BalanceBar extends LinearLayout {
     }
 
     private void setEmptyValues() {
-        setBalanceFromBigInteger(BigInteger.ZERO);
-        setEthValueFromDouble(0);
-    }
-
-    private void setBalanceFromBigInteger(final BigInteger weiBalance) {
-        final BigDecimal ethBalance = EthUtil.weiToEth(weiBalance);
-        final String substring = String.format(LocaleUtil.getLocale(), "%.4f", ethBalance.setScale(4, BigDecimal.ROUND_DOWN));
-        ((TextView) findViewById(R.id.balance)).setText(substring);
-    }
-
-    private void setEthValueFromDouble(final double usd) {
-        final String substring = String.format(LocaleUtil.getLocale(), "%.2f", usd);
-        ((TextView)findViewById(R.id.eth_value)).setText(substring);
+        setEthBalanceFromBigInteger(BigInteger.ZERO);
     }
 
     private void setBalance() {
         BaseApplication
-            .get()
-            .getTokenManager()
-            .getBalanceManager()
-            .getBalanceObservable()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(this::handleNewBalance);
+                .get()
+                .getTokenManager()
+                .getBalanceManager()
+                .getBalanceObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleNewBalance);
     }
 
     private void handleNewBalance(final Balance balance) {
-        setBalanceFromBigInteger(balance.getConfirmedBalance());
+        setEthBalanceFromBigInteger(balance.getConfirmedBalance());
+        setLocalBalance(balance.getFormattedLocalBalance());
     }
+
+    private void setEthBalanceFromBigInteger(final BigInteger weiBalance) {
+        final BigDecimal ethBalance = EthUtil.weiToEth(weiBalance);
+        final String substring = String.format(LocaleUtil.getLocale(), "%.4f", ethBalance.setScale(4, BigDecimal.ROUND_DOWN));
+        ((TextView) findViewById(R.id.eth_balance)).setText(substring);
+    }
+
+    private void setLocalBalance(final String localBalance) {
+        ((TextView) findViewById(R.id.local_currency_balance)).setText(localBalance);
+    }
+
 }
