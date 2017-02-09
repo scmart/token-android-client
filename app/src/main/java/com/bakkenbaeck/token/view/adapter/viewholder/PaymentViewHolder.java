@@ -21,7 +21,8 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
     private TextView remoteRequestedAmount;
     private TextView localSecondaryAmount;
     private TextView remoteSecondaryAmount;
-    private TextView sentFailedMessage;
+    private TextView sentStatusMessage;
+    private TextView receiveStatusMessage;
 
 
     private Payment payment;
@@ -36,7 +37,8 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
         this.remoteRequestedAmount = (TextView) v.findViewById(R.id.remote_requested_amount);
         this.localSecondaryAmount = (TextView) v.findViewById(R.id.local_eth_amount);
         this.remoteSecondaryAmount = (TextView) v.findViewById(R.id.remote_eth_amount);
-        this.sentFailedMessage = (TextView) v.findViewById(R.id.sent_fail_message);
+        this.sentStatusMessage = (TextView) v.findViewById(R.id.sent_status_message);
+        this.receiveStatusMessage = (TextView) v.findViewById(R.id.receive_status_message);
     }
 
     public PaymentViewHolder setPayment(final Payment payment) {
@@ -61,42 +63,40 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
             this.localView.setVisibility(View.VISIBLE);
             this.remoteView.setVisibility(View.GONE);
             this.localRequestedAmount.setText(this.payment.getLocalPrice());
-
-
             this.localSecondaryAmount.setText(ethAmount);
-            renderPaymentStatusMessage();
+            renderPaymentStatus(this.sentStatusMessage);
         } else {
             this.remoteView.setVisibility(View.VISIBLE);
             this.localView.setVisibility(View.GONE);
             this.remoteRequestedAmount.setText(this.payment.getLocalPrice());
             this.remoteSecondaryAmount.setText(ethAmount);
+            renderPaymentStatus(this.receiveStatusMessage);
         }
 
         this.payment = null;
     }
 
-    private void renderPaymentStatusMessage() {
-
+    private void renderPaymentStatus(final TextView tv) {
         if (this.payment.getStatus() != null && this.payment.getStatus().equals("confirmed")) {
-            this.sentFailedMessage.setVisibility(View.VISIBLE);
-            this.sentFailedMessage.setText(R.string.error__transaction_succeeded);
+            tv.setVisibility(View.VISIBLE);
+            tv.setText(R.string.error__transaction_succeeded);
             return;
         }
 
         switch (this.sendState) {
             case SendState.STATE_FAILED:
-                this.sentFailedMessage.setVisibility(View.VISIBLE);
-                this.sentFailedMessage.setText(R.string.error__transaction_failed);
+                tv.setVisibility(View.VISIBLE);
+                tv.setText(R.string.error__transaction_failed);
                 break;
             case SendState.STATE_SENDING:
             case SendState.STATE_SENT:
-                this.sentFailedMessage.setVisibility(View.VISIBLE);
-                this.sentFailedMessage.setText(R.string.error__transaction_pending);
+                tv.setVisibility(View.VISIBLE);
+                tv.setText(R.string.error__transaction_pending);
                 break;
             case SendState.STATE_RECEIVED:
             case SendState.STATE_LOCAL_ONLY:
             default:
-                this.sentFailedMessage.setVisibility(View.GONE);
+                tv.setVisibility(View.GONE);
                 break;
         }
     }
