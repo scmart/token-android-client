@@ -10,10 +10,6 @@
         android:icon="@drawable/ic_action_apps" />
 
     <item
-        android:title="@string/tab_3"
-        android:icon="@drawable/ic_action_scan" />
-
-    <item
         android:title="@string/tab_4"
         android:icon="@drawable/ic_action_contacts" />
 
