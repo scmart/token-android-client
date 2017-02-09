@@ -7,10 +7,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.model.network.Balance;
+import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LocaleUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import rx.android.schedulers.AndroidSchedulers;
 
 public class BalanceBar extends LinearLayout {
 
@@ -45,36 +50,32 @@ public class BalanceBar extends LinearLayout {
     }
 
     private void setEmptyValues() {
-        setBalanceFromBigDecimal(BigDecimal.ZERO);
+        setBalanceFromBigInteger(BigInteger.ZERO);
         setEthValueFromDouble(0);
     }
 
-    private void setBalanceFromBigDecimal(final BigDecimal unconfirmedBalance) {
-        this.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                final String substring = String.format(LocaleUtil.getLocale(), "%.4f", unconfirmedBalance.setScale(4, BigDecimal.ROUND_DOWN));
-                ((TextView) findViewById(R.id.balance)).setText(substring);
-            }
-        }, 200);
+    private void setBalanceFromBigInteger(final BigInteger weiBalance) {
+        final BigDecimal ethBalance = EthUtil.weiToEth(weiBalance);
+        final String substring = String.format(LocaleUtil.getLocale(), "%.4f", ethBalance.setScale(4, BigDecimal.ROUND_DOWN));
+        ((TextView) findViewById(R.id.balance)).setText(substring);
     }
 
     private void setEthValueFromDouble(final double usd) {
         final String substring = String.format(LocaleUtil.getLocale(), "%.2f", usd);
-        this.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ((TextView)findViewById(R.id.eth_value)).setText(substring);
-            }
-        }, 200);
+        ((TextView)findViewById(R.id.eth_value)).setText(substring);
     }
 
     private void setBalance() {
-        final BigDecimal balance =
-                BaseApplication.get()
-                    .getTokenManager()
-                    .getBalanceManager()
-                    .getConfirmedBalanceAsEth();
-        setBalanceFromBigDecimal(balance);
+        BaseApplication
+            .get()
+            .getTokenManager()
+            .getBalanceManager()
+            .getBalanceObservable()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(this::handleNewBalance);
+    }
+
+    private void handleNewBalance(final Balance balance) {
+        setBalanceFromBigInteger(balance.getConfirmedBalance());
     }
 }

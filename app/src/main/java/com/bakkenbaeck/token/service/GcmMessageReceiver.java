@@ -59,5 +59,11 @@ public class GcmMessageReceiver extends GcmListenerService {
                 .getTokenManager()
                 .getTransactionManager()
                 .updatePayment(payment);
+
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getBalanceManager()
+                .refreshBalance();
     }
 }
