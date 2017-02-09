@@ -89,6 +89,7 @@ public class AppsPresenter implements Presenter<AppsFragment>{
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleSearchResponse, this::handleSearchErrorResponse);
 
+        updateViewState();
         subscriptions.add(sub);
     }
 
