@@ -87,7 +87,12 @@ public class AmountPresenter implements Presenter<AmountActivity> {
         final String currentLocalValue = this.activity.getBinding().localValue.getText().toString();
         final int endIndex = Math.max(0, currentLocalValue.length() -1);
         final String newLocalValue = currentLocalValue.substring(0, endIndex);
-        this.activity.getBinding().localValue.setText(newLocalValue);
+
+        if (newLocalValue.equals(String.valueOf(zero))) {
+            this.activity.getBinding().localValue.setText("");
+        } else {
+            this.activity.getBinding().localValue.setText(newLocalValue);
+        }
         updateEthAmount();
     }
 
@@ -107,11 +112,6 @@ public class AmountPresenter implements Presenter<AmountActivity> {
             return;
         }
 
-        // If a separator is the first character; append a zero
-        if (currentLocalValue.length() == 0) {
-            updateValue(zero);
-        }
-
         updateValue(separator);
     }
 
@@ -127,6 +127,11 @@ public class AmountPresenter implements Presenter<AmountActivity> {
         }
 
         if (currentLocalValue.length() == 0 && value == zero) {
+            return;
+        }
+
+        if (currentLocalValue.length() == 0 && value == separator) {
+            this.activity.getBinding().localValue.setText(String.valueOf(zero) + String.valueOf(separator));
             return;
         }
 
