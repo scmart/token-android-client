@@ -352,7 +352,7 @@ public final class ChatPresenter implements
 
         try {
             final InitRequest initRequest = adapters.initRequestFrom(chatMessage.getPayload());
-            final Init initMessage = new Init().construct(initRequest, this.userWallet.getOwnerAddress());
+            final Init initMessage = new Init().construct(initRequest, this.userWallet.getPaymentAddress());
             final String payload = adapters.toJson(initMessage);
             final ChatMessage newChatMessage = new ChatMessage()
                     .makeNew(chatMessage.getConversationId(), false, payload);
