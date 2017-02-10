@@ -1,5 +1,6 @@
 package com.bakkenbaeck.token.presenter;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.view.View;
@@ -27,6 +28,7 @@ import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
+import com.bakkenbaeck.token.util.ViewTypePayment;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
@@ -43,7 +45,6 @@ import io.realm.RealmResults;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-import static android.app.Activity.RESULT_OK;
 
 public final class ChatPresenter implements
         Presenter<ChatActivity> {
@@ -251,7 +252,8 @@ public final class ChatPresenter implements
     private final OnSingleClickListener requestButtonClicked = new OnSingleClickListener() {
         @Override
         public void onSingleClick(final View v) {
-            final Intent intent = new Intent(activity, AmountActivity.class);
+            final Intent intent = new Intent(activity, AmountActivity.class)
+                    .putExtra(AmountActivity.VIEW_TYPE, ViewTypePayment.TYPE_REQUEST);
             activity.startActivityForResult(intent, REQUEST_RESULT_CODE);
         }
     };
@@ -259,7 +261,8 @@ public final class ChatPresenter implements
     private final OnSingleClickListener payButtonClicked = new OnSingleClickListener() {
         @Override
         public void onSingleClick(final View v) {
-            final Intent intent = new Intent(activity, AmountActivity.class);
+            final Intent intent = new Intent(activity, AmountActivity.class)
+                    .putExtra(AmountActivity.VIEW_TYPE, ViewTypePayment.TYPE_REQUEST);
             activity.startActivityForResult(intent, PAY_RESULT_CODE);
         }
     };
@@ -474,7 +477,7 @@ public final class ChatPresenter implements
     };
 
     public void handleActivityResult(final ActivityResultHolder resultHolder) {
-        if (resultHolder.getResultCode() != RESULT_OK) {
+        if (resultHolder.getResultCode() != Activity.RESULT_OK) {
             return;
         }
 

@@ -9,6 +9,7 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LocaleUtil;
+import com.bakkenbaeck.token.util.ViewTypePayment;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
 import com.bakkenbaeck.token.view.adapter.AmountInputAdapter;
@@ -20,17 +21,33 @@ import java.text.DecimalFormatSymbols;
 public class AmountPresenter implements Presenter<AmountActivity> {
 
     public static final String INTENT_EXTRA__ETH_AMOUNT = "eth_amount";
+
     private AmountActivity activity;
     private char separator;
     private char zero;
     private String encodedEthAmount;
+    private @ViewTypePayment.ViewType int viewType;
 
     @Override
     public void onViewAttached(AmountActivity view) {
         this.activity = view;
+
+        getIntentData();
         initView();
-        initToolbar();
         initSeparator();
+    }
+
+    @SuppressWarnings("WrongConstant")
+    private void getIntentData() {
+        this.viewType = this.activity.getIntent().getIntExtra(AmountActivity.VIEW_TYPE, ViewTypePayment.TYPE_SEND);
+    }
+
+    private void initView() {
+        initToolbar();
+        updateEthAmount();
+
+        this.activity.getBinding().amountInputView.setOnAmountClickedListener(this.amountClickedListener);
+        this.activity.getBinding().btnContinue.setOnClickListener(this.continueClickListener);
     }
 
     private void initSeparator() {
@@ -39,10 +56,13 @@ public class AmountPresenter implements Presenter<AmountActivity> {
         this.zero = dcf.getZeroDigit();
     }
 
-    private void initView() {
-        this.activity.getBinding().amountInputView.setOnAmountClickedListener(this.amountClickedListener);
-        this.activity.getBinding().btnContinue.setOnClickListener(this.continueClickListener);
-        updateEthAmount();
+    private void initToolbar() {
+        final String title = this.viewType == ViewTypePayment.TYPE_SEND
+                ? this.activity.getString(R.string.send)
+                : this.activity.getString(R.string.request);
+
+        this.activity.getBinding().title.setText(title);
+        this.activity.getBinding().closeButton.setOnClickListener(this.backButtonClickListener);
     }
 
     private View.OnClickListener continueClickListener = new View.OnClickListener() {
@@ -58,11 +78,6 @@ public class AmountPresenter implements Presenter<AmountActivity> {
             activity.finish();
         }
     };
-
-    private void initToolbar() {
-        this.activity.getBinding().title.setText(this.activity.getString(R.string.send));
-        this.activity.getBinding().closeButton.setOnClickListener(this.backButtonClickListener);
-    }
 
     private View.OnClickListener backButtonClickListener = new View.OnClickListener() {
         @Override
