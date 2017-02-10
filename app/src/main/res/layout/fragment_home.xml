@@ -84,8 +84,8 @@
                 android:gravity="center">
 
                 <FrameLayout
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
+                    android:layout_width="@dimen/avatar_size_small"
+                    android:layout_height="@dimen/avatar_size_small"
                     android:background="@drawable/green_circle">
 
                     <ImageView
@@ -114,8 +114,8 @@
                 android:gravity="center">
 
                 <FrameLayout
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
+                    android:layout_width="@dimen/avatar_size_small"
+                    android:layout_height="@dimen/avatar_size_small"
                     android:background="@drawable/green_circle">
 
                     <ImageView
@@ -144,8 +144,8 @@
                 android:gravity="center">
 
                 <FrameLayout
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
+                    android:layout_width="@dimen/avatar_size_small"
+                    android:layout_height="@dimen/avatar_size_small"
                     android:background="@drawable/green_circle">
 
                     <ImageView
@@ -174,8 +174,8 @@
                 android:gravity="center">
 
                 <FrameLayout
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
+                    android:layout_width="@dimen/avatar_size_small"
+                    android:layout_height="@dimen/avatar_size_small"
                     android:background="@drawable/green_circle">
 
                     <ImageView

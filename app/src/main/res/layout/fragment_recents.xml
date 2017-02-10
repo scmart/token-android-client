@@ -27,10 +27,6 @@
 
     </android.support.v7.widget.Toolbar>
 
-    <android.support.v4.widget.Space
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"/>
-
     <ViewSwitcher
         android:id="@+id/empty_state__switcher"
         android:layout_width="match_parent"
