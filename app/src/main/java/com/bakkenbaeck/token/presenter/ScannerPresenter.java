@@ -19,8 +19,8 @@ public final class ScannerPresenter implements Presenter<ScannerActivity> {
     private ScannerActivity activity;
 
     @Override
-    public void onViewAttached(final ScannerActivity fragment) {
-        this.activity = fragment;
+    public void onViewAttached(final ScannerActivity activity) {
+        this.activity = activity;
         init();
     }
 
