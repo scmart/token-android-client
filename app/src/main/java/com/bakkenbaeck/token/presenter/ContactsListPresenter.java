@@ -9,8 +9,8 @@ import android.view.View;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
-import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.UserSearchActivity;
+import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 import com.bakkenbaeck.token.view.adapter.ContactsAdapter;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.custom.HorizontalLineDivider;
@@ -71,8 +71,8 @@ public final class ContactsListPresenter implements
 
     @Override
     public void onItemClick(final User clickedUser) {
-        final Intent intent = new Intent(this.fragment.getActivity(), ChatActivity.class);
-        intent.putExtra(ChatActivity.EXTRA__REMOTE_USER, clickedUser);
+        final Intent intent = new Intent(this.fragment.getActivity(), ViewUserActivity.class);
+        intent.putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, clickedUser.getOwnerAddress());
         this.fragment.startActivity(intent);
     }
 
