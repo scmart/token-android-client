@@ -1,15 +1,19 @@
 package com.bakkenbaeck.token.presenter;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.bakkenbaeck.token.model.local.ActivityResultHolder;
 import com.bakkenbaeck.token.model.network.Balance;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.ViewTypePayment;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
+import com.bakkenbaeck.token.view.activity.ChooseContactsActivity;
 import com.bakkenbaeck.token.view.activity.ScannerActivity;
 import com.bakkenbaeck.token.view.adapter.AppListAdapter;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
@@ -141,6 +145,22 @@ public class HomePresenter implements Presenter<HomeFragment> {
             final int position = (int) item;
         }
     };
+
+    public void handleActivityResult(final ActivityResultHolder resultHolder, final Context context) {
+        if (resultHolder.getResultCode() != Activity.RESULT_OK) {
+            return;
+        }
+
+        final @ViewTypePayment.ViewType int viewType = resultHolder.getRequestCode() == ETH_SEND_CODE
+                ? ViewTypePayment.TYPE_SEND
+                : ViewTypePayment.TYPE_REQUEST;
+
+        final String value = resultHolder.getIntent().getStringExtra(AmountPresenter.INTENT_EXTRA__ETH_AMOUNT);
+        final Intent intent = new Intent(context, ChooseContactsActivity.class)
+                .putExtra(ChooseContactsActivity.VIEW_TYPE, viewType)
+                .putExtra(AmountPresenter.INTENT_EXTRA__ETH_AMOUNT, value);
+        context.startActivity(intent);
+    }
 
     @Override
     public void onViewDetached() {
