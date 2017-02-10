@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.model.local.User;
 
 public class ContactViewHolder extends ClickableViewHolder {
 
@@ -18,4 +19,8 @@ public class ContactViewHolder extends ClickableViewHolder {
         this.avatar = (ImageView) view.findViewById(R.id.avatar);
     }
 
+    public void setUser(final User user) {
+        this.name.setText(user.getUsername());
+        this.avatar.setImageBitmap(user.getImage());
+    }
 }

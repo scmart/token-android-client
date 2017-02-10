@@ -99,17 +99,14 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     }
 
     private void handleUserLoaded(final User scannedUser) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                ViewUserPresenter.this.scannedUser = scannedUser;
-                ViewUserPresenter.this.activity.getBinding().name.setText(scannedUser.getUsername());
-                ViewUserPresenter.this.activity.getBinding().title.setText(scannedUser.getUsername());
-                ViewUserPresenter.this.activity.getBinding().about.setText(scannedUser.getAbout());
-                ViewUserPresenter.this.activity.getBinding().location.setText(scannedUser.getLocation());
-                ViewUserPresenter.this.activity.getBinding().addContactButton.setOnClickListener(handleOnAddContact);
-                ViewUserPresenter.this.activity.getBinding().messageContactButton.setOnClickListener((View v) -> handleMessageContactButton(v));
-            }
+        new Handler(Looper.getMainLooper()).post(() -> {
+            ViewUserPresenter.this.scannedUser = scannedUser;
+            ViewUserPresenter.this.activity.getBinding().name.setText(scannedUser.getUsername());
+            ViewUserPresenter.this.activity.getBinding().title.setText(scannedUser.getUsername());
+            ViewUserPresenter.this.activity.getBinding().about.setText(scannedUser.getAbout());
+            ViewUserPresenter.this.activity.getBinding().location.setText(scannedUser.getLocation());
+            ViewUserPresenter.this.activity.getBinding().addContactButton.setOnClickListener(handleOnAddContact);
+            ViewUserPresenter.this.activity.getBinding().messageContactButton.setOnClickListener(ViewUserPresenter.this::handleMessageContactButton);
         });
     };
 
@@ -121,7 +118,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         }
     };
 
-    private void handleMessageContactButton(final View unused) {
+    private void handleMessageContactButton(final View view) {
         final Intent intent = new Intent(this.activity, ChatActivity.class);
         intent.putExtra(ChatActivity.EXTRA__REMOTE_USER, this.scannedUser);
         this.activity.startActivity(intent);
