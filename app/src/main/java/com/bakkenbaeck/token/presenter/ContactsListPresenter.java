@@ -11,7 +11,7 @@ import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.UserSearchActivity;
-import com.bakkenbaeck.token.view.adapter.UserAdapter;
+import com.bakkenbaeck.token.view.adapter.ContactsAdapter;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.custom.HorizontalLineDivider;
 import com.bakkenbaeck.token.view.fragment.children.ContactsListFragment;
@@ -22,7 +22,7 @@ public final class ContactsListPresenter implements
 
     private ContactsListFragment fragment;
     private boolean firstTimeAttaching = true;
-    private UserAdapter adapter;
+    private ContactsAdapter adapter;
 
     @Override
     public void onViewAttached(final ContactsListFragment fragment) {
@@ -54,7 +54,7 @@ public final class ContactsListPresenter implements
     }
 
     private void initLongLivingObjects() {
-        this.adapter = new UserAdapter()
+        this.adapter = new ContactsAdapter()
                 .loadAllStoredContacts()
                 .setOnItemClickListener(this);
     }
