@@ -10,7 +10,7 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.util.EthUtil;
-import com.bakkenbaeck.token.util.ViewTypePayment;
+import com.bakkenbaeck.token.util.PaymentType;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.ChooseContactsActivity;
@@ -29,7 +29,8 @@ import rx.subscriptions.CompositeSubscription;
 
 public class ChooseContactPresenter implements Presenter<ChooseContactsActivity> {
 
-    private @ViewTypePayment.ViewType int viewType;
+    private @PaymentType.Type
+    int viewType;
     private ChooseContactsActivity activity;
     private String encodedEthAmount;
     private ContactsAdapter adapter;
@@ -62,7 +63,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
     @SuppressWarnings("WrongConstant")
     private void getIntentData() {
         this.encodedEthAmount = this.activity.getIntent().getStringExtra(AmountPresenter.INTENT_EXTRA__ETH_AMOUNT);
-        this.viewType = this.activity.getIntent().getIntExtra(ChooseContactsActivity.VIEW_TYPE, ViewTypePayment.TYPE_SEND);
+        this.viewType = this.activity.getIntent().getIntExtra(ChooseContactsActivity.VIEW_TYPE, PaymentType.TYPE_SEND);
     }
 
     private void getLocalCurrency() {
@@ -84,7 +85,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
     }
 
     private void initToolbar() {
-        final String paymentAction = this.viewType == ViewTypePayment.TYPE_SEND
+        final String paymentAction = this.viewType == PaymentType.TYPE_SEND
                 ? this.activity.getString(R.string.send)
                 : this.activity.getString(R.string.request);
 

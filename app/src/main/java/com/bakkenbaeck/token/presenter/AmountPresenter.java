@@ -9,7 +9,7 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LocaleUtil;
-import com.bakkenbaeck.token.util.ViewTypePayment;
+import com.bakkenbaeck.token.util.PaymentType;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
 import com.bakkenbaeck.token.view.adapter.AmountInputAdapter;
@@ -26,7 +26,8 @@ public class AmountPresenter implements Presenter<AmountActivity> {
     private char separator;
     private char zero;
     private String encodedEthAmount;
-    private @ViewTypePayment.ViewType int viewType;
+    private @PaymentType.Type
+    int viewType;
 
     @Override
     public void onViewAttached(AmountActivity view) {
@@ -39,7 +40,7 @@ public class AmountPresenter implements Presenter<AmountActivity> {
 
     @SuppressWarnings("WrongConstant")
     private void getIntentData() {
-        this.viewType = this.activity.getIntent().getIntExtra(AmountActivity.VIEW_TYPE, ViewTypePayment.TYPE_SEND);
+        this.viewType = this.activity.getIntent().getIntExtra(AmountActivity.VIEW_TYPE, PaymentType.TYPE_SEND);
     }
 
     private void initView() {
@@ -57,7 +58,7 @@ public class AmountPresenter implements Presenter<AmountActivity> {
     }
 
     private void initToolbar() {
-        final String title = this.viewType == ViewTypePayment.TYPE_SEND
+        final String title = this.viewType == PaymentType.TYPE_SEND
                 ? this.activity.getString(R.string.send)
                 : this.activity.getString(R.string.request);
 

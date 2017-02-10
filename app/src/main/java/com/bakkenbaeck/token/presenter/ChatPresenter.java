@@ -28,7 +28,7 @@ import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
-import com.bakkenbaeck.token.util.ViewTypePayment;
+import com.bakkenbaeck.token.util.PaymentType;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
@@ -154,9 +154,9 @@ public final class ChatPresenter implements
             return;
         }
 
-        if (paymentAction == ViewTypePayment.TYPE_SEND) {
+        if (paymentAction == PaymentType.TYPE_SEND) {
             sendPaymentWithValue(value);
-        } else if (paymentAction == ViewTypePayment.TYPE_REQUEST) {
+        } else if (paymentAction == PaymentType.TYPE_REQUEST) {
             sendPaymentRequestWithValue(value);
         }
     }
@@ -272,7 +272,7 @@ public final class ChatPresenter implements
         @Override
         public void onSingleClick(final View v) {
             final Intent intent = new Intent(activity, AmountActivity.class)
-                    .putExtra(AmountActivity.VIEW_TYPE, ViewTypePayment.TYPE_REQUEST);
+                    .putExtra(AmountActivity.VIEW_TYPE, PaymentType.TYPE_REQUEST);
             activity.startActivityForResult(intent, REQUEST_RESULT_CODE);
         }
     };
@@ -281,7 +281,7 @@ public final class ChatPresenter implements
         @Override
         public void onSingleClick(final View v) {
             final Intent intent = new Intent(activity, AmountActivity.class)
-                    .putExtra(AmountActivity.VIEW_TYPE, ViewTypePayment.TYPE_REQUEST);
+                    .putExtra(AmountActivity.VIEW_TYPE, PaymentType.TYPE_REQUEST);
             activity.startActivityForResult(intent, PAY_RESULT_CODE);
         }
     };

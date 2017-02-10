@@ -10,7 +10,7 @@ import android.view.View;
 import com.bakkenbaeck.token.model.local.ActivityResultHolder;
 import com.bakkenbaeck.token.model.network.Balance;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
-import com.bakkenbaeck.token.util.ViewTypePayment;
+import com.bakkenbaeck.token.util.PaymentType;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
 import com.bakkenbaeck.token.view.activity.ChooseContactsActivity;
@@ -110,7 +110,7 @@ public class HomePresenter implements Presenter<HomeFragment> {
         @Override
         public void onSingleClick(View v) {
             final Intent intent = new Intent(fragment.getContext(), AmountActivity.class)
-                    .putExtra(AmountActivity.VIEW_TYPE, ViewTypePayment.TYPE_SEND);
+                    .putExtra(AmountActivity.VIEW_TYPE, PaymentType.TYPE_SEND);
             fragment.startActivityForResult(intent, ETH_SEND_CODE);
         }
     };
@@ -119,7 +119,7 @@ public class HomePresenter implements Presenter<HomeFragment> {
         @Override
         public void onSingleClick(View v) {
             final Intent intent = new Intent(fragment.getContext(), AmountActivity.class)
-                    .putExtra(AmountActivity.VIEW_TYPE, ViewTypePayment.TYPE_REQUEST);
+                    .putExtra(AmountActivity.VIEW_TYPE, PaymentType.TYPE_REQUEST);
             fragment.startActivityForResult(intent, ETH_REQUEST_CODE);
         }
     };
@@ -151,9 +151,9 @@ public class HomePresenter implements Presenter<HomeFragment> {
             return;
         }
 
-        final @ViewTypePayment.ViewType int viewType = resultHolder.getRequestCode() == ETH_SEND_CODE
-                ? ViewTypePayment.TYPE_SEND
-                : ViewTypePayment.TYPE_REQUEST;
+        final @PaymentType.Type int viewType = resultHolder.getRequestCode() == ETH_SEND_CODE
+                ? PaymentType.TYPE_SEND
+                : PaymentType.TYPE_REQUEST;
 
         final String value = resultHolder.getIntent().getStringExtra(AmountPresenter.INTENT_EXTRA__ETH_AMOUNT);
         final Intent intent = new Intent(context, ChooseContactsActivity.class)
