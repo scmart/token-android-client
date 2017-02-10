@@ -1,14 +1,19 @@
 package com.bakkenbaeck.token.presenter;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.bakkenbaeck.token.model.local.ActivityResultHolder;
 import com.bakkenbaeck.token.model.network.Balance;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
+import com.bakkenbaeck.token.util.ViewTypePayment;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
+import com.bakkenbaeck.token.view.activity.ChooseContactsActivity;
 import com.bakkenbaeck.token.view.activity.ScannerActivity;
 import com.bakkenbaeck.token.view.adapter.AppListAdapter;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
@@ -22,8 +27,10 @@ import rx.android.schedulers.AndroidSchedulers;
 
 public class HomePresenter implements Presenter<HomeFragment> {
 
-    private HomeFragment fragment;
+    private static final int ETH_REQUEST_CODE = 1;
+    private static final int ETH_SEND_CODE = 2;
 
+    private HomeFragment fragment;
     private boolean firstTimeAttaching = true;
     private Balance balance;
 
@@ -72,18 +79,19 @@ public class HomePresenter implements Presenter<HomeFragment> {
         if (this.fragment == null || this.balance == null) {
             return;
         }
+
         this.fragment.getBinding().balanceEth.setText(this.balance.getFormattedUnconfirmedBalance());
         this.fragment.getBinding().balanceUsd.setText(this.balance.getFormattedLocalBalance());
     }
 
     private void assignSubscribers() {
         BaseApplication
-            .get()
-            .getTokenManager()
-            .getBalanceManager()
-            .getBalanceObservable()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(this::handleNewBalance);
+                .get()
+                .getTokenManager()
+                .getBalanceManager()
+                .getBalanceObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleNewBalance);
     }
 
     private void handleNewBalance(final Balance balance) {
@@ -100,28 +108,32 @@ public class HomePresenter implements Presenter<HomeFragment> {
 
     private OnSingleClickListener payClickListener = new OnSingleClickListener() {
         @Override
-        public void onSingleClick(View view) {
-            final Intent intent = new Intent(fragment.getActivity(), AmountActivity.class);
-            fragment.getActivity().startActivity(intent);
+        public void onSingleClick(View v) {
+            final Intent intent = new Intent(fragment.getContext(), AmountActivity.class)
+                    .putExtra(AmountActivity.VIEW_TYPE, ViewTypePayment.TYPE_SEND);
+            fragment.startActivityForResult(intent, ETH_SEND_CODE);
         }
     };
 
     private OnSingleClickListener requestClickListener = new OnSingleClickListener() {
         @Override
-        public void onSingleClick(View view) {
+        public void onSingleClick(View v) {
+            final Intent intent = new Intent(fragment.getContext(), AmountActivity.class)
+                    .putExtra(AmountActivity.VIEW_TYPE, ViewTypePayment.TYPE_REQUEST);
+            fragment.startActivityForResult(intent, ETH_REQUEST_CODE);
         }
     };
 
     private OnSingleClickListener addMoneyClickListener = new OnSingleClickListener() {
         @Override
-        public void onSingleClick(View view) {
+        public void onSingleClick(View v) {
 
         }
     };
 
     private OnSingleClickListener scanQrClickListener = new OnSingleClickListener() {
         @Override
-        public void onSingleClick(View view) {
+        public void onSingleClick(View v) {
             final Intent intent = new Intent(fragment.getActivity(), ScannerActivity.class);
             fragment.getActivity().startActivity(intent);
         }
@@ -133,6 +145,22 @@ public class HomePresenter implements Presenter<HomeFragment> {
             final int position = (int) item;
         }
     };
+
+    public void handleActivityResult(final ActivityResultHolder resultHolder, final Context context) {
+        if (resultHolder.getResultCode() != Activity.RESULT_OK) {
+            return;
+        }
+
+        final @ViewTypePayment.ViewType int viewType = resultHolder.getRequestCode() == ETH_SEND_CODE
+                ? ViewTypePayment.TYPE_SEND
+                : ViewTypePayment.TYPE_REQUEST;
+
+        final String value = resultHolder.getIntent().getStringExtra(AmountPresenter.INTENT_EXTRA__ETH_AMOUNT);
+        final Intent intent = new Intent(context, ChooseContactsActivity.class)
+                .putExtra(ChooseContactsActivity.VIEW_TYPE, viewType)
+                .putExtra(AmountPresenter.INTENT_EXTRA__ETH_AMOUNT, value);
+        context.startActivity(intent);
+    }
 
     @Override
     public void onViewDetached() {

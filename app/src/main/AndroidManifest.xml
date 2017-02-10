@@ -30,6 +30,7 @@
         <activity android:name="com.bakkenbaeck.token.view.activity.UserSearchActivity" />
         <activity android:name="com.bakkenbaeck.token.view.activity.AmountActivity" />
         <activity android:name="com.bakkenbaeck.token.view.activity.ScannerActivity" />
+        <activity android:name="com.bakkenbaeck.token.view.activity.ChooseContactsActivity" />
 
         <meta-data
             android:name="io.fabric.ApiKey"

@@ -12,6 +12,7 @@ import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
 
 public class AmountActivity extends BasePresenterActivity<AmountPresenter, AmountActivity> {
 
+    public static final String VIEW_TYPE = "type";
     private ActivityAmountBinding binding;
 
     @Override
@@ -35,9 +36,7 @@ public class AmountActivity extends BasePresenterActivity<AmountPresenter, Amoun
     }
 
     @Override
-    protected void onPresenterPrepared(@NonNull AmountPresenter presenter) {
-
-    }
+    protected void onPresenterPrepared(@NonNull AmountPresenter presenter) {}
 
     @Override
     protected int loaderId() {
