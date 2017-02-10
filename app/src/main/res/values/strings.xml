@@ -58,4 +58,5 @@
     <string name="recommended">Recommended</string>
     <string name="tab_recents">Recents</string>
     <string name="send_amount">%1$s %2$s</string>
+    <string name="recents_list__empty_state">You have no recent activity, yet!</string>
 </resources>
