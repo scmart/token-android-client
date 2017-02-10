@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.databinding.FragmentHomeBinding;
-import com.bakkenbaeck.token.model.local.ActivityResultHolder;
 import com.bakkenbaeck.token.presenter.HomePresenter;
 import com.bakkenbaeck.token.presenter.factory.HomePresenterFactory;
 import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
@@ -19,8 +18,6 @@ import com.bakkenbaeck.token.view.fragment.BasePresenterFragment;
 public class HomeFragment extends BasePresenterFragment<HomePresenter, HomeFragment> {
 
     private FragmentHomeBinding binding;
-    private ActivityResultHolder resultHolder;
-    private HomePresenter presenter;
 
     public static HomeFragment newInstance() {
         return new HomeFragment();
@@ -45,9 +42,7 @@ public class HomeFragment extends BasePresenterFragment<HomePresenter, HomeFragm
     }
 
     @Override
-    protected void onPresenterPrepared(@NonNull HomePresenter presenter) {
-        this.presenter = presenter;
-    }
+    protected void onPresenterPrepared(@NonNull HomePresenter presenter) {}
 
     @Override
     protected int loaderId() {

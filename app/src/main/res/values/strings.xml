@@ -57,4 +57,5 @@
     <string name="search_or_type_the_url">Search or type the url</string>
     <string name="recommended">Recommended</string>
     <string name="tab_recents">Recents</string>
+    <string name="send_amount">%1$s %2$s</string>
 </resources>
