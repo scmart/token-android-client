@@ -14,6 +14,7 @@ import com.bakkenbaeck.token.util.ViewTypePayment;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.ChooseContactsActivity;
+import com.bakkenbaeck.token.view.activity.ScannerActivity;
 import com.bakkenbaeck.token.view.adapter.ContactsAdapter;
 import com.bakkenbaeck.token.view.custom.HorizontalLineDivider;
 import com.jakewharton.rxbinding.widget.RxTextView;
@@ -78,6 +79,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
         setSendButtonText();
         initSearch();
 
+        this.activity.getBinding().qrScan.setOnClickListener(view -> handleQrScanClicked());
         this.activity.getBinding().btnContinue.setOnClickListener(view -> handleSendClicked());
     }
 
@@ -149,6 +151,11 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
         this.recipientUser = user;
         this.activity.getBinding().recipientUser.setText(user.getUsername());
         updateConfirmationBtnState();
+    }
+
+    private void handleQrScanClicked() {
+        final Intent intent = new Intent(this.activity, ScannerActivity.class);
+        this.activity.startActivity(intent);
     }
 
     private void handleSendClicked() {
