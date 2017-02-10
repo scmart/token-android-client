@@ -19,29 +19,29 @@ import java.util.List;
 
 import io.realm.RealmResults;
 
-public class UserAdapter extends RecyclerView.Adapter<ContactViewHolder> implements ClickableViewHolder.OnClickListener {
+public class RecentsAdapter extends RecyclerView.Adapter<ContactViewHolder> implements ClickableViewHolder.OnClickListener {
 
     private List<User> users;
     private OnItemClickListener<User> onItemClickListener;
 
-    public UserAdapter() {
+    public RecentsAdapter() {
         this.users = new ArrayList<>(0);
     }
 
-    public UserAdapter loadAllStoredContacts() {
+    public RecentsAdapter loadAllStoredContacts() {
         new ContactStore()
                 .loadAll()
                 .subscribe(new SingleSuccessSubscriber<RealmResults<User>>() {
                     @Override
                     public void onSuccess(final RealmResults<User> users) {
-                        UserAdapter.this.users = users;
+                        RecentsAdapter.this.users = users;
                         notifyDataSetChanged();
                     }
                 });
         return this;
     }
 
-    public UserAdapter setUsers(final List<User> users) {
+    public RecentsAdapter setUsers(final List<User> users) {
         this.users = users;
         notifyDataSetChanged();
         return this;
@@ -49,15 +49,14 @@ public class UserAdapter extends RecyclerView.Adapter<ContactViewHolder> impleme
 
     @Override
     public ContactViewHolder onCreateViewHolder(final ViewGroup parent, int viewType) {
-        final View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__contact, parent, false);
+        final View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__recent, parent, false);
         return new ContactViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(final ContactViewHolder holder, final int position) {
         final User user = this.users.get(position);
-        holder.name.setText(user.getUsername());
-        holder.avatar.setImageBitmap(user.getImage());
+        holder.setUser(user);
         holder.setOnClickListener(this);
     }
 
@@ -76,7 +75,7 @@ public class UserAdapter extends RecyclerView.Adapter<ContactViewHolder> impleme
         this.onItemClickListener.onItemClick(clickedUser);
     }
 
-    public UserAdapter setOnItemClickListener(final OnItemClickListener<User> onItemClickListener) {
+    public RecentsAdapter setOnItemClickListener(final OnItemClickListener<User> onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
         return this;
     }

@@ -13,6 +13,7 @@ import com.bakkenbaeck.token.presenter.store.ContactStore;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
+import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 
 import rx.SingleSubscriber;
@@ -53,12 +54,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     }
 
     private void initShortLivingObjects() {
-        this.activity.getBinding().closeButton.setOnClickListener(new OnSingleClickListener() {
-            @Override
-            public void onSingleClick(final View v) {
-                activity.onBackPressed();
-            }
-        });
+        this.activity.getBinding().closeButton.setOnClickListener((View v) -> activity.onBackPressed());
     }
 
 
@@ -103,16 +99,14 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     }
 
     private void handleUserLoaded(final User scannedUser) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                ViewUserPresenter.this.scannedUser = scannedUser;
-                ViewUserPresenter.this.activity.getBinding().name.setText(scannedUser.getUsername());
-                ViewUserPresenter.this.activity.getBinding().title.setText(scannedUser.getUsername());
-                ViewUserPresenter.this.activity.getBinding().about.setText(scannedUser.getAbout());
-                ViewUserPresenter.this.activity.getBinding().location.setText(scannedUser.getLocation());
-                ViewUserPresenter.this.activity.getBinding().addContactButton.setOnClickListener(handleOnAddContact);
-            }
+        new Handler(Looper.getMainLooper()).post(() -> {
+            ViewUserPresenter.this.scannedUser = scannedUser;
+            ViewUserPresenter.this.activity.getBinding().name.setText(scannedUser.getUsername());
+            ViewUserPresenter.this.activity.getBinding().title.setText(scannedUser.getUsername());
+            ViewUserPresenter.this.activity.getBinding().about.setText(scannedUser.getAbout());
+            ViewUserPresenter.this.activity.getBinding().location.setText(scannedUser.getLocation());
+            ViewUserPresenter.this.activity.getBinding().addContactButton.setOnClickListener(handleOnAddContact);
+            ViewUserPresenter.this.activity.getBinding().messageContactButton.setOnClickListener(ViewUserPresenter.this::handleMessageContactButton);
         });
     };
 
@@ -123,6 +117,12 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
             disableAddContactButton();
         }
     };
+
+    private void handleMessageContactButton(final View view) {
+        final Intent intent = new Intent(this.activity, ChatActivity.class);
+        intent.putExtra(ChatActivity.EXTRA__REMOTE_USER, this.scannedUser);
+        this.activity.startActivity(intent);
+    }
 
     private final SingleSuccessSubscriber<Bitmap> handleQrCodeLoaded = new SingleSuccessSubscriber<Bitmap>() {
         @Override

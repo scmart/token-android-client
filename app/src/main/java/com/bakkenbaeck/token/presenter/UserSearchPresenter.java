@@ -15,7 +15,7 @@ import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.activity.UserSearchActivity;
 import com.bakkenbaeck.token.view.activity.ViewUserActivity;
-import com.bakkenbaeck.token.view.adapter.UserAdapter;
+import com.bakkenbaeck.token.view.adapter.ContactsAdapter;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.jakewharton.rxbinding.widget.RxTextView;
 import com.jakewharton.rxbinding.widget.TextViewTextChangeEvent;
@@ -33,7 +33,7 @@ public final class UserSearchPresenter
     private boolean firstTimeAttaching = true;
     private UserSearchActivity activity;
     private OnNextSubscriber<TextViewTextChangeEvent> handleUserInput;
-    private UserAdapter adapter;
+    private ContactsAdapter adapter;
 
     @Override
     public void onViewAttached(final UserSearchActivity activity) {
@@ -48,7 +48,7 @@ public final class UserSearchPresenter
 
     private void initLongLivingObjects() {
         this.adapter =
-                new UserAdapter().setOnItemClickListener(this);
+                new ContactsAdapter().setOnItemClickListener(this);
     }
 
     private void initShortLivingObjects() {

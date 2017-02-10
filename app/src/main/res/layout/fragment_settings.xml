@@ -50,8 +50,8 @@
         <!-- Row 4 -->
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/avatar"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+            android:layout_width="@dimen/avatar_size_small"
+            android:layout_height="@dimen/avatar_size_small"
             android:src="@mipmap/launcher"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             app:layout_rowSpan="2"/>
