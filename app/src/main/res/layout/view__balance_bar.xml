@@ -17,30 +17,15 @@
         android:gravity="center_vertical">
 
         <TextView
+            android:id="@+id/local_currency_balance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/subTitleSize"
             android:textStyle="bold"
-            android:text="@string/dollar"/>
+            android:text="$0.00 USD"/>
 
         <TextView
-            android:id="@+id/eth_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/subTitleSize"
-            android:textStyle="bold"
-            android:text="0.00"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
-            android:textStyle="bold"
-            android:textSize="@dimen/subTitleSize"
-            android:text="@string/fiat_iso__usd" />
-
-        <TextView
-            android:id="@+id/balance"
+            android:id="@+id/eth_balance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/balance_bar_text_size"
@@ -54,7 +39,7 @@
             android:textSize="@dimen/balance_bar_text_size"
             android:textColor="@color/textColorSecondary"
             android:layout_marginLeft="4dp"
-            android:text="@string/my_balance" />
+            android:text="@string/eth_currency_code" />
 
         <android.support.v4.widget.Space
             android:layout_width="0dp"

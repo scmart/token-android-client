@@ -123,12 +123,7 @@ public final class ChatMessageManager {
 
     private void initDatabase() {
         this.dbThreadExecutor = Executors.newSingleThreadExecutor();
-        this.dbThreadExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                ChatMessageManager.this.chatMessageStore = new ChatMessageStore();
-            }
-        });
+        this.dbThreadExecutor.submit((Runnable) () -> ChatMessageManager.this.chatMessageStore = new ChatMessageStore());
     }
 
     private void generateStores() {
@@ -178,16 +173,13 @@ public final class ChatMessageManager {
                 .subscribe(new OnNextSubscriber<ChatMessageTask>() {
             @Override
             public void onNext(final ChatMessageTask messageTask) {
-                dbThreadExecutor.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (messageTask.getAction() == ChatMessageTask.SEND_AND_SAVE) {
-                            sendMessageToRemotePeer(messageTask.getChatMessage(), true);
-                        } else if (messageTask.getAction() == ChatMessageTask.SAVE_ONLY) {
-                            storeMessage(messageTask.getChatMessage());
-                        } else {
-                            sendMessageToRemotePeer(messageTask.getChatMessage(), false);
-                        }
+                dbThreadExecutor.submit(() -> {
+                    if (messageTask.getAction() == ChatMessageTask.SEND_AND_SAVE) {
+                        sendMessageToRemotePeer(messageTask.getChatMessage(), true);
+                    } else if (messageTask.getAction() == ChatMessageTask.SAVE_ONLY) {
+                        storeMessage(messageTask.getChatMessage());
+                    } else {
+                        sendMessageToRemotePeer(messageTask.getChatMessage(), false);
                     }
                 });
             }
@@ -236,12 +228,9 @@ public final class ChatMessageManager {
 
     private void receiveMessagesAsync() {
         this.receiveMessages = true;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (receiveMessages) {
-                    receiveMessages();
-                }
+        new Thread(() -> {
+            while (receiveMessages) {
+                receiveMessages();
             }
         }).start();
     }
@@ -292,19 +281,27 @@ public final class ChatMessageManager {
             @Override
             public void run() {
                 final ChatMessage remoteMessage = new ChatMessage().makeNew(messageSource, false, messageBody);
-                if (remoteMessage.getType() == SofaType.PAYMENT_REQUEST) {
+                if (remoteMessage.getType() == SofaType.PAYMENT) {
+                    sendIncomingPaymentToTransactionManager(remoteMessage);
+                    return;
+                } else if(remoteMessage.getType() == SofaType.PAYMENT_REQUEST) {
                     embedLocalAmountIntoPaymentRequest(remoteMessage);
-                } else if(remoteMessage.getType() == SofaType.PAYMENT) {
-                    embedLocalAmountIntoPayment(remoteMessage);
                 }
                 ChatMessageManager.this.chatMessageStore.save(remoteMessage);
             }
 
-            private void embedLocalAmountIntoPayment(final ChatMessage remoteMessage) {
+            private void sendIncomingPaymentToTransactionManager(final ChatMessage remoteMessage) {
                 try {
                     final Payment payment = adapters.paymentFrom(remoteMessage.getPayload());
                     payment.generateLocalPrice();
-                    remoteMessage.setPayload(adapters.toJson(payment));
+                    // Set the owner address to be the person who sent this
+                    payment.setOwnerAddress(remoteMessage.getConversationId());
+
+                    BaseApplication
+                            .get()
+                            .getTokenManager()
+                            .getTransactionManager()
+                            .processIncomingPayment(payment);
                 } catch (IOException e) {
                     // No-op
                 }

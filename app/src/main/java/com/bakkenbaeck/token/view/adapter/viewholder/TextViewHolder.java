@@ -23,7 +23,7 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
         this.localContainer = v.findViewById(R.id.local_container);
         this.localText = (TextView) v.findViewById(R.id.local_message);
         this.remoteText = (TextView) v.findViewById(R.id.remote_message);
-        this.sentFailedMessage = (TextView) v.findViewById(R.id.sent_fail_message);
+        this.sentFailedMessage = (TextView) v.findViewById(R.id.sent_status_message);
     }
 
     public TextViewHolder setText(final String text) {

@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Token</string>
-    <string name="my_balance">ETH</string>
+    <string name="eth_currency_code">ETH</string>
     <!-- Dialog errors -->
     <string name="dollar">$</string>
     <string name="user_manager_pref_filename">usm</string>
@@ -38,9 +38,9 @@
     <string name="payment_request__rejected">You rejected this request</string>
     <string name="money_sent">Money sent.</string>
     <string name="money_received">Money received</string>
-    <string name="error__transaction_failed">Money failed to send</string>
+    <string name="error__transaction_failed">Failed</string>
     <string name="error__message_failed">Message did not send</string>
-    <string name="error__transaction_succeeded">Transaction sent</string>
+    <string name="error__transaction_succeeded">Complete</string>
     <string name="balance">Balance</string>
     <string name="pay">Pay</string>
     <string name="request">Request</string>
@@ -52,7 +52,7 @@
     <string name="send">Send</string>
     <string name="payment_received">Payment received from: %1$s</string>
     <string name="payment_amount">Amount: %1$s</string>
-    <string name="error__transaction_pending">Transaction pending</string>
+    <string name="error__transaction_pending">Pending</string>
     <string name="version">Version</string>
     <string name="search_or_type_the_url">Search or type the url</string>
     <string name="recommended">Recommended</string>
