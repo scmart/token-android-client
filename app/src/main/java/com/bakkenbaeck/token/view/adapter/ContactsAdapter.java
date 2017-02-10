@@ -30,7 +30,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> imp
 
     public ContactsAdapter loadAllStoredContacts() {
         new ContactStore()
-                .loadAll()
+                .loadForUsername()
                 .subscribe(new SingleSuccessSubscriber<RealmResults<User>>() {
                     @Override
                     public void onSuccess(final RealmResults<User> users) {
@@ -40,6 +40,19 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> imp
                 });
         return this;
     }
+
+    public void filter(final String searchString) {
+        new ContactStore()
+                .loadForUsername(searchString)
+                .subscribe(new SingleSuccessSubscriber<RealmResults<User>>() {
+                    @Override
+                    public void onSuccess(RealmResults<User> users) {
+                        ContactsAdapter.this.users = users;
+                        notifyDataSetChanged();
+                    }
+                });
+    }
+
 
     public ContactsAdapter setUsers(final List<User> users) {
         this.users = users;

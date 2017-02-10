@@ -16,9 +16,15 @@ import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.ChooseContactsActivity;
 import com.bakkenbaeck.token.view.adapter.ContactsAdapter;
 import com.bakkenbaeck.token.view.custom.HorizontalLineDivider;
+import com.jakewharton.rxbinding.widget.RxTextView;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.concurrent.TimeUnit;
+
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.subscriptions.CompositeSubscription;
 
 public class ChooseContactPresenter implements Presenter<ChooseContactsActivity> {
 
@@ -29,6 +35,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
     private User recipientUser;
     private String localCurrency;
     private boolean firstTimeAttaching = true;
+    private CompositeSubscription subscriptions;
 
     @Override
     public void onViewAttached(final ChooseContactsActivity view) {
@@ -45,6 +52,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
     }
 
     private void initLongLivingObjects() {
+        subscriptions = new CompositeSubscription();
         this.adapter = new ContactsAdapter()
                 .loadAllStoredContacts()
                 .setOnItemClickListener(this::handleItemClicked);
@@ -68,6 +76,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
         updateEmptyState();
         updateConfirmationBtnState();
         setSendButtonText();
+        initSearch();
 
         this.activity.getBinding().btnContinue.setOnClickListener(view -> handleSendClicked());
     }
@@ -120,6 +129,22 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
         this.activity.getBinding().btnContinue.setText(btnText);
     }
 
+    private void initSearch() {
+        final Subscription sub = RxTextView
+                .textChanges(this.activity.getBinding().recipientUser)
+                .skip(1)
+                .debounce(400, TimeUnit.MILLISECONDS)
+                .map(CharSequence::toString)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleSearch);
+
+        this.subscriptions.add(sub);
+    }
+
+    private void handleSearch(final String searchString) {
+        this.adapter.filter(searchString);
+    }
+
     private void handleItemClicked(final User user) {
         this.recipientUser = user;
         this.activity.getBinding().recipientUser.setText(user.getUsername());
@@ -139,6 +164,11 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
 
     @Override
     public void onViewDestroyed() {
+        if (this.subscriptions != null) {
+            this.subscriptions.unsubscribe();
+            this.subscriptions = null;
+        }
+
         this.activity = null;
     }
 }

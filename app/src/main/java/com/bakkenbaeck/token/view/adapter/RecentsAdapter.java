@@ -30,7 +30,7 @@ public class RecentsAdapter extends RecyclerView.Adapter<ContactViewHolder> impl
 
     public RecentsAdapter loadAllStoredContacts() {
         new ContactStore()
-                .loadAll()
+                .loadForUsername()
                 .subscribe(new SingleSuccessSubscriber<RealmResults<User>>() {
                     @Override
                     public void onSuccess(final RealmResults<User> users) {
