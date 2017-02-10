@@ -159,9 +159,13 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
     }
 
     private void handleSendClicked() {
-        final Intent intent = new Intent(activity, ChatActivity.class);
-        intent.putExtra(ChatActivity.EXTRA__REMOTE_USER, recipientUser);
+        final Intent intent = new Intent(activity, ChatActivity.class)
+                .putExtra(ChatActivity.EXTRA__REMOTE_USER, recipientUser)
+                .putExtra(ChatActivity.EXTRA__PAYMENT_ACTION, viewType)
+                .putExtra(ChatActivity.EXTRA__ETH_AMOUNT, encodedEthAmount);
+
         this.activity.startActivity(intent);
+        this.activity.finish();
     }
 
     @Override

@@ -78,6 +78,7 @@ public final class ChatPresenter implements
             initLongLivingObjects();
         }
         initShortLivingObjects();
+        getIntentData();
     }
 
     private void initToolbar() {
@@ -140,6 +141,24 @@ public final class ChatPresenter implements
         initAdapterAnimation();
         initRecyclerView();
         initButtons();
+    }
+
+    private void getIntentData() {
+        final String value = this.activity.getIntent().getStringExtra(ChatActivity.EXTRA__ETH_AMOUNT);
+        final int paymentAction = this.activity.getIntent().getIntExtra(ChatActivity.EXTRA__PAYMENT_ACTION, 0);
+
+        this.activity.getIntent().removeExtra(ChatActivity.EXTRA__ETH_AMOUNT);
+        this.activity.getIntent().removeExtra(ChatActivity.EXTRA__PAYMENT_ACTION);
+
+        if (value == null || paymentAction == 0) {
+            return;
+        }
+
+        if (paymentAction == ViewTypePayment.TYPE_SEND) {
+            sendPaymentWithValue(value);
+        } else if (paymentAction == ViewTypePayment.TYPE_REQUEST) {
+            sendPaymentRequestWithValue(value);
+        }
     }
 
     private void initLayoutManager() {
