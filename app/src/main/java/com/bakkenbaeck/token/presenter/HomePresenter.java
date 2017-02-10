@@ -6,8 +6,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.bakkenbaeck.token.model.network.Balance;
+import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
+import com.bakkenbaeck.token.view.activity.ScannerActivity;
 import com.bakkenbaeck.token.view.adapter.AppListAdapter;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.fragment.toplevel.HomeFragment;
@@ -96,32 +98,32 @@ public class HomePresenter implements Presenter<HomeFragment> {
         this.fragment.getBinding().scanQr.setOnClickListener(this.scanQrClickListener);
     }
 
-    private View.OnClickListener payClickListener = new View.OnClickListener() {
+    private OnSingleClickListener payClickListener = new OnSingleClickListener() {
         @Override
-        public void onClick(View view) {
+        public void onSingleClick(View view) {
             final Intent intent = new Intent(fragment.getActivity(), AmountActivity.class);
             fragment.getActivity().startActivity(intent);
         }
     };
 
-    private View.OnClickListener requestClickListener = new View.OnClickListener() {
+    private OnSingleClickListener requestClickListener = new OnSingleClickListener() {
         @Override
-        public void onClick(View view) {
+        public void onSingleClick(View view) {
+        }
+    };
+
+    private OnSingleClickListener addMoneyClickListener = new OnSingleClickListener() {
+        @Override
+        public void onSingleClick(View view) {
 
         }
     };
 
-    private View.OnClickListener addMoneyClickListener = new View.OnClickListener() {
+    private OnSingleClickListener scanQrClickListener = new OnSingleClickListener() {
         @Override
-        public void onClick(View view) {
-
-        }
-    };
-
-    private View.OnClickListener scanQrClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-
+        public void onSingleClick(View view) {
+            final Intent intent = new Intent(fragment.getActivity(), ScannerActivity.class);
+            fragment.getActivity().startActivity(intent);
         }
     };
 

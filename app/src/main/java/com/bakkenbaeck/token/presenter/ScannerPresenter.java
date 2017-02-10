@@ -1,10 +1,11 @@
 package com.bakkenbaeck.token.presenter;
 
 import android.content.Intent;
+import android.view.View;
 
 import com.bakkenbaeck.token.model.local.ScanResult;
+import com.bakkenbaeck.token.view.activity.ScannerActivity;
 import com.bakkenbaeck.token.view.activity.ViewUserActivity;
-import com.bakkenbaeck.token.view.fragment.toplevel.ScannerFragment;
 import com.google.zxing.ResultPoint;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
@@ -12,22 +13,31 @@ import com.journeyapps.barcodescanner.CaptureManager;
 
 import java.util.List;
 
-public final class ScannerPresenter implements Presenter<ScannerFragment> {
+public final class ScannerPresenter implements Presenter<ScannerActivity> {
 
     private CaptureManager capture;
-    private ScannerFragment fragment;
+    private ScannerActivity activity;
 
     @Override
-    public void onViewAttached(final ScannerFragment fragment) {
-        this.fragment = fragment;
+    public void onViewAttached(final ScannerActivity activity) {
+        this.activity = activity;
         init();
     }
 
     private void init() {
+        initCloseButton();
+        initScanner();
+    }
+
+    private void initCloseButton() {
+        this.activity.getBinding().closeButton.setOnClickListener((View v) -> activity.finish());
+    }
+
+    private void initScanner() {
         if (this.capture == null) {
-            this.capture = new CaptureManager(this.fragment.getActivity(), this.fragment.getBinding().scanner);
+            this.capture = new CaptureManager(this.activity, this.activity.getBinding().scanner);
         }
-        this.fragment.getBinding().scanner.decodeSingle(this.onScanSuccess);
+        this.activity.getBinding().scanner.decodeSingle(this.onScanSuccess);
         this.capture.onResume();
     }
 
@@ -37,9 +47,9 @@ public final class ScannerPresenter implements Presenter<ScannerFragment> {
             // Right now, this assumes that the QR code is a contacts address
             // so it is currently very naive
             final ScanResult scanResult = new ScanResult(result);
-            final Intent intent = new Intent(fragment.getActivity(), ViewUserActivity.class);
+            final Intent intent = new Intent(activity, ViewUserActivity.class);
             intent.putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, scanResult.getText());
-            fragment.startActivity(intent);
+            activity.startActivity(intent);
         }
 
         @Override
@@ -53,7 +63,7 @@ public final class ScannerPresenter implements Presenter<ScannerFragment> {
         if (this.capture != null) {
             this.capture.onPause();
         }
-        this.fragment = null;
+        this.activity = null;
     }
 
     @Override
@@ -61,6 +71,6 @@ public final class ScannerPresenter implements Presenter<ScannerFragment> {
         if (this.capture != null) {
             this.capture.onDestroy();
         }
-        this.fragment = null;
+        this.activity = null;
     }
 }

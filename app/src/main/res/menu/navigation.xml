@@ -6,12 +6,12 @@
         android:icon="@drawable/ic_action_home" />
 
     <item
-        android:title="@string/tab_2"
-        android:icon="@drawable/ic_action_apps" />
+        android:title="@string/tab_recents"
+        android:icon="@drawable/ic_action_recents" />
 
     <item
-        android:title="@string/tab_3"
-        android:icon="@drawable/ic_action_scan" />
+        android:title="@string/tab_2"
+        android:icon="@drawable/ic_action_apps" />
 
     <item
         android:title="@string/tab_4"
