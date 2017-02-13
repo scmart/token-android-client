@@ -135,6 +135,7 @@ public class HomePresenter implements Presenter<HomeFragment> {
         @Override
         public void onSingleClick(View v) {
             final Intent intent = new Intent(fragment.getActivity(), ScannerActivity.class);
+            intent.putExtra(ScannerActivity.RESULT_TYPE, ScannerActivity.REDIRECT);
             fragment.getActivity().startActivity(intent);
         }
     };

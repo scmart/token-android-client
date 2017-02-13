@@ -1,5 +1,6 @@
 package com.bakkenbaeck.token.presenter;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
 
@@ -15,13 +16,21 @@ import java.util.List;
 
 public final class ScannerPresenter implements Presenter<ScannerActivity> {
 
+    public static final String USER_ADDRESS = "user_address";
+
     private CaptureManager capture;
     private ScannerActivity activity;
+    private int resultType;
 
     @Override
     public void onViewAttached(final ScannerActivity activity) {
         this.activity = activity;
+        getIntentData();
         init();
+    }
+
+    private void getIntentData() {
+        this.resultType = this.activity.getIntent().getIntExtra(ScannerActivity.RESULT_TYPE, 0);
     }
 
     private void init() {
@@ -47,9 +56,17 @@ public final class ScannerPresenter implements Presenter<ScannerActivity> {
             // Right now, this assumes that the QR code is a contacts address
             // so it is currently very naive
             final ScanResult scanResult = new ScanResult(result);
-            final Intent intent = new Intent(activity, ViewUserActivity.class);
-            intent.putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, scanResult.getText());
-            activity.startActivity(intent);
+
+            if (resultType == ScannerActivity.FOR_RESULT) {
+                final Intent intent = new Intent();
+                intent.putExtra(USER_ADDRESS, scanResult.getText());
+                activity.setResult(Activity.RESULT_OK, intent);
+                activity.finish();
+            } else {
+                final Intent intent = new Intent(activity, ViewUserActivity.class);
+                intent.putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, scanResult.getText());
+                activity.startActivity(intent);
+            }
         }
 
         @Override
