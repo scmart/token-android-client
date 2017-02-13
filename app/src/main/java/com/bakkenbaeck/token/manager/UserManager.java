@@ -12,7 +12,6 @@ import com.bakkenbaeck.token.model.network.UserDetails;
 import com.bakkenbaeck.token.network.IdService;
 import com.bakkenbaeck.token.presenter.store.UserStore;
 import com.bakkenbaeck.token.util.LogUtil;
-import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 
 import java.util.concurrent.ExecutorService;
@@ -20,6 +19,7 @@ import java.util.concurrent.Executors;
 
 import retrofit2.adapter.rxjava.HttpException;
 import rx.SingleSubscriber;
+import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 
 public class UserManager {
@@ -169,42 +169,29 @@ public class UserManager {
                 });
     }
 
-    // If the user at the address is already saved as a contact this method does nothing.
-    // If the user is not a contact, they will be added.
-    public void tryAddContact(final String contactAddress) {
-        this.dbThreadExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                userStore
-                        .loadForAddress(contactAddress)
-                        .subscribe(this.handleContactLookup);
-            }
+    public void getUserFromAddress(final String contactAddress, final SingleSubscriber<User> callback) {
 
-            private final SingleSubscriber<User> handleContactLookup = new SingleSuccessSubscriber<User>() {
-                @Override
-                public void onSuccess(final User user) {
-                    if (user != null) return;
-                    fetchAndSaveContact();
-                }
-            };
-
-            private void fetchAndSaveContact() {
-                IdService.getApi()
-                        .getUser(contactAddress)
-                        .subscribe(this.handleUserFetched);
-            }
-
-            private final SingleSubscriber<User> handleUserFetched = new SingleSuccessSubscriber<User>() {
-                @Override
-                public void onSuccess(final User user) {
-                    dbThreadExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            userStore.save(user);
-                        }
-                    });
-                }
-            };
-        });
+        this.userStore
+                .loadForAddress(contactAddress)
+                .subscribeOn(Schedulers.from(this.dbThreadExecutor))
+                .observeOn(Schedulers.from(this.dbThreadExecutor))
+                .subscribe((user) -> handleContactLookup(user, contactAddress, callback));
     }
+
+    private void handleContactLookup(final User user, final String contactAddress, final SingleSubscriber<User> callback) {
+        if (user != null) {
+            callback.onSuccess(user);
+            return;
+        }
+
+        fetchContact(contactAddress, callback);
+    }
+
+    private void fetchContact(final String contactAddress, final SingleSubscriber<User> callback) {
+        IdService
+                .getApi()
+                .getUser(contactAddress)
+                .subscribe(callback);
+    }
+
 }

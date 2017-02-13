@@ -18,7 +18,7 @@ public class Conversation extends RealmObject {
 
     public Conversation(final User user) {
         this.member = user;
-        this.conversationId = this.member.getOwnerAddress();
+        this.conversationId = user.getOwnerAddress();
     }
 
     public User getMember() {
@@ -31,7 +31,15 @@ public class Conversation extends RealmObject {
 
     public Conversation setLatestMessage(final ChatMessage latestMessage) {
         this.latestMessage = latestMessage;
+        addMessage(latestMessage);
         return this;
+    }
+
+    private void addMessage(final ChatMessage latestMessage) {
+        if (this.allMessages == null) {
+            this.allMessages = new RealmList<>();
+        }
+        this.allMessages.add(latestMessage);
     }
 
     public RealmList<ChatMessage> getAllMessages() {

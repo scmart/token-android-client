@@ -2,6 +2,7 @@ package com.bakkenbaeck.token.model.local;
 
 import com.bakkenbaeck.token.model.sofa.SofaType;
 
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,6 +22,7 @@ public class ChatMessage extends RealmObject {
 
     public ChatMessage() {
         this.creationTime = System.currentTimeMillis();
+        this.privateKey = UUID.randomUUID().toString();
     }
 
     public ChatMessage(final ChatMessage chatMessage) {
@@ -47,7 +49,6 @@ public class ChatMessage extends RealmObject {
 
     private ChatMessage setConversationId(final String conversationId) {
         this.conversationId = conversationId;
-        this.privateKey = this.conversationId + String.valueOf(this.creationTime);
         return this;
     }
 

@@ -11,6 +11,7 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.local.ActivityResultHolder;
 import com.bakkenbaeck.token.model.local.ChatMessage;
+import com.bakkenbaeck.token.model.local.Conversation;
 import com.bakkenbaeck.token.model.local.PendingTransaction;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.sofa.Command;
@@ -22,13 +23,13 @@ import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
-import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
+import com.bakkenbaeck.token.presenter.store.ConversationStore;
 import com.bakkenbaeck.token.presenter.store.PendingTransactionStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
-import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.util.PaymentType;
+import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
@@ -41,7 +42,7 @@ import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 
 import java.io.IOException;
 
-import io.realm.RealmResults;
+import io.realm.RealmList;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -55,7 +56,7 @@ public final class ChatPresenter implements
     private ChatActivity activity;
     private MessageAdapter messageAdapter;
     private boolean firstViewAttachment = true;
-    private ChatMessageStore chatMessageStore;
+    private ConversationStore conversationStore;
     private PendingTransactionStore pendingTransactionStore;
     private User remoteUser;
     private SpeedyLinearLayoutManager layoutManager;
@@ -122,18 +123,18 @@ public final class ChatPresenter implements
     }
 
     private void initChatMessageStore() {
-        this.chatMessageStore = new ChatMessageStore();
-        this.chatMessageStore.getNewMessageObservable()
+        this.conversationStore = new ConversationStore();
+        this.conversationStore.getNewMessageObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleNewMessage);
-        this.chatMessageStore.getUpdatedMessageObservable()
+        this.conversationStore.getUpdatedMessageObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleUpdatedMessage);
-        this.chatMessageStore.load(this.remoteUser.getOwnerAddress())
+        this.conversationStore.loadByAddress(this.remoteUser.getOwnerAddress())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleLoadMessages);
+                .subscribe(this.handleConversationLoaded);
     }
 
     private void initShortLivingObjects() {
@@ -225,7 +226,7 @@ public final class ChatPresenter implements
         BaseApplication.get()
                 .getTokenManager()
                 .getChatMessageManager()
-                .sendMessage(sofaCommandMessage);
+                .sendMessage(remoteUser, sofaCommandMessage);
     }
 
     private void initButtons() {
@@ -258,7 +259,7 @@ public final class ChatPresenter implements
             BaseApplication.get()
                     .getTokenManager()
                     .getChatMessageManager()
-                    .sendAndSaveMessage(message);
+                    .sendAndSaveMessage(remoteUser, message);
 
             activity.getBinding().userInput.setText(null);
         }
@@ -312,7 +313,7 @@ public final class ChatPresenter implements
             final String updatedPayload = adapters.toJson(paymentRequest);
             final ChatMessage updatedMessage = new ChatMessage(existingMessage).setPayload(updatedPayload);
 
-            chatMessageStore.update(updatedMessage);
+            conversationStore.updateMessage(updatedMessage);
             return paymentRequest;
 
         } catch (final IOException ex) {
@@ -382,21 +383,26 @@ public final class ChatPresenter implements
             BaseApplication.get()
                     .getTokenManager()
                     .getChatMessageManager()
-                    .sendMessage(newChatMessage);
+                    .sendMessage(remoteUser, newChatMessage);
         } catch (IOException e) {
             LogUtil.e(getClass(), "IOException " + e);
         }
     }
 
-    private final SingleSuccessSubscriber<RealmResults<ChatMessage>> handleLoadMessages = new SingleSuccessSubscriber<RealmResults<ChatMessage>>() {
+    private final SingleSuccessSubscriber<Conversation> handleConversationLoaded = new SingleSuccessSubscriber<Conversation>() {
         @Override
-        public void onSuccess(final RealmResults<ChatMessage> chatMessages) {
-            if (chatMessages.size() > 0) {
-                messageAdapter.addMessages(chatMessages);
+        public void onSuccess(final Conversation conversation) {
+            if (conversation == null) {
+                return;
+            }
+
+            final RealmList<ChatMessage> messages = conversation.getAllMessages();
+            if (messages.size() > 0) {
+                messageAdapter.addMessages(messages);
                 forceScrollToBottom();
                 updateEmptyState();
 
-                final ChatMessage lastChatMessage = chatMessages.get(chatMessages.size() - 1);
+                final ChatMessage lastChatMessage = messages.get(messages.size() - 1);
                 setControlView(lastChatMessage);
             }
 
@@ -484,7 +490,7 @@ public final class ChatPresenter implements
         }
         this.handleNewMessage.unsubscribe();
         this.handleUpdatedMessage.unsubscribe();
-        this.chatMessageStore = null;
+        this.conversationStore = null;
         this.activity = null;
     }
 
@@ -518,7 +524,7 @@ public final class ChatPresenter implements
         BaseApplication.get()
                 .getTokenManager()
                 .getTransactionManager()
-                .sendPayment(payment);
+                .sendPayment(remoteUser, payment);
     }
 
     private void sendPaymentRequestWithValue(final String value) {
@@ -535,6 +541,6 @@ public final class ChatPresenter implements
                 .get()
                 .getTokenManager()
                 .getChatMessageManager()
-                .sendAndSaveMessage(message);
+                .sendAndSaveMessage(remoteUser, message);
     }
 }

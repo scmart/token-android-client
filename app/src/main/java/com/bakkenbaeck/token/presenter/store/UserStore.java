@@ -11,21 +11,22 @@ import rx.Single;
 
 public class UserStore {
 
+    private final Realm realm;
+
+    public UserStore() {
+        this.realm = Realm.getDefaultInstance();
+    }
+
     public void save(final User user) {
-        final Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         realm.insertOrUpdate(user);
         realm.commitTransaction();
-        realm.close();
     }
 
     public Single<RealmResults<User>> loadAll() {
         return Single.fromCallable(() -> {
-            final Realm realm = Realm.getDefaultInstance();
             final RealmQuery<User> query = realm.where(User.class);
-            final RealmResults<User> results = query.findAll();
-            realm.close();
-            return results;
+            return query.findAll();
         });
     }
 
@@ -38,21 +39,15 @@ public class UserStore {
     }
 
     private User loadWhere(final String fieldName, final String value) {
-        final Realm realm = Realm.getDefaultInstance();
         final RealmQuery<User> query = realm.where(User.class);
         query.equalTo(fieldName, value);
-        final User result = query.findFirst();
-        realm.close();
-        return result;
+        return query.findFirst();
     }
 
     private RealmResults<User> queryWhere(final String fieldName, final String value) {
-        final Realm realm = Realm.getDefaultInstance();
         final RealmQuery<User> query = realm.where(User.class);
         query.contains(fieldName, value, Case.INSENSITIVE);
-        final RealmResults<User> results = query.findAll();
-        realm.close();
-        return results;
+        return query.findAll();
     }
 
 }

@@ -6,6 +6,7 @@ import com.bakkenbaeck.token.manager.model.PaymentTask;
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.PendingTransaction;
 import com.bakkenbaeck.token.model.local.SendState;
+import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.SentTransaction;
 import com.bakkenbaeck.token.model.network.ServerTime;
 import com.bakkenbaeck.token.model.network.SignedTransaction;
@@ -14,11 +15,10 @@ import com.bakkenbaeck.token.model.network.UnsignedTransaction;
 import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.network.BalanceService;
-import com.bakkenbaeck.token.presenter.store.ChatMessageStore;
+import com.bakkenbaeck.token.presenter.store.ConversationStore;
 import com.bakkenbaeck.token.presenter.store.PendingTransactionStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
-import com.bakkenbaeck.token.view.BaseApplication;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -37,7 +37,7 @@ public class TransactionManager {
     private final PublishSubject<Payment> updatePaymentQueue = PublishSubject.create();
 
     private HDWallet wallet;
-    private ChatMessageStore chatMessageStore;
+    private ConversationStore conversationStore;
     private PendingTransactionStore pendingTransactionStore;
     private ExecutorService dbThreadExecutor;
     private SofaAdapters adapters;
@@ -48,8 +48,8 @@ public class TransactionManager {
         return this;
     }
 
-    public final void sendPayment(final Payment payment) {
-        final PaymentTask task = new PaymentTask(payment, OUTGOING);
+    public final void sendPayment(final User receiver, final Payment payment) {
+        final PaymentTask task = new PaymentTask(receiver, payment, OUTGOING);
         this.newPaymentQueue.onNext(task);
     }
 
@@ -57,8 +57,8 @@ public class TransactionManager {
         this.updatePaymentQueue.onNext(payment);
     }
 
-    public final void processIncomingPayment(final Payment payment) {
-        final PaymentTask task = new PaymentTask(payment, PaymentTask.INCOMING);
+    public final void processIncomingPayment(final User sender, final Payment payment) {
+        final PaymentTask task = new PaymentTask(sender, payment, PaymentTask.INCOMING);
         this.newPaymentQueue.onNext(task);
     }
 
@@ -75,7 +75,7 @@ public class TransactionManager {
     private void initDatabase() {
         this.dbThreadExecutor = Executors.newSingleThreadExecutor();
         this.dbThreadExecutor.submit(() -> {
-            TransactionManager.this.chatMessageStore = new ChatMessageStore();
+            TransactionManager.this.conversationStore = new ConversationStore();
             TransactionManager.this.pendingTransactionStore = new PendingTransactionStore();
         });
     }
@@ -98,21 +98,21 @@ public class TransactionManager {
 
         switch (task.getAction()) {
             case INCOMING: {
-                final ChatMessage storedChatMessage = storePayment(payment, false);
+                final ChatMessage storedChatMessage = storePayment(task.getUser(), payment, false);
                 handleIncomingPayment(payment, storedChatMessage);
                 break;
             }
             case OUTGOING: {
-                final ChatMessage storedChatMessage = storePayment(payment, true);
+                final ChatMessage storedChatMessage = storePayment(task.getUser(), payment, true);
                 handleOutgoingPayment(payment, storedChatMessage);
                 break;
             }
         }
     }
 
-    private ChatMessage storePayment(final Payment payment, final boolean sentByLocal) {
+    private ChatMessage storePayment(final User user, final Payment payment, final boolean sentByLocal) {
         final ChatMessage chatMessage = generateMessageFromPayment(payment, sentByLocal);
-        storeMessage(chatMessage);
+        storeMessage(user, chatMessage);
         return chatMessage;
     }
 
@@ -147,12 +147,15 @@ public class TransactionManager {
                         updateMessageState(storedChatMessage, SendState.STATE_SENT);
                         storeUnconfirmedTransaction(txHash, storedChatMessage);
 
+                        // ToDo
                         // Broadcast the message to our remote peer
+                        /*
                         BaseApplication
                                 .get()
                                 .getTokenManager()
                                 .getChatMessageManager()
                                 .sendMessage(storedChatMessage);
+                                */
                         unsubscribe();
                     }
                 });
@@ -199,7 +202,7 @@ public class TransactionManager {
     }
 
     private void updateMessage(final ChatMessage message) {
-        this.chatMessageStore.update(message);
+        this.conversationStore.updateMessage(message);
     }
 
 
@@ -225,9 +228,9 @@ public class TransactionManager {
                 .subscribe(pendingTransaction -> updatePendingTransaction(pendingTransaction, payment));
     }
 
-    private void storeMessage(final ChatMessage message) {
+    private void storeMessage(final User user, final ChatMessage message) {
         message.setSendState(SendState.STATE_SENDING);
-        this.chatMessageStore.save(message);
+        this.conversationStore.saveNewMessage(user, message);
     }
 
     private void storeUnconfirmedTransaction(final String txHash, final ChatMessage message) {
