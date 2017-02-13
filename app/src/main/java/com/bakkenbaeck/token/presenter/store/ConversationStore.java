@@ -1,6 +1,7 @@
 package com.bakkenbaeck.token.presenter.store;
 
 
+import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.Conversation;
 import com.bakkenbaeck.token.model.local.User;
 
@@ -11,12 +12,14 @@ import rx.Single;
 
 public class ConversationStore {
 
-    public void saveNew(final User user) {
+    public void saveNewMessage(final User user, final ChatMessage message) {
         final Realm realm = Realm.getDefaultInstance();
 
-        final Conversation conversation = new Conversation(user);
+        final Conversation conversation = new Conversation(user)
+                .setLatestMessage(message);
+
         realm.beginTransaction();
-        realm.insert(conversation);
+        realm.insertOrUpdate(conversation);
         realm.commitTransaction();
         realm.close();
     }
