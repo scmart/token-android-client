@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="RoundedProgressBar">
+    <declare-styleable name="RatingBar">
         <attr name="backgroundColor" format="color" />
         <attr name="foregroundColor" format="color" />
         <attr name="progressPercentage" format="integer" />
+        <attr name="radius" format="dimension" />
     </declare-styleable>
 </resources>
