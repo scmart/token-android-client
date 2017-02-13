@@ -10,7 +10,7 @@ import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.ServerTime;
 import com.bakkenbaeck.token.model.network.UserDetails;
 import com.bakkenbaeck.token.network.IdService;
-import com.bakkenbaeck.token.presenter.store.ContactStore;
+import com.bakkenbaeck.token.presenter.store.UserStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -31,7 +31,7 @@ public class UserManager {
     private SharedPreferences prefs;
     private HDWallet wallet;
     private ExecutorService dbThreadExecutor;
-    private ContactStore contactStore;
+    private UserStore userStore;
 
     public final BehaviorSubject<User> getUserObservable() {
         return this.userSubject;
@@ -49,7 +49,7 @@ public class UserManager {
         this.dbThreadExecutor.submit(new Runnable() {
             @Override
             public void run() {
-                UserManager.this.contactStore = new ContactStore();
+                UserManager.this.userStore = new UserStore();
             }
         });
     }
@@ -175,7 +175,7 @@ public class UserManager {
         this.dbThreadExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                contactStore
+                userStore
                         .loadForAddress(contactAddress)
                         .subscribe(this.handleContactLookup);
             }
@@ -200,7 +200,7 @@ public class UserManager {
                     dbThreadExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
-                            contactStore.save(user);
+                            userStore.save(user);
                         }
                     });
                 }

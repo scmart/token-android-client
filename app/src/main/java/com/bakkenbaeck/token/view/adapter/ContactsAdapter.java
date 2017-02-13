@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.local.User;
-import com.bakkenbaeck.token.presenter.store.ContactStore;
+import com.bakkenbaeck.token.presenter.store.UserStore;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.adapter.viewholder.ClickableViewHolder;
@@ -29,8 +29,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> imp
     }
 
     public ContactsAdapter loadAllStoredContacts() {
-        new ContactStore()
-                .loadForUsername()
+        new UserStore()
+                .loadAll()
                 .subscribe(new SingleSuccessSubscriber<RealmResults<User>>() {
                     @Override
                     public void onSuccess(final RealmResults<User> users) {
@@ -42,7 +42,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> imp
     }
 
     public void filter(final String searchString) {
-        new ContactStore()
+        new UserStore()
                 .loadForUsername(searchString)
                 .subscribe(new SingleSuccessSubscriber<RealmResults<User>>() {
                     @Override
