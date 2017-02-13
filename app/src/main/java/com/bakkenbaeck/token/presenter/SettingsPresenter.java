@@ -75,6 +75,7 @@ public final class SettingsPresenter implements
     private void updateUi() {
         if (this.localUser != null) {
             this.fragment.getBinding().name.setText(this.localUser.getUsername());
+            this.fragment.getBinding().ratingView.setStars(3.6);
         }
 
         this.fragment.getBinding().myProfileCard.setOnClickListener(this.handleMyProfileClicked);

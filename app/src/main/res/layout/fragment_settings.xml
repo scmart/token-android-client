@@ -69,14 +69,10 @@
             android:layout_height="wrap_content"
             app:layout_columnWeight="1"/>
 
-
-        <com.bakkenbaeck.token.view.custom.RoundedProgressBar
-            android:id="@+id/level_progress"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            app:backgroundColor="@color/levelSecondary"
-            app:foregroundColor="@color/levelPrimary"
-            app:progressPercentage="60"/>
+        <com.bakkenbaeck.token.view.custom.StarRatingView
+            android:id="@+id/rating_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
         <!-- Row 5 -->
         <TextView
@@ -92,14 +88,13 @@
             app:layout_columnWeight="1"/>
 
         <TextView
-            android:id="@+id/level"
-            android:textColor="@color/levelPrimary"
-            android:textSize="16sp"
-            android:textStyle="bold"
+            android:id="@+id/number_of_ratings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_gravity="center_horizontal"
-            android:text="Level 5"/>
+            app:layout_gravity="right"
+            android:textSize="14sp"
+            android:textColor="@color/textColorSecondary"
+            android:text="(44)"/>
 
         <!-- Row 6 -->
         <android.support.v4.widget.Space
@@ -111,7 +106,7 @@
 
     <android.support.v4.widget.Space
         android:layout_width="wrap_content"
-        android:layout_height="20dp"/>
+        android:layout_height="10dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
