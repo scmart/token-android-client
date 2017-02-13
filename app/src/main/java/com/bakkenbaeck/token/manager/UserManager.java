@@ -176,7 +176,7 @@ public class UserManager {
             @Override
             public void run() {
                 contactStore
-                        .load(contactAddress)
+                        .loadForAddress(contactAddress)
                         .subscribe(this.handleContactLookup);
             }
 

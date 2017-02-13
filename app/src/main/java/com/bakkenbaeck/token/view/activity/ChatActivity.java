@@ -14,7 +14,11 @@ import com.bakkenbaeck.token.presenter.factory.ChatPresenterFactory;
 import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
 
 public final class ChatActivity extends BasePresenterActivity<ChatPresenter, ChatActivity> {
+
     public static final String EXTRA__REMOTE_USER = "remote_user";
+    public static final String EXTRA__PAYMENT_ACTION = "payment_action";
+    public static final String EXTRA__ETH_AMOUNT = "eth_amount";
+
     private ActivityChatBinding binding;
     private User remoteUser;
     private ActivityResultHolder resultHolder;

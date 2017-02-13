@@ -66,7 +66,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
 
     private void loadOrFetchUser(final String userAddress) {
         this.contactStore
-                .load(userAddress)
+                .loadForAddress(userAddress)
                 .subscribe(new SingleSubscriber<User>() {
                     @Override
                     public void onSuccess(final User user) {
