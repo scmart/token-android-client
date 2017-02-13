@@ -12,7 +12,7 @@
             android:translateX="-55.000000"
             android:translateY="-354.000000">
             <path
-                android:fillColor="#ED6E00"
+                android:fillColor="@color/ratingPrimary"
                 android:strokeWidth="1"
                 android:pathData="M 60.5 362.066667 L 63.9008333 364.541667 L 62.5991667 360.545 L 66 358.125 L 61.8291667 358.125 L 60.5 354 L 59.1708333 358.125 L 55 358.125 L 58.4008333 360.545 L 57.0991667 364.541667 Z" />
         </group>

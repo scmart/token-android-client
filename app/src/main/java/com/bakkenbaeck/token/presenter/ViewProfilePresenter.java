@@ -57,6 +57,7 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
         this.fragment.getBinding().username.setText(this.localUser.getOwnerAddress());
         this.fragment.getBinding().about.setText(this.localUser.getAbout());
         this.fragment.getBinding().location.setText(this.localUser.getLocation());
+        this.fragment.getBinding().ratingView.setStars(3.6);
 
         final byte[] decodedBitmap = SharedPrefsUtil.getQrCode();
         if (decodedBitmap != null) {

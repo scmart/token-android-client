@@ -11,8 +11,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:orientation="vertical">
 
         <android.support.v4.widget.Space
@@ -31,9 +29,9 @@
 
         <TextView
             android:id="@+id/name"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
             android:textColor="@color/textColorPrimary"
             android:textSize="22sp"
             android:textStyle="bold"
@@ -41,44 +39,11 @@
 
         <TextView
             android:id="@+id/username"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
             android:text="\@username"
             android:textColor="@color/textColorSecondary"/>
-
-        <android.support.v4.widget.Space
-            android:layout_width="0dp"
-            android:layout_height="16dp"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <com.bakkenbaeck.token.view.custom.RoundedProgressBar
-                android:id="@+id/level_progress"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                app:backgroundColor="@color/levelSecondary"
-                app:foregroundColor="@color/levelPrimary"
-                app:progressPercentage="60"/>
-
-            <android.support.v4.widget.Space
-                android:layout_width="8dp"
-                android:layout_height="0dp"/>
-
-            <TextView
-                android:id="@+id/level"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Level 5"
-                android:textColor="@color/levelPrimary"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_gravity="center_horizontal"/>
-        </LinearLayout>
 
         <android.support.v4.widget.Space
             android:layout_width="0dp"
@@ -89,6 +54,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:text="@string/edit_profile"/>
 
         <android.support.v4.widget.Space
@@ -99,11 +66,74 @@
 
         <android.support.v4.widget.Space
             android:layout_width="0dp"
-            android:layout_height="8dp"/>
+            android:layout_height="20dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/textColorSecondary"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:text="@string/reputation"/>
+
+        <android.support.v4.widget.Space
+            android:layout_width="0dp"
+            android:layout_height="8dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="49sp"
+                    android:textColor="@color/ratingPrimary"
+                    android:text="3.6"/>
+
+                <com.bakkenbaeck.token.view.custom.StarRatingView
+                    android:id="@+id/rating_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <android.support.v4.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="@color/textColorSecondary"
+                    android:text="500 ratings"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <android.support.v4.widget.Space
+            android:layout_width="0dp"
+            android:layout_height="20dp"/>
+
+        <include layout="@layout/horizontal_divider"/>
+
+        <android.support.v4.widget.Space
+            android:layout_width="0dp"
+            android:layout_height="20dp"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:text="@string/profile_about"
             android:textColor="@color/textColorSecondary"/>
 
@@ -113,24 +143,26 @@
 
         <TextView
             android:id="@+id/about"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
             tools:text="Digital dingus @bakkenbaeck"
             android:textColor="@color/textColorPrimary"/>
 
         <android.support.v4.widget.Space
             android:layout_width="0dp"
-            android:layout_height="8dp"/>
+            android:layout_height="20dp"/>
 
         <include layout="@layout/horizontal_divider"/>
 
         <android.support.v4.widget.Space
             android:layout_width="0dp"
-            android:layout_height="8dp"/>
+            android:layout_height="20dp"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:text="@string/profile_location"
             android:textColor="@color/textColorSecondary"/>
 
@@ -142,12 +174,13 @@
             android:id="@+id/location"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
             tools:text="Amsterdam, The Netherlands"
             android:textColor="@color/textColorPrimary"/>
 
         <android.support.v4.widget.Space
             android:layout_width="0dp"
-            android:layout_height="8dp"/>
+            android:layout_height="20dp"/>
 
     </LinearLayout>
 </ScrollView>
