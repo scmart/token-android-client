@@ -107,6 +107,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
             ViewUserPresenter.this.activity.getBinding().location.setText(scannedUser.getLocation());
             ViewUserPresenter.this.activity.getBinding().addContactButton.setOnClickListener(handleOnAddContact);
             ViewUserPresenter.this.activity.getBinding().messageContactButton.setOnClickListener(ViewUserPresenter.this::handleMessageContactButton);
+            ViewUserPresenter.this.activity.getBinding().ratingView.setStars(3.6);
         });
     };
 
