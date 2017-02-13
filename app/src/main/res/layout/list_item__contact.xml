@@ -47,33 +47,9 @@
         android:layout_height="match_parent"
         android:layout_weight="1"/>
 
-    <LinearLayout
-        android:layout_width="60dp"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center_vertical">
-
-        <com.bakkenbaeck.token.view.custom.RoundedProgressBar
-            android:id="@+id/level_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:backgroundColor="@color/levelSecondary"
-            app:foregroundColor="@color/levelPrimary"
-            app:progressPercentage="60"/>
-
-        <android.support.v4.widget.Space
-            android:layout_width="match_parent"
-            android:layout_height="8dp"/>
-
-        <TextView
-            android:id="@+id/level"
-            android:textColor="@color/levelPrimary"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:text="Level 5"/>
-    </LinearLayout>
+    <com.bakkenbaeck.token.view.custom.StarRatingView
+        android:id="@+id/rating_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
 </LinearLayout>
