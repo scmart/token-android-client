@@ -62,4 +62,5 @@
     <string name="btn_message">Message</string>
     <string name="button_send_amount">%1$s</string>
     <string name="to">To:</string>
+    <string name="reputation">Reputation</string>
 </resources>

@@ -17,7 +17,7 @@
                 android:translateY="372.000000">
                 <path
                     android:name="Combined-Shape"
-                    android:fillColor="#ED6E00"
+                    android:fillColor="@color/ratingPrimary"
                     android:strokeWidth="1"
                     android:pathData="M5.5,0 L4.17083333,4.125 L0,4.125 L3.40083333,6.545 L2.09916667,10.5416667
 L5.5,8.06666667 L5.5,1.11022302e-15 Z" />

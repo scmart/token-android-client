@@ -69,8 +69,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> imp
     @Override
     public void onBindViewHolder(final ContactViewHolder holder, final int position) {
         final User user = this.users.get(position);
-        holder.name.setText(user.getUsername());
-        holder.avatar.setImageBitmap(user.getImage());
+        holder.setUser(user);
         holder.setOnClickListener(this);
     }
 
