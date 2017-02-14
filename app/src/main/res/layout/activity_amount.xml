@@ -38,7 +38,8 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center">
 
@@ -66,7 +67,6 @@
 
             </LinearLayout>
 
-
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
@@ -92,13 +92,7 @@
                     android:text="@string/eth_currency_code"/>
 
             </LinearLayout>
-
         </LinearLayout>
-
-        <android.support.v4.widget.Space
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
 
         <com.bakkenbaeck.token.view.custom.AmountInputView
             android:id="@+id/amount_input_view"
