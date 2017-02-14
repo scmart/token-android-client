@@ -60,13 +60,6 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         this.activity.getBinding().closeButton.setOnClickListener((View v) -> activity.onBackPressed());
     }
 
-
-
-    private void disableAddContactButton() {
-        this.activity.getBinding().addContactButton.setEnabled(false);
-        this.activity.getBinding().addContactButton.setText(this.activity.getResources().getString(R.string.added_contact));
-    }
-
     private void loadOrFetchUser(final String userAddress) {
         this.userStore
                 .loadForAddress(userAddress)
@@ -78,7 +71,6 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
                             return;
                         }
 
-                        disableAddContactButton();
                         handleUserLoaded(user);
                     }
 
@@ -109,16 +101,32 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
             ViewUserPresenter.this.activity.getBinding().about.setText(scannedUser.getAbout());
             ViewUserPresenter.this.activity.getBinding().location.setText(scannedUser.getLocation());
             ViewUserPresenter.this.activity.getBinding().addContactButton.setOnClickListener(handleOnAddContact);
+            ViewUserPresenter.this.activity.getBinding().addContactButton.setEnabled(true);
             ViewUserPresenter.this.activity.getBinding().messageContactButton.setOnClickListener(ViewUserPresenter.this::handleMessageContactButton);
             ViewUserPresenter.this.activity.getBinding().ratingView.setStars(3.6);
+            updateAddContactState();
         });
-    };
+    }
+
+    private void updateAddContactState() {
+        final boolean isAContact = contactStore.userIsAContact(scannedUser);
+        if (isAContact) {
+            this.activity.getBinding().addContactButton.setText(this.activity.getResources().getString(R.string.remove_contact));
+        } else {
+            this.activity.getBinding().addContactButton.setText(this.activity.getResources().getString(R.string.add_contact));
+        }
+    }
 
     private final OnSingleClickListener handleOnAddContact = new OnSingleClickListener() {
         @Override
         public void onSingleClick(final View v) {
-            contactStore.save(scannedUser);
-            disableAddContactButton();
+            final boolean isAContact = contactStore.userIsAContact(scannedUser);
+            if (isAContact) {
+                contactStore.delete(scannedUser);
+            } else {
+                contactStore.save(scannedUser);
+            }
+            updateAddContactState();
         }
     };
 
