@@ -83,7 +83,7 @@ public class BalanceManager {
         numberFormat.setMinimumFractionDigits(2);
 
         final String localAmountAsString = numberFormat.format(localAmount);
-        return "$" + localAmountAsString + " USD ";
+        return "$" + localAmountAsString + " USD";
     }
 
     // Currently hard-coded to USD
