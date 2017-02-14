@@ -2,6 +2,7 @@ package com.bakkenbaeck.token.view.adapter.viewholder;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
@@ -22,8 +23,9 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
     private TextView localSecondaryAmount;
     private TextView remoteSecondaryAmount;
     private TextView sentStatusMessage;
+    private ImageView sentStatusIcon;
     private TextView receiveStatusMessage;
-
+    private ImageView receiveStatusIcon;
 
     private Payment payment;
     private boolean sentByLocal;
@@ -37,8 +39,10 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
         this.remoteRequestedAmount = (TextView) v.findViewById(R.id.remote_requested_amount);
         this.localSecondaryAmount = (TextView) v.findViewById(R.id.local_eth_amount);
         this.remoteSecondaryAmount = (TextView) v.findViewById(R.id.remote_eth_amount);
+        this.sentStatusIcon = (ImageView) v.findViewById(R.id.sent_status_icon);
         this.sentStatusMessage = (TextView) v.findViewById(R.id.sent_status_message);
         this.receiveStatusMessage = (TextView) v.findViewById(R.id.receive_status_message);
+        this.receiveStatusIcon = (ImageView) v.findViewById(R.id.receive_status_icon);
     }
 
     public PaymentViewHolder setPayment(final Payment payment) {
@@ -64,22 +68,24 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
             this.remoteView.setVisibility(View.GONE);
             this.localRequestedAmount.setText(this.payment.getLocalPrice());
             this.localSecondaryAmount.setText(ethAmount);
-            renderPaymentStatus(this.sentStatusMessage);
+            renderPaymentStatus(this.sentStatusMessage, this.sentStatusIcon);
         } else {
             this.remoteView.setVisibility(View.VISIBLE);
             this.localView.setVisibility(View.GONE);
             this.remoteRequestedAmount.setText(this.payment.getLocalPrice());
             this.remoteSecondaryAmount.setText(ethAmount);
-            renderPaymentStatus(this.receiveStatusMessage);
+            renderPaymentStatus(this.receiveStatusMessage, this.receiveStatusIcon);
         }
 
         this.payment = null;
     }
 
-    private void renderPaymentStatus(final TextView tv) {
+    private void renderPaymentStatus(final TextView tv, final ImageView imageView) {
         if (this.payment.getStatus() != null && this.payment.getStatus().equals("confirmed")) {
             tv.setVisibility(View.VISIBLE);
             tv.setText(R.string.error__transaction_succeeded);
+            imageView.setVisibility(View.VISIBLE);
+            imageView.setImageResource(R.drawable.ic_done_with_background);
             return;
         }
 
@@ -87,16 +93,21 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
             case SendState.STATE_FAILED:
                 tv.setVisibility(View.VISIBLE);
                 tv.setText(R.string.error__transaction_failed);
+                imageView.setVisibility(View.VISIBLE);
+                imageView.setImageResource(R.drawable.ic_clear_with_background);
                 break;
             case SendState.STATE_SENDING:
             case SendState.STATE_SENT:
                 tv.setVisibility(View.VISIBLE);
                 tv.setText(R.string.error__transaction_pending);
+                imageView.setVisibility(View.VISIBLE);
+                imageView.setImageResource(R.drawable.ic_clock);
                 break;
             case SendState.STATE_RECEIVED:
             case SendState.STATE_LOCAL_ONLY:
             default:
                 tv.setVisibility(View.GONE);
+                imageView.setVisibility(View.GONE);
                 break;
         }
     }
