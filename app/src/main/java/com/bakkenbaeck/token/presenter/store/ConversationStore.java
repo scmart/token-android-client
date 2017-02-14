@@ -39,9 +39,19 @@ public class ConversationStore {
                 : storedConversation;
         final ChatMessage storedMessage = realm.copyToRealm(message);
         conversationToStore.setLatestMessage(storedMessage);
+        conversationToStore.setNumberOfUnread(calculateNumberOfUnread(conversationToStore));
         realm.copyToRealmOrUpdate(conversationToStore);
         realm.commitTransaction();
         broadcastNewChatMessage(user.getOwnerAddress(), message);
+    }
+
+    private int calculateNumberOfUnread(final Conversation conversationToStore) {
+        // If we are watching the current conversation the message is automatically read.
+        if (conversationToStore.getMember().getOwnerAddress().equals(watchedConversationId)) {
+            return 0;
+        }
+        final int currentNumberOfUnread = conversationToStore.getNumberOfUnread();
+        return currentNumberOfUnread + 1;
     }
 
     public Single<RealmResults<Conversation>> loadAll() {

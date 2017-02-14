@@ -9,6 +9,9 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.local.Conversation;
 import com.bakkenbaeck.token.model.local.User;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 public class ConversationViewHolder extends ClickableViewHolder {
 
     private ImageView avatar;
@@ -29,6 +32,10 @@ public class ConversationViewHolder extends ClickableViewHolder {
     public void setConversation(final Conversation conversation) {
         final User member = conversation.getMember();
         this.name.setText(member.getUsername());
+        this.unreadCounter.setText(String.valueOf(conversation.getNumberOfUnread()));
+
+        final int visibility = conversation.getNumberOfUnread() > 0 ? VISIBLE : GONE;
+        this.unreadCounter.setVisibility(visibility);
     }
 
     public void setLatestMessage(final String latestMessage) {
