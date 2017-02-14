@@ -29,6 +29,9 @@ public class ConversationViewHolder extends ClickableViewHolder {
     public void setConversation(final Conversation conversation) {
         final User member = conversation.getMember();
         this.name.setText(member.getUsername());
-        this.latestMessage.setText(conversation.getLatestMessage().getPayload());
+    }
+
+    public void setLatestMessage(final String latestMessage) {
+        this.latestMessage.setText(latestMessage);
     }
 }
