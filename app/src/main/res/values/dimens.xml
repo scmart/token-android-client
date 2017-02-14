@@ -25,4 +25,7 @@
     <dimen name="star_right_margin">2dp</dimen>
     <dimen name="search_vertical_list_space">16dp</dimen>
     <dimen name="avatar_size_small">44dp</dimen>
+
+    <dimen name="rating_bar_radius">3dp</dimen>
+    <dimen name="rating_bar_width">160dp</dimen>
 </resources>

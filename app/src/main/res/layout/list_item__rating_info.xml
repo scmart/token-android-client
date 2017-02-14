@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical">
+
+    <TextView
+        android:id="@+id/stars"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:textColor="#757575" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        app:srcCompat="@drawable/star_grey"/>
+
+    <com.bakkenbaeck.token.view.custom.RatingBar
+        android:id="@+id/rating_bar"
+        android:layout_width="match_parent"
+        android:layout_height="16dp"
+        android:layout_marginLeft="8dp"
+        app:backgroundColor="#FFFFFF"
+        app:foregroundColor="@color/ratingPrimary"
+        app:radius="@dimen/rating_bar_radius"
+        app:progressPercentage="50"/>
+
+</LinearLayout>
