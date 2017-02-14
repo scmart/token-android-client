@@ -7,7 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.model.local.Contact;
 import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.presenter.store.ContactStore;
 import com.bakkenbaeck.token.presenter.store.UserStore;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
@@ -29,12 +31,15 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> imp
     }
 
     public ContactsAdapter loadAllStoredContacts() {
-        new UserStore()
+        new ContactStore()
                 .loadAll()
-                .subscribe(new SingleSuccessSubscriber<RealmResults<User>>() {
+                .subscribe(new SingleSuccessSubscriber<RealmResults<Contact>>() {
                     @Override
-                    public void onSuccess(final RealmResults<User> users) {
-                        ContactsAdapter.this.users = users;
+                    public void onSuccess(final RealmResults<Contact> contacts) {
+                        ContactsAdapter.this.users = new ArrayList<>(contacts.size());
+                        for (final Contact contact : contacts) {
+                            ContactsAdapter.this.users.add(contact.getUser());
+                        }
                         notifyDataSetChanged();
                     }
                 });
