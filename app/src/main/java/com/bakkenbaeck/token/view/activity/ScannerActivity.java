@@ -11,6 +11,11 @@ import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
 import com.bakkenbaeck.token.presenter.factory.ScannerPresenterFactory;
 
 public class ScannerActivity extends BasePresenterActivity<ScannerPresenter, ScannerActivity> {
+
+    public static final int FOR_RESULT = 1;
+    public static final int REDIRECT = 2;
+    public static final String RESULT_TYPE = "result_type";
+
     private ScannerPresenter presenter;
     private ActivityScannerBinding binding;
 

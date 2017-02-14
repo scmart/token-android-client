@@ -1,5 +1,6 @@
 package com.bakkenbaeck.token.presenter;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -8,8 +9,11 @@ import android.support.v7.widget.RecyclerView;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
+import com.bakkenbaeck.token.model.local.ActivityResultHolder;
 import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.network.IdService;
 import com.bakkenbaeck.token.util.EthUtil;
+import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.PaymentType;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
@@ -25,9 +29,12 @@ import java.util.concurrent.TimeUnit;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 public class ChooseContactPresenter implements Presenter<ChooseContactsActivity> {
+
+    private static final int REQUEST_CODE = 1;
 
     private @PaymentType.Type
     int viewType;
@@ -76,7 +83,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
         initToolbar();
         initRecyclerView();
         updateEmptyState();
-        updateConfirmationBtnState();
+        updateConfirmationButtonState();
         setSendButtonText();
         initSearch();
 
@@ -118,7 +125,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
         }
     }
 
-    private void updateConfirmationBtnState() {
+    private void updateConfirmationButtonState() {
         this.activity.getBinding().btnContinue.setEnabled(this.recipientUser != null);
 
         final int color = this.recipientUser != null
@@ -151,12 +158,13 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
     private void handleItemClicked(final User user) {
         this.recipientUser = user;
         this.activity.getBinding().recipientUser.setText(user.getUsername());
-        updateConfirmationBtnState();
+        updateConfirmationButtonState();
     }
 
     private void handleQrScanClicked() {
         final Intent intent = new Intent(this.activity, ScannerActivity.class);
-        this.activity.startActivity(intent);
+        intent.putExtra(ScannerActivity.RESULT_TYPE, ScannerActivity.FOR_RESULT);
+        this.activity.startActivityForResult(intent, REQUEST_CODE);
     }
 
     private void handleSendClicked() {
@@ -167,6 +175,38 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
 
         this.activity.startActivity(intent);
         this.activity.finish();
+    }
+
+    public void handleActivityResult(final ActivityResultHolder resultHolder) {
+        if (resultHolder.getResultCode() != Activity.RESULT_OK) {
+            return;
+        }
+
+        if (resultHolder.getRequestCode() == REQUEST_CODE) {
+            final String userAddress = resultHolder.getIntent().getStringExtra(ScannerPresenter.USER_ADDRESS);
+            fetchUser(userAddress);
+        }
+    }
+
+    private void fetchUser(final String userAddress) {
+       final Subscription sub = IdService
+                .getApi()
+                .getUser(userAddress)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleUserLoaded, this::handleErrorResponse);
+
+        subscriptions.add(sub);
+    }
+
+    private void handleUserLoaded(final User user) {
+        this.recipientUser = user;
+        this.activity.getBinding().recipientUser.setText(user.getUsername());
+        updateConfirmationButtonState();
+    }
+
+    private void handleErrorResponse(final Throwable throwable) {
+        LogUtil.e(getClass(), "handleErrorResponse " + throwable.getMessage());
     }
 
     @Override
