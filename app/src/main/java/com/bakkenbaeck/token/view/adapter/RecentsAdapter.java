@@ -8,22 +8,21 @@ import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.local.Conversation;
-import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.presenter.store.ConversationStore;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.adapter.viewholder.ClickableViewHolder;
-import com.bakkenbaeck.token.view.adapter.viewholder.ContactViewHolder;
+import com.bakkenbaeck.token.view.adapter.viewholder.ConversationViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.RealmResults;
 
-public class RecentsAdapter extends RecyclerView.Adapter<ContactViewHolder> implements ClickableViewHolder.OnClickListener {
+public class RecentsAdapter extends RecyclerView.Adapter<ConversationViewHolder> implements ClickableViewHolder.OnClickListener {
 
     private List<Conversation> conversations;
-    private OnItemClickListener<User> onItemClickListener;
+    private OnItemClickListener<Conversation> onItemClickListener;
 
     public RecentsAdapter() {
         this.conversations = new ArrayList<>(0);
@@ -43,15 +42,15 @@ public class RecentsAdapter extends RecyclerView.Adapter<ContactViewHolder> impl
     }
 
     @Override
-    public ContactViewHolder onCreateViewHolder(final ViewGroup parent, int viewType) {
+    public ConversationViewHolder onCreateViewHolder(final ViewGroup parent, int viewType) {
         final View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__recent, parent, false);
-        return new ContactViewHolder(itemView);
+        return new ConversationViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(final ContactViewHolder holder, final int position) {
-        final User user = this.conversations.get(position).getMember();
-        holder.setUser(user);
+    public void onBindViewHolder(final ConversationViewHolder holder, final int position) {
+        final Conversation conversation = this.conversations.get(position);
+        holder.setConversation(conversation);
         holder.setOnClickListener(this);
     }
 
@@ -66,11 +65,11 @@ public class RecentsAdapter extends RecyclerView.Adapter<ContactViewHolder> impl
             return;
         }
 
-        final User clickedUser = conversations.get(position).getMember();
-        this.onItemClickListener.onItemClick(clickedUser);
+        final Conversation clickedConversation = conversations.get(position);
+        this.onItemClickListener.onItemClick(clickedConversation);
     }
 
-    public RecentsAdapter setOnItemClickListener(final OnItemClickListener<User> onItemClickListener) {
+    public RecentsAdapter setOnItemClickListener(final OnItemClickListener<Conversation> onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
         return this;
     }

@@ -67,6 +67,7 @@
             android:layout_height="8dp"/>
 
         <TextView
+            android:id="@+id/unread_counter"
             android:background="@drawable/green_circle"
             android:layout_width="22dp"
             android:layout_height="22dp"
