@@ -3,6 +3,7 @@ package com.bakkenbaeck.token.presenter;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Pair;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
@@ -45,6 +46,7 @@ import java.io.IOException;
 import io.realm.RealmList;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
 
 public final class ChatPresenter implements
@@ -124,11 +126,13 @@ public final class ChatPresenter implements
 
     private void initChatMessageStore() {
         this.conversationStore = new ConversationStore();
-        this.conversationStore.getNewMessageObservable()
+        final Pair<PublishSubject<ChatMessage>, PublishSubject<ChatMessage>> observables
+                = this.conversationStore.registerForChanges(this.remoteUser.getOwnerAddress());
+        observables.first
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleNewMessage);
-        this.conversationStore.getUpdatedMessageObservable()
+        observables.second
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleUpdatedMessage);
@@ -220,8 +224,7 @@ public final class ChatPresenter implements
                 .setValue(control.getValue());
         final String commandPayload = adapters.toJson(command);
 
-        final ChatMessage sofaCommandMessage = new ChatMessage()
-                .makeNew(remoteUser.getOwnerAddress(), true, commandPayload);
+        final ChatMessage sofaCommandMessage = new ChatMessage().makeNew(true, commandPayload);
 
         BaseApplication.get()
                 .getTokenManager()
@@ -255,7 +258,7 @@ public final class ChatPresenter implements
             final String userInput = activity.getBinding().userInput.getText().toString();
             final Message sofaMessage = new Message().setBody(userInput);
             final String messageBody = adapters.toJson(sofaMessage);
-            final ChatMessage message = new ChatMessage().makeNew(remoteUser.getOwnerAddress(), true, messageBody);
+            final ChatMessage message = new ChatMessage().makeNew(true, messageBody);
             BaseApplication.get()
                     .getTokenManager()
                     .getChatMessageManager()
@@ -313,7 +316,7 @@ public final class ChatPresenter implements
             final String updatedPayload = adapters.toJson(paymentRequest);
             final ChatMessage updatedMessage = new ChatMessage(existingMessage).setPayload(updatedPayload);
 
-            conversationStore.updateMessage(updatedMessage);
+            conversationStore.updateMessage(remoteUser, updatedMessage);
             return paymentRequest;
 
         } catch (final IOException ex) {
@@ -325,10 +328,6 @@ public final class ChatPresenter implements
     private final OnNextSubscriber<ChatMessage> handleNewMessage = new OnNextSubscriber<ChatMessage>() {
         @Override
         public void onNext(final ChatMessage chatMessage) {
-            if (!messageBelongsInThisConversation(chatMessage)) {
-                return;
-            }
-
             if (isInitRequest(chatMessage)) {
                 sendInitMessage(chatMessage);
                 return;
@@ -344,10 +343,6 @@ public final class ChatPresenter implements
     private final OnNextSubscriber<ChatMessage> handleUpdatedMessage = new OnNextSubscriber<ChatMessage>() {
         @Override
         public void onNext(final ChatMessage chatMessage) {
-            if (!messageBelongsInThisConversation(chatMessage)) {
-                return;
-            }
-
             messageAdapter.updateMessage(chatMessage);
         }
     };
@@ -358,10 +353,6 @@ public final class ChatPresenter implements
             handleUpdatedMessage.onNext(pendingTransaction.getChatMessage());
         }
     };
-
-    private boolean messageBelongsInThisConversation(final ChatMessage chatMessage) {
-        return chatMessage.getConversationId().equals(remoteUser.getOwnerAddress());
-    }
 
     private boolean isInitRequest(final ChatMessage chatMessage) {
         final String type = SofaType.createHeader(SofaType.INIT_REQUEST);
@@ -377,8 +368,7 @@ public final class ChatPresenter implements
             final InitRequest initRequest = adapters.initRequestFrom(chatMessage.getPayload());
             final Init initMessage = new Init().construct(initRequest, this.userWallet.getPaymentAddress());
             final String payload = adapters.toJson(initMessage);
-            final ChatMessage newChatMessage = new ChatMessage()
-                    .makeNew(chatMessage.getConversationId(), false, payload);
+            final ChatMessage newChatMessage = new ChatMessage().makeNew(false, payload);
 
             BaseApplication.get()
                     .getTokenManager()
@@ -532,10 +522,7 @@ public final class ChatPresenter implements
                 .setDestinationAddress(userWallet.getPaymentAddress())
                 .setValue(value);
         final String messageBody = this.adapters.toJson(request);
-        final ChatMessage message = new ChatMessage().makeNew(
-                remoteUser.getOwnerAddress(),
-                true,
-                messageBody);
+        final ChatMessage message = new ChatMessage().makeNew(true, messageBody);
 
         BaseApplication
                 .get()

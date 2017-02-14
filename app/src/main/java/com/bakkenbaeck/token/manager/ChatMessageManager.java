@@ -206,13 +206,13 @@ public final class ChatMessageManager {
 
             if (saveMessageToDatabase) {
                 message.setSendState(SendState.STATE_SENT);
-                this.conversationStore.updateMessage(message);
+                this.conversationStore.updateMessage(receiver, message);
             }
         } catch (final UntrustedIdentityException | IOException ex) {
             LogUtil.error(getClass(), ex.toString());
             if (saveMessageToDatabase) {
                 message.setSendState(SendState.STATE_FAILED);
-                this.conversationStore.updateMessage(message);
+                this.conversationStore.updateMessage(receiver, message);
             }
         }
     }
@@ -287,7 +287,7 @@ public final class ChatMessageManager {
 
                 final User threadSafeUser = new User(user);
 
-                final ChatMessage remoteMessage = new ChatMessage().makeNew(messageSource, false, messageBody);
+                final ChatMessage remoteMessage = new ChatMessage().makeNew(false, messageBody);
                 if (remoteMessage.getType() == SofaType.PAYMENT) {
                     sendIncomingPaymentToTransactionManager(threadSafeUser, remoteMessage);
                     return;
@@ -304,8 +304,6 @@ public final class ChatMessageManager {
         try {
             final Payment payment = adapters.paymentFrom(remoteMessage.getPayload());
             payment.generateLocalPrice();
-            // Set the owner address to be the person who sent this
-            payment.setOwnerAddress(remoteMessage.getConversationId());
 
             BaseApplication
                     .get()

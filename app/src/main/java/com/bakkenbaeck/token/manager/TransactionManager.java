@@ -19,6 +19,7 @@ import com.bakkenbaeck.token.presenter.store.ConversationStore;
 import com.bakkenbaeck.token.presenter.store.PendingTransactionStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
+import com.bakkenbaeck.token.view.BaseApplication;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -95,6 +96,7 @@ public class TransactionManager {
 
     private void processNewPayment(final PaymentTask task) {
         final Payment payment = task.getPayment();
+        final User user = task.getUser();
 
         switch (task.getAction()) {
             case INCOMING: {
@@ -104,7 +106,7 @@ public class TransactionManager {
             }
             case OUTGOING: {
                 final ChatMessage storedChatMessage = storePayment(task.getUser(), payment, true);
-                handleOutgoingPayment(payment, storedChatMessage);
+                handleOutgoingPayment(user, payment, storedChatMessage);
                 break;
             }
         }
@@ -124,7 +126,7 @@ public class TransactionManager {
         this.pendingTransactionStore.save(pendingTransaction);
     }
 
-    private void handleOutgoingPayment(final Payment payment, final ChatMessage storedChatMessage) {
+    private void handleOutgoingPayment(final User receiver, final Payment payment, final ChatMessage storedChatMessage) {
         sendNewTransaction(payment)
                 .observeOn(Schedulers.from(dbThreadExecutor))
                 .subscribeOn(Schedulers.from(dbThreadExecutor))
@@ -132,7 +134,7 @@ public class TransactionManager {
                     @Override
                     public void onError(final Throwable error) {
                         LogUtil.e(getClass(), "Error creating transaction: " + error);
-                        updateMessageState(storedChatMessage, SendState.STATE_FAILED);
+                        updateMessageState(receiver, storedChatMessage, SendState.STATE_FAILED);
                         unsubscribe();
                     }
 
@@ -144,18 +146,14 @@ public class TransactionManager {
                         // Update the stored message with the transactions details
                         final ChatMessage updatedMessage = generateMessageFromPayment(payment, true);
                         storedChatMessage.setPayload(updatedMessage.getPayloadWithHeaders());
-                        updateMessageState(storedChatMessage, SendState.STATE_SENT);
+                        updateMessageState(receiver, storedChatMessage, SendState.STATE_SENT);
                         storeUnconfirmedTransaction(txHash, storedChatMessage);
 
-                        // ToDo
-                        // Broadcast the message to our remote peer
-                        /*
                         BaseApplication
                                 .get()
                                 .getTokenManager()
                                 .getChatMessageManager()
-                                .sendMessage(storedChatMessage);
-                                */
+                                .sendMessage(receiver, storedChatMessage);
                         unsubscribe();
                     }
                 });
@@ -196,19 +194,19 @@ public class TransactionManager {
                 .toObservable();
     }
 
-    private void updateMessageState(final ChatMessage message, final @SendState.State int sendState) {
+    private void updateMessageState(final User user, final ChatMessage message, final @SendState.State int sendState) {
         message.setSendState(sendState);
-        updateMessage(message);
+        updateMessage(user, message);
     }
 
-    private void updateMessage(final ChatMessage message) {
-        this.conversationStore.updateMessage(message);
+    private void updateMessage(final User user, final ChatMessage message) {
+        this.conversationStore.updateMessage(user, message);
     }
 
 
     private ChatMessage generateMessageFromPayment(final Payment payment, final boolean sentByLocal) {
         final String messageBody = this.adapters.toJson(payment);
-        return new ChatMessage().makeNew(payment.getOwnerAddress(), sentByLocal, messageBody);
+        return new ChatMessage().makeNew(sentByLocal, messageBody);
     }
 
 
