@@ -10,16 +10,18 @@ import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.ServerTime;
 import com.bakkenbaeck.token.model.network.UserDetails;
 import com.bakkenbaeck.token.network.IdService;
-import com.bakkenbaeck.token.presenter.store.ContactStore;
+import com.bakkenbaeck.token.presenter.store.UserStore;
 import com.bakkenbaeck.token.util.LogUtil;
-import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import retrofit2.adapter.rxjava.HttpException;
+import rx.Observable;
+import rx.Single;
 import rx.SingleSubscriber;
+import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 
 public class UserManager {
@@ -31,7 +33,7 @@ public class UserManager {
     private SharedPreferences prefs;
     private HDWallet wallet;
     private ExecutorService dbThreadExecutor;
-    private ContactStore contactStore;
+    private UserStore userStore;
 
     public final BehaviorSubject<User> getUserObservable() {
         return this.userSubject;
@@ -46,12 +48,7 @@ public class UserManager {
 
     private void initDatabase() {
         this.dbThreadExecutor = Executors.newSingleThreadExecutor();
-        this.dbThreadExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                UserManager.this.contactStore = new ContactStore();
-            }
-        });
+        this.dbThreadExecutor.submit((Runnable) () -> UserManager.this.userStore = new UserStore());
     }
 
     private void initUser() {
@@ -169,42 +166,12 @@ public class UserManager {
                 });
     }
 
-    // If the user at the address is already saved as a contact this method does nothing.
-    // If the user is not a contact, they will be added.
-    public void tryAddContact(final String contactAddress) {
-        this.dbThreadExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                contactStore
-                        .loadForAddress(contactAddress)
-                        .subscribe(this.handleContactLookup);
-            }
-
-            private final SingleSubscriber<User> handleContactLookup = new SingleSuccessSubscriber<User>() {
-                @Override
-                public void onSuccess(final User user) {
-                    if (user != null) return;
-                    fetchAndSaveContact();
-                }
-            };
-
-            private void fetchAndSaveContact() {
-                IdService.getApi()
-                        .getUser(contactAddress)
-                        .subscribe(this.handleUserFetched);
-            }
-
-            private final SingleSubscriber<User> handleUserFetched = new SingleSuccessSubscriber<User>() {
-                @Override
-                public void onSuccess(final User user) {
-                    dbThreadExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            contactStore.save(user);
-                        }
-                    });
-                }
-            };
-        });
+    public Observable<User> getUserFromAddress(final String contactAddress) {
+        return Single.merge(
+                this.userStore.loadForAddress(contactAddress),
+                IdService.getApi().getUser(contactAddress))
+                .subscribeOn(Schedulers.from(this.dbThreadExecutor))
+                .observeOn(Schedulers.from(this.dbThreadExecutor));
     }
+
 }

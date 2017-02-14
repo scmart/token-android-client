@@ -2,6 +2,7 @@ package com.bakkenbaeck.token.model.local;
 
 import com.bakkenbaeck.token.model.sofa.SofaType;
 
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,12 +16,12 @@ public class ChatMessage extends RealmObject {
     private long creationTime;
     private @SofaType.Type int type;
     private @SendState.State int sendState;
-    private String conversationId;
     private String payload;
     private boolean sentByLocal;
 
     public ChatMessage() {
         this.creationTime = System.currentTimeMillis();
+        this.privateKey = UUID.randomUUID().toString();
     }
 
     public ChatMessage(final ChatMessage chatMessage) {
@@ -28,7 +29,6 @@ public class ChatMessage extends RealmObject {
         this.creationTime = chatMessage.getCreationTime();
         this.type = chatMessage.getType();
         this.sendState = chatMessage.getSendState();
-        this.conversationId = chatMessage.getConversationId();
         this.payload = chatMessage.getPayload();
         this.sentByLocal = chatMessage.isSentByLocal();
     }
@@ -45,18 +45,12 @@ public class ChatMessage extends RealmObject {
         return this;
     }
 
-    private ChatMessage setConversationId(final String conversationId) {
-        this.conversationId = conversationId;
-        this.privateKey = this.conversationId + String.valueOf(this.creationTime);
-        return this;
-    }
-
     public ChatMessage setPayload(final String payload) {
         this.payload = payload;
         return this;
     }
 
-    public ChatMessage setSentByLocal(final boolean sentByLocal) {
+    private ChatMessage setSentByLocal(final boolean sentByLocal) {
         this.sentByLocal = sentByLocal;
         return this;
     }
@@ -80,10 +74,6 @@ public class ChatMessage extends RealmObject {
         // Strip away local-only data before sending via Signal
         final String matcher = "\"" + SofaType.LOCAL_ONLY_PAYLOAD + "\":\\{.*?\\},";
         return this.payload.replaceFirst(matcher, "");
-    }
-
-    public String getConversationId() {
-        return this.conversationId;
     }
 
     public @SofaType.Type int getType() {
@@ -125,14 +115,12 @@ public class ChatMessage extends RealmObject {
     }
 
     public ChatMessage makeNew(
-            final String conversationId,
             final boolean sentByLocal,
             final String sofaPayload) {
         final String sofaHeader = getSofaHeader(sofaPayload);
         final @SofaType.Type int sofaType = SofaType.getType(sofaHeader);
 
-        return setConversationId(conversationId)
-                .setSendState(SendState.STATE_SENDING)
+        return  setSendState(SendState.STATE_SENDING)
                 .setType(sofaType)
                 .setSentByLocal(sentByLocal)
                 .setPayload(sofaPayload);
