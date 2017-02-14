@@ -310,8 +310,8 @@ public final class ChatMessageManager {
                     .getTokenManager()
                     .getTransactionManager()
                     .processIncomingPayment(sender, payment);
-        } catch (IOException e) {
-            // No-op
+        } catch (final IOException e) {
+            LogUtil.error(getClass(), "Error parsing payment: " + e);
         }
     }
 
@@ -320,8 +320,8 @@ public final class ChatMessageManager {
             final PaymentRequest request = adapters.txRequestFrom(remoteMessage.getPayload());
             request.generateLocalPrice();
             remoteMessage.setPayload(adapters.toJson(request));
-        } catch (IOException e) {
-            // No-op
+        } catch (final IOException e) {
+            LogUtil.error(getClass(), "Error parsing request: " + e);
         }
     }
 }

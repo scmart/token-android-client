@@ -9,7 +9,7 @@ import com.bakkenbaeck.token.model.sofa.Payment;
 public class PaymentTask {
 
 
-    @IntDef({INCOMING,OUTGOING})
+    @IntDef({INCOMING, OUTGOING})
     public @interface Action {}
     public static final int INCOMING = 0;
     public static final int OUTGOING = 1;
