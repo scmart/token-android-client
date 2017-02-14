@@ -17,11 +17,28 @@ public class ContactStore {
         this.realm = Realm.getDefaultInstance();
     }
 
+    public boolean userIsAContact(final User user) {
+        return realm
+                .where(Contact.class)
+                .equalTo("owner_address", user.getOwnerAddress())
+                .findFirst() != null;
+    }
+
     public void save(final User user) {
         realm.beginTransaction();
         final User storedUser = realm.copyToRealmOrUpdate(user);
         final Contact contact = new Contact(storedUser);
         realm.insert(contact);
+        realm.commitTransaction();
+    }
+
+    public void delete(final User user) {
+        realm.beginTransaction();
+        realm
+                .where(Contact.class)
+                .equalTo("owner_address", user.getOwnerAddress())
+                .findFirst()
+                .deleteFromRealm();
         realm.commitTransaction();
     }
 
