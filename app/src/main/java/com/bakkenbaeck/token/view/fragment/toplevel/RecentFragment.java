@@ -9,39 +9,39 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.databinding.FragmentRecentsBinding;
-import com.bakkenbaeck.token.presenter.RecentsPresenter;
+import com.bakkenbaeck.token.databinding.FragmentRecentBinding;
+import com.bakkenbaeck.token.presenter.RecentPresenter;
 import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
-import com.bakkenbaeck.token.presenter.factory.RecentsPresenterFactory;
+import com.bakkenbaeck.token.presenter.factory.RecentPresenterFactory;
 import com.bakkenbaeck.token.view.fragment.BasePresenterFragment;
 
-public class RecentsFragment extends BasePresenterFragment<RecentsPresenter, RecentsFragment> {
+public class RecentFragment extends BasePresenterFragment<RecentPresenter, RecentFragment> {
 
-    private FragmentRecentsBinding binding;
+    private FragmentRecentBinding binding;
 
-    public static RecentsFragment newInstance() {
-        return new RecentsFragment();
+    public static RecentFragment newInstance() {
+        return new RecentFragment();
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, final @Nullable Bundle inState) {
-        this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_recents, container, false);
+        this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_recent, container, false);
         return binding.getRoot();
     }
 
-    public FragmentRecentsBinding getBinding() {
+    public FragmentRecentBinding getBinding() {
         return this.binding;
     }
 
     @NonNull
     @Override
-    protected PresenterFactory<RecentsPresenter> getPresenterFactory() {
-        return new RecentsPresenterFactory();
+    protected PresenterFactory<RecentPresenter> getPresenterFactory() {
+        return new RecentPresenterFactory();
     }
 
     @Override
-    protected void onPresenterPrepared(@NonNull RecentsPresenter presenter) {
+    protected void onPresenterPrepared(@NonNull RecentPresenter presenter) {
 
     }
 

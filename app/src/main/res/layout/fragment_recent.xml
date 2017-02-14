@@ -23,7 +23,7 @@
             android:textSize="18sp"
             android:textStyle="bold"
             style="@style/Toolbar.TitleText"
-            android:text="@string/tab_recents"/>
+            android:text="@string/tab_recent"/>
 
     </android.support.v7.widget.Toolbar>
 

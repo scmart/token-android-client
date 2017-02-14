@@ -27,24 +27,24 @@ import java.util.List;
 
 import io.realm.RealmResults;
 
-public class RecentsAdapter extends RecyclerView.Adapter<ConversationViewHolder> implements ClickableViewHolder.OnClickListener {
+public class RecentAdapter extends RecyclerView.Adapter<ConversationViewHolder> implements ClickableViewHolder.OnClickListener {
 
     private final SofaAdapters adapters;
     private List<Conversation> conversations;
     private OnItemClickListener<Conversation> onItemClickListener;
 
-    public RecentsAdapter() {
+    public RecentAdapter() {
         this.adapters = new SofaAdapters();
         this.conversations = new ArrayList<>(0);
     }
 
-    public RecentsAdapter loadAllStoredContacts() {
+    public RecentAdapter loadAllStoredContacts() {
         new ConversationStore()
                 .loadAll()
                 .subscribe(new SingleSuccessSubscriber<RealmResults<Conversation>>() {
                     @Override
                     public void onSuccess(final RealmResults<Conversation> conversations) {
-                        RecentsAdapter.this.conversations = conversations;
+                        RecentAdapter.this.conversations = conversations;
                         notifyDataSetChanged();
                     }
                 });
@@ -82,7 +82,7 @@ public class RecentsAdapter extends RecyclerView.Adapter<ConversationViewHolder>
         this.onItemClickListener.onItemClick(clickedConversation);
     }
 
-    public RecentsAdapter setOnItemClickListener(final OnItemClickListener<Conversation> onItemClickListener) {
+    public RecentAdapter setOnItemClickListener(final OnItemClickListener<Conversation> onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
         return this;
     }
