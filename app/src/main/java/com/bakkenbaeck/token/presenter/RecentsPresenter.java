@@ -6,7 +6,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.model.local.Conversation;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.adapter.RecentsAdapter;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
@@ -15,7 +15,7 @@ import com.bakkenbaeck.token.view.fragment.toplevel.RecentsFragment;
 
 public final class RecentsPresenter implements
         Presenter<RecentsFragment>,
-        OnItemClickListener<User> {
+        OnItemClickListener<Conversation> {
 
     private RecentsFragment fragment;
     private boolean firstTimeAttaching = true;
@@ -66,9 +66,9 @@ public final class RecentsPresenter implements
     }
 
     @Override
-    public void onItemClick(final User clickedUser) {
+    public void onItemClick(final Conversation clickedConversation) {
         final Intent intent = new Intent(this.fragment.getActivity(), ChatActivity.class);
-        intent.putExtra(ChatActivity.EXTRA__REMOTE_USER, clickedUser);
+        intent.putExtra(ChatActivity.EXTRA__REMOTE_USER, clickedConversation.getMember());
         this.fragment.startActivity(intent);
     }
 

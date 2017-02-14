@@ -88,6 +88,10 @@ public class Payment {
         setLocalPrice(localAmount);
     }
 
+    public String toUserVisibleString() {
+        return String.format("%s %s", "Payment", getLocalPrice());
+    }
+
     private static class ClientSideCustomData {
         private String localPrice;
     }

@@ -7,25 +7,34 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.Conversation;
-import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.model.sofa.Message;
+import com.bakkenbaeck.token.model.sofa.Payment;
+import com.bakkenbaeck.token.model.sofa.PaymentRequest;
+import com.bakkenbaeck.token.model.sofa.SofaAdapters;
+import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.presenter.store.ConversationStore;
+import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.adapter.viewholder.ClickableViewHolder;
-import com.bakkenbaeck.token.view.adapter.viewholder.ContactViewHolder;
+import com.bakkenbaeck.token.view.adapter.viewholder.ConversationViewHolder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.RealmResults;
 
-public class RecentsAdapter extends RecyclerView.Adapter<ContactViewHolder> implements ClickableViewHolder.OnClickListener {
+public class RecentsAdapter extends RecyclerView.Adapter<ConversationViewHolder> implements ClickableViewHolder.OnClickListener {
 
+    private final SofaAdapters adapters;
     private List<Conversation> conversations;
-    private OnItemClickListener<User> onItemClickListener;
+    private OnItemClickListener<Conversation> onItemClickListener;
 
     public RecentsAdapter() {
+        this.adapters = new SofaAdapters();
         this.conversations = new ArrayList<>(0);
     }
 
@@ -43,15 +52,18 @@ public class RecentsAdapter extends RecyclerView.Adapter<ContactViewHolder> impl
     }
 
     @Override
-    public ContactViewHolder onCreateViewHolder(final ViewGroup parent, int viewType) {
+    public ConversationViewHolder onCreateViewHolder(final ViewGroup parent, int viewType) {
         final View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__recent, parent, false);
-        return new ContactViewHolder(itemView);
+        return new ConversationViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(final ContactViewHolder holder, final int position) {
-        final User user = this.conversations.get(position).getMember();
-        holder.setUser(user);
+    public void onBindViewHolder(final ConversationViewHolder holder, final int position) {
+        final Conversation conversation = this.conversations.get(position);
+        holder.setConversation(conversation);
+
+        final String formattedLatestMessage = formatLastMessage(conversation.getLatestMessage());
+        holder.setLatestMessage(formattedLatestMessage);
         holder.setOnClickListener(this);
     }
 
@@ -66,11 +78,11 @@ public class RecentsAdapter extends RecyclerView.Adapter<ContactViewHolder> impl
             return;
         }
 
-        final User clickedUser = conversations.get(position).getMember();
-        this.onItemClickListener.onItemClick(clickedUser);
+        final Conversation clickedConversation = conversations.get(position);
+        this.onItemClickListener.onItemClick(clickedConversation);
     }
 
-    public RecentsAdapter setOnItemClickListener(final OnItemClickListener<User> onItemClickListener) {
+    public RecentsAdapter setOnItemClickListener(final OnItemClickListener<Conversation> onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
         return this;
     }
@@ -78,5 +90,31 @@ public class RecentsAdapter extends RecyclerView.Adapter<ContactViewHolder> impl
     public void clear() {
         this.conversations.clear();
         notifyDataSetChanged();
+    }
+
+    private String formatLastMessage(final ChatMessage chatMessage) {
+
+        try {
+            switch (chatMessage.getType()) {
+                case SofaType.PLAIN_TEXT: {
+                    final Message message = this.adapters.messageFrom(chatMessage.getPayload());
+                    return message.getBody();
+                }
+
+                case SofaType.PAYMENT: {
+                    final Payment payment = this.adapters.paymentFrom(chatMessage.getPayload());
+                    return payment.toUserVisibleString();
+                }
+
+                case SofaType.PAYMENT_REQUEST: {
+                    final PaymentRequest request = this.adapters.txRequestFrom(chatMessage.getPayload());
+                    return request.toUserVisibleString();
+                }
+            }
+        } catch (final IOException ex) {
+            LogUtil.error(getClass(), "Error parsing ChatMessage. " + ex);
+        }
+
+        return "";
     }
 }

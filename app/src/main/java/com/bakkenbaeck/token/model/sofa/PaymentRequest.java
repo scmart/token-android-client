@@ -109,6 +109,10 @@ public class PaymentRequest {
         return this.androidClientSideCustomData.state;
     }
 
+    public String toUserVisibleString() {
+        return String.format("%s %s", "Request", getLocalPrice());
+    }
+
     private static class ClientSideCustomData {
         private String localPrice;
         private @State int state;
