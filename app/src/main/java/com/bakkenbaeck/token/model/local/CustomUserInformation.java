@@ -13,6 +13,12 @@ public class CustomUserInformation extends RealmObject implements Parcelable {
 
     public CustomUserInformation() {}
 
+    /* package */ CustomUserInformation(final CustomUserInformation customUserInformation) {
+        this.about = customUserInformation.getAbout();
+        this.location = customUserInformation.getLocation();
+        this.payment_address = customUserInformation.getPaymentAddress();
+    }
+
     private CustomUserInformation(Parcel in) {
         about = in.readString();
         location = in.readString();

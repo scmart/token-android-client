@@ -22,6 +22,12 @@ public class User extends RealmObject implements Parcelable {
     // ctors
     public User() {}
 
+    public User(final User user) {
+        this.owner_address = user.getOwnerAddress();
+        this.username = user.getUsername();
+        this.custom = new CustomUserInformation(user.getCustom());
+    }
+
     private User(final Parcel in) {
         owner_address = in.readString();
         username = in.readString();
@@ -52,6 +58,10 @@ public class User extends RealmObject implements Parcelable {
 
     public Bitmap getImage() {
         return BitmapFactory.decodeResource(BaseApplication.get().getResources(), R.mipmap.launcher);
+    }
+
+    private CustomUserInformation getCustom() {
+        return this.custom;
     }
 
     // Setters

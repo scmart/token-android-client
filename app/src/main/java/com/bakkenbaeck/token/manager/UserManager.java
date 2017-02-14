@@ -18,6 +18,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import retrofit2.adapter.rxjava.HttpException;
+import rx.Observable;
+import rx.Single;
 import rx.SingleSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
@@ -46,12 +48,7 @@ public class UserManager {
 
     private void initDatabase() {
         this.dbThreadExecutor = Executors.newSingleThreadExecutor();
-        this.dbThreadExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                UserManager.this.userStore = new UserStore();
-            }
-        });
+        this.dbThreadExecutor.submit((Runnable) () -> UserManager.this.userStore = new UserStore());
     }
 
     private void initUser() {
@@ -169,29 +166,12 @@ public class UserManager {
                 });
     }
 
-    public void getUserFromAddress(final String contactAddress, final SingleSubscriber<User> callback) {
-
-        this.userStore
-                .loadForAddress(contactAddress)
+    public Observable<User> getUserFromAddress(final String contactAddress) {
+        return Single.merge(
+                this.userStore.loadForAddress(contactAddress),
+                IdService.getApi().getUser(contactAddress))
                 .subscribeOn(Schedulers.from(this.dbThreadExecutor))
-                .observeOn(Schedulers.from(this.dbThreadExecutor))
-                .subscribe((user) -> handleContactLookup(user, contactAddress, callback));
-    }
-
-    private void handleContactLookup(final User user, final String contactAddress, final SingleSubscriber<User> callback) {
-        if (user != null) {
-            callback.onSuccess(user);
-            return;
-        }
-
-        fetchContact(contactAddress, callback);
-    }
-
-    private void fetchContact(final String contactAddress, final SingleSubscriber<User> callback) {
-        IdService
-                .getApi()
-                .getUser(contactAddress)
-                .subscribe(callback);
+                .observeOn(Schedulers.from(this.dbThreadExecutor));
     }
 
 }

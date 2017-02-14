@@ -19,7 +19,6 @@ import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.presenter.store.ConversationStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
-import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 
 import org.whispersystems.libsignal.DuplicateMessageException;
@@ -200,7 +199,7 @@ public final class ChatMessageManager {
 
         try {
             messageSender.sendMessage(
-                    new SignalServiceAddress(message.getConversationId()),
+                    new SignalServiceAddress(receiver.getOwnerAddress()),
                     SignalServiceDataMessage.newBuilder()
                             .withBody(message.getAsSofaMessage())
                             .build());
@@ -273,54 +272,58 @@ public final class ChatMessageManager {
     }
 
     private void saveIncomingMessageToDatabase(final String messageSource, final String messageBody) {
-        this.dbThreadExecutor.submit(new Runnable() {
+        BaseApplication
+        .get()
+        .getTokenManager()
+        .getUserManager()
+        .getUserFromAddress(messageSource)
+        .subscribe(new OnNextSubscriber<User>() {
             @Override
-            public void run() {
-                BaseApplication
-                .get()
-                .getTokenManager()
-                .getUserManager()
-                .getUserFromAddress(messageBody, new SingleSuccessSubscriber<User>() {
-                    @Override
-                    public void onSuccess(final User user) {
-                        final ChatMessage remoteMessage = new ChatMessage().makeNew(messageSource, false, messageBody);
-                        if (remoteMessage.getType() == SofaType.PAYMENT) {
-                            sendIncomingPaymentToTransactionManager(user, remoteMessage);
-                            return;
-                        } else if(remoteMessage.getType() == SofaType.PAYMENT_REQUEST) {
-                            embedLocalAmountIntoPaymentRequest(remoteMessage);
-                        }
-                        ChatMessageManager.this.conversationStore.saveNewMessage(user, remoteMessage);
-                    }
-                });
-            }
-
-            private void sendIncomingPaymentToTransactionManager(final User sender, final ChatMessage remoteMessage) {
-                try {
-                    final Payment payment = adapters.paymentFrom(remoteMessage.getPayload());
-                    payment.generateLocalPrice();
-                    // Set the owner address to be the person who sent this
-                    payment.setOwnerAddress(remoteMessage.getConversationId());
-
-                    BaseApplication
-                            .get()
-                            .getTokenManager()
-                            .getTransactionManager()
-                            .processIncomingPayment(sender, payment);
-                } catch (IOException e) {
-                    // No-op
+            public void onNext(final User user) {
+                if (user == null) {
+                    return;
                 }
-            }
+                unsubscribe();
 
-            private void embedLocalAmountIntoPaymentRequest(final ChatMessage remoteMessage) {
-                try {
-                    final PaymentRequest request = adapters.txRequestFrom(remoteMessage.getPayload());
-                    request.generateLocalPrice();
-                    remoteMessage.setPayload(adapters.toJson(request));
-                } catch (IOException e) {
-                    // No-op
+                final User threadSafeUser = new User(user);
+
+                final ChatMessage remoteMessage = new ChatMessage().makeNew(messageSource, false, messageBody);
+                if (remoteMessage.getType() == SofaType.PAYMENT) {
+                    sendIncomingPaymentToTransactionManager(threadSafeUser, remoteMessage);
+                    return;
+                } else if(remoteMessage.getType() == SofaType.PAYMENT_REQUEST) {
+                    embedLocalAmountIntoPaymentRequest(remoteMessage);
                 }
+
+                dbThreadExecutor.execute(() -> ChatMessageManager.this.conversationStore.saveNewMessage(threadSafeUser, remoteMessage));
             }
         });
+    }
+
+    private void sendIncomingPaymentToTransactionManager(final User sender, final ChatMessage remoteMessage) {
+        try {
+            final Payment payment = adapters.paymentFrom(remoteMessage.getPayload());
+            payment.generateLocalPrice();
+            // Set the owner address to be the person who sent this
+            payment.setOwnerAddress(remoteMessage.getConversationId());
+
+            BaseApplication
+                    .get()
+                    .getTokenManager()
+                    .getTransactionManager()
+                    .processIncomingPayment(sender, payment);
+        } catch (IOException e) {
+            // No-op
+        }
+    }
+
+    private void embedLocalAmountIntoPaymentRequest(final ChatMessage remoteMessage) {
+        try {
+            final PaymentRequest request = adapters.txRequestFrom(remoteMessage.getPayload());
+            request.generateLocalPrice();
+            remoteMessage.setPayload(adapters.toJson(request));
+        } catch (IOException e) {
+            // No-op
+        }
     }
 }

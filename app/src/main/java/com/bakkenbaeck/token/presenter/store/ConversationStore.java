@@ -4,7 +4,6 @@ package com.bakkenbaeck.token.presenter.store;
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.local.Conversation;
 import com.bakkenbaeck.token.model.local.User;
-import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 
 import io.realm.Realm;
 import io.realm.RealmQuery;
@@ -33,22 +32,16 @@ public class ConversationStore {
 
     public void saveNewMessage(final User user, final ChatMessage message) {
 
-        loadByAddress(user.getOwnerAddress())
-                .subscribe(new SingleSuccessSubscriber<Conversation>() {
-                    @Override
-                    public void onSuccess(final Conversation conversation) {
-                        realm.beginTransaction();
-
-                        final Conversation conversationToStore = conversation == null
-                                ? new Conversation(user)
-                                : conversation;
-                        final ChatMessage storedMessage = realm.copyToRealm(message);
-                        conversationToStore.setLatestMessage(storedMessage);
-                        realm.copyToRealmOrUpdate(conversationToStore);
-                        realm.commitTransaction();
-                        broadcastNewChatMessage(message);
-                    }
-                });
+        realm.beginTransaction();
+        final Conversation storedConversation = loadWhere("conversationId", user.getOwnerAddress());
+        final Conversation conversationToStore = storedConversation == null
+                ? new Conversation(user)
+                : storedConversation;
+        final ChatMessage storedMessage = realm.copyToRealm(message);
+        conversationToStore.setLatestMessage(storedMessage);
+        realm.copyToRealmOrUpdate(conversationToStore);
+        realm.commitTransaction();
+        broadcastNewChatMessage(message);
     }
 
     public Single<RealmResults<Conversation>> loadAll() {
