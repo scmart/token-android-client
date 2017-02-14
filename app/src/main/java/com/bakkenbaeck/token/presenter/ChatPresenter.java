@@ -440,7 +440,7 @@ public final class ChatPresenter implements
         }
 
         // Only animate if we're already near the bottom
-        if (this.layoutManager.findLastVisibleItemPosition() < this.messageAdapter.getItemCount() - 2) {
+        if (this.layoutManager.findLastVisibleItemPosition() < this.messageAdapter.getItemCount() - 3) {
             return;
         }
 
