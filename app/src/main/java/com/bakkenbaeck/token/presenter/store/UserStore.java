@@ -17,19 +17,6 @@ public class UserStore {
         this.realm = Realm.getDefaultInstance();
     }
 
-    public void save(final User user) {
-        realm.beginTransaction();
-        realm.insertOrUpdate(user);
-        realm.commitTransaction();
-    }
-
-    public Single<RealmResults<User>> loadAll() {
-        return Single.fromCallable(() -> {
-            final RealmQuery<User> query = realm.where(User.class);
-            return query.findAll();
-        });
-    }
-
     public Single<User> loadForAddress(final String address) {
         return Single.fromCallable(() -> loadWhere("owner_address", address));
     }

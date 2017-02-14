@@ -7,8 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.model.local.Conversation;
 import com.bakkenbaeck.token.model.local.User;
-import com.bakkenbaeck.token.presenter.store.UserStore;
+import com.bakkenbaeck.token.presenter.store.ConversationStore;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.adapter.viewholder.ClickableViewHolder;
@@ -21,29 +22,23 @@ import io.realm.RealmResults;
 
 public class RecentsAdapter extends RecyclerView.Adapter<ContactViewHolder> implements ClickableViewHolder.OnClickListener {
 
-    private List<User> users;
+    private List<Conversation> conversations;
     private OnItemClickListener<User> onItemClickListener;
 
     public RecentsAdapter() {
-        this.users = new ArrayList<>(0);
+        this.conversations = new ArrayList<>(0);
     }
 
     public RecentsAdapter loadAllStoredContacts() {
-        new UserStore()
+        new ConversationStore()
                 .loadAll()
-                .subscribe(new SingleSuccessSubscriber<RealmResults<User>>() {
+                .subscribe(new SingleSuccessSubscriber<RealmResults<Conversation>>() {
                     @Override
-                    public void onSuccess(final RealmResults<User> users) {
-                        RecentsAdapter.this.users = users;
+                    public void onSuccess(final RealmResults<Conversation> conversations) {
+                        RecentsAdapter.this.conversations = conversations;
                         notifyDataSetChanged();
                     }
                 });
-        return this;
-    }
-
-    public RecentsAdapter setUsers(final List<User> users) {
-        this.users = users;
-        notifyDataSetChanged();
         return this;
     }
 
@@ -55,14 +50,14 @@ public class RecentsAdapter extends RecyclerView.Adapter<ContactViewHolder> impl
 
     @Override
     public void onBindViewHolder(final ContactViewHolder holder, final int position) {
-        final User user = this.users.get(position);
+        final User user = this.conversations.get(position).getMember();
         holder.setUser(user);
         holder.setOnClickListener(this);
     }
 
     @Override
     public int getItemCount() {
-        return this.users.size();
+        return this.conversations.size();
     }
 
     @Override
@@ -71,7 +66,7 @@ public class RecentsAdapter extends RecyclerView.Adapter<ContactViewHolder> impl
             return;
         }
 
-        final User clickedUser = users.get(position);
+        final User clickedUser = conversations.get(position).getMember();
         this.onItemClickListener.onItemClick(clickedUser);
     }
 
@@ -81,7 +76,7 @@ public class RecentsAdapter extends RecyclerView.Adapter<ContactViewHolder> impl
     }
 
     public void clear() {
-        this.users.clear();
+        this.conversations.clear();
         notifyDataSetChanged();
     }
 }
