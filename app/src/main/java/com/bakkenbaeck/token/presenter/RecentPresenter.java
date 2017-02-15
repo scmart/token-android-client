@@ -51,7 +51,6 @@ public final class RecentPresenter implements
 
     private void initLongLivingObjects() {
         this.adapter = new RecentAdapter()
-                .loadAllStoredContacts()
                 .setOnItemClickListener(this);
     }
 

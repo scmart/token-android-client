@@ -1,6 +1,8 @@
 package com.bakkenbaeck.token.view.adapter;
 
 
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +18,6 @@ import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.presenter.store.ConversationStore;
 import com.bakkenbaeck.token.util.LogUtil;
-import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.adapter.viewholder.ClickableViewHolder;
 import com.bakkenbaeck.token.view.adapter.viewholder.ConversationViewHolder;
@@ -25,30 +26,35 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.realm.RealmResults;
-
 public class RecentAdapter extends RecyclerView.Adapter<ConversationViewHolder> implements ClickableViewHolder.OnClickListener {
 
     private final SofaAdapters adapters;
+    private final ConversationStore conversationStore;
     private List<Conversation> conversations;
     private OnItemClickListener<Conversation> onItemClickListener;
 
     public RecentAdapter() {
         this.adapters = new SofaAdapters();
+        this.conversationStore = new ConversationStore();
         this.conversations = new ArrayList<>(0);
+        loadAllStoredContacts();
     }
 
-    public RecentAdapter loadAllStoredContacts() {
-        new ConversationStore()
-                .loadAll()
-                .subscribe(new SingleSuccessSubscriber<RealmResults<Conversation>>() {
-                    @Override
-                    public void onSuccess(final RealmResults<Conversation> conversations) {
-                        RecentAdapter.this.conversations = conversations;
-                        notifyDataSetChanged();
-                    }
-                });
+    private RecentAdapter loadAllStoredContacts() {
+        fetchAndRenderConversations();
+        attachSubscribers();
         return this;
+    }
+
+    private void fetchAndRenderConversations() {
+        this.conversations = this.conversationStore.loadAll();
+        notifyDataSetChanged();
+    }
+
+    private void attachSubscribers() {
+        this.conversationStore
+                .getConversationChangedObservable()
+                .subscribe(this::handleConversationChanged);
     }
 
     @Override
@@ -90,6 +96,12 @@ public class RecentAdapter extends RecyclerView.Adapter<ConversationViewHolder> 
     public void clear() {
         this.conversations.clear();
         notifyDataSetChanged();
+    }
+
+    private void handleConversationChanged(final Conversation unused) {
+        // Just refresh the whole thing.
+        // Realm reads are cheap and are the source of truth.
+        new Handler(Looper.getMainLooper()).post(this::fetchAndRenderConversations);
     }
 
     private String formatLastMessage(final ChatMessage chatMessage) {

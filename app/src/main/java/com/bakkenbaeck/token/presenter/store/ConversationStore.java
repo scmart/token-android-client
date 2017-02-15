@@ -18,6 +18,7 @@ public class ConversationStore {
     private static String watchedConversationId;
     private final static PublishSubject<ChatMessage> newMessageObservable = PublishSubject.create();
     private final static PublishSubject<ChatMessage> updatedMessageObservable = PublishSubject.create();
+    private final static PublishSubject<Conversation> conversationChangedObservable = PublishSubject.create();
 
     public ConversationStore() {
         this.realm = Realm.getDefaultInstance();
@@ -31,6 +32,10 @@ public class ConversationStore {
         return new Pair<>(newMessageObservable, updatedMessageObservable);
     }
 
+    public PublishSubject<Conversation> getConversationChangedObservable() {
+        return conversationChangedObservable;
+    }
+
     public void saveNewMessage(final User user, final ChatMessage message) {
 
         realm.beginTransaction();
@@ -41,9 +46,10 @@ public class ConversationStore {
         final ChatMessage storedMessage = realm.copyToRealm(message);
         conversationToStore.setLatestMessage(storedMessage);
         conversationToStore.setNumberOfUnread(calculateNumberOfUnread(conversationToStore));
-        realm.copyToRealmOrUpdate(conversationToStore);
+        realm.insertOrUpdate(conversationToStore);
         realm.commitTransaction();
         broadcastNewChatMessage(user.getOwnerAddress(), message);
+        broadcastConversationChanged(conversationToStore);
     }
 
     private int calculateNumberOfUnread(final Conversation conversationToStore) {
@@ -67,11 +73,9 @@ public class ConversationStore {
         realm.commitTransaction();
     }
 
-    public Single<RealmResults<Conversation>> loadAll() {
-        return Single.fromCallable(() -> {
-            final RealmQuery<Conversation> query = realm.where(Conversation.class);
-            return query.findAll();
-        });
+    public RealmResults<Conversation> loadAll() {
+        final RealmQuery<Conversation> query = realm.where(Conversation.class);
+        return query.findAll();
     }
 
     public Single<Conversation> loadByAddress(final String address) {
@@ -103,5 +107,9 @@ public class ConversationStore {
             return;
         }
         updatedMessageObservable.onNext(updatedMessage);
+    }
+
+    private void broadcastConversationChanged(final Conversation conversation) {
+        conversationChangedObservable.onNext(conversation);
     }
 }
