@@ -50,7 +50,7 @@
     <string name="eth_balance">%1$s ETH</string>
     <string name="continue_">Continue</string>
     <string name="send">Send</string>
-    <string name="payment_received">Payment received from: %1$s</string>
+    <string name="payment_received">Payment received</string>
     <string name="payment_amount">Amount: %1$s</string>
     <string name="error__transaction_pending">Pending</string>
     <string name="version">Version</string>
