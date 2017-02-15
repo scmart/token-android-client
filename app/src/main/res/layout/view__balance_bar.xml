@@ -11,10 +11,10 @@
         android:id="@+id/balanceWrapper"
         android:layout_width="match_parent"
         android:layout_height="48dp"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:gravity="center_vertical">
+        android:paddingRight="@dimen/activity_horizontal_margin">
 
         <TextView
             android:id="@+id/local_currency_balance"
@@ -25,35 +25,45 @@
             android:text="$0.00 USD"/>
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:gravity="center"
+            android:textColor="@color/textColorSecondary"
+            android:textSize="@dimen/balance_bar_text_size"
+            android:text="@string/bullet_point"/>
+
+        <TextView
             android:id="@+id/eth_balance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/balance_bar_text_size"
             android:textColor="@color/textColorSecondary"
-            android:layout_marginLeft="8dp"
+            android:textSize="@dimen/balance_bar_text_size"
             android:text="0.0000"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/balance_bar_text_size"
-            android:textColor="@color/textColorSecondary"
             android:layout_marginLeft="4dp"
-            android:text="@string/eth_currency_code" />
+            android:textColor="@color/textColorSecondary"
+            android:textSize="@dimen/balance_bar_text_size"
+            android:text="@string/eth_currency_code"/>
 
         <android.support.v4.widget.Space
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1" />
 
         <Button
             android:id="@+id/request_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="@string/button_request"
+            style="@style/FlatButton"
+            android:textSize="14sp"
             android:visibility="gone"
             tools:visibility="visible"
-            style="@style/FlatButton"/>
+            android:text="@string/button_request"/>
 
         <android.support.v4.widget.Space
             android:layout_width="8dp"
@@ -63,12 +73,15 @@
             android:id="@+id/pay_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="@string/button_pay"
+            style="@style/FlatButton"
+            android:minWidth="0dp"
+            android:textSize="14sp"
             android:visibility="gone"
             tools:visibility="visible"
-            style="@style/FlatButton"/>
+            android:text="@string/button_pay"/>
 
     </LinearLayout>
 
     <include layout="@layout/horizontal_divider"/>
+
 </LinearLayout>

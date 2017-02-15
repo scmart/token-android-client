@@ -7,9 +7,9 @@
 
     <dimen name="radiusSize">6dp</dimen>
 
-    <dimen name="balance_bar_text_size">15sp</dimen>
+    <dimen name="balance_bar_text_size">14sp</dimen>
     <dimen name="defaultTextSize">15sp</dimen>
-    <dimen name="subTitleSize">18sp</dimen>
+    <dimen name="subTitleSize">16sp</dimen>
     <dimen name="qr_code_size">170dp</dimen>
 
     <dimen name="control_horizontal_padding">20dp</dimen>
@@ -21,7 +21,7 @@
     <dimen name="amount_view_horizontal_spacing">17dp</dimen>
     <dimen name="amount_view_vertical_spacing">18dp</dimen>
 
-    <dimen name="message_list_bottom_padding">30dp</dimen>
+    <dimen name="message_list_bottom_padding">8dp</dimen>
     <dimen name="star_right_margin">2dp</dimen>
     <dimen name="search_vertical_list_space">16dp</dimen>
     <dimen name="avatar_size_small">44dp</dimen>

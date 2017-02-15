@@ -3,6 +3,7 @@ package com.bakkenbaeck.token.view.adapter.viewholder;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
@@ -19,6 +20,7 @@ public final class PaymentRequestViewHolder extends RecyclerView.ViewHolder {
     private TextView remoteRequestedAmount;
     private TextView localSecondaryAmount;
     private TextView remoteSecondaryAmount;
+    private ImageView remoteStatusIcon;
     private TextView remoteStatus;
     private View buttonsContainer;
     private Button approveButton;
@@ -38,6 +40,7 @@ public final class PaymentRequestViewHolder extends RecyclerView.ViewHolder {
         this.remoteRequestedAmount = (TextView) v.findViewById(R.id.remote_requested_amount);
         this.localSecondaryAmount = (TextView) v.findViewById(R.id.local_eth_amount);
         this.remoteSecondaryAmount = (TextView) v.findViewById(R.id.remote_eth_amount);
+        this.remoteStatusIcon = (ImageView) v.findViewById(R.id.request_status_icon);
         this.remoteStatus = (TextView) v.findViewById(R.id.request_status);
         this.buttonsContainer = v.findViewById(R.id.buttons_container);
         this.approveButton = (Button) v.findViewById(R.id.approve_button);
@@ -91,16 +94,21 @@ public final class PaymentRequestViewHolder extends RecyclerView.ViewHolder {
                 this.buttonsContainer.setVisibility(View.GONE);
                 this.remoteStatus.setVisibility(View.VISIBLE);
                 this.remoteStatus.setText(R.string.payment_request__accepted);
+                this.remoteStatusIcon.setVisibility(View.VISIBLE);
+                this.remoteStatusIcon.setImageResource(R.drawable.ic_done_with_background);
                 break;
             case PaymentRequest.REJECTED:
                 this.buttonsContainer.setVisibility(View.GONE);
                 this.remoteStatus.setVisibility(View.VISIBLE);
                 this.remoteStatus.setText(R.string.payment_request__rejected);
+                this.remoteStatusIcon.setVisibility(View.VISIBLE);
+                this.remoteStatusIcon.setImageResource(R.drawable.ic_clear_with_background);
                 break;
             case PaymentRequest.PENDING:
             default:
                 this.buttonsContainer.setVisibility(View.VISIBLE);
                 this.remoteStatus.setVisibility(View.GONE);
+                this.remoteStatusIcon.setVisibility(View.GONE);
                 this.rejectButton.setOnClickListener(this.handleOnRejectPressed);
                 this.approveButton.setOnClickListener(this.handleOnApprovePressed);
                 break;

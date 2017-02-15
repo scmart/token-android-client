@@ -6,8 +6,8 @@
         android:icon="@drawable/ic_action_home" />
 
     <item
-        android:title="@string/tab_recents"
-        android:icon="@drawable/ic_action_recents" />
+        android:title="@string/tab_recent"
+        android:icon="@drawable/ic_action_recent" />
 
     <item
         android:title="@string/tab_2"

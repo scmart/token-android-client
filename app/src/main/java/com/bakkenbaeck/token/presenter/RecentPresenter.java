@@ -8,21 +8,21 @@ import android.support.v7.widget.RecyclerView;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.local.Conversation;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
-import com.bakkenbaeck.token.view.adapter.RecentsAdapter;
+import com.bakkenbaeck.token.view.adapter.RecentAdapter;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.custom.HorizontalLineDivider;
-import com.bakkenbaeck.token.view.fragment.toplevel.RecentsFragment;
+import com.bakkenbaeck.token.view.fragment.toplevel.RecentFragment;
 
-public final class RecentsPresenter implements
-        Presenter<RecentsFragment>,
+public final class RecentPresenter implements
+        Presenter<RecentFragment>,
         OnItemClickListener<Conversation> {
 
-    private RecentsFragment fragment;
+    private RecentFragment fragment;
     private boolean firstTimeAttaching = true;
-    private RecentsAdapter adapter;
+    private RecentAdapter adapter;
 
     @Override
-    public void onViewAttached(final RecentsFragment fragment) {
+    public void onViewAttached(final RecentFragment fragment) {
         this.fragment = fragment;
 
         if (this.firstTimeAttaching) {
@@ -50,7 +50,7 @@ public final class RecentsPresenter implements
     }
 
     private void initLongLivingObjects() {
-        this.adapter = new RecentsAdapter()
+        this.adapter = new RecentAdapter()
                 .loadAllStoredContacts()
                 .setOnItemClickListener(this);
     }

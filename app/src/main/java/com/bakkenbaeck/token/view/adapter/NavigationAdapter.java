@@ -10,7 +10,7 @@ import android.view.Menu;
 import com.bakkenbaeck.token.view.fragment.toplevel.AppsFragment;
 import com.bakkenbaeck.token.view.fragment.toplevel.ContactsContainerFragment;
 import com.bakkenbaeck.token.view.fragment.toplevel.HomeFragment;
-import com.bakkenbaeck.token.view.fragment.toplevel.RecentsFragment;
+import com.bakkenbaeck.token.view.fragment.toplevel.RecentFragment;
 import com.bakkenbaeck.token.view.fragment.toplevel.SettingsContainerFragment;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class NavigationAdapter extends FragmentPagerAdapter {
 
         fragments.clear();
         fragments.add(HomeFragment.newInstance());
-        fragments.add(RecentsFragment.newInstance());
+        fragments.add(RecentFragment.newInstance());
         fragments.add(AppsFragment.newInstance());
         fragments.add(ContactsContainerFragment.newInstance());
         fragments.add(SettingsContainerFragment.newInstance());

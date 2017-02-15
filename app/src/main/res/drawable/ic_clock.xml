@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="20"
+    android:viewportHeight="20">
+
+    <path
+        android:name="Oval-Copy"
+        android:fillColor="#626262"
+        android:fillAlpha="0.5"
+        android:strokeAlpha="0.5"
+        android:strokeWidth="1"
+        android:pathData="M10,0 C15.5228,0,20,4.47715,20,10 C20,15.5228,15.5228,20,10,20
+C4.47715,20,0,15.5228,0,10 C0,4.47715,4.47715,0,10,0 Z" />
+    <path
+        android:name="Shape"
+        android:fillColor="#F3F3F3"
+        android:strokeWidth="1"
+        android:pathData="M9.99333,3.33333 C6.31333,3.33333,3.33333,6.32,3.33333,10
+C3.33333,13.68,6.31333,16.6667,9.99333,16.6667
+C13.68,16.6667,16.6667,13.68,16.6667,10
+C16.6667,6.32,13.68,3.33333,9.99333,3.33333 L9.99333,3.33333 Z M10,15.3333
+C7.05333,15.3333,4.66667,12.9467,4.66667,10
+C4.66667,7.05333,7.05333,4.66667,10,4.66667
+C12.9467,4.66667,15.3333,7.05333,15.3333,10
+C15.3333,12.9467,12.9467,15.3333,10,15.3333 L10,15.3333 Z" />
+    <path
+        android:name="Shape"
+        android:strokeWidth="1"
+        android:pathData="M2,2 L18,2 L18,18 L2,18 Z" />
+    <path
+        android:name="Shape"
+        android:fillColor="#F3F3F3"
+        android:strokeWidth="1"
+        android:pathData="M10.3333,6.66667 L9.33333,6.66667 L9.33333,10.6667 L12.8333,12.7667
+L13.3333,11.9467 L10.3333,10.1667 Z" />
+</vector>
