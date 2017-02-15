@@ -134,6 +134,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         final Intent intent = new Intent(this.activity, ChatActivity.class);
         intent.putExtra(ChatActivity.EXTRA__REMOTE_USER, this.scannedUser);
         this.activity.startActivity(intent);
+        this.activity.finish();
     }
 
     private final SingleSuccessSubscriber<Bitmap> handleQrCodeLoaded = new SingleSuccessSubscriber<Bitmap>() {

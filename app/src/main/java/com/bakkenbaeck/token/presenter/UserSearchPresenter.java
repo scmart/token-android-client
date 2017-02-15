@@ -129,5 +129,6 @@ public final class UserSearchPresenter
         final Intent intent = new Intent(this.activity, ViewUserActivity.class);
         intent.putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, clickedUser.getOwnerAddress());
         this.activity.startActivity(intent);
+        this.activity.finish();
     }
 }
