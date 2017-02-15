@@ -50,4 +50,8 @@ public class Conversation extends RealmObject {
         return numberOfUnread;
     }
 
+    public void setNumberOfUnread(final int numberOfUnread) {
+        this.numberOfUnread = numberOfUnread;
+    }
+
 }

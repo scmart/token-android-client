@@ -27,6 +27,7 @@ public class ConversationStore {
     // the second being the observable for updated messages.
     public Pair<PublishSubject<ChatMessage>, PublishSubject<ChatMessage>> registerForChanges(final String conversationId) {
         watchedConversationId = conversationId;
+        resetUnreadMessageCounter(conversationId);
         return new Pair<>(newMessageObservable, updatedMessageObservable);
     }
 
@@ -39,9 +40,31 @@ public class ConversationStore {
                 : storedConversation;
         final ChatMessage storedMessage = realm.copyToRealm(message);
         conversationToStore.setLatestMessage(storedMessage);
+        conversationToStore.setNumberOfUnread(calculateNumberOfUnread(conversationToStore));
         realm.copyToRealmOrUpdate(conversationToStore);
         realm.commitTransaction();
         broadcastNewChatMessage(user.getOwnerAddress(), message);
+    }
+
+    private int calculateNumberOfUnread(final Conversation conversationToStore) {
+        // If we are watching the current conversation the message is automatically read.
+        if (conversationToStore.getMember().getOwnerAddress().equals(watchedConversationId)) {
+            return 0;
+        }
+        final int currentNumberOfUnread = conversationToStore.getNumberOfUnread();
+        return currentNumberOfUnread + 1;
+    }
+
+    private void resetUnreadMessageCounter(final String conversationId) {
+        realm.beginTransaction();
+        final Conversation storedConversation = loadWhere("conversationId", conversationId);
+        if (storedConversation == null) {
+            return;
+        }
+
+        storedConversation.setNumberOfUnread(0);
+        realm.insertOrUpdate(storedConversation);
+        realm.commitTransaction();
     }
 
     public Single<RealmResults<Conversation>> loadAll() {
