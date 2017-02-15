@@ -21,7 +21,7 @@
     <dimen name="amount_view_horizontal_spacing">17dp</dimen>
     <dimen name="amount_view_vertical_spacing">18dp</dimen>
 
-    <dimen name="message_list_bottom_padding">30dp</dimen>
+    <dimen name="message_list_bottom_padding">8dp</dimen>
     <dimen name="star_right_margin">2dp</dimen>
     <dimen name="search_vertical_list_space">16dp</dimen>
     <dimen name="avatar_size_small">44dp</dimen>
