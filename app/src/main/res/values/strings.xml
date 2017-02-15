@@ -4,7 +4,6 @@
     <!-- Dialog errors -->
     <string name="dollar">$</string>
     <string name="user_manager_pref_filename">usm</string>
-    <string name="gcm_pref_filename">gcmp</string>
     <string name="fiat_iso__usd">USD</string>
     <string name="tab_1">Home</string>
     <string name="tab_2">Apps</string>

@@ -1,6 +1,9 @@
 package com.bakkenbaeck.token.manager;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import com.bakkenbaeck.token.BuildConfig;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
@@ -17,6 +20,8 @@ import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.presenter.store.ConversationStore;
+import com.bakkenbaeck.token.service.RegistrationIntentService;
+import com.bakkenbaeck.token.util.FileNames;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -51,8 +56,10 @@ import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 public final class ChatMessageManager {
+
     private final PublishSubject<ChatMessageTask> chatMessageQueue = PublishSubject.create();
 
+    private SharedPreferences sharedPreferences;
     private SignalService signalService;
     private HDWallet wallet;
     private SignalTrustStore trustStore;
@@ -64,15 +71,39 @@ public final class ChatMessageManager {
     private SofaAdapters adapters;
     private boolean receiveMessages;
     private SignalServiceUrl[] signalServiceUrls;
+    private String gcmToken;
 
     public final ChatMessageManager init(final HDWallet wallet) {
         this.wallet = wallet;
         this.userAgent = "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME +  ":" + BuildConfig.VERSION_CODE;
         this.adapters = new SofaAdapters();
         this.signalServiceUrls = new SignalServiceUrl[1];
+        this.sharedPreferences = BaseApplication.get().getSharedPreferences(FileNames.GCM_PREFS, Context.MODE_PRIVATE);
         new Thread(() -> initEverything()).start();
 
         return this;
+    }
+
+    public void setGcmToken(final String token) {
+        this.gcmToken = token;
+        tryRegisterGcm();
+    }
+
+    private void tryRegisterGcm() {
+        if (this.gcmToken == null) {
+            return;
+        }
+        try {
+            final Optional<String> optional = Optional.of(this.gcmToken);
+            this.signalService.setGcmId(optional);
+            this.sharedPreferences.edit().putBoolean
+                    (RegistrationIntentService.CHAT_SERVICE_SENT_TOKEN_TO_SERVER, true).apply();
+            this.gcmToken = null;
+        } catch (IOException e) {
+            this.sharedPreferences.edit().putBoolean
+                    (RegistrationIntentService.CHAT_SERVICE_SENT_TOKEN_TO_SERVER, false).apply();
+            LogUtil.d(getClass(), "Error during registering of GCM " + e.getMessage());
+        }
     }
 
     // Will send the message to a remote peer
@@ -138,6 +169,7 @@ public final class ChatMessageManager {
             registerWithServer();
         } else {
             receiveMessagesAsync();
+            tryRegisterGcm();
         }
     }
 
@@ -149,6 +181,7 @@ public final class ChatMessageManager {
                     public void onSuccess(final Void aVoid) {
                         SignalPreferences.setRegisteredWithServer();
                         receiveMessagesAsync();
+                        tryRegisterGcm();
                     }
 
                     @Override
