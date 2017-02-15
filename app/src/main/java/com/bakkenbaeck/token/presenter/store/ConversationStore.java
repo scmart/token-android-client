@@ -10,6 +10,7 @@ import com.bakkenbaeck.token.model.local.User;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
+import io.realm.Sort;
 import rx.Single;
 import rx.subjects.PublishSubject;
 
@@ -75,7 +76,7 @@ public class ConversationStore {
 
     public RealmResults<Conversation> loadAll() {
         final RealmQuery<Conversation> query = realm.where(Conversation.class);
-        return query.findAll();
+        return query.findAllSorted("updatedTime", Sort.DESCENDING);
     }
 
     public Single<Conversation> loadByAddress(final String address) {

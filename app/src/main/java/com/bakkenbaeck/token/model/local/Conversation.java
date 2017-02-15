@@ -11,6 +11,7 @@ public class Conversation extends RealmObject {
     private String conversationId;
     private User member;
     private ChatMessage latestMessage;
+    private long updatedTime;
     private RealmList<ChatMessage> allMessages;
     private int numberOfUnread;
 
@@ -31,6 +32,7 @@ public class Conversation extends RealmObject {
 
     public Conversation setLatestMessage(final ChatMessage latestMessage) {
         this.latestMessage = latestMessage;
+        this.updatedTime = latestMessage.getCreationTime();
         addMessage(latestMessage);
         return this;
     }
