@@ -1,8 +1,6 @@
 package com.bakkenbaeck.token.view.adapter;
 
 
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +17,7 @@ import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.presenter.store.ConversationStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
+import com.bakkenbaeck.token.view.adapter.listeners.OnUpdateListener;
 import com.bakkenbaeck.token.view.adapter.viewholder.ClickableViewHolder;
 import com.bakkenbaeck.token.view.adapter.viewholder.ConversationViewHolder;
 
@@ -26,12 +25,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.android.schedulers.AndroidSchedulers;
+
 public class RecentAdapter extends RecyclerView.Adapter<ConversationViewHolder> implements ClickableViewHolder.OnClickListener {
 
     private final SofaAdapters adapters;
     private final ConversationStore conversationStore;
     private List<Conversation> conversations;
     private OnItemClickListener<Conversation> onItemClickListener;
+    private OnUpdateListener onUpdateListener;
 
     public RecentAdapter() {
         this.adapters = new SofaAdapters();
@@ -49,11 +51,13 @@ public class RecentAdapter extends RecyclerView.Adapter<ConversationViewHolder> 
     private void fetchAndRenderConversations() {
         this.conversations = this.conversationStore.loadAll();
         notifyDataSetChanged();
+        notifyListeners();
     }
 
     private void attachSubscribers() {
         this.conversationStore
                 .getConversationChangedObservable()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleConversationChanged);
     }
 
@@ -93,15 +97,21 @@ public class RecentAdapter extends RecyclerView.Adapter<ConversationViewHolder> 
         return this;
     }
 
-    public void clear() {
-        this.conversations.clear();
-        notifyDataSetChanged();
+    public RecentAdapter setOnUpdateListener(final OnUpdateListener onUpdateListener) {
+        this.onUpdateListener = onUpdateListener;
+        return this;
     }
 
-    private void handleConversationChanged(final Conversation unused) {
-        // Just refresh the whole thing.
-        // Realm reads are cheap and are the source of truth.
-        new Handler(Looper.getMainLooper()).post(this::fetchAndRenderConversations);
+    private void handleConversationChanged(final List<Conversation> conversations) {
+        this.conversations = conversations;
+        notifyDataSetChanged();
+        notifyListeners();
+    }
+
+    private void notifyListeners() {
+        if (this.onUpdateListener != null) {
+            this.onUpdateListener.onUpdate();
+        }
     }
 
     private String formatLastMessage(final ChatMessage chatMessage) {
