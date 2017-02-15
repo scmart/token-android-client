@@ -88,7 +88,7 @@ public class ChatMessage extends RealmObject {
         return this.sentByLocal;
     }
 
-    private long getCreationTime() {
+    public long getCreationTime() {
         return this.creationTime;
     }
 

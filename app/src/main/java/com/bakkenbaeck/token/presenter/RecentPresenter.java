@@ -10,12 +10,14 @@ import com.bakkenbaeck.token.model.local.Conversation;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.adapter.RecentAdapter;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
+import com.bakkenbaeck.token.view.adapter.listeners.OnUpdateListener;
 import com.bakkenbaeck.token.view.custom.HorizontalLineDivider;
 import com.bakkenbaeck.token.view.fragment.toplevel.RecentFragment;
 
 public final class RecentPresenter implements
         Presenter<RecentFragment>,
-        OnItemClickListener<Conversation> {
+        OnItemClickListener<Conversation>,
+        OnUpdateListener {
 
     private RecentFragment fragment;
     private boolean firstTimeAttaching = true;
@@ -51,8 +53,8 @@ public final class RecentPresenter implements
 
     private void initLongLivingObjects() {
         this.adapter = new RecentAdapter()
-                .loadAllStoredContacts()
-                .setOnItemClickListener(this);
+                .setOnItemClickListener(this)
+                .setOnUpdateListener(this);
     }
 
     @Override
@@ -73,6 +75,9 @@ public final class RecentPresenter implements
     }
 
     private void updateEmptyState() {
+        if (this.fragment == null) {
+            return;
+        }
         // Hide empty state if we have some content
         final boolean showingEmptyState = this.fragment.getBinding().emptyStateSwitcher.getCurrentView().getId() == this.fragment.getBinding().emptyState.getId();
         final boolean shouldShowEmptyState = this.adapter.getItemCount() == 0;
@@ -82,5 +87,10 @@ public final class RecentPresenter implements
         } else if (!shouldShowEmptyState && showingEmptyState) {
             this.fragment.getBinding().emptyStateSwitcher.showNext();
         }
+    }
+
+    @Override
+    public void onUpdate() {
+        updateEmptyState();
     }
 }
