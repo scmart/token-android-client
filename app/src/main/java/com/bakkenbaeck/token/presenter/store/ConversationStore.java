@@ -56,12 +56,12 @@ public class ConversationStore {
     }
 
     private void resetUnreadMessageCounter(final String conversationId) {
-        realm.beginTransaction();
         final Conversation storedConversation = loadWhere("conversationId", conversationId);
         if (storedConversation == null) {
             return;
         }
 
+        realm.beginTransaction();
         storedConversation.setNumberOfUnread(0);
         realm.insertOrUpdate(storedConversation);
         realm.commitTransaction();
