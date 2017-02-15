@@ -36,6 +36,16 @@ public final class ContactsListPresenter implements
     }
 
     private void initShortLivingObjects() {
+        // Refresh all contacts each time.
+        this.adapter.loadAllStoredContacts();
+
+        initRecyclerView();
+
+        this.fragment.getBinding().userSearch.setOnClickListener(this.handleUserSearchClicked);
+        updateEmptyState();
+    }
+
+    private void initRecyclerView() {
         final RecyclerView recyclerView = this.fragment.getBinding().contacts;
         final RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this.fragment.getContext());
         recyclerView.setLayoutManager(layoutManager);
@@ -48,14 +58,10 @@ public final class ContactsListPresenter implements
                 new HorizontalLineDivider(fragment.getResources().getColor(R.color.divider))
                         .setLeftPadding(dividerLeftPadding);
         recyclerView.addItemDecoration(lineDivider);
-
-        this.fragment.getBinding().userSearch.setOnClickListener(this.handleUserSearchClicked);
-        updateEmptyState();
     }
 
     private void initLongLivingObjects() {
         this.adapter = new ContactsAdapter()
-                .loadAllStoredContacts()
                 .setOnItemClickListener(this);
     }
 
