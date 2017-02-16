@@ -53,7 +53,7 @@ public class BalanceBar extends LinearLayout {
     }
 
     private void setEmptyValues() {
-        setEthBalanceFromBigInteger(BigInteger.ZERO);
+        showBalanceInUi(BigInteger.ZERO);
     }
 
     private void setBalance() {
