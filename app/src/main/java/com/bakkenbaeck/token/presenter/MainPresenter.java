@@ -56,6 +56,7 @@ public class MainPresenter implements Presenter<MainActivity> {
         navBar.setAccentColor(ContextCompat.getColor(this.activity, R.color.colorPrimary));
         navBar.setOnTabSelectedListener(this.tabListener);
         navBar.setSoundEffectsEnabled(false);
+        navBar.setBehaviorTranslationEnabled(false);
     }
 
     @Override

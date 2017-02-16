@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.model.network.App;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.adapter.viewholder.AppListViewHolder;
 
@@ -13,15 +14,21 @@ import java.util.List;
 
 public class AppListAdapter extends RecyclerView.Adapter<AppListViewHolder> {
 
-    private List<String> apps;
-    private OnItemClickListener listener;
+    private List<App> apps;
+    private OnItemClickListener<App> listener;
 
-    public AppListAdapter(final List<String> apps) {
+    public AppListAdapter(final List<App> apps) {
         this.apps = apps;
     }
 
-    public void setOnItemClickListener(final OnItemClickListener listener) {
+    public void setOnItemClickListener(final OnItemClickListener<App> listener) {
         this.listener = listener;
+    }
+
+    public void setApps(final List<App> apps) {
+        this.apps.clear();
+        this.apps.addAll(apps);
+        this.notifyDataSetChanged();
     }
 
     @Override
@@ -32,11 +39,10 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListViewHolder> {
 
     @Override
     public void onBindViewHolder(AppListViewHolder holder, int position) {
-        final String app = this.apps.get(position);
+        final App app = this.apps.get(position);
 
-        holder.setAppName(app);
-        holder.setAppImage(R.drawable.green_circle);
-        holder.bind(position, listener);
+        holder.setApp(app);
+        holder.bind(app, listener);
     }
 
     @Override

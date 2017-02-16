@@ -13,6 +13,9 @@ public interface DirectoryInterface {
     @GET("v1/apps/")
     Observable<Response<Apps>> getApps();
 
+    @GET("v1/apps/?limit=20")
+    Observable<Response<Apps>> getFeaturedApps();
+
     @GET("v1/search/apps/")
     Observable<Response<AppSearch>> searchApps(@Query("query") String searchString);
 }
