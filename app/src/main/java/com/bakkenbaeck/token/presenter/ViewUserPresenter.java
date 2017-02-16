@@ -113,8 +113,10 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         final boolean isAContact = contactStore.userIsAContact(scannedUser);
         if (isAContact) {
             this.activity.getBinding().addContactButton.setText(this.activity.getResources().getString(R.string.remove_contact));
+            this.activity.getBinding().addContactButton.setSoundEffectsEnabled(true);
         } else {
             this.activity.getBinding().addContactButton.setText(this.activity.getResources().getString(R.string.add_contact));
+            this.activity.getBinding().addContactButton.setSoundEffectsEnabled(false);
         }
     }
 
