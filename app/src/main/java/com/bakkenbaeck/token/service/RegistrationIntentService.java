@@ -28,6 +28,7 @@ import com.bakkenbaeck.token.model.network.Addresses;
 import com.bakkenbaeck.token.model.network.GcmRegistration;
 import com.bakkenbaeck.token.model.network.ServerTime;
 import com.bakkenbaeck.token.network.BalanceService;
+import com.bakkenbaeck.token.util.FileNames;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -41,7 +42,9 @@ import rx.schedulers.Schedulers;
 
 public class RegistrationIntentService extends IntentService {
 
-    public static final String SENT_TOKEN_TO_SERVER = "sentTokenToServer";
+    public static final String FORCE_UPDATE = "update_token";
+    public static final String CHAT_SERVICE_SENT_TOKEN_TO_SERVER = "chatServiceSentTokenToServer";
+    public static final String ETH_SERVICE_SENT_TOKEN_TO_SERVER = "sentTokenToServer";
     public static final String REGISTRATION_COMPLETE = "registrationComplete";
     public static final String WATCHING_TRANSACTIONS = "watchingTransactions";
 
@@ -49,7 +52,7 @@ public class RegistrationIntentService extends IntentService {
 
     public RegistrationIntentService() {
         super("RegIntentService");
-        this.sharedPreferences = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.gcm_pref_filename), Context.MODE_PRIVATE);
+        this.sharedPreferences = BaseApplication.get().getSharedPreferences(FileNames.GCM_PREFS, Context.MODE_PRIVATE);
     }
 
     @Override
@@ -59,17 +62,38 @@ public class RegistrationIntentService extends IntentService {
             final String token = instanceID.getToken(getString(R.string.gcm_defaultSenderId),
                     GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
             LogUtil.i(getClass(), "GCM Registration Token: " + token);
-            registerGcmToken(token);
+
+            final boolean forceUpdate = intent.getBooleanExtra(FORCE_UPDATE, false);
+            registerEthereumServiceGcmToken(token, forceUpdate);
+            registerChatServiceGcm(token, forceUpdate);
         } catch (final Exception ex) {
             LogUtil.d(getClass(), "Failed to complete token refresh" + ex);
-            sharedPreferences.edit().putBoolean(SENT_TOKEN_TO_SERVER, false).apply();
+            sharedPreferences.edit().putBoolean(ETH_SERVICE_SENT_TOKEN_TO_SERVER, false).apply();
         }
 
         final Intent registrationComplete = new Intent(REGISTRATION_COMPLETE);
         LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
     }
 
-    private void registerGcmToken(final String token) {
+    private void registerChatServiceGcm(final String token, final boolean forceUpdate) {
+        final boolean sentToServer = sharedPreferences.getBoolean(CHAT_SERVICE_SENT_TOKEN_TO_SERVER, false);
+        if (!forceUpdate && sentToServer) {
+            return;
+        }
+
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getChatMessageManager()
+                .setGcmToken(token);
+    }
+
+    private void registerEthereumServiceGcmToken(final String token, final boolean forceUpdate) {
+        final boolean sentToServer = sharedPreferences.getBoolean(ETH_SERVICE_SENT_TOKEN_TO_SERVER, false);
+        if (!forceUpdate && sentToServer) {
+            return;
+        }
+
         BalanceService
                 .getApi()
                 .getTimestamp()
@@ -83,7 +107,7 @@ public class RegistrationIntentService extends IntentService {
 
                     @Override
                     public void onError(final Throwable error) {
-                        sharedPreferences.edit().putBoolean(SENT_TOKEN_TO_SERVER, false).apply();
+                        sharedPreferences.edit().putBoolean(ETH_SERVICE_SENT_TOKEN_TO_SERVER, false).apply();
                         LogUtil.e(getClass(), "sendRegistrationToServer onError " + error);
                     }
                 });
@@ -98,13 +122,13 @@ public class RegistrationIntentService extends IntentService {
                 .subscribe(new SingleSubscriber<Void>() {
                     @Override
                     public void onSuccess(final Void value) {
-                        sharedPreferences.edit().putBoolean(SENT_TOKEN_TO_SERVER, true).apply();
+                        sharedPreferences.edit().putBoolean(ETH_SERVICE_SENT_TOKEN_TO_SERVER, true).apply();
                         getWalletForTransactionListening(timestamp);
                     }
 
                     @Override
                     public void onError(final Throwable error) {
-                        sharedPreferences.edit().putBoolean(SENT_TOKEN_TO_SERVER, false).apply();
+                        sharedPreferences.edit().putBoolean(ETH_SERVICE_SENT_TOKEN_TO_SERVER, false).apply();
                         LogUtil.e(getClass(), "regGcm onError " + error);
                     }
                 });
@@ -143,12 +167,12 @@ public class RegistrationIntentService extends IntentService {
                 .subscribe(new SingleSubscriber<Void>() {
                     @Override
                     public void onSuccess(final Void value) {
-                        sharedPreferences.edit().putBoolean(SENT_TOKEN_TO_SERVER, true).apply();
+                        sharedPreferences.edit().putBoolean(ETH_SERVICE_SENT_TOKEN_TO_SERVER, true).apply();
                     }
 
                     @Override
                     public void onError(final Throwable error) {
-                        LogUtil.e(getClass(), "registerAddress onError" + error);
+                        LogUtil.e(getClass(), "registerAddress onError " + error);
                     }
                 });
     }

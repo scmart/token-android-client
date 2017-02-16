@@ -16,17 +16,30 @@
 
 package com.bakkenbaeck.token.service;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 
+import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.bakkenbaeck.token.model.local.ChatMessage;
 import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
+import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.view.activity.MainActivity;
 import com.google.android.gms.gcm.GcmListenerService;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Locale;
 
 public class GcmMessageReceiver extends GcmListenerService {
 
@@ -41,11 +54,21 @@ public class GcmMessageReceiver extends GcmListenerService {
         try {
             final String message = data.getString("message");
             LogUtil.i(getClass(), "Incoming PN: " + message);
+
+            if (message == null) {
+                return;
+            }
+
             final ChatMessage chatMessage = new ChatMessage().makeNew(message);
 
             if (chatMessage.getType() == SofaType.PAYMENT) {
                 final Payment payment = adapters.paymentFrom(chatMessage.getPayload());
                 handleIncomingPayment(payment);
+                showPaymentNotification(payment);
+            } else {
+                final String title = this.getString(R.string.message_received);
+                //Message is atm null, use chatMessage instead
+                showNotification(title, message);
             }
 
         } catch (IOException e) {
@@ -65,5 +88,38 @@ public class GcmMessageReceiver extends GcmListenerService {
                 .getTokenManager()
                 .getBalanceManager()
                 .refreshBalance();
+    }
+
+    private void showPaymentNotification(final Payment payment) {
+        if (payment.getStatus().equals(SofaType.CONFIRMED)) {
+            return;
+        }
+
+        final String title = this.getString(R.string.payment_received);
+        final BigInteger weiAmount = TypeConverter.StringHexToBigInteger(payment.getValue());
+        final BigDecimal ethAmount = EthUtil.weiToEth(weiAmount);
+        final String localCurrency = BaseApplication.get().getTokenManager().getBalanceManager().convertEthToLocalCurrencyString(ethAmount);
+        final String content = String.format(Locale.getDefault(), "Received: %s", localCurrency);
+        showNotification(title, content);
+    }
+
+    private void showNotification(final String title, final String content) {
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.token)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setAutoCancel(true)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setPriority(NotificationCompat.PRIORITY_HIGH);
+
+        NotificationCompat.BigTextStyle bigTextBuilder = new NotificationCompat.BigTextStyle(builder);
+
+        final Intent notificationIntent = new Intent(this, MainActivity.class);
+        final PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(contentIntent);
+
+        final NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.notify(0, bigTextBuilder.build());
     }
 }

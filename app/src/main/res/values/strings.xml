@@ -3,8 +3,6 @@
     <string name="eth_currency_code">ETH</string>
     <!-- Dialog errors -->
     <string name="dollar">$</string>
-    <string name="user_manager_pref_filename">usm</string>
-    <string name="gcm_pref_filename">gcmp</string>
     <string name="fiat_iso__usd">USD</string>
     <string name="tab_1">Home</string>
     <string name="tab_2">Apps</string>
@@ -51,7 +49,7 @@
     <string name="eth_balance">%1$s ETH</string>
     <string name="continue_">Continue</string>
     <string name="send">Send</string>
-    <string name="payment_received">Payment received from: %1$s</string>
+    <string name="payment_received">Payment received</string>
     <string name="payment_amount">Amount: %1$s</string>
     <string name="error__transaction_pending">Pending</string>
     <string name="version">Version</string>
@@ -65,4 +63,5 @@
     <string name="to">To:</string>
     <string name="reputation">Reputation</string>
     <string name="bullet_point">•</string>
+    <string name="message_received">Message received</string>
 </resources>
