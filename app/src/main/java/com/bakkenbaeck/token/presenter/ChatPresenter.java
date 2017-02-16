@@ -2,7 +2,6 @@ package com.bakkenbaeck.token.presenter;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.os.Build;
 import android.util.Pair;
 import android.view.View;
@@ -32,6 +31,7 @@ import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.PaymentType;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
+import com.bakkenbaeck.token.util.SoundManager;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
@@ -344,9 +344,9 @@ public final class ChatPresenter implements
 
     private void playNewMessageSound(final boolean sentByLocal) {
         if (sentByLocal) {
-            MediaPlayer.create(BaseApplication.get(), R.raw.messagesend).start();
+            SoundManager.get().playSound(SoundManager.SEND_MESSAGE);
         } else {
-            MediaPlayer.create(BaseApplication.get(), R.raw.messagereceive).start();
+            SoundManager.get().playSound(SoundManager.RECEIVE_MESSAGE);
         }
     }
 

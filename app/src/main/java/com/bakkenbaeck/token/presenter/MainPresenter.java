@@ -1,14 +1,13 @@
 package com.bakkenbaeck.token.presenter;
 
 
-import android.media.MediaPlayer;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.util.SoundManager;
 import com.bakkenbaeck.token.view.activity.MainActivity;
 import com.bakkenbaeck.token.view.adapter.NavigationAdapter;
 
@@ -28,7 +27,7 @@ public class MainPresenter implements Presenter<MainActivity> {
 
             final FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
             transaction.replace(activity.getBinding().container.getId(), adapter.getItem(position)).commit();
-            MediaPlayer.create(BaseApplication.get(), R.raw.tabbutton).start();
+            SoundManager.get().playSound(SoundManager.TAB_BUTTON);
             return true;
         }
     };
