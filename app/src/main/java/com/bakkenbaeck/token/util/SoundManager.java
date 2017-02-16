@@ -29,13 +29,7 @@ public class SoundManager {
     public static final int SCAN = 3;
     public static final int SCAN_RESULT = 4;
     public static final int TAB_BUTTON = 5;
-
-    private static final int MAX_STREAMS = 2;
-
-    private final SoundPool soundPool;
-    private final SparseIntArray soundPoolMap;
-    private final AudioManager audioManager;
-
+    private static final int MAX_STREAMS = 5;
     private static SoundManager instance;
 
     public static SoundManager get() {
@@ -44,6 +38,10 @@ public class SoundManager {
         }
         return instance;
     }
+
+    private final SoundPool soundPool;
+    private final SparseIntArray soundPoolMap;
+    private final AudioManager audioManager;
 
     private SoundManager() {
         final Context context = BaseApplication.get();
@@ -64,7 +62,7 @@ public class SoundManager {
     private SoundPool buildSoundPool() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_GAME)
+                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                     .build();
 
@@ -78,7 +76,9 @@ public class SoundManager {
     }
 
     public void playSound(final @Sound int index) {
-        final int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        final float currentVolumeIndex = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        final float maxVolumeIndex = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        final float streamVolume = currentVolumeIndex / maxVolumeIndex;
         soundPool.play(soundPoolMap.get(index), streamVolume, streamVolume, 1, 0, 1f);
     }
 }
