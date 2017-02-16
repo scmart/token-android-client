@@ -2,6 +2,7 @@ package com.bakkenbaeck.token.presenter;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.util.Pair;
 import android.view.View;
@@ -337,8 +338,17 @@ public final class ChatPresenter implements
             messageAdapter.addMessage(chatMessage);
             updateEmptyState();
             tryScrollToBottom(true);
+            playNewMessageSound(chatMessage.isSentByLocal());
         }
     };
+
+    private void playNewMessageSound(final boolean sentByLocal) {
+        if (sentByLocal) {
+            MediaPlayer.create(BaseApplication.get(), R.raw.messagesend).start();
+        } else {
+            MediaPlayer.create(BaseApplication.get(), R.raw.messagereceive).start();
+        }
+    }
 
     private final OnNextSubscriber<ChatMessage> handleUpdatedMessage = new OnNextSubscriber<ChatMessage>() {
         @Override
