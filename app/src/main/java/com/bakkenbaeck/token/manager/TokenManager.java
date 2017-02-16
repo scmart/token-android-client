@@ -3,8 +3,6 @@ package com.bakkenbaeck.token.manager;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
 
-import java.util.concurrent.Callable;
-
 import rx.Single;
 
 public class TokenManager {
@@ -23,16 +21,13 @@ public class TokenManager {
     }
 
     public Single<TokenManager> init() {
-        return Single.fromCallable(new Callable<TokenManager>() {
-            @Override
-            public TokenManager call() throws Exception {
-                TokenManager.this.wallet = new HDWallet().init();
-                TokenManager.this.balanceManager.init(TokenManager.this.wallet);
-                TokenManager.this.chatMessageManager.init(TokenManager.this.wallet);
-                TokenManager.this.transactionManager.init(TokenManager.this.wallet);
-                TokenManager.this.userManager.init(TokenManager.this.wallet);
-                return TokenManager.this;
-            }
+        return Single.fromCallable(() -> {
+            TokenManager.this.wallet = new HDWallet().init();
+            TokenManager.this.balanceManager.init(TokenManager.this.wallet);
+            TokenManager.this.chatMessageManager.init(TokenManager.this.wallet);
+            TokenManager.this.transactionManager.init(TokenManager.this.wallet);
+            TokenManager.this.userManager.init(TokenManager.this.wallet);
+            return TokenManager.this;
         });
     }
 
@@ -53,14 +48,11 @@ public class TokenManager {
     }
 
     public Single<HDWallet> getWallet() {
-        return Single.fromCallable(new Callable<HDWallet>() {
-            @Override
-            public HDWallet call() throws Exception {
-                while (wallet == null) {
-                    Thread.sleep(200);
-                }
-                return wallet;
+        return Single.fromCallable(() -> {
+            while (wallet == null) {
+                Thread.sleep(200);
             }
+            return wallet;
         });
     }
 

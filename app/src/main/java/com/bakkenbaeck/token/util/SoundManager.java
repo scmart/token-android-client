@@ -21,7 +21,8 @@ public class SoundManager {
             SEND_MESSAGE,
             SCAN,
             SCAN_RESULT,
-            TAB_BUTTON})
+            TAB_BUTTON,
+            BALANCE_CHANGE})
     public @interface Sound {}
     public static final int ADD_CONTACT = 0;
     public static final int RECEIVE_MESSAGE = 1;
@@ -29,6 +30,8 @@ public class SoundManager {
     public static final int SCAN = 3;
     public static final int SCAN_RESULT = 4;
     public static final int TAB_BUTTON = 5;
+    public static final int BALANCE_CHANGE = 6;
+
     private static final int MAX_STREAMS = 5;
     private static SoundManager instance;
 
@@ -55,6 +58,7 @@ public class SoundManager {
         soundPoolMap.put(SCAN, soundPool.load(context, R.raw.scan, 1));
         soundPoolMap.put(SCAN_RESULT, soundPool.load(context, R.raw.scanresult, 1));
         soundPoolMap.put(TAB_BUTTON, soundPool.load(context, R.raw.tabbutton, 1));
+        soundPoolMap.put(BALANCE_CHANGE, soundPool.load(context, R.raw.balance, 1));
     }
 
     @SuppressWarnings("deprecation")
