@@ -2,8 +2,10 @@ package com.bakkenbaeck.token.presenter;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.view.View;
 
+import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.local.ScanResult;
 import com.bakkenbaeck.token.view.activity.ScannerActivity;
 import com.bakkenbaeck.token.view.activity.ViewUserActivity;
@@ -20,6 +22,7 @@ public final class ScannerPresenter implements Presenter<ScannerActivity> {
 
     private CaptureManager capture;
     private ScannerActivity activity;
+    private MediaPlayer scanMediaPlayer;
     private int resultType;
 
     @Override
@@ -35,7 +38,14 @@ public final class ScannerPresenter implements Presenter<ScannerActivity> {
 
     private void init() {
         initCloseButton();
+        initMediaPlayer();
         initScanner();
+    }
+
+    private void initMediaPlayer() {
+        if (this.scanMediaPlayer == null) {
+            this.scanMediaPlayer = MediaPlayer.create(this.activity, R.raw.scan);
+        }
     }
 
     private void initCloseButton() {
@@ -53,6 +63,7 @@ public final class ScannerPresenter implements Presenter<ScannerActivity> {
     private final BarcodeCallback onScanSuccess = new BarcodeCallback() {
         @Override
         public void barcodeResult(final BarcodeResult result) {
+            MediaPlayer.create(activity, R.raw.scanresult).start();
             // Right now, this assumes that the QR code is a contacts address
             // so it is currently very naive
             final ScanResult scanResult = new ScanResult(result);
@@ -71,7 +82,12 @@ public final class ScannerPresenter implements Presenter<ScannerActivity> {
 
         @Override
         public void possibleResultPoints(final List<ResultPoint> resultPoints) {
-
+            // 3 == the three eyes of a QR code; it means we only play this sound when
+            // we're close to looking at a QR code but haven't read it yet.
+            final int minimumPointsRequiredToPlaySound = 3;
+            if (resultPoints.size() >= minimumPointsRequiredToPlaySound && !scanMediaPlayer.isPlaying()) {
+                scanMediaPlayer.start();
+            }
         }
     };
 
