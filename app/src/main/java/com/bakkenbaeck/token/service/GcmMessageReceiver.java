@@ -65,6 +65,10 @@ public class GcmMessageReceiver extends GcmListenerService {
                 final Payment payment = adapters.paymentFrom(chatMessage.getPayload());
                 handleIncomingPayment(payment);
                 showPaymentNotification(payment);
+            } else {
+                final String title = this.getString(R.string.message_received);
+                //Message is atm null, use chatMessage instead
+                showNotification(title, message);
             }
 
         } catch (IOException e) {
