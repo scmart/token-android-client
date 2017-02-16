@@ -4,13 +4,13 @@ package com.bakkenbaeck.token.manager;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.ServerTime;
 import com.bakkenbaeck.token.model.network.UserDetails;
 import com.bakkenbaeck.token.network.IdService;
 import com.bakkenbaeck.token.presenter.store.UserStore;
+import com.bakkenbaeck.token.util.FileNames;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 
@@ -52,7 +52,7 @@ public class UserManager {
     }
 
     private void initUser() {
-        this.prefs = BaseApplication.get().getSharedPreferences(BaseApplication.get().getResources().getString(R.string.user_manager_pref_filename), Context.MODE_PRIVATE);
+        this.prefs = BaseApplication.get().getSharedPreferences(FileNames.USER_PREFS, Context.MODE_PRIVATE);
         if (!userExistsInPrefs()) {
             registerNewUser();
         } else {

@@ -3,7 +3,6 @@
     <string name="eth_currency_code">ETH</string>
     <!-- Dialog errors -->
     <string name="dollar">$</string>
-    <string name="user_manager_pref_filename">usm</string>
     <string name="fiat_iso__usd">USD</string>
     <string name="tab_1">Home</string>
     <string name="tab_2">Apps</string>
