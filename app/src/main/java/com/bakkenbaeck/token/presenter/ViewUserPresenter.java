@@ -14,6 +14,7 @@ import com.bakkenbaeck.token.presenter.store.UserStore;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
+import com.bakkenbaeck.token.util.SoundManager;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 
@@ -112,8 +113,10 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         final boolean isAContact = contactStore.userIsAContact(scannedUser);
         if (isAContact) {
             this.activity.getBinding().addContactButton.setText(this.activity.getResources().getString(R.string.remove_contact));
+            this.activity.getBinding().addContactButton.setSoundEffectsEnabled(true);
         } else {
             this.activity.getBinding().addContactButton.setText(this.activity.getResources().getString(R.string.add_contact));
+            this.activity.getBinding().addContactButton.setSoundEffectsEnabled(false);
         }
     }
 
@@ -125,6 +128,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
                 contactStore.delete(scannedUser);
             } else {
                 contactStore.save(scannedUser);
+                SoundManager.getInstance().playSound(SoundManager.ADD_CONTACT);
             }
             updateAddContactState();
         }

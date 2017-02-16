@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.view.View;
 
 import com.bakkenbaeck.token.model.local.ScanResult;
+import com.bakkenbaeck.token.util.SoundManager;
 import com.bakkenbaeck.token.view.activity.ScannerActivity;
 import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 import com.google.zxing.ResultPoint;
@@ -53,6 +54,7 @@ public final class ScannerPresenter implements Presenter<ScannerActivity> {
     private final BarcodeCallback onScanSuccess = new BarcodeCallback() {
         @Override
         public void barcodeResult(final BarcodeResult result) {
+            SoundManager.getInstance().playSound(SoundManager.SCAN_RESULT);
             // Right now, this assumes that the QR code is a contacts address
             // so it is currently very naive
             final ScanResult scanResult = new ScanResult(result);
@@ -71,7 +73,12 @@ public final class ScannerPresenter implements Presenter<ScannerActivity> {
 
         @Override
         public void possibleResultPoints(final List<ResultPoint> resultPoints) {
-
+            // 3 == the three eyes of a QR code; it means we only play this sound when
+            // we're close to looking at a QR code but haven't read it yet.
+            final int minimumPointsRequiredToPlaySound = 3;
+            if (resultPoints.size() >= minimumPointsRequiredToPlaySound) {
+                SoundManager.getInstance().playSound(SoundManager.SCAN);
+            }
         }
     };
 

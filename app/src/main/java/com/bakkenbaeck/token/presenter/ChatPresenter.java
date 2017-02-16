@@ -31,6 +31,7 @@ import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.PaymentType;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
+import com.bakkenbaeck.token.util.SoundManager;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
@@ -337,8 +338,17 @@ public final class ChatPresenter implements
             messageAdapter.addMessage(chatMessage);
             updateEmptyState();
             tryScrollToBottom(true);
+            playNewMessageSound(chatMessage.isSentByLocal());
         }
     };
+
+    private void playNewMessageSound(final boolean sentByLocal) {
+        if (sentByLocal) {
+            SoundManager.getInstance().playSound(SoundManager.SEND_MESSAGE);
+        } else {
+            SoundManager.getInstance().playSound(SoundManager.RECEIVE_MESSAGE);
+        }
+    }
 
     private final OnNextSubscriber<ChatMessage> handleUpdatedMessage = new OnNextSubscriber<ChatMessage>() {
         @Override
