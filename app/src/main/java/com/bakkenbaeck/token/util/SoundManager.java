@@ -32,7 +32,7 @@ public class SoundManager {
     private static final int MAX_STREAMS = 5;
     private static SoundManager instance;
 
-    public static SoundManager get() {
+    public static SoundManager getInstance() {
         if (instance == null) {
             instance = new SoundManager();
         }

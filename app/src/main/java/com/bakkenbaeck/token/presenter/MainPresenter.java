@@ -27,7 +27,7 @@ public class MainPresenter implements Presenter<MainActivity> {
 
             final FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
             transaction.replace(activity.getBinding().container.getId(), adapter.getItem(position)).commit();
-            SoundManager.get().playSound(SoundManager.TAB_BUTTON);
+            SoundManager.getInstance().playSound(SoundManager.TAB_BUTTON);
             return true;
         }
     };

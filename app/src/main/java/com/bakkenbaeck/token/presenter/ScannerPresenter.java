@@ -54,7 +54,7 @@ public final class ScannerPresenter implements Presenter<ScannerActivity> {
     private final BarcodeCallback onScanSuccess = new BarcodeCallback() {
         @Override
         public void barcodeResult(final BarcodeResult result) {
-            SoundManager.get().playSound(SoundManager.SCAN_RESULT);
+            SoundManager.getInstance().playSound(SoundManager.SCAN_RESULT);
             // Right now, this assumes that the QR code is a contacts address
             // so it is currently very naive
             final ScanResult scanResult = new ScanResult(result);
@@ -77,7 +77,7 @@ public final class ScannerPresenter implements Presenter<ScannerActivity> {
             // we're close to looking at a QR code but haven't read it yet.
             final int minimumPointsRequiredToPlaySound = 3;
             if (resultPoints.size() >= minimumPointsRequiredToPlaySound) {
-                SoundManager.get().playSound(SoundManager.SCAN);
+                SoundManager.getInstance().playSound(SoundManager.SCAN);
             }
         }
     };

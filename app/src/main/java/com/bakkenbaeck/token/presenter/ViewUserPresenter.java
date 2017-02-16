@@ -128,7 +128,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
                 contactStore.delete(scannedUser);
             } else {
                 contactStore.save(scannedUser);
-                SoundManager.get().playSound(SoundManager.ADD_CONTACT);
+                SoundManager.getInstance().playSound(SoundManager.ADD_CONTACT);
             }
             updateAddContactState();
         }

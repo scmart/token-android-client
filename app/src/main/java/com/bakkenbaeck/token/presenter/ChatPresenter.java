@@ -344,9 +344,9 @@ public final class ChatPresenter implements
 
     private void playNewMessageSound(final boolean sentByLocal) {
         if (sentByLocal) {
-            SoundManager.get().playSound(SoundManager.SEND_MESSAGE);
+            SoundManager.getInstance().playSound(SoundManager.SEND_MESSAGE);
         } else {
-            SoundManager.get().playSound(SoundManager.RECEIVE_MESSAGE);
+            SoundManager.getInstance().playSound(SoundManager.RECEIVE_MESSAGE);
         }
     }
 
