@@ -55,6 +55,7 @@ public class MainPresenter implements Presenter<MainActivity> {
         navBar.setTitleState(AHBottomNavigation.TitleState.ALWAYS_SHOW);
         navBar.setAccentColor(ContextCompat.getColor(this.activity, R.color.colorPrimary));
         navBar.setOnTabSelectedListener(this.tabListener);
+        navBar.setSoundEffectsEnabled(false);
     }
 
     @Override
