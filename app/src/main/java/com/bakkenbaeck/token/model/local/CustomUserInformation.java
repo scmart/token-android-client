@@ -9,6 +9,7 @@ import io.realm.RealmObject;
 public class CustomUserInformation extends RealmObject implements Parcelable {
     private String about;
     private String location;
+    private String name;
     private String payment_address;
 
     public CustomUserInformation() {}
@@ -16,12 +17,14 @@ public class CustomUserInformation extends RealmObject implements Parcelable {
     /* package */ CustomUserInformation(final CustomUserInformation customUserInformation) {
         this.about = customUserInformation.getAbout();
         this.location = customUserInformation.getLocation();
+        this.name = customUserInformation.getName();
         this.payment_address = customUserInformation.getPaymentAddress();
     }
 
     private CustomUserInformation(Parcel in) {
         about = in.readString();
         location = in.readString();
+        name = in.readString();
         payment_address = in.readString();
     }
 
@@ -46,6 +49,7 @@ public class CustomUserInformation extends RealmObject implements Parcelable {
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeString(about);
         dest.writeString(location);
+        dest.writeString(name);
         dest.writeString(payment_address);
     }
 
@@ -55,6 +59,10 @@ public class CustomUserInformation extends RealmObject implements Parcelable {
 
     public String getLocation() {
         return this.location;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     public String getPaymentAddress() {

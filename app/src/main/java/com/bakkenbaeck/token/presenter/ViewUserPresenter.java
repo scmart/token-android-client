@@ -97,8 +97,9 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     private void handleUserLoaded(final User scannedUser) {
         new Handler(Looper.getMainLooper()).post(() -> {
             ViewUserPresenter.this.scannedUser = scannedUser;
-            ViewUserPresenter.this.activity.getBinding().name.setText(scannedUser.getUsername());
-            ViewUserPresenter.this.activity.getBinding().title.setText(scannedUser.getUsername());
+            ViewUserPresenter.this.activity.getBinding().title.setText(scannedUser.getDisplayName());
+            ViewUserPresenter.this.activity.getBinding().name.setText(scannedUser.getDisplayName());
+            ViewUserPresenter.this.activity.getBinding().username.setText(scannedUser.getUsername());
             ViewUserPresenter.this.activity.getBinding().about.setText(scannedUser.getAbout());
             ViewUserPresenter.this.activity.getBinding().location.setText(scannedUser.getLocation());
             ViewUserPresenter.this.activity.getBinding().addContactButton.setOnClickListener(handleOnAddContact);

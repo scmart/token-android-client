@@ -80,7 +80,7 @@
             android:textColor="@color/textColorSecondary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="\@username"/>
+            tools:text="\@username"/>
 
         <android.support.v4.widget.Space
             android:layout_width="0dp"

@@ -33,7 +33,7 @@ public class ConversationViewHolder extends ClickableViewHolder {
 
     public void setConversation(final Conversation conversation) {
         final User member = conversation.getMember();
-        this.name.setText(member.getUsername());
+        this.name.setText(member.getDisplayName());
         this.unreadCounter.setText(String.valueOf(conversation.getNumberOfUnread()));
         final String creationTime = getLastMessageCreationTime(conversation);
         this.time.setText(creationTime);
