@@ -1,6 +1,7 @@
 package com.bakkenbaeck.token.presenter;
 
 import com.bakkenbaeck.token.view.activity.LicenseListActivity;
+import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -8,6 +9,7 @@ import android.view.View;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.local.Library;
+import com.bakkenbaeck.token.view.activity.LicenseActivity;
 import com.bakkenbaeck.token.view.adapter.LibraryAdapter;
 import com.bakkenbaeck.token.view.custom.HorizontalLineDivider;
 
@@ -36,7 +38,9 @@ public class LicenseListPresenter implements Presenter<LicenseListActivity> {
     }
 
     private void handleItemClicked(final Library library) {
-        //Start a new activity which shows the license
+        final Intent intent = new Intent(this.activity, LicenseActivity.class);
+        intent.putExtra(LicenseActivity.LIBRARY, library);
+        this.activity.startActivity(intent);
     }
 
     private void addLibraries() {
