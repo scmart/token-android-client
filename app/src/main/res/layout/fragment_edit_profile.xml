@@ -54,6 +54,25 @@
             android:layout_height="wrap_content">
 
             <EditText
+                android:id="@+id/input_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/profile_username"
+                android:singleLine="true"
+                android:maxLines="1"
+                android:imeOptions="actionNext"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.v4.widget.Space
+            android:layout_width="0dp"
+            android:layout_height="16dp"/>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
                 android:id="@+id/input_about"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

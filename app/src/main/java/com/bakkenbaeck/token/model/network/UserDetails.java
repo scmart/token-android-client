@@ -36,6 +36,12 @@ public class UserDetails {
         return this;
     }
 
+    public UserDetails setDisplayName(final String name) {
+        initCustom();
+        this.custom.name = name;
+        return this;
+    }
+
     private void initCustom() {
         if (custom == null) {
             this.custom = new CustomPayload();
@@ -49,6 +55,9 @@ public class UserDetails {
 
         @JsonProperty
         private String location;
+
+        @JsonProperty
+        private String name;
 
         @JsonProperty
         private String payment_address;

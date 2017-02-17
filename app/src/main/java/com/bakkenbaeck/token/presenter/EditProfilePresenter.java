@@ -24,7 +24,8 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     private OnNextSubscriber<User> handleUserLoaded;
     private EditProfileFragment fragment;
 
-    private String nameFieldContents;
+    private String displayNameFieldContents;
+    private String userNameFieldContents;
     private String aboutFieldContents;
     private String locationFieldContents;
 
@@ -68,7 +69,8 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
             }
 
             private void setFieldsFromUser(final User user) {
-                if(nameFieldContents == null) nameFieldContents = user.getUsername();
+                if(displayNameFieldContents == null) displayNameFieldContents = user.getDisplayName();
+                if(userNameFieldContents == null) userNameFieldContents = user.getUsername();
                 if(aboutFieldContents == null) aboutFieldContents = user.getAbout();
                 if(locationFieldContents == null) locationFieldContents = user.getLocation();
             }
@@ -76,7 +78,8 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     }
 
     private void updateView() {
-        this.fragment.getBinding().inputName.setText(this.nameFieldContents);
+        this.fragment.getBinding().inputName.setText(this.displayNameFieldContents);
+        this.fragment.getBinding().inputUsername.setText(this.userNameFieldContents);
         this.fragment.getBinding().inputAbout.setText(this.aboutFieldContents);
         this.fragment.getBinding().inputLocation.setText(this.locationFieldContents);
     }
@@ -89,9 +92,10 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
             }
             final UserDetails userDetails =
                     new UserDetails()
-                    .setUsername(fragment.getBinding().inputName.getText().toString())
-                    .setAbout(fragment.getBinding().inputAbout.getText().toString())
-                    .setLocation(fragment.getBinding().inputLocation.getText().toString());
+                    .setDisplayName(fragment.getBinding().inputName.getText().toString().trim())
+                    .setUsername(fragment.getBinding().inputUsername.getText().toString().trim())
+                    .setAbout(fragment.getBinding().inputAbout.getText().toString().trim())
+                    .setLocation(fragment.getBinding().inputLocation.getText().toString().trim());
 
             BaseApplication.get()
                     .getTokenManager()
@@ -100,16 +104,24 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
         }
 
         private boolean validate() {
-            final String username = fragment.getBinding().inputName.getText().toString().trim();
-            if (username.length() == 0) {
+            final String displayName = fragment.getBinding().inputName.getText().toString().trim();
+            final String username = fragment.getBinding().inputUsername.getText().toString().trim();
+
+            if (displayName.trim().length() == 0) {
                 fragment.getBinding().inputName.setError(fragment.getResources().getString(R.string.error__required));
                 fragment.getBinding().inputName.requestFocus();
                 return false;
             }
 
+            if (username.trim().length() == 0) {
+                fragment.getBinding().inputUsername.setError(fragment.getResources().getString(R.string.error__required));
+                fragment.getBinding().inputUsername.requestFocus();
+                return false;
+            }
+
             if (username.contains(" ")) {
-                fragment.getBinding().inputName.setError(fragment.getResources().getString(R.string.error__invalid_characters));
-                fragment.getBinding().inputName.requestFocus();
+                fragment.getBinding().inputUsername.setError(fragment.getResources().getString(R.string.error__invalid_characters));
+                fragment.getBinding().inputUsername.requestFocus();
                 return false;
             }
             return true;
@@ -120,12 +132,7 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
         @Override
         public void onSuccess(final Void unused) {
             showToast("Saved successfully!");
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    fragment.getActivity().onBackPressed();
-                }
-            });
+            new Handler(Looper.getMainLooper()).post(() -> fragment.getActivity().onBackPressed());
         }
 
         @Override
@@ -136,12 +143,7 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
 
     private void showToast(final String message) {
         new Handler(Looper.getMainLooper())
-                .post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(fragment.getContext(), message, Toast.LENGTH_LONG).show();
-                    }
-                });
+                .post(() -> Toast.makeText(fragment.getContext(), message, Toast.LENGTH_LONG).show());
     }
 
     @Override
@@ -152,7 +154,8 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     }
 
     private void saveFields() {
-        this.nameFieldContents = this.fragment.getBinding().inputName.getText().toString();
+        this.displayNameFieldContents = this.fragment.getBinding().inputName.getText().toString();
+        this.userNameFieldContents = this.fragment.getBinding().inputUsername.getText().toString();
         this.aboutFieldContents = this.fragment.getBinding().inputAbout.getText().toString();
         this.locationFieldContents = this.fragment.getBinding().inputLocation.getText().toString();
     }
