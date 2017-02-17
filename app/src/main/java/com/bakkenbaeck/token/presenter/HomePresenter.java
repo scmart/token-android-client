@@ -8,7 +8,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.bakkenbaeck.token.model.local.ActivityResultHolder;
+import com.bakkenbaeck.token.model.network.App;
+import com.bakkenbaeck.token.model.network.Apps;
 import com.bakkenbaeck.token.model.network.Balance;
+import com.bakkenbaeck.token.network.DirectoryService;
+import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.PaymentType;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -22,7 +26,11 @@ import com.bakkenbaeck.token.view.fragment.toplevel.HomeFragment;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Response;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 
 public class HomePresenter implements Presenter<HomeFragment> {
@@ -31,8 +39,10 @@ public class HomePresenter implements Presenter<HomeFragment> {
     private static final int ETH_SEND_CODE = 2;
 
     private HomeFragment fragment;
-    private boolean firstTimeAttaching = true;
     private Balance balance;
+    private CompositeSubscription subscriptions;
+    private List<App> featuredApps;
+    private boolean firstTimeAttaching = true;
 
     @Override
     public void onViewAttached(HomeFragment view) {
@@ -43,45 +53,11 @@ public class HomePresenter implements Presenter<HomeFragment> {
             initLongTermObjects();
         }
         initShortTermObjects();
+        getFeaturedApps();
     }
 
     private void initLongTermObjects() {
         assignSubscribers();
-    }
-
-    private void initShortTermObjects() {
-        assignClickListeners();
-        initView();
-        refreshBalance();
-    }
-
-    private void initView() {
-        final RecyclerView rv = this.fragment.getBinding().appList;
-        rv.setLayoutManager(new GridLayoutManager(this.fragment.getContext(), 4));
-
-        final List<String> apps = new ArrayList<>();
-        apps.add("Draw something");
-        apps.add("Token Portfolio");
-        apps.add("Perfect GIF");
-        apps.add("Local Trade");
-        apps.add("Trade ");
-        apps.add("Tickets");
-
-        final AppListAdapter adapter = new AppListAdapter(apps);
-        adapter.setOnItemClickListener(this.appItemClickListener);
-        rv.setAdapter(adapter);
-
-        assignSubscribers();
-        assignClickListeners();
-    }
-
-    private void refreshBalance() {
-        if (this.fragment == null || this.balance == null) {
-            return;
-        }
-
-        this.fragment.getBinding().balanceEth.setText(this.balance.getFormattedUnconfirmedBalance());
-        this.fragment.getBinding().balanceUsd.setText(this.balance.getFormattedLocalBalance());
     }
 
     private void assignSubscribers() {
@@ -99,11 +75,73 @@ public class HomePresenter implements Presenter<HomeFragment> {
         refreshBalance();
     }
 
+    private void initShortTermObjects() {
+        initSubscriptions();
+        assignClickListeners();
+        initRecyclerView();
+        refreshBalance();
+    }
+
+    private void initSubscriptions() {
+        this.subscriptions = new CompositeSubscription();
+    }
+
     private void assignClickListeners() {
         this.fragment.getBinding().payMoney.setOnClickListener(this.payClickListener);
         this.fragment.getBinding().requestMoney.setOnClickListener(this.requestClickListener);
         this.fragment.getBinding().addMoney.setOnClickListener(this.addMoneyClickListener);
         this.fragment.getBinding().scanQr.setOnClickListener(this.scanQrClickListener);
+    }
+
+    private void initRecyclerView() {
+        final RecyclerView appList = this.fragment.getBinding().appList;
+        appList.setNestedScrollingEnabled(false);
+        appList.setLayoutManager(new GridLayoutManager(this.fragment.getContext(), 4));
+        final AppListAdapter adapter = new AppListAdapter(new ArrayList<>());
+        adapter.setOnItemClickListener(this.appItemClickListener);
+        appList.setAdapter(adapter);
+    }
+
+    private void refreshBalance() {
+        if (this.fragment == null || this.balance == null) {
+            return;
+        }
+
+        this.fragment.getBinding().balanceEth.setText(this.balance.getFormattedUnconfirmedBalance());
+        this.fragment.getBinding().balanceUsd.setText(this.balance.getFormattedLocalBalance());
+    }
+
+    private void getFeaturedApps() {
+        if (this.featuredApps != null) {
+            addFeaturedAppsData(this.featuredApps);
+            return;
+        }
+
+        final Subscription sub = DirectoryService
+                .getApi()
+                .getFeaturedApps()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleResponse, this::handleErrorResponse);
+
+        this.subscriptions.add(sub);
+    }
+
+    private void handleErrorResponse(final Throwable throwable) {
+        LogUtil.e(getClass(), "Error during featuredApps request");
+    }
+
+    private void handleResponse(final Response<Apps> response) {
+        if (response.code() == 200) {
+            final List<App> featuredApps = response.body().getApps();
+            this.featuredApps = featuredApps;
+            addFeaturedAppsData(featuredApps);
+        }
+    }
+
+    private void addFeaturedAppsData(final List<App> apps) {
+        final AppListAdapter adapter = (AppListAdapter) this.fragment.getBinding().appList.getAdapter();
+        adapter.setApps(apps);
     }
 
     private OnSingleClickListener payClickListener = new OnSingleClickListener() {
@@ -140,12 +178,11 @@ public class HomePresenter implements Presenter<HomeFragment> {
         }
     };
 
-    private OnItemClickListener appItemClickListener = new OnItemClickListener() {
-        @Override
-        public void onItemClick(Object item) {
-            final int position = (int) item;
-        }
-    };
+    private OnItemClickListener<App> appItemClickListener = this::handleClickEvent;
+
+    private void handleClickEvent(final App item) {
+        LogUtil.d(getClass(), "Item clicked -> " + item.getDisplayName());
+    }
 
     public void handleActivityResult(final ActivityResultHolder resultHolder, final Context context) {
         if (resultHolder.getResultCode() != Activity.RESULT_OK) {
@@ -170,6 +207,15 @@ public class HomePresenter implements Presenter<HomeFragment> {
 
     @Override
     public void onViewDestroyed() {
+        clearSubscriptions();
         this.fragment = null;
+    }
+
+    private void clearSubscriptions() {
+        if (this.subscriptions == null) {
+            return;
+        }
+
+        this.subscriptions.unsubscribe();
     }
 }

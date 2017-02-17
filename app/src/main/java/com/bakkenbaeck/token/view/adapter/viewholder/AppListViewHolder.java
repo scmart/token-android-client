@@ -6,7 +6,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.model.network.App;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
+import com.bumptech.glide.Glide;
 
 public class AppListViewHolder extends RecyclerView.ViewHolder {
     private ImageView appImage;
@@ -19,24 +21,20 @@ public class AppListViewHolder extends RecyclerView.ViewHolder {
         this.appName = (TextView) itemView.findViewById(R.id.app_name);
     }
 
-    public void setAppName(final String appName) {
-        this.appName.setText(appName);
+    public void setApp(final App app) {
+        this.appName.setText(app.getDisplayName());
+        Glide.with(this.appImage.getContext())
+                .load(app.getAvatarUrl())
+                .into(this.appImage);
     }
 
-    public void setAppImage(final int imageRef) {
-        this.appImage.setImageResource(imageRef);
-    }
-
-    public void bind(final int position, final OnItemClickListener listener) {
-        this.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (listener == null) {
-                    return;
-                }
-
-                listener.onItemClick(position);
+    public void bind(final App app, final OnItemClickListener<App> listener) {
+        this.itemView.setOnClickListener(view -> {
+            if (listener == null) {
+                return;
             }
+
+            listener.onItemClick(app);
         });
     }
 }
