@@ -44,20 +44,112 @@ public class LicenseListPresenter implements Presenter<LicenseListActivity> {
     }
 
     private void addLibraries() {
+        final Library ethereumj = new Library()
+                .setName("Ethereumj")
+                .setLicence(this.activity.getString(R.string.mit_license));
+        final Library spongycastle = new Library()
+                .setName("Spongycastle")
+                .setLicence(this.activity.getString(R.string.mit_license));
+
+        final Library signal = new Library()
+                .setName("Signal")
+                .setLicence(this.activity.getString(R.string.gplv3_license));
+
+        final Library glide = new Library()
+                .setName("Glide")
+                .setLicence(this.activity.getString(R.string.glide_license));
+
+        final Library recyclerView = new Library()
+                .setName("Android Support Library RecyclerView")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
+        final Library gridLayout = new Library()
+                .setName("Android Support Library GridLayout")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
+        final Library appCompat = new Library()
+                .setName("Android Support Library Appcompat")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
+        final Library design = new Library()
+                .setName("Android Support Library Design")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
+        final Library multidex = new Library()
+                .setName("Android Support Library Multidex")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
+        final Library rxjavaProguardRules = new Library()
+                .setName("Rxjava Proguard Rules")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
+        final Library rxAndroid = new Library()
+                .setName("RxAndroid")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
+        final Library rxBinding = new Library()
+                .setName("RxBinding")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
+        final Library ahbottomnavigation = new Library()
+                .setName("Ahbottomnavigation")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
+        final Library circleImageview = new Library()
+                .setName("CircleImageview")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
+        final Library zxingAndroidEmbedded = new Library()
+                .setName("ZxingAndroidEmbedded")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
+        final Library bitcoinjCore = new Library()
+                .setName("Bitcoinj-core")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
+        final Library whisperSystemsLibsignalService = new Library()
+                .setName("WhisperSystems Libsignal-service")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
+        final Library chipsLayoutManager = new Library()
+                .setName("ChipsLayoutManager")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
+        final Library googlePlayServicesGcm = new Library()
+                .setName("Google Cloud Messaging Play Services")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
         final Library retrofit = new Library()
-                .setName("Retrofit 2")
-                .setLicence("License");
+                .setName("Retrofit")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
+        final Library retrofitMoshi = new Library()
+                .setName("Retrofit Converter Moshi")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
+        final Library retrofitRxJava = new Library()
+                .setName("Retrofit Adapter Rxjava")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
+        final Library retrofitScalars = new Library()
+                .setName("Retrofit Converter Scalars")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
         final Library okHttp = new Library()
                 .setName("OkHttp 3")
-                .setLicence("License");
-        final Library rxJava = new Library()
-                .setName("RxJava")
-                .setLicence("License");
-
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
+        final Library okHttpInterceptor = new Library()
+                .setName("Okhttp3 Logging interceptor")
+                .setLicence(this.activity.getString(R.string.apache_v2_license));
         final List<Library> libraries = new ArrayList<>();
+
         libraries.add(retrofit);
+        libraries.add(retrofitMoshi);
+        libraries.add(retrofitRxJava);
+        libraries.add(retrofitScalars);
         libraries.add(okHttp);
-        libraries.add(rxJava);
+        libraries.add(okHttpInterceptor);
+        libraries.add(ethereumj);
+        libraries.add(spongycastle);
+        libraries.add(signal);
+        libraries.add(glide);
+        libraries.add(recyclerView);
+        libraries.add(gridLayout);
+        libraries.add(appCompat);
+        libraries.add(design);
+        libraries.add(multidex);
+        libraries.add(rxjavaProguardRules);
+        libraries.add(rxAndroid);
+        libraries.add(rxBinding);
+        libraries.add(ahbottomnavigation);
+        libraries.add(circleImageview);
+        libraries.add(zxingAndroidEmbedded);
+        libraries.add(retrofitMoshi);
+        libraries.add(bitcoinjCore);
+        libraries.add(whisperSystemsLibsignalService);
+        libraries.add(chipsLayoutManager);
+        libraries.add(googlePlayServicesGcm);
 
         final LibraryAdapter adapter = (LibraryAdapter) this.activity.getBinding().libraryList.getAdapter();
         adapter.setLibraries(libraries);

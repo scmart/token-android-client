@@ -37,13 +37,20 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/license"
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="@dimen/activity_horizontal_margin"
-            android:textColor="@color/textColorPrimary"
-            android:textSize="12sp"/>
+            android:fillViewport="true">
+
+            <TextView
+                android:id="@+id/license"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/activity_horizontal_margin"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="12sp"/>
+
+        </ScrollView>
 
     </LinearLayout>
 
