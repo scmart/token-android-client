@@ -37,7 +37,7 @@ public class User extends RealmObject implements Parcelable {
     // Getters
 
     public String getUsername() {
-        return username;
+        return String.format("@%s", username);
     }
 
     // Defaults to the username if no name is set.
