@@ -36,7 +36,6 @@ import rx.schedulers.Schedulers;
 
 public final class SignalService extends SignalServiceAccountManager {
 
-    private final HDWallet wallet;
     private final SignalInterface signalInterface;
     private final OkHttpClient.Builder client;
     private final String url;
@@ -48,19 +47,16 @@ public final class SignalService extends SignalServiceAccountManager {
             final String userAgent) {
 
         this(   urls,
-                wallet,
                 wallet.getOwnerAddress(),
                 protocolStore.getPassword(),
                 userAgent);
     }
 
     private SignalService(final SignalServiceUrl[] urls,
-                          final HDWallet wallet,
                           final String user,
                           final String password,
                           final String userAgent) {
         super(urls, user, password, userAgent);
-        this.wallet = wallet;
         this.url = urls[0].getUrl();
         this.client = new OkHttpClient.Builder();
         this.signalInterface = generateSignalInterface();
