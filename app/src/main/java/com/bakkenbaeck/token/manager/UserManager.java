@@ -27,7 +27,6 @@ import rx.subjects.BehaviorSubject;
 public class UserManager {
 
     private final static String USER_ID = "uid";
-    private final static String USER_NAME = "un";
 
     private final BehaviorSubject<User> userSubject = BehaviorSubject.create();
     private SharedPreferences prefs;
@@ -113,7 +112,6 @@ public class UserManager {
     private void updateCurrentUser(final User user) {
         prefs.edit()
                 .putString(USER_ID, user.getOwnerAddress())
-                .putString(USER_NAME, user.getUsername())
                 .apply();
         this.userSubject.onNext(user);
     }
