@@ -1,8 +1,12 @@
 package com.bakkenbaeck.token.presenter;
 
+import android.content.Intent;
+import android.view.View;
+
 import com.bakkenbaeck.token.BuildConfig;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.view.activity.AboutActivity;
+import com.bakkenbaeck.token.view.activity.LicenseListActivity;
 
 public class AboutPresenter implements Presenter<AboutActivity> {
 
@@ -17,6 +21,7 @@ public class AboutPresenter implements Presenter<AboutActivity> {
     private void initView() {
         setVersionName();
         setContactInfo();
+        initClickListeners();
     }
 
     private void setVersionName() {
@@ -27,6 +32,20 @@ public class AboutPresenter implements Presenter<AboutActivity> {
     private void setContactInfo() {
         final String contactInfo = this.activity.getString(R.string.contact_information);
         this.activity.getBinding().contactInfo.setText(contactInfo);
+    }
+
+    private void initClickListeners() {
+        this.activity.getBinding().closeButton.setOnClickListener(this::handleCloseButtonClicked);
+        this.activity.getBinding().openSourceLicenses.setOnClickListener(this::handleOpenSourceLicencesClicked);
+    }
+
+    private void handleCloseButtonClicked(final View v) {
+        this.activity.finish();
+    }
+
+    private void handleOpenSourceLicencesClicked(final View v) {
+        final Intent intent = new Intent(this.activity, LicenseListActivity.class);
+        this.activity.startActivity(intent);
     }
 
     @Override
