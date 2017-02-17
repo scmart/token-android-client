@@ -33,7 +33,7 @@
                 android:textSize="18sp"
                 android:textStyle="bold"
                 style="@style/Toolbar.TitleText"
-                android:text="Name"/>
+                tools:text="Name"/>
 
         </LinearLayout>
 
@@ -75,8 +75,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:text="\@username"
-                    android:textColor="@color/textColorSecondary"/>
+                    android:textColor="@color/textColorSecondary"
+                    tools:text="\@username" />
 
                 <android.support.v4.widget.Space
                     android:layout_width="0dp"

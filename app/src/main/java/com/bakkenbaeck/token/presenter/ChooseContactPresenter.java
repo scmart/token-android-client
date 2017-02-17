@@ -157,7 +157,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
 
     private void handleItemClicked(final User user) {
         this.recipientUser = user;
-        this.activity.getBinding().recipientUser.setText(user.getUsername());
+        this.activity.getBinding().recipientUser.setText(user.getDisplayName());
         updateConfirmationButtonState();
     }
 
@@ -201,7 +201,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
 
     private void handleUserLoaded(final User user) {
         this.recipientUser = user;
-        this.activity.getBinding().recipientUser.setText(user.getUsername());
+        this.activity.getBinding().recipientUser.setText(user.getDisplayName());
         updateConfirmationButtonState();
     }
 
