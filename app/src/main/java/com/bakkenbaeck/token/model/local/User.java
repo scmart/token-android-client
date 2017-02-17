@@ -40,6 +40,14 @@ public class User extends RealmObject implements Parcelable {
         return username;
     }
 
+    // Defaults to the username if no name is set.
+    public String getDisplayName() {
+        if (custom == null || custom.getName() == null) {
+            return username;
+        }
+        return custom.getName();
+    }
+
     public String getOwnerAddress() {
         return owner_address;
     }
