@@ -5,12 +5,13 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Toast;
 
-import com.bakkenbaeck.token.BuildConfig;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.view.activity.AboutActivity;
 import com.bakkenbaeck.token.view.activity.ProfileActivity;
 import com.bakkenbaeck.token.view.adapter.SettingsAdapter;
 import com.bakkenbaeck.token.view.fragment.children.SettingsFragment;
@@ -30,7 +31,6 @@ public final class SettingsPresenter implements
         this.fragment = fragment;
 
         addListeners();
-        setVersionName();
         initRecyclerView();
         updateUi();
     }
@@ -46,13 +46,9 @@ public final class SettingsPresenter implements
                 .subscribe(this.handleUserLoaded);
     }
 
-    private void setVersionName() {
-        final String versionName = BuildConfig.VERSION_NAME;
-        this.fragment.getBinding().version.setText(versionName);
-    }
-
     private void initRecyclerView() {
         final SettingsAdapter adapter = new SettingsAdapter();
+        adapter.setOnItemClickListener(this::handleItemClickListener);
         final RecyclerView recyclerView = this.fragment.getBinding().settings;
         final RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this.fragment.getContext());
         recyclerView.setLayoutManager(layoutManager);
@@ -60,6 +56,19 @@ public final class SettingsPresenter implements
 
         final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
         recyclerView.addItemDecoration(dividerItemDecoration);
+    }
+
+    private void handleItemClickListener(final String option) {
+        switch (option) {
+            case "About": {
+                final Intent intent = new Intent(this.fragment.getContext(), AboutActivity.class);
+                this.fragment.getContext().startActivity(intent);
+                break;
+            }
+            default: {
+                Toast.makeText(this.fragment.getContext(), "This option is not supported", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void generateUserLoadedHandler() {

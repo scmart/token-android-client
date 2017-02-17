@@ -6,23 +6,28 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.adapter.viewholder.ClickableViewHolder;
 
 import java.util.ArrayList;
 
-public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHolder> implements ClickableViewHolder.OnClickListener {
+public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHolder> {
 
     private final ArrayList<String> settings;
+    private OnItemClickListener<String> listener;
 
     public SettingsAdapter() {
         this.settings = new ArrayList<>(3);
         this.settings.add("Security");
         this.settings.add("Local currency");
+        this.settings.add("About");
         this.settings.add("Sign out");
+    }
+
+    public void setOnItemClickListener(final OnItemClickListener<String> listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -35,17 +40,12 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         final String label = this.settings.get(position);
         holder.label.setText(label);
-        holder.setOnClickListener(this);
+        holder.bind(label, listener);
     }
 
     @Override
     public int getItemCount() {
         return this.settings.size();
-    }
-
-    @Override
-    public void onClick(final int position) {
-        Toast.makeText(BaseApplication.get(), "These settings currently do nothing!", Toast.LENGTH_SHORT).show();
     }
 
     static class ViewHolder extends ClickableViewHolder {
@@ -54,6 +54,16 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
         private ViewHolder(final View view) {
             super(view);
             this.label = (TextView) view.findViewById(R.id.label);
+        }
+
+        public void bind(final String option, final OnItemClickListener<String> listener) {
+            this.itemView.setOnClickListener(view -> {
+                if (listener == null) {
+                    return;
+                }
+
+                listener.onItemClick(option);
+            });
         }
     }
 }

@@ -65,4 +65,5 @@
     <string name="bullet_point">•</string>
     <string name="message_received">Message received</string>
     <string name="profile_username">Username</string>
+    <string name="about">About</string>
 </resources>
