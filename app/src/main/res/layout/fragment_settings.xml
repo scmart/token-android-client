@@ -148,6 +148,7 @@
         </FrameLayout>
 
         <LinearLayout
+            android:id="@+id/backup_phrase"
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:orientation="horizontal"
@@ -180,6 +181,7 @@
             android:background="@color/divider_amount" />
 
         <LinearLayout
+            android:id="@+id/trusted_friends"
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:orientation="horizontal"

@@ -13,6 +13,7 @@ import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AboutActivity;
 import com.bakkenbaeck.token.view.activity.ProfileActivity;
+import com.bakkenbaeck.token.view.activity.TrustedFriendsActivity;
 import com.bakkenbaeck.token.view.adapter.SettingsAdapter;
 import com.bakkenbaeck.token.view.fragment.children.SettingsFragment;
 
@@ -33,6 +34,7 @@ public final class SettingsPresenter implements
         addListeners();
         initRecyclerView();
         updateUi();
+        initClickListeners();
     }
 
     private void addListeners() {
@@ -87,8 +89,12 @@ public final class SettingsPresenter implements
             this.fragment.getBinding().username.setText(this.localUser.getUsername());
             this.fragment.getBinding().ratingView.setStars(3.6);
         }
+    }
 
+    private void initClickListeners() {
         this.fragment.getBinding().myProfileCard.setOnClickListener(this.handleMyProfileClicked);
+        this.fragment.getBinding().trustedFriends.setOnClickListener(this::handleTrustedFriendsClicked);
+        this.fragment.getBinding().backupPhrase.setOnClickListener(this::handleBackupPhraseClicked);
     }
 
     private final OnSingleClickListener handleMyProfileClicked = new OnSingleClickListener() {
@@ -98,6 +104,15 @@ public final class SettingsPresenter implements
             fragment.startActivity(intent);
         }
     };
+
+    private void handleTrustedFriendsClicked(final View view) {
+        final Intent intent = new Intent(this.fragment.getContext(), TrustedFriendsActivity.class);
+        this.fragment.getContext().startActivity(intent);
+    }
+
+    private void handleBackupPhraseClicked(final View view) {
+        //Open BackUpPhraseActivity
+    }
 
     @Override
     public void onViewDetached() {

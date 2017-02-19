@@ -80,4 +80,5 @@
     <string name="coming_soon">Coming soon</string>
     <string name="coming_soon_message">Your friends will be able to identify you when you lose your phone or need to sign in on a new device. Make sure to get your friends on Token.</string>
     <string name="invite_friends">Invite friends</string>
+    <string name="invite_friends_intent_message">I’m using Token to access an open financial system. Join me: http://www.tokenbrowser.com/</string>
 </resources>
