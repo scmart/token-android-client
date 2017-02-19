@@ -26,7 +26,7 @@ import android.support.v4.app.NotificationCompat;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
-import com.bakkenbaeck.token.model.local.ChatMessage;
+import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
@@ -59,15 +59,15 @@ public class GcmMessageReceiver extends GcmListenerService {
                 return;
             }
 
-            final ChatMessage chatMessage = new ChatMessage().makeNew(message);
+            final SofaMessage sofaMessage = new SofaMessage().makeNew(message);
 
-            if (chatMessage.getType() == SofaType.PAYMENT) {
-                final Payment payment = adapters.paymentFrom(chatMessage.getPayload());
+            if (sofaMessage.getType() == SofaType.PAYMENT) {
+                final Payment payment = adapters.paymentFrom(sofaMessage.getPayload());
                 handleIncomingPayment(payment);
                 showPaymentNotification(payment);
             } else {
                 final String title = this.getString(R.string.message_received);
-                //Message is atm null, use chatMessage instead
+                //Message is atm null, use sofaMessage instead
                 showNotification(title, message);
             }
 

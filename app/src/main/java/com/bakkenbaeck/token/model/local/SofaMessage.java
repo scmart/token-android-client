@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class ChatMessage extends RealmObject {
+public class SofaMessage extends RealmObject {
 
     @PrimaryKey
     private String privateKey;
@@ -19,38 +19,38 @@ public class ChatMessage extends RealmObject {
     private String payload;
     private boolean sentByLocal;
 
-    public ChatMessage() {
+    public SofaMessage() {
         this.creationTime = System.currentTimeMillis();
         this.privateKey = UUID.randomUUID().toString();
     }
 
-    public ChatMessage(final ChatMessage chatMessage) {
-        this.privateKey = chatMessage.getPrivateKey();
-        this.creationTime = chatMessage.getCreationTime();
-        this.type = chatMessage.getType();
-        this.sendState = chatMessage.getSendState();
-        this.payload = chatMessage.getPayload();
-        this.sentByLocal = chatMessage.isSentByLocal();
+    public SofaMessage(final SofaMessage sofaMessage) {
+        this.privateKey = sofaMessage.getPrivateKey();
+        this.creationTime = sofaMessage.getCreationTime();
+        this.type = sofaMessage.getType();
+        this.sendState = sofaMessage.getSendState();
+        this.payload = sofaMessage.getPayload();
+        this.sentByLocal = sofaMessage.isSentByLocal();
     }
 
     // Setters
 
-    private ChatMessage setType(final @SofaType.Type int type) {
+    private SofaMessage setType(final @SofaType.Type int type) {
         this.type = type;
         return this;
     }
 
-    public ChatMessage setSendState(final @SendState.State int sendState) {
+    public SofaMessage setSendState(final @SendState.State int sendState) {
         this.sendState = sendState;
         return this;
     }
 
-    public ChatMessage setPayload(final String payload) {
+    public SofaMessage setPayload(final String payload) {
         this.payload = payload;
         return this;
     }
 
-    private ChatMessage setSentByLocal(final boolean sentByLocal) {
+    private SofaMessage setSentByLocal(final boolean sentByLocal) {
         this.sentByLocal = sentByLocal;
         return this;
     }
@@ -114,7 +114,7 @@ public class ChatMessage extends RealmObject {
         return null;
     }
 
-    public ChatMessage makeNew(
+    public SofaMessage makeNew(
             final boolean sentByLocal,
             final String sofaPayload) {
         final String sofaHeader = getSofaHeader(sofaPayload);
@@ -126,7 +126,7 @@ public class ChatMessage extends RealmObject {
                 .setPayload(sofaPayload);
     }
 
-    public ChatMessage makeNew(final String sofaPayload) {
+    public SofaMessage makeNew(final String sofaPayload) {
         final String sofaHeader = getSofaHeader(sofaPayload);
         final @SofaType.Type int sofaType = SofaType.getType(sofaHeader);
 
@@ -138,9 +138,9 @@ public class ChatMessage extends RealmObject {
     public boolean equals(Object other){
         if (other == null) return false;
         if (other == this) return true;
-        if (!(other instanceof ChatMessage))return false;
-        final ChatMessage otherChatMessage = (ChatMessage) other;
-        return otherChatMessage.getPrivateKey().equals(this.privateKey);
+        if (!(other instanceof SofaMessage))return false;
+        final SofaMessage otherSofaMessage = (SofaMessage) other;
+        return otherSofaMessage.getPrivateKey().equals(this.privateKey);
     }
 
     @Override

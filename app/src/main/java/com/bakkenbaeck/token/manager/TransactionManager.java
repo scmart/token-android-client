@@ -3,7 +3,7 @@ package com.bakkenbaeck.token.manager;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.exception.UnknownTransactionException;
 import com.bakkenbaeck.token.manager.model.PaymentTask;
-import com.bakkenbaeck.token.model.local.ChatMessage;
+import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.PendingTransaction;
 import com.bakkenbaeck.token.model.local.SendState;
 import com.bakkenbaeck.token.model.local.User;
@@ -100,33 +100,33 @@ public class TransactionManager {
 
         switch (task.getAction()) {
             case INCOMING: {
-                final ChatMessage storedChatMessage = storePayment(task.getUser(), payment, false);
-                handleIncomingPayment(payment, storedChatMessage);
+                final SofaMessage storedSofaMessage = storePayment(task.getUser(), payment, false);
+                handleIncomingPayment(payment, storedSofaMessage);
                 break;
             }
             case OUTGOING: {
-                final ChatMessage storedChatMessage = storePayment(task.getUser(), payment, true);
-                handleOutgoingPayment(user, payment, storedChatMessage);
+                final SofaMessage storedSofaMessage = storePayment(task.getUser(), payment, true);
+                handleOutgoingPayment(user, payment, storedSofaMessage);
                 break;
             }
         }
     }
 
-    private ChatMessage storePayment(final User user, final Payment payment, final boolean sentByLocal) {
-        final ChatMessage chatMessage = generateMessageFromPayment(payment, sentByLocal);
-        storeMessage(user, chatMessage);
-        return chatMessage;
+    private SofaMessage storePayment(final User user, final Payment payment, final boolean sentByLocal) {
+        final SofaMessage sofaMessage = generateMessageFromPayment(payment, sentByLocal);
+        storeMessage(user, sofaMessage);
+        return sofaMessage;
     }
 
-    private void handleIncomingPayment(final Payment payment, final ChatMessage storedChatMessage) {
+    private void handleIncomingPayment(final Payment payment, final SofaMessage storedSofaMessage) {
         final PendingTransaction pendingTransaction =
                 new PendingTransaction()
                         .setTxHash(payment.getTxHash())
-                        .setChatMessage(storedChatMessage);
+                        .setSofaMessage(storedSofaMessage);
         this.pendingTransactionStore.save(pendingTransaction);
     }
 
-    private void handleOutgoingPayment(final User receiver, final Payment payment, final ChatMessage storedChatMessage) {
+    private void handleOutgoingPayment(final User receiver, final Payment payment, final SofaMessage storedSofaMessage) {
         sendNewTransaction(payment)
                 .observeOn(Schedulers.from(dbThreadExecutor))
                 .subscribeOn(Schedulers.from(dbThreadExecutor))
@@ -134,7 +134,7 @@ public class TransactionManager {
                     @Override
                     public void onError(final Throwable error) {
                         LogUtil.e(getClass(), "Error creating transaction: " + error);
-                        updateMessageState(receiver, storedChatMessage, SendState.STATE_FAILED);
+                        updateMessageState(receiver, storedSofaMessage, SendState.STATE_FAILED);
                         unsubscribe();
                     }
 
@@ -144,16 +144,16 @@ public class TransactionManager {
                         payment.setTxHash(txHash);
 
                         // Update the stored message with the transactions details
-                        final ChatMessage updatedMessage = generateMessageFromPayment(payment, true);
-                        storedChatMessage.setPayload(updatedMessage.getPayloadWithHeaders());
-                        updateMessageState(receiver, storedChatMessage, SendState.STATE_SENT);
-                        storeUnconfirmedTransaction(txHash, storedChatMessage);
+                        final SofaMessage updatedMessage = generateMessageFromPayment(payment, true);
+                        storedSofaMessage.setPayload(updatedMessage.getPayloadWithHeaders());
+                        updateMessageState(receiver, storedSofaMessage, SendState.STATE_SENT);
+                        storeUnconfirmedTransaction(txHash, storedSofaMessage);
 
                         BaseApplication
                                 .get()
                                 .getTokenManager()
-                                .getChatMessageManager()
-                                .sendMessage(receiver, storedChatMessage);
+                                .getSofaMessageManager()
+                                .sendMessage(receiver, storedSofaMessage);
                         unsubscribe();
                     }
                 });
@@ -194,19 +194,19 @@ public class TransactionManager {
                 .toObservable();
     }
 
-    private void updateMessageState(final User user, final ChatMessage message, final @SendState.State int sendState) {
+    private void updateMessageState(final User user, final SofaMessage message, final @SendState.State int sendState) {
         message.setSendState(sendState);
         updateMessage(user, message);
     }
 
-    private void updateMessage(final User user, final ChatMessage message) {
+    private void updateMessage(final User user, final SofaMessage message) {
         this.conversationStore.updateMessage(user, message);
     }
 
 
-    private ChatMessage generateMessageFromPayment(final Payment payment, final boolean sentByLocal) {
+    private SofaMessage generateMessageFromPayment(final Payment payment, final boolean sentByLocal) {
         final String messageBody = this.adapters.toJson(payment);
-        return new ChatMessage().makeNew(sentByLocal, messageBody);
+        return new SofaMessage().makeNew(sentByLocal, messageBody);
     }
 
 
@@ -226,21 +226,21 @@ public class TransactionManager {
                 .subscribe(pendingTransaction -> updatePendingTransaction(pendingTransaction, payment));
     }
 
-    private void storeMessage(final User user, final ChatMessage message) {
+    private void storeMessage(final User user, final SofaMessage message) {
         message.setSendState(SendState.STATE_SENDING);
         this.conversationStore.saveNewMessage(user, message);
     }
 
-    private void storeUnconfirmedTransaction(final String txHash, final ChatMessage message) {
+    private void storeUnconfirmedTransaction(final String txHash, final SofaMessage message) {
         final PendingTransaction pendingTransaction = new PendingTransaction()
-                                                            .setChatMessage(message)
+                                                            .setSofaMessage(message)
                                                             .setTxHash(txHash);
         this.pendingTransactionStore.save(pendingTransaction);
     }
 
     private void updatePendingTransaction(final PendingTransaction pendingTransaction, final Payment updatedPayment) {
 
-        final ChatMessage updatedMessage;
+        final SofaMessage updatedMessage;
         try {
             updatedMessage = updateStatusFromPendingTransaction(pendingTransaction, updatedPayment);
         } catch (final IOException | UnknownTransactionException ex) {
@@ -250,24 +250,24 @@ public class TransactionManager {
 
         final PendingTransaction updatedPendingTransaction = new PendingTransaction()
                 .setTxHash(pendingTransaction.getTxHash())
-                .setChatMessage(updatedMessage);
+                .setSofaMessage(updatedMessage);
 
         this.pendingTransactionStore.save(updatedPendingTransaction);
     }
 
-    private ChatMessage updateStatusFromPendingTransaction(final PendingTransaction pendingTransaction, final Payment updatedPayment) throws IOException, UnknownTransactionException {
+    private SofaMessage updateStatusFromPendingTransaction(final PendingTransaction pendingTransaction, final Payment updatedPayment) throws IOException, UnknownTransactionException {
         if (pendingTransaction == null) {
             throw new UnknownTransactionException("PendingTransaction could not be found. This transaction probably came from outside of Token.");
         }
 
-        final ChatMessage existingMessage = pendingTransaction.getChatMessage();
+        final SofaMessage existingMessage = pendingTransaction.getSofaMessage();
         final Payment existingPayment = adapters.paymentFrom(existingMessage.getPayload());
 
         existingPayment.setStatus(updatedPayment.getStatus());
 
         final String messageBody = adapters.toJson(existingPayment);
 
-        final ChatMessage updatedMessage = new ChatMessage(existingMessage);
+        final SofaMessage updatedMessage = new SofaMessage(existingMessage);
         return updatedMessage.setPayload(messageBody);
     }
 }

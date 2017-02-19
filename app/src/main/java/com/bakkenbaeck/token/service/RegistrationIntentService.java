@@ -84,7 +84,7 @@ public class RegistrationIntentService extends IntentService {
         BaseApplication
                 .get()
                 .getTokenManager()
-                .getChatMessageManager()
+                .getSofaMessageManager()
                 .setGcmToken(token);
     }
 

@@ -10,9 +10,9 @@ public class Conversation extends RealmObject {
     @PrimaryKey
     private String conversationId;
     private User member;
-    private ChatMessage latestMessage;
+    private SofaMessage latestMessage;
     private long updatedTime;
-    private RealmList<ChatMessage> allMessages;
+    private RealmList<SofaMessage> allMessages;
     private int numberOfUnread;
 
     public Conversation() {}
@@ -26,25 +26,25 @@ public class Conversation extends RealmObject {
         return member;
     }
 
-    public ChatMessage getLatestMessage() {
+    public SofaMessage getLatestMessage() {
         return latestMessage;
     }
 
-    public Conversation setLatestMessage(final ChatMessage latestMessage) {
+    public Conversation setLatestMessage(final SofaMessage latestMessage) {
         this.latestMessage = latestMessage;
         this.updatedTime = latestMessage.getCreationTime();
         addMessage(latestMessage);
         return this;
     }
 
-    private void addMessage(final ChatMessage latestMessage) {
+    private void addMessage(final SofaMessage latestMessage) {
         if (this.allMessages == null) {
             this.allMessages = new RealmList<>();
         }
         this.allMessages.add(latestMessage);
     }
 
-    public RealmList<ChatMessage> getAllMessages() {
+    public RealmList<SofaMessage> getAllMessages() {
         return allMessages;
     }
 

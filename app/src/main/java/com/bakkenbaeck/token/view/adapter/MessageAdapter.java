@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.model.local.ChatMessage;
+import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.sofa.Message;
 import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
@@ -25,65 +25,65 @@ import java.util.List;
 
 
 public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private final List<ChatMessage> chatMessages;
+    private final List<SofaMessage> sofaMessages;
     private final SofaAdapters adapters;
-    private OnItemClickListener<ChatMessage> onPaymentRequestApproveListener;
-    private OnItemClickListener<ChatMessage> onPaymentRequestRejectListener;
+    private OnItemClickListener<SofaMessage> onPaymentRequestApproveListener;
+    private OnItemClickListener<SofaMessage> onPaymentRequestRejectListener;
 
     public MessageAdapter() {
-        this.chatMessages = new ArrayList<>();
+        this.sofaMessages = new ArrayList<>();
         this.adapters = new SofaAdapters();
     }
 
-    public final MessageAdapter addOnPaymentRequestApproveListener(final OnItemClickListener<ChatMessage> listener) {
+    public final MessageAdapter addOnPaymentRequestApproveListener(final OnItemClickListener<SofaMessage> listener) {
         this.onPaymentRequestApproveListener = listener;
         return this;
     }
 
-    public final MessageAdapter addOnPaymentRequestRejectListener(final OnItemClickListener<ChatMessage> listener) {
+    public final MessageAdapter addOnPaymentRequestRejectListener(final OnItemClickListener<SofaMessage> listener) {
         this.onPaymentRequestRejectListener = listener;
         return this;
     }
 
-    public final void addMessages(final Collection<ChatMessage> chatMessages) {
-        this.chatMessages.clear();
+    public final void addMessages(final Collection<SofaMessage> sofaMessages) {
+        this.sofaMessages.clear();
 
-        for (ChatMessage chatMessage : chatMessages) {
-            if (shouldShowChatMessage(chatMessage)) {
-                this.chatMessages.add(chatMessage);
+        for (SofaMessage sofaMessage : sofaMessages) {
+            if (shouldShowChatMessage(sofaMessage)) {
+                this.sofaMessages.add(sofaMessage);
             }
         }
 
         notifyDataSetChanged();
     }
 
-    private boolean shouldShowChatMessage(final ChatMessage chatMessage) {
-        return chatMessage.getType() != SofaType.UNKNOWN
-                && chatMessage.getType() != SofaType.INIT
-                && chatMessage.getType() != SofaType.INIT_REQUEST
-                && chatMessage.getType() != SofaType.COMMAND_REQUEST;
+    private boolean shouldShowChatMessage(final SofaMessage sofaMessage) {
+        return sofaMessage.getType() != SofaType.UNKNOWN
+                && sofaMessage.getType() != SofaType.INIT
+                && sofaMessage.getType() != SofaType.INIT_REQUEST
+                && sofaMessage.getType() != SofaType.COMMAND_REQUEST;
     }
 
-    public final void addMessage(final ChatMessage chatMessage) {
-        this.chatMessages.add(chatMessage);
-        notifyItemInserted(this.chatMessages.size() - 1);
+    public final void addMessage(final SofaMessage sofaMessage) {
+        this.sofaMessages.add(sofaMessage);
+        notifyItemInserted(this.sofaMessages.size() - 1);
     }
 
-    public final void updateMessage(final ChatMessage chatMessage) {
-        final int position = this.chatMessages.indexOf(chatMessage);
+    public final void updateMessage(final SofaMessage sofaMessage) {
+        final int position = this.sofaMessages.indexOf(sofaMessage);
         if (position == -1) {
-            addMessage(chatMessage);
+            addMessage(sofaMessage);
             return;
         }
 
-        this.chatMessages.set(position, chatMessage);
+        this.sofaMessages.set(position, sofaMessage);
         notifyItemChanged(position);
     }
 
     @Override
     public int getItemViewType(final int position) {
-        final ChatMessage chatMessage = this.chatMessages.get(position);
-        return chatMessage.getType();
+        final SofaMessage sofaMessage = this.sofaMessages.get(position);
+        return sofaMessage.getType();
     }
 
     @Override
@@ -118,15 +118,15 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
             final RecyclerView.ViewHolder holder,
             final int position) {
 
-        final ChatMessage chatMessage = this.chatMessages.get(position);
-        final String payload = chatMessage.getPayload();
+        final SofaMessage sofaMessage = this.sofaMessages.get(position);
+        final String payload = sofaMessage.getPayload();
 
         if (payload == null) {
             return;
         }
 
         try {
-            renderChatMessageIntoViewHolder(holder, chatMessage, payload);
+            renderChatMessageIntoViewHolder(holder, sofaMessage, payload);
         } catch (final IOException ex) {
             LogUtil.error(getClass(), "Unable to render view holder: " + ex);
         }
@@ -134,7 +134,7 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     private void renderChatMessageIntoViewHolder(
             final RecyclerView.ViewHolder holder,
-            final ChatMessage chatMessage,
+            final SofaMessage sofaMessage,
             final String payload) throws IOException {
 
         switch (holder.getItemViewType()) {
@@ -142,8 +142,8 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
                 final TextViewHolder vh = (TextViewHolder) holder;
                 final Message message = this.adapters.messageFrom(payload);
                 vh.setText(message.getBody())
-                  .setSentByLocal(chatMessage.isSentByLocal())
-                  .setSendState(chatMessage.getSendState())
+                  .setSentByLocal(sofaMessage.isSentByLocal())
+                  .setSendState(sofaMessage.getSendState())
                   .draw();
                 break;
             }
@@ -152,8 +152,8 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
                 final PaymentViewHolder vh = (PaymentViewHolder) holder;
                 final Payment payment = this.adapters.paymentFrom(payload);
                 vh.setPayment(payment)
-                  .setSendState(chatMessage.getSendState())
-                  .setSentByLocal(chatMessage.isSentByLocal())
+                  .setSendState(sofaMessage.getSendState())
+                  .setSentByLocal(sofaMessage.isSentByLocal())
                   .draw();
                 break;
             }
@@ -162,7 +162,7 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
                 final PaymentRequestViewHolder vh = (PaymentRequestViewHolder) holder;
                 final PaymentRequest request = this.adapters.txRequestFrom(payload);
                 vh.setPaymentRequest(request)
-                  .setSentByLocal(chatMessage.isSentByLocal())
+                  .setSentByLocal(sofaMessage.isSentByLocal())
                   .setOnApproveListener(this.handleOnPaymentRequestApproved)
                   .setOnRejectListener(this.handleOnPaymentRequestRejected)
                   .draw();
@@ -173,7 +173,7 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public final int getItemCount() {
-        return this.chatMessages.size();
+        return this.sofaMessages.size();
     }
 
     private final OnItemClickListener<Integer> handleOnPaymentRequestApproved = new OnItemClickListener<Integer>() {
@@ -181,8 +181,8 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
         public void onItemClick(final Integer position) {
             if (onPaymentRequestApproveListener == null) return;
 
-            final ChatMessage chatMessage = chatMessages.get(position);
-            onPaymentRequestApproveListener.onItemClick(chatMessage);
+            final SofaMessage sofaMessage = sofaMessages.get(position);
+            onPaymentRequestApproveListener.onItemClick(sofaMessage);
         }
     };
 
@@ -191,8 +191,8 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
         public void onItemClick(final Integer position) {
             if (onPaymentRequestRejectListener == null) return;
 
-            final ChatMessage chatMessage = chatMessages.get(position);
-            onPaymentRequestRejectListener.onItemClick(chatMessage);
+            final SofaMessage sofaMessage = sofaMessages.get(position);
+            onPaymentRequestRejectListener.onItemClick(sofaMessage);
         }
     };
 }

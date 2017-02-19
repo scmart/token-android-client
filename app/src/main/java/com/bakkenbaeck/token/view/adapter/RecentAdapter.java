@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.model.local.ChatMessage;
+import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.Conversation;
 import com.bakkenbaeck.token.model.sofa.Message;
 import com.bakkenbaeck.token.model.sofa.Payment;
@@ -114,27 +114,27 @@ public class RecentAdapter extends RecyclerView.Adapter<ConversationViewHolder> 
         }
     }
 
-    private String formatLastMessage(final ChatMessage chatMessage) {
+    private String formatLastMessage(final SofaMessage sofaMessage) {
 
         try {
-            switch (chatMessage.getType()) {
+            switch (sofaMessage.getType()) {
                 case SofaType.PLAIN_TEXT: {
-                    final Message message = this.adapters.messageFrom(chatMessage.getPayload());
+                    final Message message = this.adapters.messageFrom(sofaMessage.getPayload());
                     return message.getBody();
                 }
 
                 case SofaType.PAYMENT: {
-                    final Payment payment = this.adapters.paymentFrom(chatMessage.getPayload());
+                    final Payment payment = this.adapters.paymentFrom(sofaMessage.getPayload());
                     return payment.toUserVisibleString();
                 }
 
                 case SofaType.PAYMENT_REQUEST: {
-                    final PaymentRequest request = this.adapters.txRequestFrom(chatMessage.getPayload());
+                    final PaymentRequest request = this.adapters.txRequestFrom(sofaMessage.getPayload());
                     return request.toUserVisibleString();
                 }
             }
         } catch (final IOException ex) {
-            LogUtil.error(getClass(), "Error parsing ChatMessage. " + ex);
+            LogUtil.error(getClass(), "Error parsing SofaMessage. " + ex);
         }
 
         return "";
