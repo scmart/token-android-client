@@ -19,6 +19,7 @@ import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
 import com.bakkenbaeck.token.view.activity.ChooseContactsActivity;
 import com.bakkenbaeck.token.view.activity.ScannerActivity;
+import com.bakkenbaeck.token.view.activity.ViewAppActivity;
 import com.bakkenbaeck.token.view.adapter.AppListAdapter;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.fragment.toplevel.HomeFragment;
@@ -180,8 +181,10 @@ public class HomePresenter implements Presenter<HomeFragment> {
 
     private OnItemClickListener<App> appItemClickListener = this::handleClickEvent;
 
-    private void handleClickEvent(final App item) {
-        LogUtil.d(getClass(), "Item clicked -> " + item.getDisplayName());
+    private void handleClickEvent(final App app) {
+        final Intent intent = new Intent(this.fragment.getContext(), ViewAppActivity.class)
+                .putExtra(ViewAppActivity.APP, app);
+        this.fragment.getContext().startActivity(intent);
     }
 
     public void handleActivityResult(final ActivityResultHolder resultHolder, final Context context) {

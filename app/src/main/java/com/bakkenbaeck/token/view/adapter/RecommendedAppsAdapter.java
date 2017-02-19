@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.network.App;
+import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.adapter.viewholder.RecommendedAppsViewHolder;
 
 import java.util.List;
@@ -14,9 +15,14 @@ import java.util.List;
 public class RecommendedAppsAdapter extends RecyclerView.Adapter<RecommendedAppsViewHolder> {
 
     private List<App> apps;
+    private OnItemClickListener<App> listener;
 
     public RecommendedAppsAdapter(final List<App> apps) {
         this.apps = apps;
+    }
+
+    public void setOnItemClickListener(final OnItemClickListener<App> listener) {
+        this.listener = listener;
     }
 
     public void setItems(final List<App> apps) {
@@ -39,6 +45,7 @@ public class RecommendedAppsAdapter extends RecyclerView.Adapter<RecommendedApps
         holder.setImage(app);
         holder.setCategory(app);
         holder.setRating(3.6);
+        holder.bind(app, this.listener);
     }
 
     @Override
