@@ -36,6 +36,7 @@
         <activity android:name="com.bakkenbaeck.token.view.activity.LicenseActivity" />
         <activity android:name="com.bakkenbaeck.token.view.activity.ViewAppActivity" />
         <activity android:name="com.bakkenbaeck.token.view.activity.TrustedFriendsActivity" />
+        <activity android:name="com.bakkenbaeck.token.view.activity.BackupPhraseInfoActivity" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
