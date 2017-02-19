@@ -76,4 +76,8 @@
     <string name="security">Security</string>
     <string name="choose_a_trusted_friend">Choose a trusted friends</string>
     <string name="store_backup_phrase">Store backup phrase</string>
+    <string name="trusted_friends">Trusted friends</string>
+    <string name="coming_soon">Coming soon</string>
+    <string name="coming_soon_message">Your friends will be able to identify you when you lose your phone or need to sign in on a new device. Make sure to get your friends on Token.</string>
+    <string name="invite_friends">Invite friends</string>
 </resources>
