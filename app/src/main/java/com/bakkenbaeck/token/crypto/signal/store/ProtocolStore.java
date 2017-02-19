@@ -2,7 +2,9 @@ package com.bakkenbaeck.token.crypto.signal.store;
 
 
 import com.bakkenbaeck.token.crypto.signal.SignalPreferences;
+import com.bakkenbaeck.token.crypto.signal.util.PreKeyUtil;
 import com.bakkenbaeck.token.crypto.util.HashUtil;
+import com.bakkenbaeck.token.view.BaseApplication;
 
 import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.IdentityKeyPair;
@@ -63,7 +65,7 @@ public class ProtocolStore implements SignalProtocolStore {
     }
 
     private void generateSignedPreKey() throws InvalidKeyException {
-        final SignedPreKeyRecord pk = KeyHelper.generateSignedPreKey(getIdentityKeyPair(), SIGNED_PREKEY_ID);
+        final SignedPreKeyRecord pk = PreKeyUtil.generateSignedPreKey(BaseApplication.get(), getIdentityKeyPair(), true);
         storeSignedPreKey(pk.getId(), pk);
         SignalPreferences.setSignedPreKeyId(pk.getId());
     }
@@ -109,7 +111,7 @@ public class ProtocolStore implements SignalProtocolStore {
     }
 
     private void generatePreKeys() {
-        final List<PreKeyRecord> preKeyRecords = KeyHelper.generatePreKeys(PREKEY_START, PREKEY_COUNT);
+        final List<PreKeyRecord> preKeyRecords = PreKeyUtil.generatePreKeys(BaseApplication.get());
         for (final PreKeyRecord preKeyRecord : preKeyRecords) {
             storePreKey(preKeyRecord.getId(), preKeyRecord);
         }
@@ -131,7 +133,7 @@ public class ProtocolStore implements SignalProtocolStore {
     }
 
     private void generateLastResortKey() {
-        SignalPreferences.setSerializedLastResortKey(KeyHelper.generateLastResortPreKey().serialize());
+        SignalPreferences.setSerializedLastResortKey(PreKeyUtil.generateLastResortKey(BaseApplication.get()).serialize());
     }
 
     public String getPassword() {
