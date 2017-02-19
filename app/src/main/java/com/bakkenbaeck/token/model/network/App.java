@@ -36,6 +36,14 @@ public class App implements Parcelable {
         return interfaces;
     }
 
+    public String getEthereumAddress() {
+        return ethereumAddress;
+    }
+
+    public List<String> getLanguages() {
+        return languages;
+    }
+
     public static final Creator<App> CREATOR = new Creator<App>() {
         @Override
         public App createFromParcel(Parcel in) {
