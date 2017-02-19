@@ -2,6 +2,7 @@ package com.bakkenbaeck.token.network;
 
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.model.adapter.RealmListAdapter;
 import com.bakkenbaeck.token.network.interceptor.LoggingInterceptor;
 import com.bakkenbaeck.token.network.interceptor.SigningInterceptor;
 import com.bakkenbaeck.token.network.interceptor.UserAgentInterceptor;
@@ -48,7 +49,9 @@ public class IdService {
         addSigningInterceptor();
         addLogging();
 
-        final Moshi moshi = new Moshi.Builder().build();
+        final Moshi moshi = new Moshi.Builder()
+                .add(new RealmListAdapter())
+                .build();
 
         final Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BaseApplication.get().getResources().getString(R.string.id_url))

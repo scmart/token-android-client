@@ -17,7 +17,8 @@ public class User extends RealmObject implements Parcelable {
     @PrimaryKey
     private String owner_address;
     private String username;
-    private CustomUserInformation custom;
+    private CustomUserInformation customUserInfo;
+    private CustomAppInformation customAppInfo;
 
     // ctors
     public User() {}
@@ -25,13 +26,18 @@ public class User extends RealmObject implements Parcelable {
     public User(final User user) {
         this.owner_address = user.getOwnerAddress();
         this.username = user.getUsername();
-        this.custom = new CustomUserInformation(user.getCustom());
+        this.customUserInfo = new CustomUserInformation(user.getCustomUserInfo());
     }
 
     private User(final Parcel in) {
         owner_address = in.readString();
         username = in.readString();
-        custom = in.readParcelable(CustomUserInformation.class.getClassLoader());
+        customUserInfo = in.readParcelable(CustomUserInformation.class.getClassLoader());
+        customAppInfo = in.readParcelable(CustomAppInformation.class.getClassLoader());
+    }
+
+    public void setCustomAppInfo(final CustomAppInformation customAppInfo) {
+        this.customAppInfo = customAppInfo;
     }
 
     // Getters
@@ -42,10 +48,10 @@ public class User extends RealmObject implements Parcelable {
 
     // Defaults to the username if no name is set.
     public String getDisplayName() {
-        if (custom == null || custom.getName() == null) {
+        if (customUserInfo == null || customUserInfo.getName() == null) {
             return username;
         }
-        return custom.getName();
+        return customUserInfo.getName();
     }
 
     public String getOwnerAddress() {
@@ -53,23 +59,23 @@ public class User extends RealmObject implements Parcelable {
     }
 
     public String getAbout() {
-        return custom == null ? null : this.custom.getAbout();
+        return customUserInfo == null ? null : this.customUserInfo.getAbout();
     }
 
     public String getLocation() {
-        return custom == null ? null : this.custom.getLocation();
+        return customUserInfo == null ? null : this.customUserInfo.getLocation();
     }
 
     public String getPaymentAddress() {
-        return custom == null ? null : this.custom.getPaymentAddress();
+        return customUserInfo == null ? null : this.customUserInfo.getPaymentAddress();
     }
 
     public Bitmap getImage() {
         return BitmapFactory.decodeResource(BaseApplication.get().getResources(), R.mipmap.launcher);
     }
 
-    private CustomUserInformation getCustom() {
-        return this.custom;
+    private CustomUserInformation getCustomUserInfo() {
+        return this.customUserInfo;
     }
 
     // Setters
@@ -101,6 +107,7 @@ public class User extends RealmObject implements Parcelable {
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeString(owner_address);
         dest.writeString(username);
-        dest.writeParcelable(custom, flags);
+        dest.writeParcelable(customUserInfo, flags);
+        dest.writeParcelable(customAppInfo, flags);
     }
 }
