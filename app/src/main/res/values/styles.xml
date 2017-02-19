@@ -11,6 +11,8 @@
         <item name="android:buttonStyle">@style/Button</item>
         <item name="buttonStyle">@style/Button</item>
         <item name="android:buttonStyleToggle">@style/ToggleButton</item>
+        <item name="colorControlActivated">@color/divider_amount</item>
+        <item name="colorControlNormal">@color/divider_amount</item>
     </style>
 
     <style name="ToolbarTheme" parent="@style/ThemeOverlay.AppCompat.ActionBar">
