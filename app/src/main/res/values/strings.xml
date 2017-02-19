@@ -65,4 +65,9 @@
     <string name="bullet_point">•</string>
     <string name="message_received">Message received</string>
     <string name="profile_username">Username</string>
+    <string name="about">About</string>
+    <string name="contact_information_label">Contact information</string>
+    <string name="contact_information">tokenbrowser@gmail.com</string>
+    <string name="open_sourced_libraries">Open sourced libraries</string>
+    <string name="open_source_licenses">Open source licenses</string>
 </resources>

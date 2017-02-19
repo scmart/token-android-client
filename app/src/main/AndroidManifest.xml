@@ -31,6 +31,9 @@
         <activity android:name="com.bakkenbaeck.token.view.activity.AmountActivity" />
         <activity android:name="com.bakkenbaeck.token.view.activity.ScannerActivity" />
         <activity android:name="com.bakkenbaeck.token.view.activity.ChooseContactsActivity" />
+        <activity android:name="com.bakkenbaeck.token.view.activity.AboutActivity" />
+        <activity android:name="com.bakkenbaeck.token.view.activity.LicenseListActivity" />
+        <activity android:name="com.bakkenbaeck.token.view.activity.LicenseActivity" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
