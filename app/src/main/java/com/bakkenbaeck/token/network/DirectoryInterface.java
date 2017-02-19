@@ -13,7 +13,7 @@ public interface DirectoryInterface {
     @GET("v1/apps/")
     Observable<Response<Apps>> getApps();
 
-    @GET("v1/apps/?limit=20")
+    @GET("v1/apps/featured")
     Observable<Response<Apps>> getFeaturedApps();
 
     @GET("v1/search/apps/")

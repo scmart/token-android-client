@@ -114,7 +114,7 @@ public class AppsPresenter implements Presenter<AppsFragment>{
 
     private void handleSearchResponse(final Response<AppSearch> response) {
         if (response.code() == 200) {
-            addAppsToRecyclerView(response.body().getResults());
+            addAppsToRecyclerView(response.body().getApps());
         } else {
             LogUtil.e(getClass(), response.message());
         }

@@ -3,45 +3,67 @@ package com.bakkenbaeck.token.model.network;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.bakkenbaeck.token.model.sofa.*;
+
 import java.util.List;
 
 public class App implements Parcelable {
-    private String displayName;
-    private String protocol;
-    private String webApp;
     private List<String> languages;
+    private String paymentAddress;
+    private String webApp;
+    private String displayName;
     private List<String> interfaces;
+    private String protocol;
     private String avatarUrl;
-    private String ethereumAddress;
+    private String ownerAddress;
+    private InitRequest initRequest;
 
     protected App(Parcel in) {
-        displayName = in.readString();
-        protocol = in.readString();
-        webApp = in.readString();
         languages = in.createStringArrayList();
+        paymentAddress = in.readString();
+        webApp = in.readString();
+        displayName = in.readString();
         interfaces = in.createStringArrayList();
+        protocol = in.readString();
         avatarUrl = in.readString();
-        ethereumAddress = in.readString();
+        ownerAddress = in.readString();
+        initRequest = in.readParcelable(InitRequest.class.getClassLoader());
+    }
+
+    public List<String> getLanguages() {
+        return languages;
+    }
+
+    public String getPaymentAddress() {
+        return paymentAddress;
+    }
+
+    public String getWebApp() {
+        return webApp;
     }
 
     public String getDisplayName() {
         return displayName;
     }
 
-    public String getAvatarUrl() {
-        return avatarUrl;
-    }
-
     public List<String> getInterfaces() {
         return interfaces;
     }
 
-    public String getEthereumAddress() {
-        return ethereumAddress;
+    public String getProtocol() {
+        return protocol;
     }
 
-    public List<String> getLanguages() {
-        return languages;
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public String getOwnerAddress() {
+        return ownerAddress;
+    }
+
+    public InitRequest getInitRequest() {
+        return initRequest;
     }
 
     public static final Creator<App> CREATOR = new Creator<App>() {
@@ -63,12 +85,14 @@ public class App implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(displayName);
-        parcel.writeString(protocol);
-        parcel.writeString(webApp);
         parcel.writeStringList(languages);
+        parcel.writeString(paymentAddress);
+        parcel.writeString(webApp);
+        parcel.writeString(displayName);
         parcel.writeStringList(interfaces);
+        parcel.writeString(protocol);
         parcel.writeString(avatarUrl);
-        parcel.writeString(ethereumAddress);
+        parcel.writeString(ownerAddress);
+        parcel.writeParcelable(initRequest, i);
     }
 }

@@ -6,9 +6,9 @@ public class AppSearch {
     private int offset;
     private String query;
     private int limit;
-    private List<App> results;
+    private List<App> apps;
 
-    public List<App> getResults() {
-        return results;
+    public List<App> getApps() {
+        return apps;
     }
 }

@@ -35,7 +35,7 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
         activity.getBinding().about.setText(app.getLanguages().toString());
         activity.getBinding().location.setText(app.getDisplayName());
         activity.getBinding().ratingView.setStars(3.6);
-        generateQrCode(this.app.getEthereumAddress());
+        generateQrCode(this.app.getOwnerAddress());
     }
 
     private void generateQrCode(final String address) {
