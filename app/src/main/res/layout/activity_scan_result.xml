@@ -100,11 +100,12 @@
                         android:layout_width="8dp"
                         android:layout_height="match_parent"/>
 
-                    <Button
+                    <ToggleButton
                         android:id="@+id/add_contact_button"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:text="@string/add_contact"
+                        android:textOff="@string/add_contact"
+                        android:textOn="@string/remove_contact"
                         android:enabled="false"
                         android:layout_weight="2"/>
 

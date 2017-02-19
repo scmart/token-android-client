@@ -2,9 +2,13 @@ package com.bakkenbaeck.token.presenter;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.content.res.AppCompatResources;
 import android.view.View;
+import android.widget.ToggleButton;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.local.User;
@@ -112,13 +116,13 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
 
     private void updateAddContactState() {
         final boolean isAContact = contactStore.userIsAContact(scannedUser);
-        if (isAContact) {
-            this.activity.getBinding().addContactButton.setText(this.activity.getResources().getString(R.string.remove_contact));
-            this.activity.getBinding().addContactButton.setSoundEffectsEnabled(true);
-        } else {
-            this.activity.getBinding().addContactButton.setText(this.activity.getResources().getString(R.string.add_contact));
-            this.activity.getBinding().addContactButton.setSoundEffectsEnabled(false);
-        }
+        final ToggleButton addContactButton = this.activity.getBinding().addContactButton;
+        addContactButton.setChecked(isAContact);
+        addContactButton.setSoundEffectsEnabled(isAContact);
+
+        final Drawable checkMark = AppCompatResources.getDrawable(this.activity, R.drawable.ic_done);
+        DrawableCompat.setTint(checkMark, this.activity.getResources().getColor(R.color.colorPrimary));
+        addContactButton.setCompoundDrawablesWithIntrinsicBounds(isAContact ? checkMark : null, null, null, null);
     }
 
     private final OnSingleClickListener handleOnAddContact = new OnSingleClickListener() {
