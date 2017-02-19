@@ -7,6 +7,109 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <LinearLayout
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            style="@style/ToolbarTheme">
+
+            <ImageButton
+                android:id="@+id/close_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="fitCenter"
+                android:padding="16dp"
+                android:tint="@color/textColorContrast"
+                android:background="@android:color/transparent"
+                app:srcCompat="@drawable/ic_arrow_back"/>
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Toolbar.TitleText"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:text="@string/backup_phrase"/>
+
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="42sp"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:textSize="18sp"
+                    android:textColor="@color/textColorPrimary"
+                    android:text="@string/this_is_your_backup_phrase"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/textColorSecondary"
+                    android:layout_marginTop="11dp"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:text="@string/backup_phrase_warning_message"/>
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/backup_phrase_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/activity_horizontal_margin"
+                    android:paddingRight="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="35dp"/>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin">
+
+                    <TextView
+                        android:id="@+id/copy_to_clipboard"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/colorPrimary"
+                        android:text="@string/copy_phrase_to_keyboard"/>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:background="@color/colorPrimary"
+                        android:layout_marginTop="0dp"
+                        android:layout_below="@+id/copy_to_clipboard"
+                        android:layout_alignLeft="@+id/copy_to_clipboard"
+                        android:layout_alignRight="@+id/copy_to_clipboard"/>
+                </RelativeLayout>
+
+                <Button
+                    android:id="@+id/verify_phrase_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginTop="40dp"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:textAllCaps="true"
+                    android:background="@drawable/background_with_radius_primary_color"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:text="@string/verify_phrase"/>
+
+            </LinearLayout>
+        </ScrollView>
     </LinearLayout>
 
 </layout>
