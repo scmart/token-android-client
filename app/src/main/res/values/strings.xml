@@ -84,6 +84,5 @@
     <string name="let_s_secure_your_account">Let’s secure your account</string>
     <string name="backup_phrase_info_message">Storing a backup phrase will allow you to recover your funds if your phone is ever lost or stolen. \n \n It’s important to store this backup phrase securely where nobody else can access it, such as on a piece of paper or in a password manager.</string>
     <string name="backup_phrase_understand_message">I understand that if I lose my backup phrase, I will be unable to recover access to my account.</string>
-    <string name="continue">Continue</string>
     <string name="backup_phrase">Backup phrase</string>
 </resources>

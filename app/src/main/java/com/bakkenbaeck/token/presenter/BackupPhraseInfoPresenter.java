@@ -3,8 +3,8 @@ package com.bakkenbaeck.token.presenter;
 import android.content.Intent;
 import android.view.View;
 import android.widget.RadioButton;
+import android.view.View;
 
-import com.bakkenbaeck.token.view.activity.BackupPhraseActivity;
 import com.bakkenbaeck.token.view.activity.BackupPhraseInfoActivity;
 
 public class BackupPhraseInfoPresenter implements Presenter<BackupPhraseInfoActivity> {

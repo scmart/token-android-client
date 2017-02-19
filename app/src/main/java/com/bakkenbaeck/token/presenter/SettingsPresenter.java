@@ -12,6 +12,7 @@ import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AboutActivity;
+import com.bakkenbaeck.token.view.activity.BackupPhraseInfoActivity;
 import com.bakkenbaeck.token.view.activity.ProfileActivity;
 import com.bakkenbaeck.token.view.activity.TrustedFriendsActivity;
 import com.bakkenbaeck.token.view.adapter.SettingsAdapter;
@@ -111,7 +112,8 @@ public final class SettingsPresenter implements
     }
 
     private void handleBackupPhraseClicked(final View view) {
-        //Open BackUpPhraseActivity
+        final Intent intent = new Intent(this.fragment.getContext(), BackupPhraseInfoActivity.class);
+        this.fragment.getContext().startActivity(intent);
     }
 
     @Override
