@@ -3,6 +3,7 @@ package com.bakkenbaeck.token.manager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.widget.Toast;
 
 import com.bakkenbaeck.token.BuildConfig;
 import com.bakkenbaeck.token.R;
@@ -33,6 +34,7 @@ import org.whispersystems.libsignal.InvalidMessageException;
 import org.whispersystems.libsignal.InvalidVersionException;
 import org.whispersystems.libsignal.LegacyMessageException;
 import org.whispersystems.libsignal.NoSessionException;
+import org.whispersystems.libsignal.SignalProtocolAddress;
 import org.whispersystems.libsignal.util.guava.Optional;
 import org.whispersystems.signalservice.api.SignalServiceMessagePipe;
 import org.whispersystems.signalservice.api.SignalServiceMessageReceiver;
@@ -216,6 +218,39 @@ public final class SofaMessageManager {
     }
 
     private void sendMessageToRemotePeer(final User receiver, final SofaMessage message, final boolean saveMessageToDatabase) {
+        if (saveMessageToDatabase) {
+            this.conversationStore.saveNewMessage(receiver, message);
+        }
+
+        try {
+            sendToSignal(receiver, message);
+
+            if (saveMessageToDatabase) {
+                message.setSendState(SendState.STATE_SENT);
+                this.conversationStore.updateMessage(receiver, message);
+            }
+        } catch (final UntrustedIdentityException ue) {
+            LogUtil.error(getClass(), "Keys have changed. " + ue);
+            protocolStore.saveIdentity(
+                    new SignalProtocolAddress(receiver.getOwnerAddress(), SignalServiceAddress.DEFAULT_DEVICE_ID),
+                    ue.getIdentityKey());
+
+            // To Do -- handle this more gracefully. Right now we show a toast so that we can get some feedback from testers,
+            Toast.makeText(
+                    BaseApplication.get(),
+                    "Remote keys changed. Try and send the message again. Please let us know if this does or does not work.",
+                    Toast.LENGTH_LONG
+            ).show();
+        } catch (final IOException ex) {
+            LogUtil.error(getClass(), ex.toString());
+            if (saveMessageToDatabase) {
+                message.setSendState(SendState.STATE_FAILED);
+                this.conversationStore.updateMessage(receiver, message);
+            }
+        }
+    }
+
+    private void sendToSignal(final User receiver, final SofaMessage message) throws UntrustedIdentityException, IOException {
         final SignalServiceMessageSender messageSender = new SignalServiceMessageSender(
                 this.signalServiceUrls,
                 this.wallet.getOwnerAddress(),
@@ -226,28 +261,11 @@ public final class SofaMessageManager {
                 Optional.absent()
         );
 
-        if (saveMessageToDatabase) {
-            this.conversationStore.saveNewMessage(receiver, message);
-        }
-
-        try {
-            messageSender.sendMessage(
-                    new SignalServiceAddress(receiver.getOwnerAddress()),
-                    SignalServiceDataMessage.newBuilder()
-                            .withBody(message.getAsSofaMessage())
-                            .build());
-
-            if (saveMessageToDatabase) {
-                message.setSendState(SendState.STATE_SENT);
-                this.conversationStore.updateMessage(receiver, message);
-            }
-        } catch (final UntrustedIdentityException | IOException ex) {
-            LogUtil.error(getClass(), ex.toString());
-            if (saveMessageToDatabase) {
-                message.setSendState(SendState.STATE_FAILED);
-                this.conversationStore.updateMessage(receiver, message);
-            }
-        }
+        messageSender.sendMessage(
+                new SignalServiceAddress(receiver.getOwnerAddress()),
+                SignalServiceDataMessage.newBuilder()
+                        .withBody(message.getAsSofaMessage())
+                        .build());
     }
 
     private void storeMessage(final User receiver, final SofaMessage message) {
