@@ -11,7 +11,7 @@ import android.view.animation.PathInterpolator;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.local.ActivityResultHolder;
-import com.bakkenbaeck.token.model.local.ChatMessage;
+import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.Conversation;
 import com.bakkenbaeck.token.model.local.PendingTransaction;
 import com.bakkenbaeck.token.model.local.User;
@@ -127,7 +127,7 @@ public final class ChatPresenter implements
 
     private void initChatMessageStore() {
         this.conversationStore = new ConversationStore();
-        final Pair<PublishSubject<ChatMessage>, PublishSubject<ChatMessage>> observables
+        final Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> observables
                 = this.conversationStore.registerForChanges(this.remoteUser.getOwnerAddress());
         observables.first
                 .subscribeOn(Schedulers.io())
@@ -225,11 +225,11 @@ public final class ChatPresenter implements
                 .setValue(control.getValue());
         final String commandPayload = adapters.toJson(command);
 
-        final ChatMessage sofaCommandMessage = new ChatMessage().makeNew(true, commandPayload);
+        final SofaMessage sofaCommandMessage = new SofaMessage().makeNew(true, commandPayload);
 
         BaseApplication.get()
                 .getTokenManager()
-                .getChatMessageManager()
+                .getSofaMessageManager()
                 .sendMessage(remoteUser, sofaCommandMessage);
     }
 
@@ -259,10 +259,10 @@ public final class ChatPresenter implements
             final String userInput = activity.getBinding().userInput.getText().toString();
             final Message sofaMessage = new Message().setBody(userInput);
             final String messageBody = adapters.toJson(sofaMessage);
-            final ChatMessage message = new ChatMessage().makeNew(true, messageBody);
+            final SofaMessage message = new SofaMessage().makeNew(true, messageBody);
             BaseApplication.get()
                     .getTokenManager()
-                    .getChatMessageManager()
+                    .getSofaMessageManager()
                     .sendAndSaveMessage(remoteUser, message);
 
             activity.getBinding().userInput.setText(null);
@@ -291,23 +291,23 @@ public final class ChatPresenter implements
         }
     };
 
-    private final OnItemClickListener<ChatMessage> handlePaymentRequestApprove = new OnItemClickListener<ChatMessage>() {
+    private final OnItemClickListener<SofaMessage> handlePaymentRequestApprove = new OnItemClickListener<SofaMessage>() {
         @Override
-        public void onItemClick(final ChatMessage existingMessage) {
+        public void onItemClick(final SofaMessage existingMessage) {
             final PaymentRequest request = updatePaymentRequestState(existingMessage, PaymentRequest.ACCEPTED);
             sendPaymentWithValue(request.getValue());
         }
     };
 
-    private final OnItemClickListener<ChatMessage> handlePaymentRequestReject = new OnItemClickListener<ChatMessage>() {
+    private final OnItemClickListener<SofaMessage> handlePaymentRequestReject = new OnItemClickListener<SofaMessage>() {
         @Override
-        public void onItemClick(final ChatMessage existingMessage) {
+        public void onItemClick(final SofaMessage existingMessage) {
             updatePaymentRequestState(existingMessage, PaymentRequest.REJECTED);
         }
     };
 
     private PaymentRequest updatePaymentRequestState(
-            final ChatMessage existingMessage,
+            final SofaMessage existingMessage,
             final @PaymentRequest.State int newState) {
         try {
             final PaymentRequest paymentRequest = adapters
@@ -315,7 +315,7 @@ public final class ChatPresenter implements
                     .setState(newState);
 
             final String updatedPayload = adapters.toJson(paymentRequest);
-            final ChatMessage updatedMessage = new ChatMessage(existingMessage).setPayload(updatedPayload);
+            final SofaMessage updatedMessage = new SofaMessage(existingMessage).setPayload(updatedPayload);
 
             conversationStore.updateMessage(remoteUser, updatedMessage);
             return paymentRequest;
@@ -326,19 +326,19 @@ public final class ChatPresenter implements
         return null;
     }
 
-    private final OnNextSubscriber<ChatMessage> handleNewMessage = new OnNextSubscriber<ChatMessage>() {
+    private final OnNextSubscriber<SofaMessage> handleNewMessage = new OnNextSubscriber<SofaMessage>() {
         @Override
-        public void onNext(final ChatMessage chatMessage) {
-            if (isInitRequest(chatMessage)) {
-                sendInitMessage(chatMessage);
+        public void onNext(final SofaMessage sofaMessage) {
+            if (isInitRequest(sofaMessage)) {
+                sendInitMessage(sofaMessage);
                 return;
             }
 
-            setControlView(chatMessage);
-            messageAdapter.addMessage(chatMessage);
+            setControlView(sofaMessage);
+            messageAdapter.addMessage(sofaMessage);
             updateEmptyState();
             tryScrollToBottom(true);
-            playNewMessageSound(chatMessage.isSentByLocal());
+            playNewMessageSound(sofaMessage.isSentByLocal());
         }
     };
 
@@ -350,40 +350,40 @@ public final class ChatPresenter implements
         }
     }
 
-    private final OnNextSubscriber<ChatMessage> handleUpdatedMessage = new OnNextSubscriber<ChatMessage>() {
+    private final OnNextSubscriber<SofaMessage> handleUpdatedMessage = new OnNextSubscriber<SofaMessage>() {
         @Override
-        public void onNext(final ChatMessage chatMessage) {
-            messageAdapter.updateMessage(chatMessage);
+        public void onNext(final SofaMessage sofaMessage) {
+            messageAdapter.updateMessage(sofaMessage);
         }
     };
 
     private final OnNextSubscriber<PendingTransaction> handlePendingTransactionChange = new OnNextSubscriber<PendingTransaction>() {
         @Override
         public void onNext(final PendingTransaction pendingTransaction) {
-            handleUpdatedMessage.onNext(pendingTransaction.getChatMessage());
+            handleUpdatedMessage.onNext(pendingTransaction.getSofaMessage());
         }
     };
 
-    private boolean isInitRequest(final ChatMessage chatMessage) {
+    private boolean isInitRequest(final SofaMessage sofaMessage) {
         final String type = SofaType.createHeader(SofaType.INIT_REQUEST);
-        return chatMessage.getAsSofaMessage().startsWith(type);
+        return sofaMessage.getAsSofaMessage().startsWith(type);
     }
 
-    private void sendInitMessage(final ChatMessage chatMessage) {
+    private void sendInitMessage(final SofaMessage sofaMessage) {
         if (userWallet == null || adapters == null) {
             return;
         }
 
         try {
-            final InitRequest initRequest = adapters.initRequestFrom(chatMessage.getPayload());
+            final InitRequest initRequest = adapters.initRequestFrom(sofaMessage.getPayload());
             final Init initMessage = new Init().construct(initRequest, this.userWallet.getPaymentAddress());
             final String payload = adapters.toJson(initMessage);
-            final ChatMessage newChatMessage = new ChatMessage().makeNew(false, payload);
+            final SofaMessage newSofaMessage = new SofaMessage().makeNew(false, payload);
 
             BaseApplication.get()
                     .getTokenManager()
-                    .getChatMessageManager()
-                    .sendMessage(remoteUser, newChatMessage);
+                    .getSofaMessageManager()
+                    .sendMessage(remoteUser, newSofaMessage);
         } catch (IOException e) {
             LogUtil.e(getClass(), "IOException " + e);
         }
@@ -396,27 +396,27 @@ public final class ChatPresenter implements
                 return;
             }
 
-            final RealmList<ChatMessage> messages = conversation.getAllMessages();
+            final RealmList<SofaMessage> messages = conversation.getAllMessages();
             if (messages.size() > 0) {
                 messageAdapter.addMessages(messages);
                 forceScrollToBottom();
                 updateEmptyState();
 
-                final ChatMessage lastChatMessage = messages.get(messages.size() - 1);
-                setControlView(lastChatMessage);
+                final SofaMessage lastSofaMessage = messages.get(messages.size() - 1);
+                setControlView(lastSofaMessage);
             }
 
             this.unsubscribe();
         }
     };
 
-    private void setControlView(final ChatMessage chatMessage) {
-        if (chatMessage == null) {
+    private void setControlView(final SofaMessage sofaMessage) {
+        if (sofaMessage == null) {
             return;
         }
 
         try {
-            final Message message = adapters.messageFrom(chatMessage.getPayload());
+            final Message message = adapters.messageFrom(sofaMessage.getPayload());
             final boolean notNullAndNotZero = message.getControls() != null && message.getControls().size() > 0;
             this.activity.getBinding().controlView.hideView();
 
@@ -532,12 +532,12 @@ public final class ChatPresenter implements
                 .setDestinationAddress(userWallet.getPaymentAddress())
                 .setValue(value);
         final String messageBody = this.adapters.toJson(request);
-        final ChatMessage message = new ChatMessage().makeNew(true, messageBody);
+        final SofaMessage message = new SofaMessage().makeNew(true, messageBody);
 
         BaseApplication
                 .get()
                 .getTokenManager()
-                .getChatMessageManager()
+                .getSofaMessageManager()
                 .sendAndSaveMessage(remoteUser, message);
     }
 }

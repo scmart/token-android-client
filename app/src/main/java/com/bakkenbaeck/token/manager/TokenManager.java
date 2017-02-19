@@ -9,14 +9,14 @@ public class TokenManager {
 
     private BalanceManager balanceManager;
     private HDWallet wallet;
-    private ChatMessageManager chatMessageManager;
+    private SofaMessageManager sofaMessageManager;
     private TransactionManager transactionManager;
     private UserManager userManager;
 
     public TokenManager() {
         this.balanceManager = new BalanceManager();
         this.userManager = new UserManager();
-        this.chatMessageManager = new ChatMessageManager();
+        this.sofaMessageManager = new SofaMessageManager();
         this.transactionManager = new TransactionManager();
     }
 
@@ -24,15 +24,15 @@ public class TokenManager {
         return Single.fromCallable(() -> {
             TokenManager.this.wallet = new HDWallet().init();
             TokenManager.this.balanceManager.init(TokenManager.this.wallet);
-            TokenManager.this.chatMessageManager.init(TokenManager.this.wallet);
+            TokenManager.this.sofaMessageManager.init(TokenManager.this.wallet);
             TokenManager.this.transactionManager.init(TokenManager.this.wallet);
             TokenManager.this.userManager.init(TokenManager.this.wallet);
             return TokenManager.this;
         });
     }
 
-    public final ChatMessageManager getChatMessageManager() {
-        return this.chatMessageManager;
+    public final SofaMessageManager getSofaMessageManager() {
+        return this.sofaMessageManager;
     }
 
     public final TransactionManager getTransactionManager() {

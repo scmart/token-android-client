@@ -12,7 +12,7 @@ import com.bakkenbaeck.token.crypto.signal.SignalService;
 import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
 import com.bakkenbaeck.token.crypto.signal.store.SignalTrustStore;
 import com.bakkenbaeck.token.manager.model.ChatMessageTask;
-import com.bakkenbaeck.token.model.local.ChatMessage;
+import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.SendState;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.sofa.Payment;
@@ -55,7 +55,7 @@ import rx.SingleSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
-public final class ChatMessageManager {
+public final class SofaMessageManager {
 
     private final PublishSubject<ChatMessageTask> chatMessageQueue = PublishSubject.create();
 
@@ -73,7 +73,7 @@ public final class ChatMessageManager {
     private SignalServiceUrl[] signalServiceUrls;
     private String gcmToken;
 
-    public final ChatMessageManager init(final HDWallet wallet) {
+    public final SofaMessageManager init(final HDWallet wallet) {
         this.wallet = wallet;
         this.userAgent = "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME +  ":" + BuildConfig.VERSION_CODE;
         this.adapters = new SofaAdapters();
@@ -108,21 +108,21 @@ public final class ChatMessageManager {
 
     // Will send the message to a remote peer
     // and store the message in the local database
-    public final void sendAndSaveMessage(final User receiver, final ChatMessage message) {
+    public final void sendAndSaveMessage(final User receiver, final SofaMessage message) {
         final ChatMessageTask messageTask = new ChatMessageTask(receiver, message, ChatMessageTask.SEND_AND_SAVE);
         this.chatMessageQueue.onNext(messageTask);
     }
 
     // Will send the message to a remote peer
     // but not store the message in the local database
-    public final void sendMessage(final User receiver, final ChatMessage message) {
+    public final void sendMessage(final User receiver, final SofaMessage message) {
         final ChatMessageTask messageTask = new ChatMessageTask(receiver, message, ChatMessageTask.SEND_ONLY);
         this.chatMessageQueue.onNext(messageTask);
     }
 
     // Will store the message in the local database
     // but not send the message to a remote peer
-    public final void saveMessage(final User receiver, final ChatMessage message) {
+    public final void saveMessage(final User receiver, final SofaMessage message) {
         final ChatMessageTask messageTask = new ChatMessageTask(receiver, message, ChatMessageTask.SAVE_ONLY);
         this.chatMessageQueue.onNext(messageTask);
     }
@@ -150,7 +150,7 @@ public final class ChatMessageManager {
 
     private void initDatabase() {
         this.dbThreadExecutor = Executors.newSingleThreadExecutor();
-        this.dbThreadExecutor.submit((Runnable) () -> ChatMessageManager.this.conversationStore = new ConversationStore());
+        this.dbThreadExecutor.submit((Runnable) () -> SofaMessageManager.this.conversationStore = new ConversationStore());
     }
 
     private void generateStores() {
@@ -204,18 +204,18 @@ public final class ChatMessageManager {
             public void onNext(final ChatMessageTask messageTask) {
                 dbThreadExecutor.submit(() -> {
                     if (messageTask.getAction() == ChatMessageTask.SEND_AND_SAVE) {
-                        sendMessageToRemotePeer(messageTask.getReceiver(), messageTask.getChatMessage(), true);
+                        sendMessageToRemotePeer(messageTask.getReceiver(), messageTask.getSofaMessage(), true);
                     } else if (messageTask.getAction() == ChatMessageTask.SAVE_ONLY) {
-                        storeMessage(messageTask.getReceiver(), messageTask.getChatMessage());
+                        storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage());
                     } else {
-                        sendMessageToRemotePeer(messageTask.getReceiver(), messageTask.getChatMessage(), false);
+                        sendMessageToRemotePeer(messageTask.getReceiver(), messageTask.getSofaMessage(), false);
                     }
                 });
             }
         });
     }
 
-    private void sendMessageToRemotePeer(final User receiver, final ChatMessage message, final boolean saveMessageToDatabase) {
+    private void sendMessageToRemotePeer(final User receiver, final SofaMessage message, final boolean saveMessageToDatabase) {
         final SignalServiceMessageSender messageSender = new SignalServiceMessageSender(
                 this.signalServiceUrls,
                 this.wallet.getOwnerAddress(),
@@ -250,7 +250,7 @@ public final class ChatMessageManager {
         }
     }
 
-    private void storeMessage(final User receiver, final ChatMessage message) {
+    private void storeMessage(final User receiver, final SofaMessage message) {
         message.setSendState(SendState.STATE_LOCAL_ONLY);
         this.conversationStore.saveNewMessage(receiver, message);
     }
@@ -320,7 +320,7 @@ public final class ChatMessageManager {
 
                 final User threadSafeUser = new User(user);
 
-                final ChatMessage remoteMessage = new ChatMessage().makeNew(false, messageBody);
+                final SofaMessage remoteMessage = new SofaMessage().makeNew(false, messageBody);
                 if (remoteMessage.getType() == SofaType.PAYMENT) {
                     sendIncomingPaymentToTransactionManager(threadSafeUser, remoteMessage);
                     return;
@@ -328,12 +328,12 @@ public final class ChatMessageManager {
                     embedLocalAmountIntoPaymentRequest(remoteMessage);
                 }
 
-                dbThreadExecutor.execute(() -> ChatMessageManager.this.conversationStore.saveNewMessage(threadSafeUser, remoteMessage));
+                dbThreadExecutor.execute(() -> SofaMessageManager.this.conversationStore.saveNewMessage(threadSafeUser, remoteMessage));
             }
         });
     }
 
-    private void sendIncomingPaymentToTransactionManager(final User sender, final ChatMessage remoteMessage) {
+    private void sendIncomingPaymentToTransactionManager(final User sender, final SofaMessage remoteMessage) {
         try {
             final Payment payment = adapters.paymentFrom(remoteMessage.getPayload());
             payment.generateLocalPrice();
@@ -348,7 +348,7 @@ public final class ChatMessageManager {
         }
     }
 
-    private void embedLocalAmountIntoPaymentRequest(final ChatMessage remoteMessage) {
+    private void embedLocalAmountIntoPaymentRequest(final SofaMessage remoteMessage) {
         try {
             final PaymentRequest request = adapters.txRequestFrom(remoteMessage.getPayload());
             request.generateLocalPrice();

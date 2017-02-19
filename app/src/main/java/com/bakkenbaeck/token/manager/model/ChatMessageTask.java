@@ -3,7 +3,7 @@ package com.bakkenbaeck.token.manager.model;
 
 import android.support.annotation.IntDef;
 
-import com.bakkenbaeck.token.model.local.ChatMessage;
+import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.User;
 
 public class ChatMessageTask {
@@ -16,15 +16,15 @@ public class ChatMessageTask {
     public static final int SEND_ONLY = 2;
 
     private final User receiver;
-    private final ChatMessage chatMessage;
+    private final SofaMessage sofaMessage;
     private final @Action int action;
 
     public ChatMessageTask(
             final User receiver,
-            final ChatMessage chatMessage,
+            final SofaMessage sofaMessage,
             final @Action int action) {
         this.receiver = receiver;
-        this.chatMessage = chatMessage;
+        this.sofaMessage = sofaMessage;
         this.action = action;
     }
 
@@ -32,8 +32,8 @@ public class ChatMessageTask {
         return receiver;
     }
 
-    public ChatMessage getChatMessage() {
-        return chatMessage;
+    public SofaMessage getSofaMessage() {
+        return sofaMessage;
     }
 
     public int getAction() {

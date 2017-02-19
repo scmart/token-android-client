@@ -8,7 +8,7 @@ public class PendingTransaction extends RealmObject {
 
     @PrimaryKey
     private String txHash;
-    private ChatMessage chatMessage;
+    private SofaMessage sofaMessage;
 
     public PendingTransaction() {}
 
@@ -21,12 +21,12 @@ public class PendingTransaction extends RealmObject {
         return this;
     }
 
-    public ChatMessage getChatMessage() {
-        return chatMessage;
+    public SofaMessage getSofaMessage() {
+        return sofaMessage;
     }
 
-    public PendingTransaction setChatMessage(final ChatMessage chatMessage) {
-        this.chatMessage = chatMessage;
+    public PendingTransaction setSofaMessage(final SofaMessage sofaMessage) {
+        this.sofaMessage = sofaMessage;
         return this;
     }
 }
