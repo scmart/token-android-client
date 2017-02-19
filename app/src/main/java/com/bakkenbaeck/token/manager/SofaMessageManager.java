@@ -13,8 +13,8 @@ import com.bakkenbaeck.token.crypto.signal.SignalService;
 import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
 import com.bakkenbaeck.token.crypto.signal.store.SignalTrustStore;
 import com.bakkenbaeck.token.manager.model.ChatMessageTask;
-import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.SendState;
+import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
@@ -45,6 +45,7 @@ import org.whispersystems.signalservice.api.messages.SignalServiceContent;
 import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage;
 import org.whispersystems.signalservice.api.messages.SignalServiceEnvelope;
 import org.whispersystems.signalservice.api.push.SignalServiceAddress;
+import org.whispersystems.signalservice.internal.push.SignalServiceProtos;
 import org.whispersystems.signalservice.internal.push.SignalServiceUrl;
 
 import java.io.IOException;
@@ -93,6 +94,11 @@ public final class SofaMessageManager {
 
     private void tryRegisterGcm() {
         if (this.gcmToken == null) {
+            return;
+        }
+
+        if (this.sharedPreferences.getBoolean(RegistrationIntentService.CHAT_SERVICE_SENT_TOKEN_TO_SERVER, false)) {
+            // Already registered
             return;
         }
         try {
@@ -274,6 +280,11 @@ public final class SofaMessageManager {
     }
 
     private void receiveMessagesAsync() {
+        if (this.receiveMessages) {
+            // Already running.
+            return;
+        }
+
         this.receiveMessages = true;
         new Thread(() -> {
             while (receiveMessages) {
@@ -296,9 +307,6 @@ public final class SofaMessageManager {
                 this.protocolStore.getPassword(),
                 this.protocolStore.getSignalingKey(),
                 this.userAgent);
-        final SignalServiceAddress localAddress = new SignalServiceAddress(this.wallet.getOwnerAddress());
-        final SignalServiceCipher cipher = new SignalServiceCipher(localAddress, this.protocolStore);
-
 
         if (this.messagePipe == null) {
             this.messagePipe = messageReceiver.createMessagePipe();
@@ -306,19 +314,36 @@ public final class SofaMessageManager {
 
         try {
             final SignalServiceEnvelope envelope = messagePipe.read(10, TimeUnit.SECONDS);
-            final SignalServiceContent message = cipher.decrypt(envelope);
-            final Optional<SignalServiceDataMessage> dataMessage = message.getDataMessage();
-            if (dataMessage.isPresent()) {
-                final String messageSource = envelope.getSource();
-                final Optional<String> messageBody = dataMessage.get().getBody();
-                if (messageBody.isPresent()) {
-                    saveIncomingMessageToDatabase(messageSource, messageBody.get());
-                }
-            }
+            handleIncomingSignalServiceEnvelope(envelope);
         } catch (final TimeoutException ex) {
             // Nop. This is to be expected
         } catch (final IllegalStateException | InvalidKeyException | InvalidKeyIdException | DuplicateMessageException | InvalidVersionException | LegacyMessageException | InvalidMessageException | NoSessionException | org.whispersystems.libsignal.UntrustedIdentityException | IOException e) {
             LogUtil.e(getClass(), "receiveMessage: " + e.toString());
+        }
+    }
+
+    private void handleIncomingSignalServiceEnvelope(final SignalServiceEnvelope envelope) throws InvalidVersionException, InvalidMessageException, InvalidKeyException, DuplicateMessageException, InvalidKeyIdException, org.whispersystems.libsignal.UntrustedIdentityException, LegacyMessageException, NoSessionException {
+        if (envelope.getType() == SignalServiceProtos.Envelope.Type.PREKEY_BUNDLE_VALUE) {
+            // New keys need to be registered with the server.
+            registerWithServer();
+            // TO DO - temporarily show message for testers
+            Toast.makeText(BaseApplication.get(), "Generating new keys. Let us know if something goes wrong.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        handleIncomingSofaMessage(envelope);
+    }
+
+    private void handleIncomingSofaMessage(final SignalServiceEnvelope envelope) throws InvalidVersionException, InvalidMessageException, InvalidKeyException, DuplicateMessageException, InvalidKeyIdException, org.whispersystems.libsignal.UntrustedIdentityException, LegacyMessageException, NoSessionException {
+        final SignalServiceAddress localAddress = new SignalServiceAddress(this.wallet.getOwnerAddress());
+        final SignalServiceCipher cipher = new SignalServiceCipher(localAddress, this.protocolStore);
+        final SignalServiceContent message = cipher.decrypt(envelope);
+        final Optional<SignalServiceDataMessage> dataMessage = message.getDataMessage();
+        if (dataMessage.isPresent()) {
+            final String messageSource = envelope.getSource();
+            final Optional<String> messageBody = dataMessage.get().getBody();
+            if (messageBody.isPresent()) {
+                saveIncomingMessageToDatabase(messageSource, messageBody.get());
+            }
         }
     }
 
