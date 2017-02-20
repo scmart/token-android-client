@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.network.App;
+import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.adapter.viewholder.SearchAppHeaderViewHolder;
 import com.bakkenbaeck.token.view.adapter.viewholder.SearchAppViewHolder;
 
@@ -24,9 +25,14 @@ public class SearchAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private final static int HEADER = 2;
 
     private List<App> apps;
+    private OnItemClickListener<App> listener;
 
     public SearchAppAdapter(final List<App> apps) {
         this.apps = apps;
+    }
+
+    public void setOnItemClickListener(final OnItemClickListener<App> listener) {
+        this.listener = listener;
     }
 
     public void addItems(final List<App> apps) {
@@ -67,6 +73,7 @@ public class SearchAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 vh.setImage(app);
                 vh.setCategory(app);
                 vh.setRating(3.6);
+                vh.bind(app, this.listener);
                 break;
             }
         }

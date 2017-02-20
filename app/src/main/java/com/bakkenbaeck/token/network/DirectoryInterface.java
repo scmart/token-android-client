@@ -1,6 +1,5 @@
 package com.bakkenbaeck.token.network;
 
-import com.bakkenbaeck.token.model.network.AppSearch;
 import com.bakkenbaeck.token.model.network.Apps;
 
 import retrofit2.Response;
@@ -13,9 +12,9 @@ public interface DirectoryInterface {
     @GET("v1/apps/")
     Observable<Response<Apps>> getApps();
 
-    @GET("v1/apps/?limit=20")
+    @GET("v1/apps/featured")
     Observable<Response<Apps>> getFeaturedApps();
 
     @GET("v1/search/apps/")
-    Observable<Response<AppSearch>> searchApps(@Query("query") String searchString);
+    Observable<Response<Apps>> searchApps(@Query("query") String searchString);
 }

@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.network.App;
+import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.custom.StarRatingView;
 import com.bumptech.glide.Glide;
 
@@ -41,5 +42,9 @@ public class RecommendedAppsViewHolder extends RecyclerView.ViewHolder {
 
     public void setRating(final double rating) {
         this.ratingView.setStars(rating);
+    }
+
+    public void bind(final App app, OnItemClickListener<App> listener) {
+        this.itemView.setOnClickListener(view -> listener.onItemClick(app));
     }
 }

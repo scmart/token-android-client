@@ -8,19 +8,17 @@ import android.support.annotation.NonNull;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.databinding.ActivityChatBinding;
 import com.bakkenbaeck.token.model.local.ActivityResultHolder;
-import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.presenter.ChatPresenter;
 import com.bakkenbaeck.token.presenter.factory.ChatPresenterFactory;
 import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
 
 public final class ChatActivity extends BasePresenterActivity<ChatPresenter, ChatActivity> {
 
-    public static final String EXTRA__REMOTE_USER = "remote_user";
+    public static final String EXTRA__REMOTE_USER_ADDRESS = "remote_user_owner_address";
     public static final String EXTRA__PAYMENT_ACTION = "payment_action";
     public static final String EXTRA__ETH_AMOUNT = "eth_amount";
 
     private ActivityChatBinding binding;
-    private User remoteUser;
     private ActivityResultHolder resultHolder;
     private ChatPresenter presenter;
 
@@ -32,7 +30,6 @@ public final class ChatActivity extends BasePresenterActivity<ChatPresenter, Cha
 
     private void init() {
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_chat);
-        this.remoteUser = getIntent().getParcelableExtra(EXTRA__REMOTE_USER);
     }
 
     public final ActivityChatBinding getBinding() {
@@ -48,7 +45,6 @@ public final class ChatActivity extends BasePresenterActivity<ChatPresenter, Cha
     @Override
     protected void onPresenterPrepared(@NonNull final ChatPresenter presenter) {
         this.presenter = presenter;
-        this.presenter.setRemoteUser(this.remoteUser);
         tryProcessResultHolder();
     }
 

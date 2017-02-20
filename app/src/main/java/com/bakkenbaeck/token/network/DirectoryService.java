@@ -1,6 +1,8 @@
 package com.bakkenbaeck.token.network;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.model.network.App;
+import com.bakkenbaeck.token.network.interceptor.AppCacheInterceptor;
 import com.bakkenbaeck.token.network.interceptor.LoggingInterceptor;
 import com.bakkenbaeck.token.network.interceptor.UserAgentInterceptor;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -19,9 +21,14 @@ public class DirectoryService {
 
     private final DirectoryInterface directoryInterface;
     private final OkHttpClient.Builder client;
+    private final AppCacheInterceptor cacheInterceptor;
 
     public static DirectoryInterface getApi() {
         return get().directoryInterface;
+    }
+
+    public static App getCachedApp(final String appOwnerAddress) {
+        return get().loadFromCache(appOwnerAddress);
     }
 
     private static DirectoryService get() {
@@ -41,7 +48,9 @@ public class DirectoryService {
     private DirectoryService() {
         final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory
                 .createWithScheduler(Schedulers.io());
+        this.cacheInterceptor = new AppCacheInterceptor();
         this.client = new OkHttpClient.Builder();
+        this.client.interceptors().add(this.cacheInterceptor);
 
         addUserAgentHeader();
         addLogging();
@@ -65,5 +74,9 @@ public class DirectoryService {
     private void addLogging() {
         final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor(new LoggingInterceptor());
         this.client.addInterceptor(interceptor);
+    }
+
+    private App loadFromCache(final String appOwnerAddress) {
+        return this.cacheInterceptor.loadFromCache(appOwnerAddress);
     }
 }

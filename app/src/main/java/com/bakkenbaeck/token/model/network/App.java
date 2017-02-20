@@ -1,25 +1,53 @@
 package com.bakkenbaeck.token.model.network;
 
+import com.bakkenbaeck.token.model.sofa.InitRequest;
+
 import java.util.List;
 
 public class App {
-    private String displayName;
-    private String protocol;
-    private String webApp;
     private List<String> languages;
+    private String paymentAddress;
+    private String webApp;
+    private String displayName;
     private List<String> interfaces;
+    private String protocol;
     private String avatarUrl;
-    private String ethereumAddress;
+    private String ownerAddress;
+    private InitRequest initRequest;
+
+    public List<String> getLanguages() {
+        return languages;
+    }
+
+    public String getPaymentAddress() {
+        return paymentAddress;
+    }
+
+    public String getWebApp() {
+        return webApp;
+    }
 
     public String getDisplayName() {
         return displayName;
+    }
+
+    public List<String> getInterfaces() {
+        return interfaces;
+    }
+
+    public String getProtocol() {
+        return protocol;
     }
 
     public String getAvatarUrl() {
         return avatarUrl;
     }
 
-    public List<String> getInterfaces() {
-        return interfaces;
+    public String getOwnerAddress() {
+        return ownerAddress;
+    }
+
+    public InitRequest getInitRequest() {
+        return initRequest;
     }
 }
