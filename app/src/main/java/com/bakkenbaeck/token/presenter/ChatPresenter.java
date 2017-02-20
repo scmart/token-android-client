@@ -7,6 +7,7 @@ import android.util.Pair;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
+import android.widget.Toast;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
@@ -45,6 +46,7 @@ import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 import java.io.IOException;
 
 import io.realm.RealmList;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
@@ -60,40 +62,27 @@ public final class ChatPresenter implements
     private MessageAdapter messageAdapter;
     private boolean firstViewAttachment = true;
     private ConversationStore conversationStore;
-    private PendingTransactionStore pendingTransactionStore;
     private User remoteUser;
     private SpeedyLinearLayoutManager layoutManager;
     private SofaAdapters adapters;
     private HDWallet userWallet;
     private int lastVisibleMessagePosition;
-
-    public void setRemoteUser(final User remoteUser) {
-        this.remoteUser = remoteUser;
-    }
+    private Subscription getUserSubscription;
 
     @Override
     public void onViewAttached(final ChatActivity activity) {
         this.activity = activity;
-        initToolbar();
-        initControlView();
+
 
         if (firstViewAttachment) {
             firstViewAttachment = false;
             initLongLivingObjects();
         }
         initShortLivingObjects();
-        getIntentData();
-    }
-
-    private void initToolbar() {
-        this.activity.getBinding().title.setText(this.remoteUser.getDisplayName());
-        this.activity.getBinding().avatar.setImageBitmap(this.remoteUser.getImage());
-        this.activity.getBinding().closeButton.setOnClickListener(this.backButtonClickListener);
     }
 
     private void initLongLivingObjects() {
         initMessageAdapter();
-        initChatMessageStore();
         initPendingTransactionStore();
 
         BaseApplication.get()
@@ -117,29 +106,12 @@ public final class ChatPresenter implements
     }
 
     private void initPendingTransactionStore() {
-        this.pendingTransactionStore = new PendingTransactionStore();
-        this.pendingTransactionStore
+        final PendingTransactionStore pendingTransactionStore = new PendingTransactionStore();
+        pendingTransactionStore
                 .getPendingTransactionObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handlePendingTransactionChange);
-    }
-
-    private void initChatMessageStore() {
-        this.conversationStore = new ConversationStore();
-        final Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> observables
-                = this.conversationStore.registerForChanges(this.remoteUser.getOwnerAddress());
-        observables.first
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleNewMessage);
-        observables.second
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleUpdatedMessage);
-        this.conversationStore.loadByAddress(this.remoteUser.getOwnerAddress())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleConversationLoaded);
     }
 
     private void initShortLivingObjects() {
@@ -147,9 +119,19 @@ public final class ChatPresenter implements
         initAdapterAnimation();
         initRecyclerView();
         initButtons();
+        initControlView();
+        getIntentData();
     }
 
     private void getIntentData() {
+        this.remoteUser = this.activity.getIntent().getParcelableExtra(ChatActivity.EXTRA__REMOTE_USER);
+        if (this.remoteUser == null) {
+            final String remoteUserAddress = this.activity.getIntent().getStringExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS);
+            fetchUserFromAddress(remoteUserAddress);
+        } else {
+            updateUiFromRemoteUser();
+        }
+
         final String value = this.activity.getIntent().getStringExtra(ChatActivity.EXTRA__ETH_AMOUNT);
         final int paymentAction = this.activity.getIntent().getIntExtra(ChatActivity.EXTRA__PAYMENT_ACTION, 0);
 
@@ -165,6 +147,68 @@ public final class ChatPresenter implements
         } else if (paymentAction == PaymentType.TYPE_REQUEST) {
             sendPaymentRequestWithValue(value);
         }
+    }
+
+    private void fetchUserFromAddress(final String remoteUserAddress) {
+        if (this.getUserSubscription != null) {
+            this.getUserSubscription.unsubscribe();
+        }
+
+        this.getUserSubscription =
+                BaseApplication
+                        .get()
+                        .getTokenManager()
+                        .getUserManager()
+                        .getUserFromAddress(remoteUserAddress)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(this::handleUserLoaded, this::handleUserFetchFailed);
+    }
+
+    private void handleUserLoaded(final User user) {
+        this.remoteUser = user;
+        if (this.remoteUser != null) {
+            updateUiFromRemoteUser();
+        }
+    }
+
+    private void handleUserFetchFailed(final Throwable throwable) {
+        Toast.makeText(BaseApplication.get(), R.string.error__app_loading, Toast.LENGTH_LONG).show();
+        if (this.activity != null) {
+            this.activity.finish();
+        }
+    }
+
+    private void updateUiFromRemoteUser() {
+        initToolbar(this.remoteUser);
+        initChatMessageStore(this.remoteUser);
+    }
+
+    private void initToolbar(final User remoteUser) {
+        this.activity.getBinding().title.setText(remoteUser.getDisplayName());
+        this.activity.getBinding().avatar.setImageBitmap(remoteUser.getImage());
+        this.activity.getBinding().closeButton.setOnClickListener(this.backButtonClickListener);
+    }
+
+    private void initChatMessageStore(final User remoteUser) {
+        if (this.conversationStore != null) {
+            return;
+        }
+
+        this.conversationStore = new ConversationStore();
+        final Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> observables
+                = this.conversationStore.registerForChanges(remoteUser.getOwnerAddress());
+        observables.first
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this.handleNewMessage);
+        observables.second
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this.handleUpdatedMessage);
+        this.conversationStore.loadByAddress(remoteUser.getOwnerAddress())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this.handleConversationLoaded);
     }
 
     private void initLayoutManager() {
@@ -199,19 +243,9 @@ public final class ChatPresenter implements
         this.activity.getBinding().messagesList.setAdapter(this.messageAdapter);
 
         // Hack to scroll to bottom when keyboard rendered
-        this.activity.getBinding().messagesList.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(final View v,
-                                       final int left, final int top, final int right, final int bottom,
-                                       final int oldLeft, final int oldTop, final int oldRight, final int oldBottom) {
-                if (bottom < oldBottom) {
-                    activity.getBinding().messagesList.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            activity.getBinding().messagesList.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
-                        }
-                    }, 100);
-                }
+        this.activity.getBinding().messagesList.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if (bottom < oldBottom) {
+                activity.getBinding().messagesList.postDelayed(() -> activity.getBinding().messagesList.smoothScrollToPosition(messageAdapter.getItemCount() - 1), 100);
             }
         });
 
@@ -487,6 +521,11 @@ public final class ChatPresenter implements
     public void onViewDestroyed() {
         if (this.messageAdapter != null) {
             this.messageAdapter = null;
+        }
+
+        if (this.getUserSubscription != null) {
+            this.getUserSubscription.unsubscribe();
+            this.getUserSubscription = null;
         }
         this.handleNewMessage.unsubscribe();
         this.handleUpdatedMessage.unsubscribe();
