@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            style="@style/ToolbarTheme">
+
+            <ImageButton
+                android:id="@+id/close_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="fitCenter"
+                android:padding="16dp"
+                android:tint="@color/textColorContrast"
+                android:background="@android:color/transparent"
+                app:srcCompat="@drawable/ic_arrow_back"/>
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Toolbar.TitleText"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:text="@string/trusted_friends"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="44dp"
+            android:layout_gravity="center_horizontal"
+            android:textSize="18sp"
+            android:textColor="@color/textColorPrimary"
+            android:textStyle="bold"
+            android:text="@string/coming_soon"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"
+            android:textSize="14sp"
+            android:textColor="@color/textColorSecondary"
+            android:text="@string/coming_soon_message"/>
+
+        <Button
+            android:id="@+id/invite_friends_btn"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginLeft="35dp"
+            android:layout_marginRight="35dp"
+            style="@style/FlatButton"
+            android:background="@drawable/background_with_radius_primary_color"
+            android:textColor="#FFFFFF"
+            android:text="@string/invite_friends"/>
+
+    </LinearLayout>
+
+</layout>
