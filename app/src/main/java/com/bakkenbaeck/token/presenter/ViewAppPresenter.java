@@ -2,8 +2,11 @@ package com.bakkenbaeck.token.presenter;
 
 import android.graphics.Bitmap;
 import android.view.View;
+import android.widget.Toast;
 
+import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.network.App;
+import com.bakkenbaeck.token.network.DirectoryService;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.activity.ViewAppActivity;
@@ -25,7 +28,12 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
     }
 
     private void getIntentData() {
-        this.app = this.activity.getIntent().getParcelableExtra(ViewAppActivity.APP);
+        final String appOwnerAddress = this.activity.getIntent().getStringExtra(ViewAppActivity.APP_OWNER_ADDRESS);
+        this.app = DirectoryService.getCachedApp(appOwnerAddress);
+        if (this.app == null) {
+            Toast.makeText(this.activity, R.string.error__app_loading, Toast.LENGTH_LONG).show();
+            this.activity.finish();
+        }
     }
 
     private void initView() {

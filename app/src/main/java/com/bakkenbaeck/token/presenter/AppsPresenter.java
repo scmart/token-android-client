@@ -7,7 +7,6 @@ import android.view.View;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.network.App;
-import com.bakkenbaeck.token.model.network.AppSearch;
 import com.bakkenbaeck.token.model.network.Apps;
 import com.bakkenbaeck.token.network.DirectoryService;
 import com.bakkenbaeck.token.util.LogUtil;
@@ -86,7 +85,7 @@ public class AppsPresenter implements Presenter<AppsFragment>{
 
     private void handleAppClicked(final App app) {
         final Intent intent = new Intent(this.fragment.getContext(), ViewAppActivity.class)
-                .putExtra(ViewAppActivity.APP, app);
+                .putExtra(ViewAppActivity.APP_OWNER_ADDRESS, app.getOwnerAddress());
         this.fragment.getContext().startActivity(intent);
     }
 
@@ -105,14 +104,14 @@ public class AppsPresenter implements Presenter<AppsFragment>{
         subscriptions.add(sub);
     }
 
-    private Observable<Response<AppSearch>> runSearchQuery(final String searchString) {
+    private Observable<Response<Apps>> runSearchQuery(final String searchString) {
         return DirectoryService
                 .getApi()
                 .searchApps(searchString)
                 .subscribeOn(Schedulers.io());
     }
 
-    private void handleSearchResponse(final Response<AppSearch> response) {
+    private void handleSearchResponse(final Response<Apps> response) {
         if (response.code() == 200) {
             addAppsToRecyclerView(response.body().getApps());
         } else {

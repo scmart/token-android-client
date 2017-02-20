@@ -12,7 +12,7 @@ import com.bakkenbaeck.token.presenter.factory.ViewAppPresenterFactory;
 
 public class ViewAppActivity extends BasePresenterActivity<ViewAppPresenter, ViewAppActivity> {
 
-    public static final String APP = "app";
+    public static final String APP_OWNER_ADDRESS = "app_owner_address";
 
     private ActivityViewAppBinding binding;
 

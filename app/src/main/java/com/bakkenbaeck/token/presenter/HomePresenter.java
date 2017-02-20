@@ -183,7 +183,7 @@ public class HomePresenter implements Presenter<HomeFragment> {
 
     private void handleClickEvent(final App app) {
         final Intent intent = new Intent(this.fragment.getContext(), ViewAppActivity.class)
-                .putExtra(ViewAppActivity.APP, app);
+                .putExtra(ViewAppActivity.APP_OWNER_ADDRESS, app.getOwnerAddress());
         this.fragment.getContext().startActivity(intent);
     }
 
