@@ -5,7 +5,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.network.App;
 import com.bakkenbaeck.token.model.network.Apps;
 import com.bakkenbaeck.token.network.DirectoryService;
@@ -13,7 +12,6 @@ import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.activity.ViewAppActivity;
 import com.bakkenbaeck.token.view.adapter.RecommendedAppsAdapter;
 import com.bakkenbaeck.token.view.adapter.SearchAppAdapter;
-import com.bakkenbaeck.token.view.custom.RightSpaceItemDecoration;
 import com.bakkenbaeck.token.view.fragment.toplevel.AppsFragment;
 import com.jakewharton.rxbinding.widget.RxTextView;
 
@@ -66,19 +64,16 @@ public class AppsPresenter implements Presenter<AppsFragment>{
     }
 
     private void initRecyclerViews() {
-        final int spacing = this.fragment.getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
-
         final RecyclerView recommendedApps = this.fragment.getBinding().recyclerViewRecommendedApps;
         recommendedApps.setLayoutManager(new LinearLayoutManager(this.fragment.getContext(), LinearLayoutManager.HORIZONTAL, false));
-        recommendedApps.addItemDecoration(new RightSpaceItemDecoration(spacing));
-        final RecommendedAppsAdapter recommendedAppsAdapter = new RecommendedAppsAdapter(new ArrayList<App>());
+        final RecommendedAppsAdapter recommendedAppsAdapter = new RecommendedAppsAdapter(new ArrayList<>());
         recommendedApps.setAdapter(recommendedAppsAdapter);
         recommendedApps.setNestedScrollingEnabled(false);
         recommendedAppsAdapter.setOnItemClickListener(this::handleAppClicked);
 
         final RecyclerView filteredApps = this.fragment.getBinding().searchList;
         filteredApps.setLayoutManager(new LinearLayoutManager(this.fragment.getContext()));
-        final SearchAppAdapter searchAppAdapter = new SearchAppAdapter(new ArrayList<App>());
+        final SearchAppAdapter searchAppAdapter = new SearchAppAdapter(new ArrayList<>());
         filteredApps.setAdapter(searchAppAdapter);
         searchAppAdapter.setOnItemClickListener(this::handleAppClicked);
     }
