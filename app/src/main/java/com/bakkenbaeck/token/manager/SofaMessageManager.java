@@ -3,7 +3,6 @@ package com.bakkenbaeck.token.manager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.widget.Toast;
 
 import com.bakkenbaeck.token.BuildConfig;
 import com.bakkenbaeck.token.R;
@@ -45,7 +44,6 @@ import org.whispersystems.signalservice.api.messages.SignalServiceContent;
 import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage;
 import org.whispersystems.signalservice.api.messages.SignalServiceEnvelope;
 import org.whispersystems.signalservice.api.push.SignalServiceAddress;
-import org.whispersystems.signalservice.internal.push.SignalServiceProtos;
 import org.whispersystems.signalservice.internal.push.SignalServiceUrl;
 
 import java.io.IOException;
@@ -240,13 +238,6 @@ public final class SofaMessageManager {
             protocolStore.saveIdentity(
                     new SignalProtocolAddress(receiver.getOwnerAddress(), SignalServiceAddress.DEFAULT_DEVICE_ID),
                     ue.getIdentityKey());
-
-            // To Do -- handle this more gracefully. Right now we show a toast so that we can get some feedback from testers,
-            Toast.makeText(
-                    BaseApplication.get(),
-                    "Remote keys changed. Try and send the message again. Please let us know if this does or does not work.",
-                    Toast.LENGTH_LONG
-            ).show();
         } catch (final IOException ex) {
             LogUtil.error(getClass(), ex.toString());
             if (saveMessageToDatabase) {
@@ -323,13 +314,12 @@ public final class SofaMessageManager {
     }
 
     private void handleIncomingSignalServiceEnvelope(final SignalServiceEnvelope envelope) throws InvalidVersionException, InvalidMessageException, InvalidKeyException, DuplicateMessageException, InvalidKeyIdException, org.whispersystems.libsignal.UntrustedIdentityException, LegacyMessageException, NoSessionException {
-        if (envelope.getType() == SignalServiceProtos.Envelope.Type.PREKEY_BUNDLE_VALUE) {
+        // ToDo -- When do we need to create new keys?
+ /*       if (envelope.getType() == SignalServiceProtos.Envelope.Type.PREKEY_BUNDLE_VALUE) {
             // New keys need to be registered with the server.
             registerWithServer();
-            // TO DO - temporarily show message for testers
-            Toast.makeText(BaseApplication.get(), "Generating new keys. Let us know if something goes wrong.", Toast.LENGTH_LONG).show();
             return;
-        }
+        }*/
         handleIncomingSofaMessage(envelope);
     }
 

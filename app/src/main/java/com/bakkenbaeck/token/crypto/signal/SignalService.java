@@ -12,6 +12,7 @@ import com.bakkenbaeck.token.network.interceptor.UserAgentInterceptor;
 import com.squareup.moshi.Moshi;
 
 import org.whispersystems.libsignal.IdentityKey;
+import org.whispersystems.libsignal.InvalidKeyException;
 import org.whispersystems.libsignal.InvalidKeyIdException;
 import org.whispersystems.libsignal.state.PreKeyRecord;
 import org.whispersystems.libsignal.state.SignedPreKeyRecord;
@@ -108,7 +109,7 @@ public final class SignalService extends SignalServiceAccountManager {
                     protocolStore.getPreKeys(),
                     registrationSubscriber
             );
-        } catch (final IOException | InvalidKeyIdException ex) {
+        } catch (final IOException | InvalidKeyIdException | InvalidKeyException ex) {
             registrationSubscriber.onError(ex);
         }
     }

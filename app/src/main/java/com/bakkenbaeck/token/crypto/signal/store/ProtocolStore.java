@@ -44,56 +44,70 @@ public class ProtocolStore implements SignalProtocolStore {
     }
 
     public ProtocolStore init() {
-        try {
-            if (getIdentityKeyPair() == null) generateIdentityKeyPair();
-            if (getLastResortKey() == null) generateLastResortKey();
-            if (getPassword() == null) generatePassword();
-            if (getLocalRegistrationId() == -1) generateLocalRegistrationId();
-            if (getSignalingKey() == null) generateSignalingKey();
-            if (getSignedPreKey() == null) generateSignedPreKey();
-            if (!preKeysHaveBeenGenerated()) generatePreKeys();
-        } catch (final IOException | InvalidKeyIdException | InvalidKeyException ex) {
-            throw new RuntimeException(ex);
-        }
         return this;
     }
 
-    public SignedPreKeyRecord getSignedPreKey() throws InvalidKeyIdException {
+    public SignedPreKeyRecord getSignedPreKey() throws InvalidKeyIdException, InvalidKeyException {
         final int signedPreKeyId = SignalPreferences.getSignedPreKeyId();
-        if (signedPreKeyId == -1) return null;
-        return loadSignedPreKey(signedPreKeyId);
+        if (signedPreKeyId == -1) {
+            return generateSignedPreKey();
+        }
+
+        final SignedPreKeyRecord signedPreKey = loadSignedPreKey(signedPreKeyId);
+        if (signedPreKey == null) {
+            return generateSignedPreKey();
+        }
+        return signedPreKey;
     }
 
-    private void generateSignedPreKey() throws InvalidKeyException {
+    private SignedPreKeyRecord generateSignedPreKey() throws InvalidKeyException {
         final SignedPreKeyRecord pk = PreKeyUtil.generateSignedPreKey(BaseApplication.get(), getIdentityKeyPair(), true);
-        storeSignedPreKey(pk.getId(), pk);
         SignalPreferences.setSignedPreKeyId(pk.getId());
+        return pk;
     }
 
     @Override
     public IdentityKeyPair getIdentityKeyPair() {
-        return identityKeyStore.getIdentityKeyPair();
+        final IdentityKeyPair ikp = identityKeyStore.getIdentityKeyPair();
+        if (ikp == null) {
+            return generateIdentityKeyPair();
+        }
+        return ikp;
     }
 
-    private void generateIdentityKeyPair() {
-        SignalPreferences.setSerializedIdentityKeyPair(KeyHelper.generateIdentityKeyPair().serialize());
+    private IdentityKeyPair generateIdentityKeyPair() {
+        final IdentityKeyPair ikp = KeyHelper.generateIdentityKeyPair();
+        SignalPreferences.setSerializedIdentityKeyPair(ikp.serialize());
+        return ikp;
     }
 
     @Override
     public int getLocalRegistrationId() {
-        return identityKeyStore.getLocalRegistrationId();
+        final int rid = identityKeyStore.getLocalRegistrationId();
+        if (rid == -1) {
+            return generateLocalRegistrationId();
+        }
+        return rid;
     }
 
-    private void generateLocalRegistrationId() {
-        SignalPreferences.setLocalRegistrationId(KeyHelper.generateRegistrationId(false));
+    private int generateLocalRegistrationId() {
+        final int rid = KeyHelper.generateRegistrationId(false);
+        SignalPreferences.setLocalRegistrationId(rid);
+        return rid;
     }
 
     public String getSignalingKey() {
-        return SignalPreferences.getSignalingKey();
+        final String signallingKey = SignalPreferences.getSignalingKey();
+        if (signallingKey == null) {
+            return generateSignalingKey();
+        }
+        return signallingKey;
     }
 
-    private void generateSignalingKey() {
-        SignalPreferences.setSignalingKey(HashUtil.getSecret(52));
+    private String generateSignalingKey() {
+        final String signallingKey = HashUtil.getSecret(52);
+        SignalPreferences.setSignalingKey(signallingKey);
+        return signallingKey;
     }
 
     @Override
@@ -104,6 +118,11 @@ public class ProtocolStore implements SignalProtocolStore {
     @Override
     public boolean isTrustedIdentity(SignalProtocolAddress address, IdentityKey identityKey) {
         return identityKeyStore.isTrustedIdentity(address, identityKey);
+    }
+
+    public List<PreKeyRecord> getPreKeys() throws InvalidKeyIdException {
+        if (!preKeysHaveBeenGenerated()) generatePreKeys();
+        return this.preKeyRecords;
     }
 
     private boolean preKeysHaveBeenGenerated() {
@@ -117,26 +136,32 @@ public class ProtocolStore implements SignalProtocolStore {
         }
     }
 
-    public List<PreKeyRecord> getPreKeys() throws InvalidKeyIdException {
-        return this.preKeyRecords;
-    }
-
     public PreKeyRecord getLastResortKey() throws IOException {
         final byte[] serializedLastResortKey = SignalPreferences.getSerializedLastResortKey();
-        if (serializedLastResortKey == null) return null;
+        if (serializedLastResortKey == null) {
+            return generateLastResortKey();
+        }
         return new PreKeyRecord(serializedLastResortKey);
     }
 
-    private void generateLastResortKey() {
-        SignalPreferences.setSerializedLastResortKey(PreKeyUtil.generateLastResortKey(BaseApplication.get()).serialize());
+    private PreKeyRecord generateLastResortKey() {
+        final PreKeyRecord lrk = PreKeyUtil.generateLastResortKey(BaseApplication.get());
+        SignalPreferences.setSerializedLastResortKey(lrk.serialize());
+        return lrk;
     }
 
     public String getPassword() {
-        return SignalPreferences.getPassword();
+        final String password = SignalPreferences.getPassword();
+        if (password == null) {
+            return generatePassword();
+        }
+        return password;
     }
 
-    private void generatePassword() {
-        SignalPreferences.setPassword(HashUtil.getSecret(18));
+    private String generatePassword() {
+        final String password = HashUtil.getSecret(18);
+        SignalPreferences.setPassword(password);
+        return password;
     }
 
     @Override
