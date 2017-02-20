@@ -72,4 +72,21 @@
     <string name="open_source_licenses">Open source licenses</string>
     <string name="add_app">Add app</string>
     <string name="error__app_loading">There was a problem loading this app</string>
+    <string name="your_account_is_at_risk">Your account is at risk</string>
+    <string name="security">Security</string>
+    <string name="choose_a_trusted_friend">Choose a trusted friends</string>
+    <string name="store_backup_phrase">Store backup phrase</string>
+    <string name="trusted_friends">Trusted friends</string>
+    <string name="coming_soon">Coming soon</string>
+    <string name="coming_soon_message">Your friends will be able to identify you when you lose your phone or need to sign in on a new device. Make sure to get your friends on Token.</string>
+    <string name="invite_friends">Invite friends</string>
+    <string name="invite_friends_intent_message">I’m using Token to access an open financial system. Join me: http://www.tokenbrowser.com/</string>
+    <string name="let_s_secure_your_account">Let’s secure your account</string>
+    <string name="backup_phrase_info_message">Storing a backup phrase will allow you to recover your funds if your phone is ever lost or stolen. \n \n It’s important to store this backup phrase securely where nobody else can access it, such as on a piece of paper or in a password manager.</string>
+    <string name="backup_phrase_understand_message">I understand that if I lose my backup phrase, I will be unable to recover access to my account.</string>
+    <string name="backup_phrase">Backup phrase</string>
+    <string name="this_is_your_backup_phrase">This is your backup phrase</string>
+    <string name="backup_phrase_warning_message">Carefully write down the words. Don’t email it or screenshot it. </string>
+    <string name="copy_phrase_to_keyboard">Copy phrase to keyboard</string>
+    <string name="verify_phrase">Verify phrase</string>
 </resources>
