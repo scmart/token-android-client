@@ -28,7 +28,9 @@ public class UserStore {
     private User loadWhere(final String fieldName, final String value) {
         final RealmQuery<User> query = realm.where(User.class);
         query.equalTo(fieldName, value);
-        return query.findFirst();
+        final User user = query.findFirst();
+        if (user == null) return null;
+        return realm.copyFromRealm(user);
     }
 
     private RealmResults<User> queryWhere(final String fieldName, final String value) {

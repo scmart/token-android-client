@@ -16,6 +16,7 @@ import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
 public final class ChatActivity extends BasePresenterActivity<ChatPresenter, ChatActivity> {
 
     public static final String EXTRA__REMOTE_USER = "remote_user";
+    public static final String EXTRA__REMOTE_USER_ADDRESS = "remote_user_owner_address";
     public static final String EXTRA__PAYMENT_ACTION = "payment_action";
     public static final String EXTRA__ETH_AMOUNT = "eth_amount";
 
