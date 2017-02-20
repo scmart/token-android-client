@@ -22,7 +22,6 @@ import org.whispersystems.libsignal.state.SignedPreKeyStore;
 import org.whispersystems.libsignal.util.KeyHelper;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ProtocolStore implements SignalProtocolStore {
@@ -35,6 +34,7 @@ public class ProtocolStore implements SignalProtocolStore {
     private final SignedPreKeyStore signedPreKeyStore;
     private final IdentityKeyStore identityKeyStore;
     private final SessionStore sessionStore;
+    private List<PreKeyRecord> preKeyRecords;
 
     public ProtocolStore() {
         this.preKeyStore  = new SignalPreKeyStore();
@@ -111,19 +111,14 @@ public class ProtocolStore implements SignalProtocolStore {
     }
 
     private void generatePreKeys() {
-        final List<PreKeyRecord> preKeyRecords = PreKeyUtil.generatePreKeys(BaseApplication.get());
+        this.preKeyRecords = PreKeyUtil.generatePreKeys(BaseApplication.get());
         for (final PreKeyRecord preKeyRecord : preKeyRecords) {
             storePreKey(preKeyRecord.getId(), preKeyRecord);
         }
     }
 
     public List<PreKeyRecord> getPreKeys() throws InvalidKeyIdException {
-        final List<PreKeyRecord> preKeyRecords = new ArrayList<>(PREKEY_COUNT);
-        for (int i = PREKEY_START; i < PREKEY_START + PREKEY_COUNT; i++) {
-            final PreKeyRecord preKeyRecord = loadPreKey(i);
-            preKeyRecords.add(preKeyRecord);
-        }
-        return preKeyRecords;
+        return this.preKeyRecords;
     }
 
     public PreKeyRecord getLastResortKey() throws IOException {
