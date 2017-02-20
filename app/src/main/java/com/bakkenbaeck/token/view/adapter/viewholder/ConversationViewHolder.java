@@ -8,6 +8,7 @@ import android.widget.TextView;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.local.Conversation;
 import com.bakkenbaeck.token.model.local.User;
+import com.bumptech.glide.Glide;
 
 import java.util.Calendar;
 
@@ -40,6 +41,10 @@ public class ConversationViewHolder extends ClickableViewHolder {
 
         final int visibility = conversation.getNumberOfUnread() > 0 ? VISIBLE : GONE;
         this.unreadCounter.setVisibility(visibility);
+
+        Glide.with(this.avatar.getContext())
+                .load(conversation.getMember().getAvatar())
+                .into(this.avatar);
     }
 
     public void setLatestMessage(final String latestMessage) {

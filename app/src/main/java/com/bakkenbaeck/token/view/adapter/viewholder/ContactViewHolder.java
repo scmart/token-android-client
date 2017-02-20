@@ -8,6 +8,7 @@ import android.widget.TextView;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.view.custom.StarRatingView;
+import com.bumptech.glide.Glide;
 
 public class ContactViewHolder extends ClickableViewHolder {
 
@@ -27,7 +28,10 @@ public class ContactViewHolder extends ClickableViewHolder {
     public void setUser(final User user) {
         this.name.setText(user.getDisplayName());
         this.username.setText(user.getUsername());
-        this.avatar.setImageBitmap(user.getImage());
         this.ratingView.setStars(3.6);
+
+        Glide.with(this.avatar.getContext())
+                .load(user.getAvatar())
+                .into(this.avatar);
     }
 }
