@@ -56,6 +56,8 @@ public class GcmMessageReceiver extends GcmListenerService {
             LogUtil.i(getClass(), "Incoming PN: " + message);
 
             if (message == null) {
+                final String title = this.getString(R.string.message_received);
+                showNotification(title, null);
                 return;
             }
 

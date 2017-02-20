@@ -63,7 +63,7 @@
     <string name="to">To:</string>
     <string name="reputation">Reputation</string>
     <string name="bullet_point">•</string>
-    <string name="message_received">Message received</string>
+    <string name="message_received">🔒 You have received a new message</string>
     <string name="profile_username">Username</string>
     <string name="about">About</string>
     <string name="contact_information_label">Contact information</string>
