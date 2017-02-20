@@ -120,16 +120,23 @@ public final class ChatPresenter implements
         initRecyclerView();
         initButtons();
         initControlView();
-        getIntentData();
+        processIntentData();
     }
 
-    private void getIntentData() {
-        this.remoteUser = this.activity.getIntent().getParcelableExtra(ChatActivity.EXTRA__REMOTE_USER);
+    private void processIntentData() {
         if (this.remoteUser == null) {
             final String remoteUserAddress = this.activity.getIntent().getStringExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS);
             fetchUserFromAddress(remoteUserAddress);
-        } else {
-            updateUiFromRemoteUser();
+            return;
+        }
+
+        updateUiFromRemoteUser();
+        processPaymentFromIntent();
+    }
+
+    private void processPaymentFromIntent() {
+        if (this.remoteUser == null) {
+            return;
         }
 
         final String value = this.activity.getIntent().getStringExtra(ChatActivity.EXTRA__ETH_AMOUNT);
@@ -168,7 +175,7 @@ public final class ChatPresenter implements
     private void handleUserLoaded(final User user) {
         this.remoteUser = user;
         if (this.remoteUser != null) {
-            updateUiFromRemoteUser();
+            processIntentData();
         }
     }
 

@@ -104,7 +104,7 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
     private void handleOnMessageClicked(final View v) {
         final Intent intent = new Intent(this.activity, ChatActivity.class);
         if (this.user != null) {
-            intent.putExtra(ChatActivity.EXTRA__REMOTE_USER, this.user);
+            intent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, this.user.getOwnerAddress());
         }
         intent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, this.user.getOwnerAddress());
         this.activity.startActivity(intent);

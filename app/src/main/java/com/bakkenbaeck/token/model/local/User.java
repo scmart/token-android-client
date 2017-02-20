@@ -3,8 +3,6 @@ package com.bakkenbaeck.token.model.local;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -12,7 +10,7 @@ import com.bakkenbaeck.token.view.BaseApplication;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class User extends RealmObject implements Parcelable {
+public class User extends RealmObject {
 
     @PrimaryKey
     private String owner_address;
@@ -27,13 +25,6 @@ public class User extends RealmObject implements Parcelable {
         this.owner_address = user.getOwnerAddress();
         this.username = user.getUsername();
         this.customUserInfo = new CustomUserInformation(user.getCustomUserInfo());
-    }
-
-    private User(final Parcel in) {
-        owner_address = in.readString();
-        username = in.readString();
-        customUserInfo = in.readParcelable(CustomUserInformation.class.getClassLoader());
-        customAppInfo = in.readParcelable(CustomAppInformation.class.getClassLoader());
     }
 
     public void setCustomAppInfo(final CustomAppInformation customAppInfo) {
@@ -82,32 +73,5 @@ public class User extends RealmObject implements Parcelable {
 
     public void setUsername(final String username) {
         this.username = username;
-    }
-
-
-    // Parcelable implementation
-    public static final Creator<User> CREATOR = new Creator<User>() {
-        @Override
-        public User createFromParcel(Parcel in) {
-            return new User(in);
-        }
-
-        @Override
-        public User[] newArray(int size) {
-            return new User[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeString(owner_address);
-        dest.writeString(username);
-        dest.writeParcelable(customUserInfo, flags);
-        dest.writeParcelable(customAppInfo, flags);
     }
 }
