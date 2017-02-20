@@ -54,9 +54,9 @@ public class User extends RealmObject {
     }
 
     public String getAvatar() {
-        return custom == null
+        return customUserInfo == null
                 ? null
-                : String.format("%s%s", BaseApplication.get().getResources().getString(R.string.id_url), this.custom.getAvatar());
+                : String.format("%s%s", BaseApplication.get().getResources().getString(R.string.id_url), this.customUserInfo.getAvatar());
     }
 
     public String getLocation() {
