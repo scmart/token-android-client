@@ -33,4 +33,8 @@ public interface IdInterface {
 
     @GET("/v1/search/user")
     Single<UserSearchResults> searchByUsername(@Query("query") String username);
+
+    @GET("/v1/login/{id}")
+    Single<Void> webLogin(@Path("id") String loginToken,
+                          @Query("timestamp") long timestamp);
 }

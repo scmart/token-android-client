@@ -50,10 +50,13 @@ public class SigningInterceptor implements Interceptor {
         final Buffer buffer = new Buffer();
         final String method = original.method();
         final String path = original.url().encodedPath();
-        original.body().writeTo(buffer);
-        final byte[] body = buffer.readByteArray();
-        final byte[] hashedBody = HashUtil.sha3(body);
-        final String encodedBody = Base64.encodeToString(hashedBody, Base64.NO_WRAP);
+        String encodedBody = "";
+        if (original.body() != null) {
+            original.body().writeTo(buffer);
+            final byte[] body = buffer.readByteArray();
+            final byte[] hashedBody = HashUtil.sha3(body);
+            encodedBody = Base64.encodeToString(hashedBody, Base64.NO_WRAP);
+        }
 
         final String forSigning = method + "\n" + path + "\n" + timestamp + "\n" + encodedBody;
         final String signature = this.wallet.signIdentity(forSigning);

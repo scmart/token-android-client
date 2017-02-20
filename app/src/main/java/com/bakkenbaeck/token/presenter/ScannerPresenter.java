@@ -3,10 +3,15 @@ package com.bakkenbaeck.token.presenter;
 import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
+import android.widget.Toast;
 
+import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.local.PermissionResultHolder;
 import com.bakkenbaeck.token.model.local.ScanResult;
+import com.bakkenbaeck.token.model.network.ServerTime;
+import com.bakkenbaeck.token.network.IdService;
 import com.bakkenbaeck.token.util.SoundManager;
+import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ScannerActivity;
 import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 import com.google.zxing.ResultPoint;
@@ -16,9 +21,13 @@ import com.journeyapps.barcodescanner.CaptureManager;
 
 import java.util.List;
 
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
 public final class ScannerPresenter implements Presenter<ScannerActivity> {
 
-    public static final String USER_ADDRESS = "user_address";
+    /*package */ static final String USER_ADDRESS = "user_address";
+    private static final String WEB_SIGNIN = "web-signin:";
 
     private CaptureManager capture;
     private ScannerActivity activity;
@@ -66,9 +75,14 @@ public final class ScannerPresenter implements Presenter<ScannerActivity> {
                 activity.setResult(Activity.RESULT_OK, intent);
                 activity.finish();
             } else {
-                final Intent intent = new Intent(activity, ViewUserActivity.class);
-                intent.putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, scanResult.getText());
-                activity.startActivity(intent);
+                if (scanResult.getText().startsWith(WEB_SIGNIN)) {
+                    final String token = scanResult.getText().substring(WEB_SIGNIN.length());
+                    webLoginWithToken(token);
+                } else {
+                    final Intent intent = new Intent(activity, ViewUserActivity.class);
+                    intent.putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, scanResult.getText());
+                    activity.startActivity(intent);
+                }
             }
         }
 
@@ -101,5 +115,38 @@ public final class ScannerPresenter implements Presenter<ScannerActivity> {
             this.capture.onDestroy();
         }
         this.activity = null;
+    }
+
+    private void webLoginWithToken(final String loginToken) {
+        IdService
+            .getApi()
+            .getTimestamp()
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.io())
+            .subscribe((st) -> handleFetchTime(st, loginToken), this::handleLoginFailure);
+    }
+
+    private void handleFetchTime(final ServerTime serverTime, final String loginToken) {
+        if (serverTime == null) {
+            handleLoginFailure(new Throwable("ServerTime was null"));
+        }
+
+        IdService
+            .getApi()
+            .webLogin(loginToken, serverTime.get())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(this::handleLoginSuccess, this::handleLoginFailure);
+    }
+
+    private void handleLoginFailure(final Throwable throwable) {
+        Toast.makeText(BaseApplication.get(), R.string.error__web_signin, Toast.LENGTH_LONG).show();
+    }
+
+    private void handleLoginSuccess(final Void unused) {
+        Toast.makeText(BaseApplication.get(), R.string.web_signin, Toast.LENGTH_LONG).show();
+        if (activity != null) {
+            activity.finish();
+        }
     }
 }
