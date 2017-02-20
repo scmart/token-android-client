@@ -61,7 +61,6 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
     private void initView() {
         this.activity.getBinding().title.setText(app.getDisplayName());
         activity.getBinding().name.setText(app.getDisplayName());
-        activity.getBinding().username.setText(app.getDisplayName());
         activity.getBinding().about.setText(app.getLanguages().toString());
         activity.getBinding().location.setText(app.getDisplayName());
         activity.getBinding().ratingView.setStars(3.6);
@@ -114,6 +113,13 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
 
     private void handleUserLoaded(final User user) {
         this.user = user;
+
+        if (this.activity == null) {
+            return;
+        }
+
+        this.activity.getBinding().username.setText(user.getDisplayName());
+        this.activity.getBinding().username.setText(user.getUsername());
         if (this.userClickedMessageButton) {
             handleOnMessageClicked(null);
         }
