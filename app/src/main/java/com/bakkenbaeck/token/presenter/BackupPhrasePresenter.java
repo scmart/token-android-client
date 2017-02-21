@@ -1,5 +1,6 @@
 package com.bakkenbaeck.token.presenter;
 
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -7,6 +8,7 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.BackupPhraseActivity;
+import com.bakkenbaeck.token.view.activity.BackupPhraseVerifyActivity;
 import com.bakkenbaeck.token.view.adapter.BackupPhraseAdapter;
 import com.bakkenbaeck.token.view.custom.SpaceDecoration;
 import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager;
@@ -33,6 +35,11 @@ public class BackupPhrasePresenter implements Presenter<BackupPhraseActivity> {
 
     private void initRecyclerView() {
         final RecyclerView backupPhraseList = this.activity.getBinding().backupPhraseList;
+
+        if (backupPhraseList.getAdapter() != null) {
+            return;
+        }
+
         final ChipsLayoutManager chipsLayoutManager = ChipsLayoutManager.newBuilder(this.activity)
                 .build();
         final int controlSpacing = BaseApplication.get().getResources().getDimensionPixelSize(R.dimen. backup_phrase_spacing);
@@ -67,7 +74,8 @@ public class BackupPhrasePresenter implements Presenter<BackupPhraseActivity> {
     }
 
     private void handleVerifyPhraseButtonClicked(final View v) {
-        //Start new activity
+        final Intent intent = new Intent(this.activity, BackupPhraseVerifyActivity.class);
+        this.activity.startActivity(intent);
     }
 
     @Override
