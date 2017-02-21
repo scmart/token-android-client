@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.databinding.ActivityScannerBinding;
+import com.bakkenbaeck.token.model.local.PermissionResultHolder;
 import com.bakkenbaeck.token.presenter.ScannerPresenter;
 import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
 import com.bakkenbaeck.token.presenter.factory.ScannerPresenterFactory;
@@ -18,6 +19,7 @@ public class ScannerActivity extends BasePresenterActivity<ScannerPresenter, Sca
 
     private ScannerPresenter presenter;
     private ActivityScannerBinding binding;
+    private PermissionResultHolder resultHolder;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -42,6 +44,26 @@ public class ScannerActivity extends BasePresenterActivity<ScannerPresenter, Sca
     @Override
     protected void onPresenterPrepared(@NonNull final ScannerPresenter presenter) {
         this.presenter = presenter;
+        tryHandlePermissionResultHolder();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        this.resultHolder = new PermissionResultHolder(requestCode, permissions, grantResults);
+        tryHandlePermissionResultHolder();
+    }
+
+    private void tryHandlePermissionResultHolder() {
+        if (this.resultHolder == null) {
+            return;
+        }
+
+        if (this.presenter == null) {
+            return;
+        }
+
+        this.presenter.handlePermissionsResult(this.resultHolder);
+        this.resultHolder = null;
     }
 
     @Override

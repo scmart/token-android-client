@@ -23,7 +23,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.bakkenbaeck.token.view.activity.MainActivity" />
+        <activity android:name="com.bakkenbaeck.token.view.activity.MainActivity"
+                  android:windowSoftInputMode="adjustPan|stateHidden" />
         <activity android:name="com.bakkenbaeck.token.view.activity.ChatActivity" />
         <activity android:name="com.bakkenbaeck.token.view.activity.ViewUserActivity" />
         <activity android:name="com.bakkenbaeck.token.view.activity.ProfileActivity" />

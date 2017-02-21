@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
 
+import com.bakkenbaeck.token.model.local.PermissionResultHolder;
 import com.bakkenbaeck.token.model.local.ScanResult;
 import com.bakkenbaeck.token.util.SoundManager;
 import com.bakkenbaeck.token.view.activity.ScannerActivity;
@@ -81,6 +82,10 @@ public final class ScannerPresenter implements Presenter<ScannerActivity> {
             }
         }
     };
+
+    public void handlePermissionsResult(final PermissionResultHolder prh) {
+        this.capture.onRequestPermissionsResult(prh.getRequestCode(), prh.getPermissions(), prh.getGrantResults());
+    }
 
     @Override
     public void onViewDetached() {

@@ -78,6 +78,7 @@
             android:textIsSelectable="true"
             android:background="@color/windowBackground"
             android:textSize="16sp"
+            android:autoLink="email"
             tools:text="email@email.com"/>
 
         <android.support.v4.widget.Space

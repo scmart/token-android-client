@@ -13,6 +13,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:gravity="center_vertical"
+            android:focusableInTouchMode="true"
             style="@style/ToolbarTheme">
 
             <TextView
@@ -44,6 +45,7 @@
                     app:layout_scrollFlags="scroll|enterAlways"
                     app:layout_behavior="@string/appbar_scrolling_view_behavior"
                     android:hint="@string/search_or_type_the_url"
+                    android:textSize="16sp"
                     android:background="@color/input_bg"/>
 
             </android.support.design.widget.AppBarLayout>

@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.view.BaseApplication;
+import com.squareup.moshi.Json;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -15,6 +16,7 @@ public class User extends RealmObject {
     @PrimaryKey
     private String owner_address;
     private String username;
+    @Json(name = "custom")
     private CustomUserInformation customUserInfo;
     private CustomAppInformation customAppInfo;
 
@@ -35,6 +37,10 @@ public class User extends RealmObject {
 
     public String getUsername() {
         return String.format("@%s", username);
+    }
+
+    public String getUsernameForEditing() {
+        return this.username;
     }
 
     // Defaults to the username if no name is set.
