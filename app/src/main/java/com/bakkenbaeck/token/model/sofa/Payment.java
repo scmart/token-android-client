@@ -40,6 +40,10 @@ public class Payment {
         return this;
     }
 
+    public String getOwnerAddress() {
+        return ownerAddress;
+    }
+
     public Payment setOwnerAddress(final String ownerAddress) {
         this.ownerAddress = ownerAddress;
         return this;
