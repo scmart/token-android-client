@@ -15,7 +15,7 @@ public interface SignalInterface {
     @GET("/v1/accounts/bootstrap")
     Single<ServerTime> getTimestamp();
 
-    @Headers( "Content-Type: application/json" )
+    @Headers("Content-Type: application/json")
     @PUT("/v1/accounts/bootstrap")
     Single<Void> register(@Body String body,
                           @Query("timestamp") long timestamp);

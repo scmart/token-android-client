@@ -9,6 +9,7 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.crypto.signal.SignalPreferences;
 import com.bakkenbaeck.token.crypto.signal.SignalService;
+import com.bakkenbaeck.token.crypto.signal.model.DecryptedSignalMessage;
 import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
 import com.bakkenbaeck.token.crypto.signal.store.SignalTrustStore;
 import com.bakkenbaeck.token.manager.model.SofaMessageTask;
@@ -279,12 +280,13 @@ public final class SofaMessageManager {
         this.receiveMessages = true;
         new Thread(() -> {
             while (receiveMessages) {
-                receiveMessages();
+                final DecryptedSignalMessage message = fetchLatestMessage();
+                saveIncomingMessageToDatabase(message);
             }
         }).start();
     }
 
-    private void receiveMessages() {
+    public DecryptedSignalMessage fetchLatestMessage() {
         final SignalServiceUrl[] urls = {
                 new SignalServiceUrl(
                         BaseApplication.get().getResources().getString(R.string.chat_url),
@@ -305,25 +307,26 @@ public final class SofaMessageManager {
 
         try {
             final SignalServiceEnvelope envelope = messagePipe.read(10, TimeUnit.SECONDS);
-            handleIncomingSignalServiceEnvelope(envelope);
+            return decryptIncomingSignalServiceEnvelope(envelope);
         } catch (final TimeoutException ex) {
             // Nop. This is to be expected
         } catch (final IllegalStateException | InvalidKeyException | InvalidKeyIdException | DuplicateMessageException | InvalidVersionException | LegacyMessageException | InvalidMessageException | NoSessionException | org.whispersystems.libsignal.UntrustedIdentityException | IOException e) {
             LogUtil.e(getClass(), "receiveMessage: " + e.toString());
         }
+        return null;
     }
 
-    private void handleIncomingSignalServiceEnvelope(final SignalServiceEnvelope envelope) throws InvalidVersionException, InvalidMessageException, InvalidKeyException, DuplicateMessageException, InvalidKeyIdException, org.whispersystems.libsignal.UntrustedIdentityException, LegacyMessageException, NoSessionException {
+    private DecryptedSignalMessage decryptIncomingSignalServiceEnvelope(final SignalServiceEnvelope envelope) throws InvalidVersionException, InvalidMessageException, InvalidKeyException, DuplicateMessageException, InvalidKeyIdException, org.whispersystems.libsignal.UntrustedIdentityException, LegacyMessageException, NoSessionException {
         // ToDo -- When do we need to create new keys?
  /*       if (envelope.getType() == SignalServiceProtos.Envelope.Type.PREKEY_BUNDLE_VALUE) {
             // New keys need to be registered with the server.
             registerWithServer();
             return;
         }*/
-        handleIncomingSofaMessage(envelope);
+        return handleIncomingSofaMessage(envelope);
     }
 
-    private void handleIncomingSofaMessage(final SignalServiceEnvelope envelope) throws InvalidVersionException, InvalidMessageException, InvalidKeyException, DuplicateMessageException, InvalidKeyIdException, org.whispersystems.libsignal.UntrustedIdentityException, LegacyMessageException, NoSessionException {
+    private DecryptedSignalMessage handleIncomingSofaMessage(final SignalServiceEnvelope envelope) throws InvalidVersionException, InvalidMessageException, InvalidKeyException, DuplicateMessageException, InvalidKeyIdException, org.whispersystems.libsignal.UntrustedIdentityException, LegacyMessageException, NoSessionException {
         final SignalServiceAddress localAddress = new SignalServiceAddress(this.wallet.getOwnerAddress());
         final SignalServiceCipher cipher = new SignalServiceCipher(localAddress, this.protocolStore);
         final SignalServiceContent message = cipher.decrypt(envelope);
@@ -331,18 +334,22 @@ public final class SofaMessageManager {
         if (dataMessage.isPresent()) {
             final String messageSource = envelope.getSource();
             final Optional<String> messageBody = dataMessage.get().getBody();
-            if (messageBody.isPresent()) {
-                saveIncomingMessageToDatabase(messageSource, messageBody.get());
-            }
+            return new DecryptedSignalMessage(messageSource, messageBody.get());
         }
+        return null;
     }
 
-    private void saveIncomingMessageToDatabase(final String messageSource, final String messageBody) {
+    private void saveIncomingMessageToDatabase(final DecryptedSignalMessage signalMessage) {
+        if (signalMessage == null || signalMessage.getBody() == null || signalMessage.getSource() == null) {
+            LogUtil.w(getClass(), "Attempt to save invalid DecryptedSignalMessage to database.");
+            return;
+        }
+
         BaseApplication
         .get()
         .getTokenManager()
         .getUserManager()
-        .getUserFromAddress(messageSource)
+        .getUserFromAddress(signalMessage.getSource())
         .subscribe(new OnNextSubscriber<User>() {
             @Override
             public void onNext(final User user) {
@@ -353,7 +360,7 @@ public final class SofaMessageManager {
 
                 final User threadSafeUser = new User(user);
 
-                final SofaMessage remoteMessage = new SofaMessage().makeNew(false, messageBody);
+                final SofaMessage remoteMessage = new SofaMessage().makeNew(false, signalMessage.getBody());
                 if (remoteMessage.getType() == SofaType.PAYMENT) {
                     sendIncomingPaymentToTransactionManager(threadSafeUser, remoteMessage);
                     return;
