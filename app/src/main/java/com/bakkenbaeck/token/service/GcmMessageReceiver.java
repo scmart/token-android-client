@@ -23,15 +23,19 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.crypto.signal.model.DecryptedSignalMessage;
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.bakkenbaeck.token.model.local.SofaMessage;
+import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LogUtil;
+import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.MainActivity;
 import com.google.android.gms.gcm.GcmListenerService;
@@ -52,30 +56,75 @@ public class GcmMessageReceiver extends GcmListenerService {
     @Override
     public void onMessageReceived(final String from, final Bundle data) {
         try {
-            final String message = data.getString("message");
-            LogUtil.i(getClass(), "Incoming PN: " + message);
+            final String messageBody = data.getString("message");
+            LogUtil.i(getClass(), "Incoming PN: " + messageBody);
 
-            if (message == null) {
-                final String title = this.getString(R.string.message_received);
-                showNotification(title, null);
+            if (messageBody == null) {
+                tryShowSignalMessage();
                 return;
             }
 
-            final SofaMessage sofaMessage = new SofaMessage().makeNew(message);
+            final SofaMessage sofaMessage = new SofaMessage().makeNew(messageBody);
 
             if (sofaMessage.getType() == SofaType.PAYMENT) {
                 final Payment payment = adapters.paymentFrom(sofaMessage.getPayload());
                 handleIncomingPayment(payment);
                 showPaymentNotification(payment);
             } else {
-                final String title = this.getString(R.string.message_received);
-                //Message is atm null, use sofaMessage instead
-                showNotification(title, message);
+                tryShowSignalMessage();
             }
 
-        } catch (IOException e) {
-            LogUtil.e(getClass(), "Error -> " + e);
+        } catch (final Exception ex) {
+            LogUtil.e(getClass(), "Error -> " + ex);
         }
+    }
+
+    private void tryShowSignalMessage() {
+        final DecryptedSignalMessage signalMessage =
+            BaseApplication
+                .get()
+                .getTokenManager()
+                .getSofaMessageManager()
+                .fetchLatestMessage();
+        if (signalMessage == null) {
+            LogUtil.i(getClass(), "Incoming PN; but no idea what it was!");
+            return;
+        }
+
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .getUserFromAddress(signalMessage.getSource())
+                .subscribe(new OnNextSubscriber<User>() {
+                    @Override
+                    public void onNext(final User user) {
+                        if (user == null) {
+                            return;
+                        }
+                        unsubscribe();
+                        handleUserLookup(user, signalMessage);
+                    }
+                });
+    }
+
+    private void handleUserLookup(final User user, final DecryptedSignalMessage signalMessage) {
+        final String body = getBodyFromMessage(signalMessage);
+        showNotification(user.getDisplayName(), body, user.getOwnerAddress());
+        // There may be more messages.
+        tryShowSignalMessage();
+    }
+
+    private String getBodyFromMessage(final DecryptedSignalMessage dsm) {
+        final SofaMessage sofaMessage = new SofaMessage().makeNew(dsm.getBody());
+        try {
+            if (sofaMessage.getType() == SofaType.PLAIN_TEXT) {
+                return new SofaAdapters().messageFrom(sofaMessage.getPayload()).getBody();
+            }
+        } catch (final IOException ex) {
+            // Nop
+        }
+        return sofaMessage.getPayload();
     }
 
     private void handleIncomingPayment(final Payment payment) {
@@ -102,16 +151,17 @@ public class GcmMessageReceiver extends GcmListenerService {
         final BigDecimal ethAmount = EthUtil.weiToEth(weiAmount);
         final String localCurrency = BaseApplication.get().getTokenManager().getBalanceManager().convertEthToLocalCurrencyString(ethAmount);
         final String content = String.format(Locale.getDefault(), "Received: %s", localCurrency);
-        showNotification(title, content);
+        showNotification(title, content, "self");
     }
 
-    private void showNotification(final String title, final String content) {
+    private void showNotification(final String title, final String content, final String ownerAddress) {
         final Uri notificationSound = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.notification);
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.token)
                 .setContentTitle(title)
                 .setContentText(content)
                 .setAutoCancel(true)
+                .setColor(ContextCompat.getColor(this, R.color.colorPrimary))
                 .setSound(notificationSound)
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
 
@@ -123,6 +173,6 @@ public class GcmMessageReceiver extends GcmListenerService {
         builder.setContentIntent(contentIntent);
 
         final NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(0, bigTextBuilder.build());
+        manager.notify(ownerAddress.hashCode(), bigTextBuilder.build());
     }
 }

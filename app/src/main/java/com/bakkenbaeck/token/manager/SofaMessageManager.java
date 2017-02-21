@@ -280,13 +280,14 @@ public final class SofaMessageManager {
         this.receiveMessages = true;
         new Thread(() -> {
             while (receiveMessages) {
-                final DecryptedSignalMessage message = fetchLatestMessage();
-                saveIncomingMessageToDatabase(message);
+                fetchLatestMessage();
             }
         }).start();
     }
 
     public DecryptedSignalMessage fetchLatestMessage() {
+        if (!waitForWallet()) return null;
+
         final SignalServiceUrl[] urls = {
                 new SignalServiceUrl(
                         BaseApplication.get().getResources().getString(R.string.chat_url),
@@ -316,6 +317,17 @@ public final class SofaMessageManager {
         return null;
     }
 
+    private boolean waitForWallet() {
+        try {
+            while (this.wallet == null) {
+                Thread.sleep(200);
+            }
+        } catch (final InterruptedException e) {
+            return false;
+        }
+        return true;
+    }
+
     private DecryptedSignalMessage decryptIncomingSignalServiceEnvelope(final SignalServiceEnvelope envelope) throws InvalidVersionException, InvalidMessageException, InvalidKeyException, DuplicateMessageException, InvalidKeyIdException, org.whispersystems.libsignal.UntrustedIdentityException, LegacyMessageException, NoSessionException {
         // ToDo -- When do we need to create new keys?
  /*       if (envelope.getType() == SignalServiceProtos.Envelope.Type.PREKEY_BUNDLE_VALUE) {
@@ -334,7 +346,9 @@ public final class SofaMessageManager {
         if (dataMessage.isPresent()) {
             final String messageSource = envelope.getSource();
             final Optional<String> messageBody = dataMessage.get().getBody();
-            return new DecryptedSignalMessage(messageSource, messageBody.get());
+            final DecryptedSignalMessage decryptedMessage = new DecryptedSignalMessage(messageSource, messageBody.get());
+            saveIncomingMessageToDatabase(decryptedMessage);
+            return decryptedMessage;
         }
         return null;
     }
