@@ -6,8 +6,7 @@ import android.support.annotation.IntDef;
 import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.User;
 
-public class ChatMessageTask {
-
+public class SofaMessageTask {
 
     @IntDef({SEND_AND_SAVE, SAVE_ONLY, SEND_ONLY})
     public @interface Action {}
@@ -19,7 +18,7 @@ public class ChatMessageTask {
     private final SofaMessage sofaMessage;
     private final @Action int action;
 
-    public ChatMessageTask(
+    public SofaMessageTask(
             final User receiver,
             final SofaMessage sofaMessage,
             final @Action int action) {
