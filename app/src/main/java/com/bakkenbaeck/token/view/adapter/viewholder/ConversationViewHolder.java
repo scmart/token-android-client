@@ -1,6 +1,5 @@
 package com.bakkenbaeck.token.view.adapter.viewholder;
 
-import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -8,9 +7,12 @@ import android.widget.TextView;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.local.Conversation;
 import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.util.LocaleUtil;
 import com.bumptech.glide.Glide;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -53,16 +55,17 @@ public class ConversationViewHolder extends ClickableViewHolder {
 
     private String getLastMessageCreationTime(final Conversation conversation) {
         final long creationTime = conversation.getLatestMessage().getCreationTime();
-        final Calendar now = Calendar.getInstance();
         final Calendar lastMessageCreationTime = Calendar.getInstance();
         lastMessageCreationTime.setTimeInMillis(creationTime);
+        final Calendar now = Calendar.getInstance();
+        final Date date = new Date(creationTime);
 
         if (now.get(Calendar.DAY_OF_YEAR) == lastMessageCreationTime.get(Calendar.DAY_OF_YEAR)) {
-            return DateFormat.format("H:mm a", lastMessageCreationTime).toString();
+            return new SimpleDateFormat("H:mm a", LocaleUtil.getLocale()).format(new Date(creationTime));
         } else if (now.get(Calendar.WEEK_OF_YEAR) == lastMessageCreationTime.get(Calendar.WEEK_OF_YEAR)){
-            return DateFormat.format("EEE", lastMessageCreationTime).toString();
+            return new SimpleDateFormat("EEE", LocaleUtil.getLocale()).format(new Date(creationTime));
         } else {
-            return DateFormat.format("d MMM", lastMessageCreationTime).toString();
+            return new SimpleDateFormat("d MMM", LocaleUtil.getLocale()).format(new Date(creationTime));
         }
     }
 }
