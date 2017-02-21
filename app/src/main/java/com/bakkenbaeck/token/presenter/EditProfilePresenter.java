@@ -70,7 +70,7 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
 
             private void setFieldsFromUser(final User user) {
                 if(displayNameFieldContents == null) displayNameFieldContents = user.getDisplayName();
-                if(userNameFieldContents == null) userNameFieldContents = user.getUsername();
+                if(userNameFieldContents == null) userNameFieldContents = user.getUsernameForEditing();
                 if(aboutFieldContents == null) aboutFieldContents = user.getAbout();
                 if(locationFieldContents == null) locationFieldContents = user.getLocation();
             }

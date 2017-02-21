@@ -39,6 +39,10 @@ public class User extends RealmObject {
         return String.format("@%s", username);
     }
 
+    public String getUsernameForEditing() {
+        return this.username;
+    }
+
     // Defaults to the username if no name is set.
     public String getDisplayName() {
         if (customUserInfo == null || customUserInfo.getName() == null) {
