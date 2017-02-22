@@ -46,6 +46,7 @@ import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.custom.ControlRecyclerView;
 import com.bakkenbaeck.token.view.custom.ControlView;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
+import com.bakkenbaeck.token.view.notification.ChatNotificationManager;
 import com.bumptech.glide.Glide;
 
 import java.io.IOException;
@@ -212,6 +213,7 @@ public final class ChatPresenter implements
             return;
         }
 
+        ChatNotificationManager.suppressNotificationsForConversation(remoteUser.getOwnerAddress());
         this.conversationStore = new ConversationStore();
         final Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> observables
                 = this.conversationStore.registerForChanges(remoteUser.getOwnerAddress());
@@ -554,6 +556,7 @@ public final class ChatPresenter implements
         this.handleUpdatedMessage.unsubscribe();
         this.conversationStore.stopListeningForChanges();
         this.conversationStore = null;
+        ChatNotificationManager.stopNotificationSuppresion();
         this.activity = null;
     }
 
