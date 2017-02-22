@@ -60,6 +60,7 @@ public class BackupPhraseVerifyPresenter implements Presenter<BackupPhraseVerify
         prefs.edit().putBoolean(BACKUP_PHRASE_STATE, true).apply();
 
         final Intent intent = new Intent(this.activity, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         this.activity.startActivity(intent);
     }
 
