@@ -9,9 +9,10 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.crypto.signal.SignalPreferences;
 import com.bakkenbaeck.token.crypto.signal.SignalService;
+import com.bakkenbaeck.token.crypto.signal.model.DecryptedSignalMessage;
 import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
 import com.bakkenbaeck.token.crypto.signal.store.SignalTrustStore;
-import com.bakkenbaeck.token.manager.model.ChatMessageTask;
+import com.bakkenbaeck.token.manager.model.SofaMessageTask;
 import com.bakkenbaeck.token.model.local.SendState;
 import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.User;
@@ -58,7 +59,7 @@ import rx.subjects.PublishSubject;
 
 public final class SofaMessageManager {
 
-    private final PublishSubject<ChatMessageTask> chatMessageQueue = PublishSubject.create();
+    private final PublishSubject<SofaMessageTask> chatMessageQueue = PublishSubject.create();
 
     private SharedPreferences sharedPreferences;
     private SignalService signalService;
@@ -115,21 +116,21 @@ public final class SofaMessageManager {
     // Will send the message to a remote peer
     // and store the message in the local database
     public final void sendAndSaveMessage(final User receiver, final SofaMessage message) {
-        final ChatMessageTask messageTask = new ChatMessageTask(receiver, message, ChatMessageTask.SEND_AND_SAVE);
+        final SofaMessageTask messageTask = new SofaMessageTask(receiver, message, SofaMessageTask.SEND_AND_SAVE);
         this.chatMessageQueue.onNext(messageTask);
     }
 
     // Will send the message to a remote peer
     // but not store the message in the local database
     public final void sendMessage(final User receiver, final SofaMessage message) {
-        final ChatMessageTask messageTask = new ChatMessageTask(receiver, message, ChatMessageTask.SEND_ONLY);
+        final SofaMessageTask messageTask = new SofaMessageTask(receiver, message, SofaMessageTask.SEND_ONLY);
         this.chatMessageQueue.onNext(messageTask);
     }
 
     // Will store the message in the local database
     // but not send the message to a remote peer
     public final void saveMessage(final User receiver, final SofaMessage message) {
-        final ChatMessageTask messageTask = new ChatMessageTask(receiver, message, ChatMessageTask.SAVE_ONLY);
+        final SofaMessageTask messageTask = new SofaMessageTask(receiver, message, SofaMessageTask.SAVE_ONLY);
         this.chatMessageQueue.onNext(messageTask);
     }
 
@@ -205,13 +206,13 @@ public final class SofaMessageManager {
         this.chatMessageQueue
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new OnNextSubscriber<ChatMessageTask>() {
+                .subscribe(new OnNextSubscriber<SofaMessageTask>() {
             @Override
-            public void onNext(final ChatMessageTask messageTask) {
+            public void onNext(final SofaMessageTask messageTask) {
                 dbThreadExecutor.submit(() -> {
-                    if (messageTask.getAction() == ChatMessageTask.SEND_AND_SAVE) {
+                    if (messageTask.getAction() == SofaMessageTask.SEND_AND_SAVE) {
                         sendMessageToRemotePeer(messageTask.getReceiver(), messageTask.getSofaMessage(), true);
-                    } else if (messageTask.getAction() == ChatMessageTask.SAVE_ONLY) {
+                    } else if (messageTask.getAction() == SofaMessageTask.SAVE_ONLY) {
                         storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage());
                     } else {
                         sendMessageToRemotePeer(messageTask.getReceiver(), messageTask.getSofaMessage(), false);
@@ -279,12 +280,14 @@ public final class SofaMessageManager {
         this.receiveMessages = true;
         new Thread(() -> {
             while (receiveMessages) {
-                receiveMessages();
+                fetchLatestMessage();
             }
         }).start();
     }
 
-    private void receiveMessages() {
+    public DecryptedSignalMessage fetchLatestMessage() {
+        if (!waitForWallet()) return null;
+
         final SignalServiceUrl[] urls = {
                 new SignalServiceUrl(
                         BaseApplication.get().getResources().getString(R.string.chat_url),
@@ -305,25 +308,37 @@ public final class SofaMessageManager {
 
         try {
             final SignalServiceEnvelope envelope = messagePipe.read(10, TimeUnit.SECONDS);
-            handleIncomingSignalServiceEnvelope(envelope);
+            return decryptIncomingSignalServiceEnvelope(envelope);
         } catch (final TimeoutException ex) {
             // Nop. This is to be expected
         } catch (final IllegalStateException | InvalidKeyException | InvalidKeyIdException | DuplicateMessageException | InvalidVersionException | LegacyMessageException | InvalidMessageException | NoSessionException | org.whispersystems.libsignal.UntrustedIdentityException | IOException e) {
             LogUtil.e(getClass(), "receiveMessage: " + e.toString());
         }
+        return null;
     }
 
-    private void handleIncomingSignalServiceEnvelope(final SignalServiceEnvelope envelope) throws InvalidVersionException, InvalidMessageException, InvalidKeyException, DuplicateMessageException, InvalidKeyIdException, org.whispersystems.libsignal.UntrustedIdentityException, LegacyMessageException, NoSessionException {
+    private boolean waitForWallet() {
+        try {
+            while (this.wallet == null) {
+                Thread.sleep(200);
+            }
+        } catch (final InterruptedException e) {
+            return false;
+        }
+        return true;
+    }
+
+    private DecryptedSignalMessage decryptIncomingSignalServiceEnvelope(final SignalServiceEnvelope envelope) throws InvalidVersionException, InvalidMessageException, InvalidKeyException, DuplicateMessageException, InvalidKeyIdException, org.whispersystems.libsignal.UntrustedIdentityException, LegacyMessageException, NoSessionException {
         // ToDo -- When do we need to create new keys?
  /*       if (envelope.getType() == SignalServiceProtos.Envelope.Type.PREKEY_BUNDLE_VALUE) {
             // New keys need to be registered with the server.
             registerWithServer();
             return;
         }*/
-        handleIncomingSofaMessage(envelope);
+        return handleIncomingSofaMessage(envelope);
     }
 
-    private void handleIncomingSofaMessage(final SignalServiceEnvelope envelope) throws InvalidVersionException, InvalidMessageException, InvalidKeyException, DuplicateMessageException, InvalidKeyIdException, org.whispersystems.libsignal.UntrustedIdentityException, LegacyMessageException, NoSessionException {
+    private DecryptedSignalMessage handleIncomingSofaMessage(final SignalServiceEnvelope envelope) throws InvalidVersionException, InvalidMessageException, InvalidKeyException, DuplicateMessageException, InvalidKeyIdException, org.whispersystems.libsignal.UntrustedIdentityException, LegacyMessageException, NoSessionException {
         final SignalServiceAddress localAddress = new SignalServiceAddress(this.wallet.getOwnerAddress());
         final SignalServiceCipher cipher = new SignalServiceCipher(localAddress, this.protocolStore);
         final SignalServiceContent message = cipher.decrypt(envelope);
@@ -331,18 +346,24 @@ public final class SofaMessageManager {
         if (dataMessage.isPresent()) {
             final String messageSource = envelope.getSource();
             final Optional<String> messageBody = dataMessage.get().getBody();
-            if (messageBody.isPresent()) {
-                saveIncomingMessageToDatabase(messageSource, messageBody.get());
-            }
+            final DecryptedSignalMessage decryptedMessage = new DecryptedSignalMessage(messageSource, messageBody.get());
+            saveIncomingMessageToDatabase(decryptedMessage);
+            return decryptedMessage;
         }
+        return null;
     }
 
-    private void saveIncomingMessageToDatabase(final String messageSource, final String messageBody) {
+    private void saveIncomingMessageToDatabase(final DecryptedSignalMessage signalMessage) {
+        if (signalMessage == null || signalMessage.getBody() == null || signalMessage.getSource() == null) {
+            LogUtil.w(getClass(), "Attempt to save invalid DecryptedSignalMessage to database.");
+            return;
+        }
+
         BaseApplication
         .get()
         .getTokenManager()
         .getUserManager()
-        .getUserFromAddress(messageSource)
+        .getUserFromAddress(signalMessage.getSource())
         .subscribe(new OnNextSubscriber<User>() {
             @Override
             public void onNext(final User user) {
@@ -353,7 +374,7 @@ public final class SofaMessageManager {
 
                 final User threadSafeUser = new User(user);
 
-                final SofaMessage remoteMessage = new SofaMessage().makeNew(false, messageBody);
+                final SofaMessage remoteMessage = new SofaMessage().makeNew(false, signalMessage.getBody());
                 if (remoteMessage.getType() == SofaType.PAYMENT) {
                     sendIncomingPaymentToTransactionManager(threadSafeUser, remoteMessage);
                     return;
