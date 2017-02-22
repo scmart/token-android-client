@@ -111,6 +111,22 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"/>
 
+            <FrameLayout
+                android:id="@+id/loading_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/windowBackground"
+                android:visibility="visible"
+                tools:visibility="gone">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@mipmap/launcher"/>
+
+            </FrameLayout>
+
         </FrameLayout>
 
         <include layout="@layout/horizontal_divider"/>

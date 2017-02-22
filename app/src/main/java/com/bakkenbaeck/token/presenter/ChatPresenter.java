@@ -192,6 +192,7 @@ public final class ChatPresenter implements
     private void updateUiFromRemoteUser() {
         initToolbar(this.remoteUser);
         initChatMessageStore(this.remoteUser);
+        initLoadingSpinner(this.remoteUser);
     }
 
     private void initToolbar(final User remoteUser) {
@@ -222,6 +223,11 @@ public final class ChatPresenter implements
         this.conversationStore.loadByAddress(remoteUser.getOwnerAddress())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleConversationLoaded);
+    }
+
+    private void initLoadingSpinner(final User remoteUser) {
+        if (this.activity == null) return;
+        this.activity.getBinding().loadingView.setVisibility(remoteUser == null ? View.VISIBLE : View.GONE);
     }
 
     private void initLayoutManager() {
