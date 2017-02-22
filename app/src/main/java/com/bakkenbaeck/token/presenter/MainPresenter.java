@@ -13,6 +13,7 @@ import com.bakkenbaeck.token.model.network.UserSearchResults;
 import com.bakkenbaeck.token.model.sofa.Message;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.network.IdService;
+import com.bakkenbaeck.token.util.SharedPrefsUtil;
 import com.bakkenbaeck.token.util.SoundManager;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.MainActivity;
@@ -61,6 +62,10 @@ public class MainPresenter implements Presenter<MainActivity> {
     }
 
     private void tryTriggerOnboarding() {
+        if (SharedPrefsUtil.hasOnboarded()) {
+            return;
+        }
+
         IdService.getApi()
                 .searchByUsername(ONBOARDING_BOT_NAME)
                 .subscribeOn(Schedulers.io())
@@ -72,12 +77,14 @@ public class MainPresenter implements Presenter<MainActivity> {
         results.getResults()
                 .stream()
                 .filter(user -> user.getUsernameForEditing().equals(ONBOARDING_BOT_NAME))
-                .forEach(user ->
-                        BaseApplication
-                        .get()
-                        .getTokenManager()
-                        .getSofaMessageManager()
-                        .sendMessage(user, generateOnboardingMessage()));
+                .forEach(user -> {
+                    BaseApplication
+                            .get()
+                            .getTokenManager()
+                            .getSofaMessageManager()
+                            .sendMessage(user, generateOnboardingMessage());
+                    SharedPrefsUtil.setHasOnboarded();
+                });
     }
 
     private SofaMessage generateOnboardingMessage() {
