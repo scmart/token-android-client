@@ -87,7 +87,7 @@
     <string name="backup_phrase">Backup phrase</string>
     <string name="this_is_your_backup_phrase">This is your backup phrase</string>
     <string name="backup_phrase_warning_message">Carefully write down the words. Don’t email it or screenshot it. </string>
-    <string name="copy_phrase_to_keyboard">Copy phrase to keyboard</string>
+    <string name="copy_phrase_to_clipboard">Copy phrase to clipboard</string>
     <string name="verify_phrase">Verify phrase</string>
     <string name="verify">Verify</string>
     <string name="verify_backup_phrase_message">Tap or drag the words to put them next to each other in the correct order.</string>
