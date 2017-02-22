@@ -3,8 +3,8 @@ package com.bakkenbaeck.token.presenter.store;
 
 import android.util.Pair;
 
-import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.Conversation;
+import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.User;
 
 import java.util.List;
@@ -52,7 +52,7 @@ public class ConversationStore {
         final SofaMessage storedMessage = realm.copyToRealm(message);
         conversationToStore.setLatestMessage(storedMessage);
         conversationToStore.setNumberOfUnread(calculateNumberOfUnread(conversationToStore));
-        final Conversation storedConversation = realm.copyToRealm(conversationToStore);
+        final Conversation storedConversation = realm.copyToRealmOrUpdate(conversationToStore);
         realm.commitTransaction();
         broadcastNewChatMessage(user.getOwnerAddress(), message);
         broadcastConversationChanged(realm.copyFromRealm(storedConversation));
