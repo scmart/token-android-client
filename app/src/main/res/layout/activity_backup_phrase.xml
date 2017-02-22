@@ -38,7 +38,7 @@
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:fillViewport="true">
 
             <LinearLayout
@@ -96,12 +96,19 @@
                         android:layout_alignRight="@+id/copy_to_clipboard"/>
                 </RelativeLayout>
 
+                <android.support.v4.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
                 <Button
                     android:id="@+id/verify_phrase_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
                     android:layout_marginTop="40dp"
                     android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:layout_marginBottom="@dimen/activity_horizontal_margin"
                     android:textAllCaps="true"
                     android:background="@drawable/background_with_radius_primary_color"
                     android:textColor="#FFFFFF"
