@@ -1,6 +1,8 @@
 package com.bakkenbaeck.token.presenter;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -8,6 +10,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.util.FileNames;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -36,6 +39,7 @@ public final class SettingsPresenter implements
         addListeners();
         initRecyclerView();
         updateUi();
+        setSecurityState();
         initClickListeners();
     }
 
@@ -94,6 +98,16 @@ public final class SettingsPresenter implements
             Glide.with(this.fragment.getBinding().avatar.getContext())
                     .load(this.localUser.getAvatar())
                     .into(this.fragment.getBinding().avatar);
+        }
+    }
+
+    private void setSecurityState() {
+        final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(FileNames.BACKUP_PHRASE_STATE, Context.MODE_PRIVATE);
+        final boolean isBackedUp = prefs.getBoolean(BackupPhraseVerifyPresenter.BACKUP_PHRASE_STATE, false);
+
+        if (isBackedUp) {
+            this.fragment.getBinding().radioButtonBackupPhrase.setChecked(true);
+            this.fragment.getBinding().securityStatus.setVisibility(View.GONE);
         }
     }
 

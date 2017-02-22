@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <org.apmem.tools.layouts.FlowLayout
+        android:id="@+id/backup_phrase_target"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="33dp"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:padding="20dp"
+        android:background="@drawable/backup_phrase_background_dotted">
+
+        <TextView
+            android:id="@+id/backup_phrase_target_1"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/backup_phrase_target_2"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/backup_phrase_target_3"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/backup_phrase_target_4"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/backup_phrase_target_5"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/backup_phrase_target_6"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/backup_phrase_target_7"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/backup_phrase_target_8"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/backup_phrase_target_9"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/backup_phrase_target_10"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/backup_phrase_target_11"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/backup_phrase_target_12"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle"/>
+
+    </org.apmem.tools.layouts.FlowLayout>
+
+    <org.apmem.tools.layouts.FlowLayout
+        android:id="@+id/backup_phrase_source"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="33dp"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/backup_phrase_source_1"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/backup_phrase_source_2"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle" />
+
+        <TextView
+            android:id="@+id/backup_phrase_source_3"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/backup_phrase_source_4"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle" />
+
+        <TextView
+            android:id="@+id/backup_phrase_source_5"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle" />
+
+        <TextView
+            android:id="@+id/backup_phrase_source_6"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle" />
+
+        <TextView
+            android:id="@+id/backup_phrase_source_7"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle" />
+
+        <TextView
+            android:id="@+id/backup_phrase_source_8"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle" />
+
+        <TextView
+            android:id="@+id/backup_phrase_source_9"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle" />
+
+        <TextView
+            android:id="@+id/backup_phrase_source_10"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle" />
+
+        <TextView
+            android:id="@+id/backup_phrase_source_11"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle" />
+
+        <TextView
+            android:id="@+id/backup_phrase_source_12"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            style="@style/BackupPhraseTextViewStyle" />
+
+    </org.apmem.tools.layouts.FlowLayout>
+
+</LinearLayout>
