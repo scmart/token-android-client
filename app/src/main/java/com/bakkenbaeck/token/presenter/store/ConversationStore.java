@@ -21,7 +21,7 @@ public class ConversationStore {
     private static String watchedConversationId;
     private final static PublishSubject<SofaMessage> newMessageObservable = PublishSubject.create();
     private final static PublishSubject<SofaMessage> updatedMessageObservable = PublishSubject.create();
-    private final static PublishSubject<List<Conversation>> conversationChangedObservable = PublishSubject.create();
+    private final static PublishSubject<Conversation> conversationChangedObservable = PublishSubject.create();
 
     public ConversationStore() {
         this.realm = Realm.getDefaultInstance();
@@ -35,23 +35,27 @@ public class ConversationStore {
         return new Pair<>(newMessageObservable, updatedMessageObservable);
     }
 
-    public PublishSubject<List<Conversation>> getConversationChangedObservable() {
+    public void stopListeningForChanges() {
+        watchedConversationId = null;
+    }
+
+    public PublishSubject<Conversation> getConversationChangedObservable() {
         return conversationChangedObservable;
     }
 
     public void saveNewMessage(final User user, final SofaMessage message) {
         realm.beginTransaction();
-        final Conversation storedConversation = loadWhere("conversationId", user.getOwnerAddress());
-        final Conversation conversationToStore = storedConversation == null
+        final Conversation existingConversation = loadWhere("conversationId", user.getOwnerAddress());
+        final Conversation conversationToStore = existingConversation == null
                 ? new Conversation(user)
-                : storedConversation;
+                : existingConversation;
         final SofaMessage storedMessage = realm.copyToRealm(message);
         conversationToStore.setLatestMessage(storedMessage);
         conversationToStore.setNumberOfUnread(calculateNumberOfUnread(conversationToStore));
-        realm.insertOrUpdate(conversationToStore);
+        final Conversation storedConversation = realm.copyToRealm(conversationToStore);
         realm.commitTransaction();
         broadcastNewChatMessage(user.getOwnerAddress(), message);
-        broadcastConversationChanged();
+        broadcastConversationChanged(realm.copyFromRealm(storedConversation));
     }
 
     private int calculateNumberOfUnread(final Conversation conversationToStore) {
@@ -73,7 +77,7 @@ public class ConversationStore {
         storedConversation.setNumberOfUnread(0);
         realm.insertOrUpdate(storedConversation);
         realm.commitTransaction();
-        broadcastConversationChanged();
+        broadcastConversationChanged(realm.copyFromRealm(storedConversation));
     }
 
     public List<Conversation> loadAll() {
@@ -82,8 +86,8 @@ public class ConversationStore {
         return realm.copyFromRealm(results);
     }
 
-    private void broadcastConversationChanged() {
-        conversationChangedObservable.onNext(loadAll());
+    private void broadcastConversationChanged(final Conversation conversation) {
+        conversationChangedObservable.onNext(conversation);
     }
 
     public Single<Conversation> loadByAddress(final String address) {

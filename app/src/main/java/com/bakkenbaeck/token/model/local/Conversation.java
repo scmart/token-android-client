@@ -56,4 +56,21 @@ public class Conversation extends RealmObject {
         this.numberOfUnread = numberOfUnread;
     }
 
+    @Override
+    public boolean equals(Object other){
+        if (other == null) return false;
+        if (other == this) return true;
+        if (!(other instanceof Conversation))return false;
+        final Conversation otherConversationMessage = (Conversation) other;
+        return otherConversationMessage.getConversationId().equals(this.conversationId);
+    }
+
+    @Override
+    public int hashCode() {
+        return conversationId.hashCode();
+    }
+
+    private String getConversationId() {
+        return conversationId;
+    }
 }

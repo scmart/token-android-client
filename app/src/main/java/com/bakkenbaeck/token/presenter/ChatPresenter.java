@@ -552,6 +552,7 @@ public final class ChatPresenter implements
         }
         this.handleNewMessage.unsubscribe();
         this.handleUpdatedMessage.unsubscribe();
+        this.conversationStore.stopListeningForChanges();
         this.conversationStore = null;
         this.activity = null;
     }
