@@ -8,7 +8,6 @@ public class CustomUserInformation extends RealmObject {
     private String avatar;
     private String location;
     private String name;
-    private String payment_address;
 
     public CustomUserInformation() {}
 
@@ -17,7 +16,6 @@ public class CustomUserInformation extends RealmObject {
         this.avatar = customUserInformation.getAvatar();
         this.location = customUserInformation.getLocation();
         this.name = customUserInformation.getName();
-        this.payment_address = customUserInformation.getPaymentAddress();
     }
 
     public String getAbout() {
@@ -34,9 +32,5 @@ public class CustomUserInformation extends RealmObject {
 
     public String getName() {
         return this.name;
-    }
-
-    public String getPaymentAddress() {
-        return this.payment_address;
     }
 }

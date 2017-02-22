@@ -12,6 +12,7 @@ public class User extends RealmObject {
 
     @PrimaryKey
     private String owner_address;
+    private String payment_address;
     private String username;
     @Json(name = "custom")
     private CustomUserInformation customUserInfo;
@@ -52,6 +53,10 @@ public class User extends RealmObject {
         return owner_address;
     }
 
+    public String getPaymentAddress() {
+        return payment_address;
+    }
+
     public String getAbout() {
         return customUserInfo == null ? null : this.customUserInfo.getAbout();
     }
@@ -64,10 +69,6 @@ public class User extends RealmObject {
 
     public String getLocation() {
         return customUserInfo == null ? null : this.customUserInfo.getLocation();
-    }
-
-    public String getPaymentAddress() {
-        return customUserInfo == null ? null : this.customUserInfo.getPaymentAddress();
     }
 
     private CustomUserInformation getCustomUserInfo() {

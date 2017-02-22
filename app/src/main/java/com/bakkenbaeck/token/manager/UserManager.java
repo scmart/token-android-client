@@ -85,8 +85,7 @@ public class UserManager {
     }
 
     private void registerNewUserWithTimestamp(final long timestamp) {
-        final UserDetails ud = new UserDetails()
-                .setWalletAddress(this.wallet.getPaymentAddress());
+        final UserDetails ud = new UserDetails().setPaymentAddress(this.wallet.getPaymentAddress());
 
         IdService.getApi()
                 .registerUser(ud, timestamp)

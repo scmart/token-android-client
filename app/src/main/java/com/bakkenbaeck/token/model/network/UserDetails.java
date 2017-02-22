@@ -11,16 +11,18 @@ public class UserDetails {
     private String username;
 
     @JsonProperty
-    private CustomPayload custom;
+    private String payment_address;
 
-    public UserDetails setWalletAddress(final String address) {
-        initCustom();
-        this.custom.payment_address = address;
-        return this;
-    }
+    @JsonProperty
+    private CustomPayload custom;
 
     public UserDetails setUsername(final String username) {
         this.username = username;
+        return this;
+    }
+
+    public UserDetails setPaymentAddress(final String address) {
+        this.payment_address = address;
         return this;
     }
 
@@ -58,8 +60,5 @@ public class UserDetails {
 
         @JsonProperty
         private String name;
-
-        @JsonProperty
-        private String payment_address;
     }
 }
