@@ -13,7 +13,7 @@
         android:id="@+id/avatar"
         android:layout_width="@dimen/avatar_size_small"
         android:layout_height="@dimen/avatar_size_small"
-        android:src="@mipmap/launcher"/>
+        android:src="@mipmap/ic_launcher"/>
 
     <android.support.v4.widget.Space
         android:layout_width="12dp"

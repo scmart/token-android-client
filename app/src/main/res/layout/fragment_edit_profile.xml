@@ -24,7 +24,7 @@
             android:layout_width="166dp"
             android:layout_height="166dp"
             android:layout_gravity="center_horizontal"
-            android:src="@mipmap/launcher"/>
+            android:src="@mipmap/ic_launcher"/>
 
         <android.support.v4.widget.Space
             android:layout_width="0dp"

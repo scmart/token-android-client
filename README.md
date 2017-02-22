@@ -2,7 +2,7 @@ Token for Android
 =================
 The android client for connecting to the [Token platform](https://www.tokenbrowser.com)
 
-<img src="./app/src/main/res/mipmap-xhdpi/launcher.png?raw=true">
+<img src="./app/src/main/res/mipmap-xhdpi/ic_launcher.png?raw=true">
 
 Getting Started
 ===============
