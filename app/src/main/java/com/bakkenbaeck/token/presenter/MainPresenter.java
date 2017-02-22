@@ -48,6 +48,7 @@ public class MainPresenter implements Presenter<MainActivity> {
     private void selectCorrectTab() {
         final Intent intent = this.activity.getIntent();
         final int activeTab = intent.getIntExtra(MainActivity.EXTRA__ACTIVE_TAB, DEFAULT_TAB);
+        this.activity.getIntent().removeExtra(MainActivity.EXTRA__ACTIVE_TAB);
         this.activity.getBinding().navBar.setCurrentItem(activeTab);
     }
 
