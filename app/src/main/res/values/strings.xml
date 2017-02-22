@@ -92,4 +92,7 @@
     <string name="verify">Verify</string>
     <string name="verify_backup_phrase_message">Tap or drag the words to put them next to each other in the correct order.</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="screenshot_warning_title">Screenshots are not secure</string>
+    <string name="screenshot_warning_message">If you take a screenshot, your backup may be viewed by other apps</string>
+    <string name="got_it">Got it</string>
 </resources>
