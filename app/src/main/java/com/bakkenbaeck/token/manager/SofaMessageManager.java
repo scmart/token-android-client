@@ -16,15 +16,19 @@ import com.bakkenbaeck.token.manager.model.SofaMessageTask;
 import com.bakkenbaeck.token.model.local.SendState;
 import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.model.network.UserSearchResults;
+import com.bakkenbaeck.token.model.sofa.Message;
 import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
+import com.bakkenbaeck.token.network.IdService;
 import com.bakkenbaeck.token.presenter.store.ConversationStore;
 import com.bakkenbaeck.token.service.RegistrationIntentService;
 import com.bakkenbaeck.token.util.FileNames;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
+import com.bakkenbaeck.token.util.SharedPrefsUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.notification.ChatNotificationManager;
 
@@ -60,6 +64,7 @@ import rx.subjects.PublishSubject;
 
 public final class SofaMessageManager {
 
+    private static final String ONBOARDING_BOT_NAME = "TestingBot";
     private final PublishSubject<SofaMessageTask> chatMessageQueue = PublishSubject.create();
 
     private SharedPreferences sharedPreferences;
@@ -190,6 +195,7 @@ public final class SofaMessageManager {
                         SignalPreferences.setRegisteredWithServer();
                         receiveMessagesAsync();
                         tryRegisterGcm();
+                        tryTriggerOnboarding();
                     }
 
                     @Override
@@ -416,5 +422,38 @@ public final class SofaMessageManager {
         } catch (final IOException e) {
             LogUtil.error(getClass(), "Error parsing request: " + e);
         }
+    }
+
+
+    private void tryTriggerOnboarding() {
+        if (SharedPrefsUtil.hasOnboarded()) {
+            return;
+        }
+
+        IdService.getApi()
+                .searchByUsername(ONBOARDING_BOT_NAME)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(this::handleOnboardingBotFound);
+    }
+
+    private void handleOnboardingBotFound(final UserSearchResults results) {
+        results.getResults()
+                .stream()
+                .filter(user -> user.getUsernameForEditing().equals(ONBOARDING_BOT_NAME))
+                .forEach(user -> {
+                    BaseApplication
+                            .get()
+                            .getTokenManager()
+                            .getSofaMessageManager()
+                            .sendMessage(user, generateOnboardingMessage());
+                    SharedPrefsUtil.setHasOnboarded();
+                });
+    }
+
+    private SofaMessage generateOnboardingMessage() {
+        final Message sofaMessage = new Message().setBody("");
+        final String messageBody = new SofaAdapters().toJson(sofaMessage);
+        return new SofaMessage().makeNew(true, messageBody);
     }
 }
