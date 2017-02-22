@@ -48,6 +48,7 @@
         <activity android:name="com.bakkenbaeck.token.view.activity.BackupPhraseInfoActivity" />
         <activity android:name="com.bakkenbaeck.token.view.activity.BackupPhraseActivity" />
         <activity android:name="com.bakkenbaeck.token.view.activity.BackupPhraseVerifyActivity" />
+        <activity android:name="com.bakkenbaeck.token.view.activity.DepositActivity" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
