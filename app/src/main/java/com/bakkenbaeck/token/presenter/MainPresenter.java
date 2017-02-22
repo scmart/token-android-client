@@ -1,6 +1,7 @@
 package com.bakkenbaeck.token.presenter;
 
 
+import android.content.Intent;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 
@@ -39,13 +40,15 @@ public class MainPresenter implements Presenter<MainActivity> {
         if (this.firstTimeAttached) {
             this.firstTimeAttached = false;
             this.adapter = new NavigationAdapter(this.activity, R.menu.navigation);
-            manuallySelectFirstTab();
         }
         initNavBar();
+        selectCorrectTab();
     }
 
-    private void manuallySelectFirstTab() {
-        this.tabListener.onTabSelected(DEFAULT_TAB, false);
+    private void selectCorrectTab() {
+        final Intent intent = this.activity.getIntent();
+        final int activeTab = intent.getIntExtra(MainActivity.EXTRA__ACTIVE_TAB, DEFAULT_TAB);
+        this.activity.getBinding().navBar.setCurrentItem(activeTab);
     }
 
     private void initNavBar() {
