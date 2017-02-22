@@ -19,6 +19,7 @@ import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.ChooseContactsActivity;
+import com.bakkenbaeck.token.view.activity.DepositActivity;
 import com.bakkenbaeck.token.view.activity.ScannerActivity;
 import com.bakkenbaeck.token.view.adapter.AppListAdapter;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
@@ -166,7 +167,8 @@ public class HomePresenter implements Presenter<HomeFragment> {
     private OnSingleClickListener addMoneyClickListener = new OnSingleClickListener() {
         @Override
         public void onSingleClick(View v) {
-
+            final Intent intent = new Intent(fragment.getActivity(), DepositActivity.class);
+            fragment.getActivity().startActivity(intent);
         }
     };
 
