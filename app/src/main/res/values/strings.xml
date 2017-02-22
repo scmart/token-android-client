@@ -97,4 +97,16 @@
     <string name="got_it">Got it</string>
     <string name="error__web_signin">It was not possible to complete sign in.</string>
     <string name="web_signin">Sign in successful</string>
+    <string name="deposit_money">Deposit money</string>
+    <string name="deposit_info_message">You can add money to your account in a variety of ways</string>
+    <string name="add_money_to_wallet">Add money to my Wallet</string>
+    <string name="eth_deposit_method_1">1. Send ethereum from another wallet</string>
+    <string name="eth_deposit_method_1_message">Send this address to top up your wallet</string>
+    <string name="copy_to_clipboard">Copy to clipboard</string>
+    <string name="eth_deposit_method_2">2. Find a local exchanger</string>
+    <string name="eth_deposit_method_2_message">Find a local exchanger of ethereum in your country. You can give them cash and they will send you ethereum</string>
+    <string name="eth_deposit_method_3">3. Earn money</string>
+    <string name="eth_deposit_method_3_message">Install an app that lets you earn ethereum</string>
+    <string name="eth_deposit_method_4">4. Request money from a friend</string>
+    <string name="eth_deposit_method_4_message">Send a payment request to a friend who can help</string>
 </resources>
