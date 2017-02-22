@@ -54,7 +54,7 @@
                 android:id="@+id/avatar"
                 android:layout_width="@dimen/avatar_size_small"
                 android:layout_height="@dimen/avatar_size_small"
-                android:src="@mipmap/launcher"
+                android:src="@mipmap/ic_launcher"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
                 app:layout_rowSpan="2"/>
 
