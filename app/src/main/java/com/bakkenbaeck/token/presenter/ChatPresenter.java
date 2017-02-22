@@ -398,6 +398,7 @@ public final class ChatPresenter implements
             updateEmptyState();
             tryScrollToBottom(true);
             playNewMessageSound(sofaMessage.isSentByLocal());
+            handleKeyboardVisibility(sofaMessage);
         }
     };
 
@@ -407,6 +408,36 @@ public final class ChatPresenter implements
         } else {
             SoundManager.getInstance().playSound(SoundManager.RECEIVE_MESSAGE);
         }
+    }
+
+    private void handleKeyboardVisibility(final SofaMessage sofaMessage) {
+        final boolean viewIsNull = this.activity == null || this.activity.getBinding().userInput == null;
+        if (viewIsNull || sofaMessage.isSentByLocal()) {
+            return;
+        }
+
+        try {
+            final Message message = this.adapters.messageFrom(sofaMessage.getPayload());
+            if (message.shouldShowKeyboard()) {
+                showKeyboard();
+            } else {
+                hideKeyboard();
+            }
+
+        } catch (IOException e) {
+            LogUtil.e(getClass(), "Error during handling visibility of keyboard");
+        }
+    }
+
+    private void showKeyboard() {
+        ((InputMethodManager) this.activity.getSystemService(Context.INPUT_METHOD_SERVICE))
+                .toggleSoftInputFromWindow(this.activity.getBinding().userInput.getApplicationWindowToken(),
+                InputMethodManager.SHOW_FORCED, 0);
+    }
+
+    private void hideKeyboard() {
+        ((InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE))
+                .hideSoftInputFromWindow(activity.getBinding().userInput.getWindowToken(), 0);
     }
 
     private final OnNextSubscriber<SofaMessage> handleUpdatedMessage = new OnNextSubscriber<SofaMessage>() {
@@ -563,8 +594,7 @@ public final class ChatPresenter implements
     private final View.OnClickListener backButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(final View v) {
-            ((InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE))
-                    .hideSoftInputFromWindow(activity.getBinding().userInput.getWindowToken(), 0);
+            hideKeyboard();
             activity.onBackPressed();
         }
     };
