@@ -3,6 +3,7 @@ package com.bakkenbaeck.token.presenter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.app.ActivityCompat;
 import android.view.View;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
@@ -61,7 +62,9 @@ public class BackupPhraseVerifyPresenter implements Presenter<BackupPhraseVerify
 
         final Intent intent = new Intent(this.activity, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra(MainActivity.EXTRA__ACTIVE_TAB, 4);
         this.activity.startActivity(intent);
+        ActivityCompat.finishAffinity(this.activity);
     }
 
     private void handleCloseButtonClosed(final View v) {

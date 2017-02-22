@@ -15,6 +15,7 @@ import com.bakkenbaeck.token.service.RegistrationIntentService;
 
 public class MainActivity extends BasePresenterActivity<MainPresenter, MainActivity> {
 
+    public static final String EXTRA__ACTIVE_TAB = "active_tab";
     private static final int UNIQUE_ACTIVITY_ID = 9000;
     private ActivityMainBinding binding;
 
