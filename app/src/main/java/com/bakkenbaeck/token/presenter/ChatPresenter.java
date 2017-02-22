@@ -1,20 +1,22 @@
 package com.bakkenbaeck.token.presenter;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.util.Pair;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.local.ActivityResultHolder;
-import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.Conversation;
 import com.bakkenbaeck.token.model.local.PendingTransaction;
+import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.sofa.Command;
 import com.bakkenbaeck.token.model.sofa.Control;
@@ -543,6 +545,8 @@ public final class ChatPresenter implements
     private final View.OnClickListener backButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(final View v) {
+            ((InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE))
+                    .hideSoftInputFromWindow(activity.getBinding().userInput.getWindowToken(), 0);
             activity.onBackPressed();
         }
     };

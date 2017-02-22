@@ -26,7 +26,12 @@
 
         <activity android:name="com.bakkenbaeck.token.view.activity.MainActivity"
                   android:windowSoftInputMode="adjustPan|stateHidden" />
-        <activity android:name="com.bakkenbaeck.token.view.activity.ChatActivity" />
+        <activity android:name="com.bakkenbaeck.token.view.activity.ChatActivity"
+                  android:parentActivityName="com.bakkenbaeck.token.view.activity.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.bakkenbaeck.token.view.activity.MainActivity" />
+        </activity>
         <activity android:name="com.bakkenbaeck.token.view.activity.ViewUserActivity" />
         <activity android:name="com.bakkenbaeck.token.view.activity.ProfileActivity" />
         <activity android:name="com.bakkenbaeck.token.view.activity.UserSearchActivity" />

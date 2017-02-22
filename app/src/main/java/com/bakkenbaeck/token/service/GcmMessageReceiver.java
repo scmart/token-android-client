@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 
 import com.bakkenbaeck.token.R;
@@ -37,7 +38,7 @@ import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
-import com.bakkenbaeck.token.view.activity.MainActivity;
+import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.google.android.gms.gcm.GcmListenerService;
 
 import java.io.IOException;
@@ -151,7 +152,7 @@ public class GcmMessageReceiver extends GcmListenerService {
         final BigDecimal ethAmount = EthUtil.weiToEth(weiAmount);
         final String localCurrency = BaseApplication.get().getTokenManager().getBalanceManager().convertEthToLocalCurrencyString(ethAmount);
         final String content = String.format(Locale.getDefault(), "Received: %s", localCurrency);
-        showNotification(title, content, "self");
+        showNotification(title, content, payment.getOwnerAddress());
     }
 
     private void showNotification(final String title, final String content, final String ownerAddress) {
@@ -165,14 +166,20 @@ public class GcmMessageReceiver extends GcmListenerService {
                 .setSound(notificationSound)
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
 
-        NotificationCompat.BigTextStyle bigTextBuilder = new NotificationCompat.BigTextStyle(builder);
-
-        final Intent notificationIntent = new Intent(this, MainActivity.class);
-        final PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.setContentIntent(contentIntent);
+        final NotificationCompat.BigTextStyle bigTextBuilder = new NotificationCompat.BigTextStyle(builder);
+        final PendingIntent pendingIntent = generateChatIntentWithBackStack(ownerAddress);
+        builder.setContentIntent(pendingIntent);
 
         final NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         manager.notify(ownerAddress.hashCode(), bigTextBuilder.build());
+    }
+
+    private PendingIntent generateChatIntentWithBackStack(final String ownerAddress) {
+        final Intent chatIntent = new Intent(this, ChatActivity.class);
+        chatIntent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, ownerAddress);
+        return TaskStackBuilder.create(this)
+                .addParentStack(ChatActivity.class)
+                .addNextIntent(chatIntent)
+                .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 }
