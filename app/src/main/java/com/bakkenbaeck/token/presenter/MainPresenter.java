@@ -8,12 +8,21 @@ import android.support.v4.content.ContextCompat;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.model.local.SofaMessage;
+import com.bakkenbaeck.token.model.network.UserSearchResults;
+import com.bakkenbaeck.token.model.sofa.Message;
+import com.bakkenbaeck.token.model.sofa.SofaAdapters;
+import com.bakkenbaeck.token.network.IdService;
 import com.bakkenbaeck.token.util.SoundManager;
+import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.MainActivity;
 import com.bakkenbaeck.token.view.adapter.NavigationAdapter;
 
+import rx.schedulers.Schedulers;
+
 public class MainPresenter implements Presenter<MainActivity> {
-    private final int DEFAULT_TAB = 0;
+    private static final int DEFAULT_TAB = 0;
+    private static final String ONBOARDING_BOT_NAME = "TestingBot";
 
     private MainActivity activity;
     private boolean firstTimeAttached = true;
@@ -40,9 +49,41 @@ public class MainPresenter implements Presenter<MainActivity> {
         if (this.firstTimeAttached) {
             this.firstTimeAttached = false;
             this.adapter = new NavigationAdapter(this.activity, R.menu.navigation);
+            manuallySelectFirstTab();
+            tryTriggerOnboarding();
         }
         initNavBar();
         selectCorrectTab();
+    }
+
+    private void manuallySelectFirstTab() {
+        this.tabListener.onTabSelected(DEFAULT_TAB, false);
+    }
+
+    private void tryTriggerOnboarding() {
+        IdService.getApi()
+                .searchByUsername(ONBOARDING_BOT_NAME)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(this::handleOnboardingBotFound);
+    }
+
+    private void handleOnboardingBotFound(final UserSearchResults results) {
+        results.getResults()
+                .stream()
+                .filter(user -> user.getUsernameForEditing().equals(ONBOARDING_BOT_NAME))
+                .forEach(user ->
+                        BaseApplication
+                        .get()
+                        .getTokenManager()
+                        .getSofaMessageManager()
+                        .sendMessage(user, generateOnboardingMessage()));
+    }
+
+    private SofaMessage generateOnboardingMessage() {
+        final Message sofaMessage = new Message().setBody("");
+        final String messageBody = new SofaAdapters().toJson(sofaMessage);
+        return new SofaMessage().makeNew(true, messageBody);
     }
 
     private void selectCorrectTab() {
