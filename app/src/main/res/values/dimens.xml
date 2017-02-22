@@ -30,4 +30,5 @@
     <dimen name="rating_bar_width">160dp</dimen>
 
     <dimen name="backup_phrase_spacing">10dp</dimen>
+    <dimen name="spinner">50dp</dimen>
 </resources>

@@ -29,10 +29,13 @@
             android:id="@+id/user_input"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:hint="@string/contacts__user_search_hint"
+            style="@style/ToolbarEditText"
             android:paddingLeft="8dp"
             android:layout_marginRight="16dp"
-            style="@style/ToolbarEditText"/>
+            android:hint="@string/contacts__user_search_hint"
+            android:singleLine="true"
+            android:maxLines="1"
+            android:imeOptions="actionNext" />
 
     </LinearLayout>
 

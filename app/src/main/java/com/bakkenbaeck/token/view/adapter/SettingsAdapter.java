@@ -20,7 +20,6 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
 
     public SettingsAdapter() {
         this.settings = new ArrayList<>(3);
-        this.settings.add("Security");
         this.settings.add("Local currency");
         this.settings.add("About");
         this.settings.add("Sign out");

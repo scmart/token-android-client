@@ -1,9 +1,6 @@
 package com.bakkenbaeck.token.model.local;
 
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.Json;
@@ -15,6 +12,7 @@ public class User extends RealmObject {
 
     @PrimaryKey
     private String owner_address;
+    private String payment_address;
     private String username;
     @Json(name = "custom")
     private CustomUserInformation customUserInfo;
@@ -55,6 +53,10 @@ public class User extends RealmObject {
         return owner_address;
     }
 
+    public String getPaymentAddress() {
+        return payment_address;
+    }
+
     public String getAbout() {
         return customUserInfo == null ? null : this.customUserInfo.getAbout();
     }
@@ -67,14 +69,6 @@ public class User extends RealmObject {
 
     public String getLocation() {
         return customUserInfo == null ? null : this.customUserInfo.getLocation();
-    }
-
-    public String getPaymentAddress() {
-        return customUserInfo == null ? null : this.customUserInfo.getPaymentAddress();
-    }
-
-    public Bitmap getImage() {
-        return BitmapFactory.decodeResource(BaseApplication.get().getResources(), R.mipmap.launcher);
     }
 
     private CustomUserInformation getCustomUserInfo() {

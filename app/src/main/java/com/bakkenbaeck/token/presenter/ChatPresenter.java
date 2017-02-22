@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Build;
 import android.util.Pair;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
 import android.view.inputmethod.InputMethodManager;
@@ -44,6 +46,7 @@ import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.custom.ControlRecyclerView;
 import com.bakkenbaeck.token.view.custom.ControlView;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
+import com.bumptech.glide.Glide;
 
 import java.io.IOException;
 
@@ -123,6 +126,7 @@ public final class ChatPresenter implements
         initButtons();
         initControlView();
         processIntentData();
+        initLoadingSpinner(this.remoteUser);
     }
 
     private void processIntentData() {
@@ -191,12 +195,16 @@ public final class ChatPresenter implements
     private void updateUiFromRemoteUser() {
         initToolbar(this.remoteUser);
         initChatMessageStore(this.remoteUser);
+        initLoadingSpinner(this.remoteUser);
     }
 
     private void initToolbar(final User remoteUser) {
         this.activity.getBinding().title.setText(remoteUser.getDisplayName());
-        this.activity.getBinding().avatar.setImageBitmap(remoteUser.getImage());
         this.activity.getBinding().closeButton.setOnClickListener(this.backButtonClickListener);
+
+        Glide.with(this.activity.getBinding().avatar.getContext())
+                .load(remoteUser.getAvatar())
+                .into(this.activity.getBinding().avatar);
     }
 
     private void initChatMessageStore(final User remoteUser) {
@@ -220,6 +228,17 @@ public final class ChatPresenter implements
                 .subscribe(this.handleConversationLoaded);
     }
 
+    private void initLoadingSpinner(final User remoteUser) {
+        if (this.activity == null) return;
+        this.activity.getBinding().loadingViewContainer.setVisibility(remoteUser == null ? View.VISIBLE : View.GONE);
+        if (remoteUser == null) {
+            final Animation rotateAnimation = AnimationUtils.loadAnimation(this.activity, R.anim.rotate);
+            this.activity.getBinding().loadingView.startAnimation(rotateAnimation);
+        } else {
+            this.activity.getBinding().loadingView.clearAnimation();
+        }
+    }
+
     private void initLayoutManager() {
         this.layoutManager = new SpeedyLinearLayoutManager(this.activity);
         this.activity.getBinding().messagesList.setLayoutManager(this.layoutManager);
@@ -229,12 +248,7 @@ public final class ChatPresenter implements
         this.activity.getBinding().controlView.setOnSizeChangedListener(this.controlViewSizeChangedListener);
     }
 
-    private ControlRecyclerView.OnSizeChangedListener controlViewSizeChangedListener = new ControlRecyclerView.OnSizeChangedListener() {
-        @Override
-        public void onSizeChanged(int height) {
-            setPadding(height);
-        }
-    };
+    private ControlRecyclerView.OnSizeChangedListener controlViewSizeChangedListener = height -> setPadding(height);
 
     private void initAdapterAnimation() {
         final SlideUpAnimator anim;

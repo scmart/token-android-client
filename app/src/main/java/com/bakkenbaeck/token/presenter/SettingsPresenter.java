@@ -17,6 +17,7 @@ import com.bakkenbaeck.token.view.activity.ProfileActivity;
 import com.bakkenbaeck.token.view.activity.TrustedFriendsActivity;
 import com.bakkenbaeck.token.view.adapter.SettingsAdapter;
 import com.bakkenbaeck.token.view.fragment.children.SettingsFragment;
+import com.bumptech.glide.Glide;
 
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -89,6 +90,10 @@ public final class SettingsPresenter implements
             this.fragment.getBinding().name.setText(this.localUser.getDisplayName());
             this.fragment.getBinding().username.setText(this.localUser.getUsername());
             this.fragment.getBinding().ratingView.setStars(3.6);
+
+            Glide.with(this.fragment.getBinding().avatar.getContext())
+                    .load(this.localUser.getAvatar())
+                    .into(this.fragment.getBinding().avatar);
         }
     }
 
