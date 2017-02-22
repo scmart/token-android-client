@@ -44,6 +44,7 @@ import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.custom.ControlRecyclerView;
 import com.bakkenbaeck.token.view.custom.ControlView;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
+import com.bumptech.glide.Glide;
 
 import java.io.IOException;
 
@@ -195,8 +196,11 @@ public final class ChatPresenter implements
 
     private void initToolbar(final User remoteUser) {
         this.activity.getBinding().title.setText(remoteUser.getDisplayName());
-        this.activity.getBinding().avatar.setImageBitmap(remoteUser.getImage());
         this.activity.getBinding().closeButton.setOnClickListener(this.backButtonClickListener);
+
+        Glide.with(this.activity.getBinding().avatar.getContext())
+                .load(remoteUser.getAvatar())
+                .into(this.activity.getBinding().avatar);
     }
 
     private void initChatMessageStore(final User remoteUser) {
