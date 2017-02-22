@@ -91,4 +91,5 @@
     <string name="verify_phrase">Verify phrase</string>
     <string name="verify">Verify</string>
     <string name="verify_backup_phrase_message">Tap or drag the words to put them next to each other in the correct order.</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
 </resources>
