@@ -60,8 +60,7 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
     private boolean shouldShowChatMessage(final SofaMessage sofaMessage) {
         return sofaMessage.getType() != SofaType.UNKNOWN
                 && sofaMessage.getType() != SofaType.INIT
-                && sofaMessage.getType() != SofaType.INIT_REQUEST
-                && sofaMessage.getType() != SofaType.COMMAND_REQUEST;
+                && sofaMessage.getType() != SofaType.INIT_REQUEST;
     }
 
     public final void addMessage(final SofaMessage sofaMessage) {
@@ -138,6 +137,7 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
             final String payload) throws IOException {
 
         switch (holder.getItemViewType()) {
+            case SofaType.COMMAND_REQUEST:
             case SofaType.PLAIN_TEXT: {
                 final TextViewHolder vh = (TextViewHolder) holder;
                 final Message message = this.adapters.messageFrom(payload);
