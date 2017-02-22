@@ -19,6 +19,7 @@ import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
+import com.bakkenbaeck.token.view.activity.MainActivity;
 
 import java.io.IOException;
 
@@ -97,10 +98,13 @@ public class ChatNotificationManager {
     }
 
     private static PendingIntent generateChatIntentWithBackStack(final String ownerAddress) {
+        final Intent mainIntent = new Intent(BaseApplication.get(), MainActivity.class);
+        mainIntent.putExtra(MainActivity.EXTRA__ACTIVE_TAB, 1);
         final Intent chatIntent = new Intent(BaseApplication.get(), ChatActivity.class);
         chatIntent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, ownerAddress);
         return TaskStackBuilder.create(BaseApplication.get())
-                .addParentStack(ChatActivity.class)
+                .addParentStack(MainActivity.class)
+                .addNextIntent(mainIntent)
                 .addNextIntent(chatIntent)
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
     }
