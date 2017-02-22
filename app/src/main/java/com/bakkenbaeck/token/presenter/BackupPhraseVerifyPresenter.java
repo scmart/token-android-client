@@ -1,10 +1,13 @@
 package com.bakkenbaeck.token.presenter;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.view.View;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
+import com.bakkenbaeck.token.util.FileNames;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.BackupPhraseVerifyActivity;
 import com.bakkenbaeck.token.view.activity.MainActivity;
@@ -15,6 +18,8 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class BackupPhraseVerifyPresenter implements Presenter<BackupPhraseVerifyActivity> {
+
+    public static final String BACKUP_PHRASE_STATE = "back_phrase_state";
 
     private BackupPhraseVerifyActivity activity;
 
@@ -51,6 +56,9 @@ public class BackupPhraseVerifyPresenter implements Presenter<BackupPhraseVerify
     }
 
     private void handleFinishedListener() {
+        final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(FileNames.BACKUP_PHRASE_STATE, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(BACKUP_PHRASE_STATE, true).apply();
+
         final Intent intent = new Intent(this.activity, MainActivity.class);
         this.activity.startActivity(intent);
     }
