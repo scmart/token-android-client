@@ -23,7 +23,7 @@ public class Message {
         return this.controls;
     }
 
-    public boolean isShowKeyboard() {
+    public boolean shouldShowKeyboard() {
         return this.showKeyboard;
     }
 
