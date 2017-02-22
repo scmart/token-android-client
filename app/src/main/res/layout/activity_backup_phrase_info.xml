@@ -63,29 +63,35 @@
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:layout_marginTop="28dp">
 
-            <RadioButton
+            <CheckBox
                 android:id="@+id/radio_button_understand"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:button="@drawable/checkbox"/>
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="26dp"
                 android:text="@string/backup_phrase_understand_message" />
 
         </LinearLayout>
 
+        <android.support.v4.widget.Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
         <Button
             android:id="@+id/continue_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:layout_marginTop="26dp"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:textAllCaps="true"
-            android:background="@drawable/background_with_radius_primary_color"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/activity_horizontal_margin"
+            android:background="@drawable/background_with_radius_disabled"
             android:textColor="#FFFFFF"
-            android:textSize="14sp"
+            android:textSize="15sp"
             android:text="@string/continue_"/>
 
     </LinearLayout>

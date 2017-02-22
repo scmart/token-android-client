@@ -106,7 +106,7 @@ public final class SettingsPresenter implements
         final boolean isBackedUp = prefs.getBoolean(BackupPhraseVerifyPresenter.BACKUP_PHRASE_STATE, false);
 
         if (isBackedUp) {
-            this.fragment.getBinding().radioButtonBackupPhrase.setChecked(true);
+            this.fragment.getBinding().checkboxBackupPhrase.setChecked(true);
             this.fragment.getBinding().securityStatus.setVisibility(View.GONE);
         }
     }

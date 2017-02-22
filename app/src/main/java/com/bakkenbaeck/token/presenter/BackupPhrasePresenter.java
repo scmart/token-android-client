@@ -1,8 +1,18 @@
 package com.bakkenbaeck.token.presenter;
 
+import android.app.Dialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
+import android.database.ContentObserver;
+import android.os.Handler;
+import android.os.Looper;
+import android.provider.MediaStore;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Toast;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
@@ -24,6 +34,8 @@ public class BackupPhrasePresenter implements Presenter<BackupPhraseActivity> {
 
     private BackupPhraseActivity activity;
     private Subscription backupPhraseSubscription;
+    private String backupPhrase;
+    private Dialog dialog;
 
     @Override
     public void onViewAttached(BackupPhraseActivity view) {
@@ -31,6 +43,7 @@ public class BackupPhrasePresenter implements Presenter<BackupPhraseActivity> {
         initRecyclerView();
         addBackupPhrase();
         initClickListeners();
+        initScreenshotListener();
     }
 
     private void initRecyclerView() {
@@ -59,7 +72,8 @@ public class BackupPhrasePresenter implements Presenter<BackupPhraseActivity> {
     }
 
     private void handleBackupPhraseCallback(final HDWallet wallet) {
-        final String[] backupPhraseList = wallet.getMasterSeed().split(" ");
+        this.backupPhrase = wallet.getMasterSeed();
+        final String[] backupPhraseList = this.backupPhrase.split(" ");
         final BackupPhraseAdapter adapter = (BackupPhraseAdapter) activity.getBinding().backupPhraseList.getAdapter();
         adapter.setBackupPhraseItems(Arrays.asList(backupPhraseList));
     }
@@ -67,6 +81,7 @@ public class BackupPhrasePresenter implements Presenter<BackupPhraseActivity> {
     private void initClickListeners() {
         this.activity.getBinding().closeButton.setOnClickListener(this::handleCloseButtonClicked);
         this.activity.getBinding().verifyPhraseBtn.setOnClickListener(this::handleVerifyPhraseButtonClicked);
+        this.activity.getBinding().copyToClipboard.setOnClickListener(this::handleCopyToClipboardClicked);
     }
 
     private void handleCloseButtonClicked(final View v) {
@@ -78,8 +93,44 @@ public class BackupPhrasePresenter implements Presenter<BackupPhraseActivity> {
         this.activity.startActivity(intent);
     }
 
+    private void handleCopyToClipboardClicked(final View v) {
+        final ClipboardManager clipboard = (ClipboardManager) this.activity.getSystemService(Context.CLIPBOARD_SERVICE);
+        final ClipData clip = ClipData.newPlainText(this.activity.getString(R.string.backup_phrase), this.backupPhrase);
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(this.activity, this.activity.getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show();
+    }
+
+    private void initScreenshotListener() {
+        this.activity.getContentResolver().registerContentObserver(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                true,
+                this.contentObserver);
+    }
+
+    private final ContentObserver contentObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
+        @Override
+        public void onChange(boolean selfChange) {
+            showWarningDialog();
+        }
+    };
+
+    private void showWarningDialog() {
+        this.dialog = new AlertDialog.Builder(this.activity)
+                .setTitle(R.string.screenshot_warning_title)
+                .setMessage(R.string.screenshot_warning_message)
+                .setPositiveButton(R.string.got_it, (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .show();
+    }
+
     @Override
     public void onViewDetached() {
+        if (this.dialog != null) {
+            this.dialog.dismiss();
+            this.dialog = null;
+        }
+        this.activity.getContentResolver().unregisterContentObserver(this.contentObserver);
         this.activity = null;
     }
 
