@@ -22,18 +22,15 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.signal.model.DecryptedSignalMessage;
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.bakkenbaeck.token.model.local.SofaMessage;
-import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LogUtil;
-import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.notification.ChatNotificationManager;
 import com.google.android.gms.gcm.GcmListenerService;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Locale;
@@ -86,48 +83,10 @@ public class GcmMessageReceiver extends GcmListenerService {
             return;
         }
 
-        if (signalMessage == null) {
-            // This can happen if the message was not an understood signal message
-            // or if there was an issue decrypting the message.
-            // There may be more messages on the server, so try fetching them.
-            tryShowSignalMessage();
-            return;
-        }
-
-        BaseApplication
-                .get()
-                .getTokenManager()
-                .getUserManager()
-                .getUserFromAddress(signalMessage.getSource())
-                .subscribe(new OnNextSubscriber<User>() {
-                    @Override
-                    public void onNext(final User user) {
-                        if (user == null) {
-                            return;
-                        }
-                        unsubscribe();
-                        handleUserLookup(user, signalMessage);
-                    }
-                });
-    }
-
-    private void handleUserLookup(final User user, final DecryptedSignalMessage signalMessage) {
-        final String body = getBodyFromMessage(signalMessage);
-        ChatNotificationManager.showNotification(user.getDisplayName(), body, user.getOwnerAddress());
+        ChatNotificationManager.showNotification(signalMessage);
         // There may be more messages.
         tryShowSignalMessage();
-    }
 
-    private String getBodyFromMessage(final DecryptedSignalMessage dsm) {
-        final SofaMessage sofaMessage = new SofaMessage().makeNew(dsm.getBody());
-        try {
-            if (sofaMessage.getType() == SofaType.PLAIN_TEXT) {
-                return new SofaAdapters().messageFrom(sofaMessage.getPayload()).getBody();
-            }
-        } catch (final IOException ex) {
-            // Nop
-        }
-        return sofaMessage.getPayload();
     }
 
     private void handleIncomingPayment(final Payment payment) {

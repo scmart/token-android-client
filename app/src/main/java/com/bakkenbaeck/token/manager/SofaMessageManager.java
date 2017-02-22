@@ -26,6 +26,7 @@ import com.bakkenbaeck.token.util.FileNames;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.view.notification.ChatNotificationManager;
 
 import org.whispersystems.libsignal.DuplicateMessageException;
 import org.whispersystems.libsignal.InvalidKeyException;
@@ -281,7 +282,8 @@ public final class SofaMessageManager {
         new Thread(() -> {
             while (receiveMessages) {
                 try {
-                    fetchLatestMessage();
+                    final DecryptedSignalMessage signalMessage = fetchLatestMessage();
+                    ChatNotificationManager.showNotification(signalMessage);
                 } catch (TimeoutException e) {
                     // Nop -- this is expected to happen
                 }
