@@ -19,7 +19,6 @@
         android:gravity="left"
         android:lineSpacingExtra="2dp"
         android:layout_gravity="left"
-        android:minWidth="50dp"
         android:textColor="@color/textColorContrast"
         android:textSize="@dimen/defaultTextSize"
         tools:text="This is a remote message!"/>
@@ -45,7 +44,6 @@
             android:paddingBottom="12dp"
             android:gravity="left"
             android:lineSpacingExtra="2dp"
-            android:minWidth="50dp"
             android:textColor="@color/textColorContrast"
             android:textSize="@dimen/defaultTextSize"
             android:layout_gravity="right"
