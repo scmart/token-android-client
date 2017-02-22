@@ -26,6 +26,7 @@ import com.bakkenbaeck.token.util.FileNames;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.view.notification.ChatNotificationManager;
 
 import org.whispersystems.libsignal.DuplicateMessageException;
 import org.whispersystems.libsignal.InvalidKeyException;
@@ -280,12 +281,17 @@ public final class SofaMessageManager {
         this.receiveMessages = true;
         new Thread(() -> {
             while (receiveMessages) {
-                fetchLatestMessage();
+                try {
+                    final DecryptedSignalMessage signalMessage = fetchLatestMessage();
+                    ChatNotificationManager.showNotification(signalMessage);
+                } catch (TimeoutException e) {
+                    // Nop -- this is expected to happen
+                }
             }
         }).start();
     }
 
-    public DecryptedSignalMessage fetchLatestMessage() {
+    public DecryptedSignalMessage fetchLatestMessage() throws TimeoutException {
         if (!waitForWallet()) return null;
 
         final SignalServiceUrl[] urls = {
@@ -310,7 +316,7 @@ public final class SofaMessageManager {
             final SignalServiceEnvelope envelope = messagePipe.read(10, TimeUnit.SECONDS);
             return decryptIncomingSignalServiceEnvelope(envelope);
         } catch (final TimeoutException ex) {
-            // Nop. This is to be expected
+            throw new TimeoutException(ex.getMessage());
         } catch (final IllegalStateException | InvalidKeyException | InvalidKeyIdException | DuplicateMessageException | InvalidVersionException | LegacyMessageException | InvalidMessageException | NoSessionException | org.whispersystems.libsignal.UntrustedIdentityException | IOException e) {
             LogUtil.e(getClass(), "receiveMessage: " + e.toString());
         }

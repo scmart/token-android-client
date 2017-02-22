@@ -102,9 +102,16 @@ public class RecentAdapter extends RecyclerView.Adapter<ConversationViewHolder> 
         return this;
     }
 
-    private void handleConversationChanged(final List<Conversation> conversations) {
-        this.conversations = conversations;
-        notifyDataSetChanged();
+    private void handleConversationChanged(final Conversation conversation) {
+        final int position = this.conversations.indexOf(conversation);
+        if (position == -1) {
+            this.conversations.add(0, conversation);
+            notifyItemInserted(0);
+            return;
+        }
+
+        this.conversations.set(position, conversation);
+        notifyItemChanged(position);
         notifyListeners();
     }
 
