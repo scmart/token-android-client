@@ -283,13 +283,12 @@ public final class ChatPresenter implements
                 .setBody(control.getLabel())
                 .setValue(control.getValue());
         final String commandPayload = adapters.toJson(command);
-
         final SofaMessage sofaCommandMessage = new SofaMessage().makeNew(true, commandPayload);
 
         BaseApplication.get()
                 .getTokenManager()
                 .getSofaMessageManager()
-                .sendMessage(remoteUser, sofaCommandMessage);
+                .sendAndSaveMessage(remoteUser, sofaCommandMessage);
     }
 
     private void initButtons() {
