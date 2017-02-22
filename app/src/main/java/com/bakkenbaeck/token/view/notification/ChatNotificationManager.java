@@ -81,7 +81,7 @@ public class ChatNotificationManager {
 
         final Uri notificationSound = Uri.parse("android.resource://" + BaseApplication.get().getPackageName() + "/" + R.raw.notification);
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(BaseApplication.get())
-                .setSmallIcon(R.drawable.token)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(title)
                 .setContentText(content)
                 .setAutoCancel(true)
