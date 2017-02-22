@@ -280,12 +280,16 @@ public final class SofaMessageManager {
         this.receiveMessages = true;
         new Thread(() -> {
             while (receiveMessages) {
-                fetchLatestMessage();
+                try {
+                    fetchLatestMessage();
+                } catch (TimeoutException e) {
+                    // Nop -- this is expected to happen
+                }
             }
         }).start();
     }
 
-    public DecryptedSignalMessage fetchLatestMessage() {
+    public DecryptedSignalMessage fetchLatestMessage() throws TimeoutException {
         if (!waitForWallet()) return null;
 
         final SignalServiceUrl[] urls = {
@@ -310,7 +314,7 @@ public final class SofaMessageManager {
             final SignalServiceEnvelope envelope = messagePipe.read(10, TimeUnit.SECONDS);
             return decryptIncomingSignalServiceEnvelope(envelope);
         } catch (final TimeoutException ex) {
-            // Nop. This is to be expected
+            throw new TimeoutException(ex.getMessage());
         } catch (final IllegalStateException | InvalidKeyException | InvalidKeyIdException | DuplicateMessageException | InvalidVersionException | LegacyMessageException | InvalidMessageException | NoSessionException | org.whispersystems.libsignal.UntrustedIdentityException | IOException e) {
             LogUtil.e(getClass(), "receiveMessage: " + e.toString());
         }

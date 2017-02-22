@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Locale;
+import java.util.concurrent.TimeoutException;
 
 public class GcmMessageReceiver extends GcmListenerService {
 
@@ -81,14 +82,23 @@ public class GcmMessageReceiver extends GcmListenerService {
     }
 
     private void tryShowSignalMessage() {
-        final DecryptedSignalMessage signalMessage =
-            BaseApplication
+        final DecryptedSignalMessage signalMessage;
+        try {
+            signalMessage = BaseApplication
                 .get()
                 .getTokenManager()
                 .getSofaMessageManager()
                 .fetchLatestMessage();
+        } catch (final TimeoutException e) {
+            LogUtil.i(getClass(), "Fetched all new messages");
+            return;
+        }
+
         if (signalMessage == null) {
-            LogUtil.i(getClass(), "Incoming PN; but no idea what it was!");
+            // This can happen if the message was not an understood signal message
+            // or if there was an issue decrypting the message.
+            // There may be more messages on the server, so try fetching them.
+            tryShowSignalMessage();
             return;
         }
 
