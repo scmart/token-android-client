@@ -75,7 +75,7 @@ dependencies {
             'com.android.support:gridlayout-v7:25.1.0',
             'com.android.support:design:25.1.0',
             'com.android.support:multidex:1.0.0',
-            'com.github.tokenbrowser:ahbottomnavigation:9da39a7',
+            'com.aurelhubert:ahbottomnavigation:2.0.5',
             // Push notifications
             'com.google.android.gms:play-services-gcm:10.0.1',
             // Networking
