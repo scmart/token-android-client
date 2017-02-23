@@ -18,7 +18,7 @@ import com.bakkenbaeck.token.view.activity.BackupPhraseInfoActivity;
 import com.bakkenbaeck.token.view.activity.ProfileActivity;
 import com.bakkenbaeck.token.view.activity.TrustedFriendsActivity;
 import com.bakkenbaeck.token.view.adapter.SettingsAdapter;
-import com.bakkenbaeck.token.view.custom.RecycleviewDivider;
+import com.bakkenbaeck.token.view.custom.RecyclerViewDivider;
 import com.bakkenbaeck.token.view.fragment.children.SettingsFragment;
 import com.bumptech.glide.Glide;
 
@@ -61,7 +61,7 @@ public final class SettingsPresenter implements
         final RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this.fragment.getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(new RecycleviewDivider(this.fragment.getContext(), 0));
+        recyclerView.addItemDecoration(new RecyclerViewDivider(this.fragment.getContext(), 0));
     }
 
     private void handleItemClickListener(final String option) {
