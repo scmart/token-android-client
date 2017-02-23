@@ -37,7 +37,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
     private static final int REQUEST_CODE = 1;
 
     private @PaymentType.Type
-    int viewType;
+    int paymentType;
     private ChooseContactsActivity activity;
     private String encodedEthAmount;
     private ContactsAdapter adapter;
@@ -70,7 +70,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
     @SuppressWarnings("WrongConstant")
     private void getIntentData() {
         this.encodedEthAmount = this.activity.getIntent().getStringExtra(AmountPresenter.INTENT_EXTRA__ETH_AMOUNT);
-        this.viewType = this.activity.getIntent().getIntExtra(ChooseContactsActivity.VIEW_TYPE, PaymentType.TYPE_SEND);
+        this.paymentType = this.activity.getIntent().getIntExtra(ChooseContactsActivity.VIEW_TYPE, PaymentType.TYPE_SEND);
     }
 
     private void getLocalCurrency() {
@@ -92,7 +92,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
     }
 
     private void initToolbar() {
-        final String paymentAction = this.viewType == PaymentType.TYPE_SEND
+        final String paymentAction = this.paymentType == PaymentType.TYPE_SEND
                 ? this.activity.getString(R.string.send)
                 : this.activity.getString(R.string.request);
 
@@ -162,15 +162,17 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
     }
 
     private void handleQrScanClicked() {
-        final Intent intent = new Intent(this.activity, ScannerActivity.class);
-        intent.putExtra(ScannerActivity.RESULT_TYPE, ScannerActivity.FOR_RESULT);
+        final Intent intent = new Intent(this.activity, ScannerActivity.class)
+                .putExtra(ScannerActivity.RESULT_TYPE, ScannerActivity.CONFIRMATION_REDIRECT)
+                .putExtra(ScannerActivity.ETH_AMOUNT, this.encodedEthAmount)
+                .putExtra(ScannerActivity.PAYMENT_TYPE, this.paymentType);
         this.activity.startActivityForResult(intent, REQUEST_CODE);
     }
 
     private void handleSendClicked() {
         final Intent intent = new Intent(activity, ChatActivity.class)
                 .putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, recipientUser.getOwnerAddress())
-                .putExtra(ChatActivity.EXTRA__PAYMENT_ACTION, viewType)
+                .putExtra(ChatActivity.EXTRA__PAYMENT_ACTION, paymentType)
                 .putExtra(ChatActivity.EXTRA__ETH_AMOUNT, encodedEthAmount);
 
         this.activity.startActivity(intent);
