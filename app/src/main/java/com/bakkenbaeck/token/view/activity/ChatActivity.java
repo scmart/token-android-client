@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.databinding.ActivityChatBinding;
@@ -66,5 +68,17 @@ public final class ChatActivity extends BasePresenterActivity<ChatPresenter, Cha
     @Override
     protected int loaderId() {
         return 4002;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        getMenuInflater().inflate(R.menu.chat, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        this.presenter.handleActionMenuClicked(item);
+        return super.onOptionsItemSelected(item);
     }
 }
