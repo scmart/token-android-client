@@ -8,6 +8,7 @@ import com.bakkenbaeck.token.network.BalanceService;
 import com.bakkenbaeck.token.network.CurrencyService;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LocaleUtil;
+import com.bakkenbaeck.token.util.LogUtil;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -42,7 +43,11 @@ public class BalanceManager {
                 .getBalance(this.wallet.getPaymentAddress())
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .subscribe(this::handleNewBalance);
+                .subscribe(this::handleNewBalance, this::handleError);
+    }
+
+    private void handleError(final Throwable throwable) {
+        LogUtil.e(getClass(), throwable.toString());
     }
 
     private void handleNewBalance(final Balance balance) {
@@ -63,7 +68,7 @@ public class BalanceManager {
                 .getRates("ETH")
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .subscribe(this::handleMarketRates);
+                .subscribe(this::handleMarketRates, this::handleError);
     }
 
     private void handleMarketRates(final MarketRates rates) {
