@@ -3,8 +3,6 @@ package com.bakkenbaeck.token.presenter.store;
 
 import com.bakkenbaeck.token.model.local.PendingTransaction;
 
-import java.util.concurrent.Callable;
-
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import rx.Single;
@@ -31,12 +29,7 @@ public class PendingTransactionStore {
     }
 
     public Single<PendingTransaction> load(final String txHash) {
-        return Single.fromCallable(new Callable<PendingTransaction>() {
-            @Override
-            public PendingTransaction call() throws Exception {
-                return loadWhere("txHash", txHash);
-            }
-        });
+        return Single.fromCallable(() -> loadWhere("txHash", txHash));
     }
 
     private PendingTransaction loadWhere(final String fieldName, final String value) {
