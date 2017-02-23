@@ -56,6 +56,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
+            style="@style/Button"
             android:text="@string/edit_profile"/>
 
         <android.support.v4.widget.Space
