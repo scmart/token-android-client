@@ -16,9 +16,11 @@ import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
+import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
+import com.bakkenbaeck.token.view.activity.MainActivity;
 
 import java.io.IOException;
 
@@ -58,6 +60,11 @@ public class ChatNotificationManager {
 
     private static void handleUserLookup(final User user, final DecryptedSignalMessage signalMessage) {
         final String body = getBodyFromMessage(signalMessage);
+        if (body == null) {
+            // This wasn't a SOFA::Message. Do not render.
+            LogUtil.i(ChatNotificationManager.class, "Not rendering PN");
+            return;
+        }
         showNotification(user.getDisplayName(), body, user.getOwnerAddress());
     }
 
@@ -70,17 +77,17 @@ public class ChatNotificationManager {
         } catch (final IOException ex) {
             // Nop
         }
-        return sofaMessage.getPayload();
+        return null;
     }
 
     public static void showNotification(final String title, final String content, final String ownerAddress) {
-        if (ownerAddress.equals(currentlyOpenConversation)) {
+        if (ownerAddress != null && ownerAddress.equals(currentlyOpenConversation)) {
             return;
         }
 
         final Uri notificationSound = Uri.parse("android.resource://" + BaseApplication.get().getPackageName() + "/" + R.raw.notification);
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(BaseApplication.get())
-                .setSmallIcon(R.drawable.token)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(title)
                 .setContentText(content)
                 .setAutoCancel(true)
@@ -93,14 +100,26 @@ public class ChatNotificationManager {
         builder.setContentIntent(pendingIntent);
 
         final NotificationManager manager = (NotificationManager) BaseApplication.get().getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(ownerAddress, 1, bigTextBuilder.build());
+        final String tag = ownerAddress == null ? "unknown" : ownerAddress;
+        manager.notify(tag, 1, bigTextBuilder.build());
     }
 
     private static PendingIntent generateChatIntentWithBackStack(final String ownerAddress) {
+        final Intent mainIntent = new Intent(BaseApplication.get(), MainActivity.class);
+        mainIntent.putExtra(MainActivity.EXTRA__ACTIVE_TAB, 1);
         final Intent chatIntent = new Intent(BaseApplication.get(), ChatActivity.class);
         chatIntent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, ownerAddress);
+
+        if (ownerAddress == null) {
+            return TaskStackBuilder.create(BaseApplication.get())
+                    .addParentStack(MainActivity.class)
+                    .addNextIntent(mainIntent)
+                    .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
+
         return TaskStackBuilder.create(BaseApplication.get())
-                .addParentStack(ChatActivity.class)
+                .addParentStack(MainActivity.class)
+                .addNextIntent(mainIntent)
                 .addNextIntent(chatIntent)
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
     }

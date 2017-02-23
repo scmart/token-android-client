@@ -13,7 +13,7 @@ import com.bakkenbaeck.token.view.activity.MainActivity;
 import com.bakkenbaeck.token.view.adapter.NavigationAdapter;
 
 public class MainPresenter implements Presenter<MainActivity> {
-    private final int DEFAULT_TAB = 0;
+    private static final int DEFAULT_TAB = 0;
 
     private MainActivity activity;
     private boolean firstTimeAttached = true;
@@ -40,9 +40,14 @@ public class MainPresenter implements Presenter<MainActivity> {
         if (this.firstTimeAttached) {
             this.firstTimeAttached = false;
             this.adapter = new NavigationAdapter(this.activity, R.menu.navigation);
+            manuallySelectFirstTab();
         }
         initNavBar();
         selectCorrectTab();
+    }
+
+    private void manuallySelectFirstTab() {
+        this.tabListener.onTabSelected(DEFAULT_TAB, false);
     }
 
     private void selectCorrectTab() {
