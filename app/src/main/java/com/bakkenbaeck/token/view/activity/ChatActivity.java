@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.databinding.ActivityChatBinding;
@@ -14,7 +13,6 @@ import com.bakkenbaeck.token.model.local.ActivityResultHolder;
 import com.bakkenbaeck.token.presenter.ChatPresenter;
 import com.bakkenbaeck.token.presenter.factory.ChatPresenterFactory;
 import com.bakkenbaeck.token.presenter.factory.PresenterFactory;
-import com.bakkenbaeck.token.util.LogUtil;
 
 public final class ChatActivity extends BasePresenterActivity<ChatPresenter, ChatActivity> {
 
@@ -80,20 +78,7 @@ public final class ChatActivity extends BasePresenterActivity<ChatPresenter, Cha
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.rate: {
-                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
-                break;
-            }
-            case R.id.view_profile: {
-                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_SHORT).show();
-                break;
-            }
-            default: {
-                LogUtil.d(getClass(), "Not valid menu item");
-            }
-        }
-
+        this.presenter.handleActionMenuClicked(item);
         return super.onOptionsItemSelected(item);
     }
 }
