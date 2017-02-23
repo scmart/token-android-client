@@ -15,7 +15,10 @@ public class ScannerActivity extends BasePresenterActivity<ScannerPresenter, Sca
 
     public static final int FOR_RESULT = 1;
     public static final int REDIRECT = 2;
+    public static final int CONFIRMATION_REDIRECT = 3;
     public static final String RESULT_TYPE = "result_type";
+    public static final String ETH_AMOUNT = "eth_amount";
+    public static final String PAYMENT_TYPE = "payment_type";
 
     private ScannerPresenter presenter;
     private ActivityScannerBinding binding;

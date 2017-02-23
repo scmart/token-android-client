@@ -10,10 +10,13 @@ import com.bakkenbaeck.token.model.local.PermissionResultHolder;
 import com.bakkenbaeck.token.model.local.ScanResult;
 import com.bakkenbaeck.token.model.network.ServerTime;
 import com.bakkenbaeck.token.network.IdService;
+import com.bakkenbaeck.token.util.PaymentType;
 import com.bakkenbaeck.token.util.SoundManager;
 import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.ScannerActivity;
 import com.bakkenbaeck.token.view.activity.ViewUserActivity;
+import com.bakkenbaeck.token.view.fragment.DialogFragment.PaymentRequestConfirmationDialog;
 import com.google.zxing.ResultPoint;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
@@ -24,7 +27,9 @@ import java.util.List;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public final class ScannerPresenter implements Presenter<ScannerActivity> {
+public final class ScannerPresenter implements
+        Presenter<ScannerActivity>,
+        PaymentRequestConfirmationDialog.OnActionClickListener {
 
     /*package */ static final String USER_ADDRESS = "user_address";
     private static final String WEB_SIGNIN = "web-signin:";
@@ -32,6 +37,8 @@ public final class ScannerPresenter implements Presenter<ScannerActivity> {
     private CaptureManager capture;
     private ScannerActivity activity;
     private int resultType;
+    private String encodedEthAmount;
+    private @PaymentType.Type int paymentType;
 
     @Override
     public void onViewAttached(final ScannerActivity activity) {
@@ -40,8 +47,11 @@ public final class ScannerPresenter implements Presenter<ScannerActivity> {
         init();
     }
 
+    @SuppressWarnings("WrongConstant")
     private void getIntentData() {
         this.resultType = this.activity.getIntent().getIntExtra(ScannerActivity.RESULT_TYPE, 0);
+        this.encodedEthAmount = this.activity.getIntent().getStringExtra(ScannerActivity.ETH_AMOUNT);
+        this.paymentType = this.activity.getIntent().getIntExtra(ScannerActivity.PAYMENT_TYPE, PaymentType.TYPE_SEND);
     }
 
     private void init() {
@@ -68,8 +78,9 @@ public final class ScannerPresenter implements Presenter<ScannerActivity> {
             // Right now, this assumes that the QR code is a contacts address
             // so it is currently very naive
             final ScanResult scanResult = new ScanResult(result);
-
-            if (resultType == ScannerActivity.FOR_RESULT) {
+            if (resultType == ScannerActivity.CONFIRMATION_REDIRECT) {
+                showConfirmationDialog(scanResult);
+            } else if (resultType == ScannerActivity.FOR_RESULT) {
                 final Intent intent = new Intent();
                 intent.putExtra(USER_ADDRESS, scanResult.getText());
                 activity.setResult(Activity.RESULT_OK, intent);
@@ -96,6 +107,29 @@ public final class ScannerPresenter implements Presenter<ScannerActivity> {
             }
         }
     };
+
+    private void showConfirmationDialog(final ScanResult scanResult) {
+        final PaymentRequestConfirmationDialog dialog = PaymentRequestConfirmationDialog
+                .newInstance(scanResult.getText(), this.encodedEthAmount, this.paymentType);
+        dialog.setOnActionClickedListener(this);
+        dialog.show(activity.getSupportFragmentManager(), PaymentRequestConfirmationDialog.TAG);
+    }
+
+    @Override
+    public void onApproved(final String userAddress) {
+        final Intent intent = new Intent(activity, ChatActivity.class)
+                .putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, userAddress)
+                .putExtra(ChatActivity.EXTRA__PAYMENT_ACTION, this.paymentType)
+                .putExtra(ChatActivity.EXTRA__ETH_AMOUNT, this.encodedEthAmount);
+
+        this.activity.startActivity(intent);
+        this.activity.finish();
+    }
+
+    @Override
+    public void onRejected() {
+        this.activity.finish();
+    }
 
     public void handlePermissionsResult(final PermissionResultHolder prh) {
         this.capture.onRequestPermissionsResult(prh.getRequestCode(), prh.getPermissions(), prh.getGrantResults());
