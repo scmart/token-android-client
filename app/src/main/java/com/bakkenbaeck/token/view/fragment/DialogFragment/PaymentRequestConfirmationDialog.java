@@ -37,12 +37,13 @@ public class PaymentRequestConfirmationDialog extends DialogFragment {
     private FragmentPaymentRequestConfirmationBinding binding;
     private OnActionClickListener listener;
     private Subscription userSubscription;
+
     private String encodedEthAmount;
     private String userAddress;
     private @PaymentType.Type int paymentType;
 
     public interface OnActionClickListener {
-        void onApproved();
+        void onApproved(final String userAddress);
         void onRejected();
     }
 
@@ -131,7 +132,7 @@ public class PaymentRequestConfirmationDialog extends DialogFragment {
     }
 
     private void handleApprovedClicked(final View v) {
-        this.listener.onApproved();
+        this.listener.onApproved(this.userAddress);
         this.dismiss();
     }
 

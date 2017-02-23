@@ -13,6 +13,7 @@ import com.bakkenbaeck.token.network.IdService;
 import com.bakkenbaeck.token.util.PaymentType;
 import com.bakkenbaeck.token.util.SoundManager;
 import com.bakkenbaeck.token.view.BaseApplication;
+import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.ScannerActivity;
 import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 import com.bakkenbaeck.token.view.fragment.DialogFragment.PaymentRequestConfirmationDialog;
@@ -115,13 +116,19 @@ public final class ScannerPresenter implements
     }
 
     @Override
-    public void onApproved() {
+    public void onApproved(final String userAddress) {
+        final Intent intent = new Intent(activity, ChatActivity.class)
+                .putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, userAddress)
+                .putExtra(ChatActivity.EXTRA__PAYMENT_ACTION, this.paymentType)
+                .putExtra(ChatActivity.EXTRA__ETH_AMOUNT, this.encodedEthAmount);
 
+        this.activity.startActivity(intent);
+        this.activity.finish();
     }
 
     @Override
     public void onRejected() {
-
+        this.activity.finish();
     }
 
     public void handlePermissionsResult(final PermissionResultHolder prh) {
