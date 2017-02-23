@@ -85,7 +85,6 @@ public final class ChatPresenter implements
     public void onViewAttached(final ChatActivity activity) {
         this.activity = activity;
 
-
         if (firstViewAttachment) {
             firstViewAttachment = false;
             initLongLivingObjects();
@@ -208,6 +207,8 @@ public final class ChatPresenter implements
     private void initToolbar(final User remoteUser) {
         this.activity.getBinding().title.setText(remoteUser.getDisplayName());
         this.activity.getBinding().closeButton.setOnClickListener(this.backButtonClickListener);
+        this.activity.setSupportActionBar(this.activity.getBinding().toolbar);
+        this.activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         Glide.with(this.activity.getBinding().avatar.getContext())
                 .load(remoteUser.getAvatar())
