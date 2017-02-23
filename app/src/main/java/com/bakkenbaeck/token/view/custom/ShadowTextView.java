@@ -8,11 +8,12 @@ import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
-import com.bakkenbaeck.token.R;
+import com.tokenbrowser.token.R;
 
 public class ShadowTextView extends CardView {
 
     private boolean shadowEnabled;
+    private boolean visibleBackground;
     private String text;
     private int cornerRadius;
 
@@ -30,6 +31,7 @@ public class ShadowTextView extends CardView {
     private void parseAttributeSet(final Context context, final @Nullable AttributeSet attrs) {
         final TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.ShadowTextView, 0, 0);
         this.shadowEnabled = a.getBoolean(R.styleable.ShadowTextView_shadow, true);
+        this.visibleBackground = a.getBoolean(R.styleable.ShadowTextView_visibleBackground, true);
         this.text = a.getString(R.styleable.ShadowTextView_text);
         this.cornerRadius = a.getDimensionPixelSize(R.styleable.ShadowTextView_cornerRadius, 0);
         a.recycle();
@@ -42,15 +44,12 @@ public class ShadowTextView extends CardView {
 
     private void initView() {
         setText(this.text);
-        setCornerRadius(this.cornerRadius);
-        setShadow();
-    }
+        setMaxCardElevation(this.cornerRadius);
+        setRadius(this.cornerRadius);
 
-    private void setCornerRadius(final int cornerRadius) {
-        this.setRadius(cornerRadius);
-    }
-
-    public void setShadow() {
+        if (!this.visibleBackground) {
+            setBackground(null);
+        }
         if (!this.shadowEnabled) {
             disableShadow();
         }
@@ -67,5 +66,10 @@ public class ShadowTextView extends CardView {
     public void setText(final String s) {
         final TextView textView = (TextView) findViewById(R.id.text_view);
         textView.setText(s);
+    }
+
+    public String getText() {
+        final TextView textView = (TextView) findViewById(R.id.text_view);
+        return textView.getText().toString();
     }
 }
