@@ -53,6 +53,7 @@ import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 import org.whispersystems.signalservice.internal.push.SignalServiceUrl;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -183,6 +184,7 @@ public final class SofaMessageManager {
         } else {
             receiveMessagesAsync();
             tryRegisterGcm();
+            tryTriggerOnboarding();
         }
     }
 
@@ -438,17 +440,18 @@ public final class SofaMessageManager {
     }
 
     private void handleOnboardingBotFound(final UserSearchResults results) {
-        results.getResults()
-                .stream()
-                .filter(user -> user.getUsernameForEditing().equals(ONBOARDING_BOT_NAME))
-                .forEach(user -> {
-                    BaseApplication
-                            .get()
-                            .getTokenManager()
-                            .getSofaMessageManager()
-                            .sendMessage(user, generateOnboardingMessage());
-                    SharedPrefsUtil.setHasOnboarded();
-                });
+        final List<User> users = results.getResults();
+        for (final User user : users) {
+            if (user.getUsernameForEditing().equals(ONBOARDING_BOT_NAME)) {
+                BaseApplication
+                        .get()
+                        .getTokenManager()
+                        .getSofaMessageManager()
+                        .sendMessage(user, generateOnboardingMessage());
+                SharedPrefsUtil.setHasOnboarded();
+                break;
+            }
+        }
     }
 
     private SofaMessage generateOnboardingMessage() {
