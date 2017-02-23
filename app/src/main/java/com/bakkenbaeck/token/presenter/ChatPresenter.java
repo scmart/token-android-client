@@ -1,9 +1,11 @@
 package com.bakkenbaeck.token.presenter;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.support.v7.app.AlertDialog;
 import android.util.Pair;
 import android.view.View;
 import android.view.animation.Animation;
@@ -15,11 +17,13 @@ import android.widget.Toast;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
+import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.bakkenbaeck.token.model.local.ActivityResultHolder;
 import com.bakkenbaeck.token.model.local.Conversation;
 import com.bakkenbaeck.token.model.local.PendingTransaction;
 import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.User;
+import com.bakkenbaeck.token.model.network.Balance;
 import com.bakkenbaeck.token.model.sofa.Command;
 import com.bakkenbaeck.token.model.sofa.Control;
 import com.bakkenbaeck.token.model.sofa.Init;
@@ -50,6 +54,7 @@ import com.bakkenbaeck.token.view.notification.ChatNotificationManager;
 import com.bumptech.glide.Glide;
 
 import java.io.IOException;
+import java.math.BigInteger;
 
 import io.realm.RealmList;
 import rx.Subscription;
@@ -66,14 +71,15 @@ public final class ChatPresenter implements
 
     private ChatActivity activity;
     private MessageAdapter messageAdapter;
-    private boolean firstViewAttachment = true;
     private ConversationStore conversationStore;
     private User remoteUser;
     private SpeedyLinearLayoutManager layoutManager;
     private SofaAdapters adapters;
     private HDWallet userWallet;
-    private int lastVisibleMessagePosition;
     private Subscription getUserSubscription;
+    private Dialog notEnoughFundsDialog;
+    private boolean firstViewAttachment = true;
+    private int lastVisibleMessagePosition;
 
     @Override
     public void onViewAttached(final ChatActivity activity) {
@@ -568,6 +574,9 @@ public final class ChatPresenter implements
 
     @Override
     public void onViewDetached() {
+        if (this.notEnoughFundsDialog != null) {
+            this.notEnoughFundsDialog.dismiss();
+        }
         this.lastVisibleMessagePosition = this.layoutManager.findLastVisibleItemPosition();
         this.activity = null;
     }
@@ -613,6 +622,29 @@ public final class ChatPresenter implements
     }
 
     private void sendPaymentWithValue(final String value) {
+        BaseApplication.get()
+                .getTokenManager()
+                .getBalanceManager()
+                .getBalanceObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new OnNextSubscriber<Balance>() {
+                    @Override
+                    public void onNext(Balance balance) {
+                        this.unsubscribe();
+                        trySendPayment(balance, value);
+                    }
+                });
+    }
+
+    private void trySendPayment(final Balance balance, final String value) {
+        final BigInteger paymentAmount = TypeConverter.StringHexToBigInteger(value);
+        final BigInteger localAmount = balance.getConfirmedBalance();
+        if (localAmount.compareTo(paymentAmount) == -1) {
+            showNotEnoughFundsDialog();
+            return;
+        }
+
         final Payment payment = new Payment()
                 .setValue(value)
                 .setFromAddress(userWallet.getPaymentAddress())
@@ -622,6 +654,20 @@ public final class ChatPresenter implements
                 .getTokenManager()
                 .getTransactionManager()
                 .sendPayment(remoteUser, payment);
+    }
+
+    private void showNotEnoughFundsDialog() {
+        if (this.activity == null) {
+            return;
+        }
+
+        this.notEnoughFundsDialog = new AlertDialog.Builder(this.activity)
+                .setTitle(R.string.not_enough_funds_title)
+                .setMessage(R.string.not_enough_funds_message)
+                .setPositiveButton(R.string.got_it, (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .show();
     }
 
     private void sendPaymentRequestWithValue(final String value) {
@@ -637,4 +683,6 @@ public final class ChatPresenter implements
                 .getSofaMessageManager()
                 .sendAndSaveMessage(remoteUser, message);
     }
+
+
 }

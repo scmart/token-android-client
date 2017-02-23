@@ -116,4 +116,6 @@
     <string name="eth_usd">%1$s · %2$s ETH</string>
     <string name="confirmation_dialog_title_payment">Confirm payment to</string>
     <string name="confirmation_dialog_title_request">Confirm request to</string>
+    <string name="not_enough_funds_title">Payment request failed</string>
+    <string name="not_enough_funds_message">Not enough funds</string>
 </resources>
