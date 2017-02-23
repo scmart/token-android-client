@@ -64,7 +64,7 @@ import rx.subjects.PublishSubject;
 
 public final class SofaMessageManager {
 
-    private static final String ONBOARDING_BOT_NAME = "TestingBot";
+    private static final String ONBOARDING_BOT_NAME = "TokenBot";
     private final PublishSubject<SofaMessageTask> chatMessageQueue = PublishSubject.create();
 
     private SharedPreferences sharedPreferences;
