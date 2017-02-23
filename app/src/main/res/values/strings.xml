@@ -8,6 +8,7 @@
     <string name="tab_2">Apps</string>
     <string name="tab_3">Scan</string>
     <string name="tab_4">Contacts</string>
+    <string name="contacts_title">Search for people</string>
     <string name="tab_5">Settings</string>
     <string name="message">Message…</string>
     <string name="chat__empty_state">There are no messages, yet!</string>
