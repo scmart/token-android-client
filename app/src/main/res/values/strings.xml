@@ -109,4 +109,10 @@
     <string name="eth_deposit_method_3_message">Install an app that lets you earn ethereum</string>
     <string name="eth_deposit_method_4">4. Request money from a friend</string>
     <string name="eth_deposit_method_4_message">Send a payment request to a friend who can help</string>
+    <string name="confirm_payment_to">Confirm payment to</string>
+    <string name="reject">Reject</string>
+    <string name="approve">Approve</string>
+    <string name="eth_usd">%1$s · %2$s ETH</string>
+    <string name="confirmation_dialog_title_payment">Confirm payment to</string>
+    <string name="confirmation_dialog_title_request">Confirm request to</string>
 </resources>
