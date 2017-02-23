@@ -44,7 +44,7 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     private void initToolbar() {
         final ProfileActivity parentActivity = (ProfileActivity) this.fragment.getActivity();
         parentActivity.getBinding().title.setText(R.string.edit_profile);
-        parentActivity.getBinding().closeButton.setImageDrawable(parentActivity.getResources().getDrawable(R.drawable.ic_arrow_back));
+        parentActivity.getBinding().closeButton.setImageResource(R.drawable.ic_arrow_back);
         parentActivity.getBinding().saveButton.setVisibility(View.VISIBLE);
         parentActivity.getBinding().saveButton.setOnClickListener(this.handleSaveClicked);
     }
