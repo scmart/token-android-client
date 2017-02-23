@@ -9,11 +9,11 @@ import android.view.View;
 
 import com.bakkenbaeck.token.R;
 
-public class RecycleviewDivider extends RecyclerView.ItemDecoration {
+public class RecyclerViewDivider extends RecyclerView.ItemDecoration {
     private Drawable mDivider;
     private int padding;
 
-    public RecycleviewDivider(final Context context, final int padding) {
+    public RecyclerViewDivider(final Context context, final int padding) {
         mDivider = ContextCompat.getDrawable(context, R.drawable.decoration_linear_divider);
         this.padding = padding;
     }

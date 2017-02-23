@@ -8,8 +8,7 @@
         <item name="android:colorBackground">@color/windowBackground</item>
         <item name="android:windowBackground">@color/windowBackground</item>
         <item name="android:textColorHint">@color/textColorHint</item>
-        <item name="android:buttonStyle">@style/Button</item>
-        <item name="buttonStyle">@style/Button</item>
+
         <item name="android:buttonStyleToggle">@style/ToggleButton</item>
         <item name="colorControlActivated">@color/divider_amount</item>
         <item name="colorControlNormal">@color/divider_amount</item>

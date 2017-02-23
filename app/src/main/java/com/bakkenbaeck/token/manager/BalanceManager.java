@@ -79,7 +79,7 @@ public class BalanceManager {
 
         final NumberFormat numberFormat = NumberFormat.getNumberInstance(LocaleUtil.getLocale());
         numberFormat.setGroupingUsed(true);
-        numberFormat.setMaximumFractionDigits(4);
+        numberFormat.setMaximumFractionDigits(2);
         numberFormat.setMinimumFractionDigits(2);
 
         final String localAmountAsString = numberFormat.format(localAmount);

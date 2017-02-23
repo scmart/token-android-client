@@ -3,7 +3,6 @@ package com.bakkenbaeck.token.presenter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -19,6 +18,7 @@ import com.bakkenbaeck.token.view.activity.BackupPhraseInfoActivity;
 import com.bakkenbaeck.token.view.activity.ProfileActivity;
 import com.bakkenbaeck.token.view.activity.TrustedFriendsActivity;
 import com.bakkenbaeck.token.view.adapter.SettingsAdapter;
+import com.bakkenbaeck.token.view.custom.RecyclerViewDivider;
 import com.bakkenbaeck.token.view.fragment.children.SettingsFragment;
 import com.bumptech.glide.Glide;
 
@@ -61,9 +61,7 @@ public final class SettingsPresenter implements
         final RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this.fragment.getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
-
-        final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
-        recyclerView.addItemDecoration(dividerItemDecoration);
+        recyclerView.addItemDecoration(new RecyclerViewDivider(this.fragment.getContext(), 0));
     }
 
     private void handleItemClickListener(final String option) {

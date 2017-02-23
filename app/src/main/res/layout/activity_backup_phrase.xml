@@ -73,28 +73,14 @@
                     android:paddingRight="@dimen/activity_horizontal_margin"
                     android:layout_marginTop="35dp"/>
 
-                <RelativeLayout
+                <TextView
+                    android:id="@+id/copy_to_clipboard"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="30dp"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin">
-
-                    <TextView
-                        android:id="@+id/copy_to_clipboard"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/colorPrimary"
-                        android:text="@string/copy_phrase_to_clipboard"/>
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:background="@color/colorPrimary"
-                        android:layout_marginTop="0dp"
-                        android:layout_below="@+id/copy_to_clipboard"
-                        android:layout_alignLeft="@+id/copy_to_clipboard"
-                        android:layout_alignRight="@+id/copy_to_clipboard"/>
-                </RelativeLayout>
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:textColor="@color/colorPrimary"
+                    android:text="@string/copy_phrase_to_clipboard"/>
 
                 <android.support.v4.widget.Space
                     android:layout_width="0dp"

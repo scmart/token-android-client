@@ -8,6 +8,7 @@
     <string name="tab_2">Apps</string>
     <string name="tab_3">Scan</string>
     <string name="tab_4">Contacts</string>
+    <string name="contacts_title">Search for people</string>
     <string name="tab_5">Settings</string>
     <string name="message">Message…</string>
     <string name="chat__empty_state">There are no messages, yet!</string>
@@ -115,4 +116,6 @@
     <string name="eth_usd">%1$s · %2$s ETH</string>
     <string name="confirmation_dialog_title_payment">Confirm payment to</string>
     <string name="confirmation_dialog_title_request">Confirm request to</string>
+    <string name="not_enough_funds_title">Payment request failed</string>
+    <string name="not_enough_funds_message">Not enough funds</string>
 </resources>

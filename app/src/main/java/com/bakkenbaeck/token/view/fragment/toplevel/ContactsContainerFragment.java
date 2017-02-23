@@ -30,7 +30,7 @@ public class ContactsContainerFragment extends BasePresenterFragment<ContactsPre
                              final ViewGroup container,
                              final Bundle inState) {
         this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_top_level, container, false);
-        this.binding.title.setText(R.string.tab_4);
+        this.binding.title.setText(R.string.contacts_title);
         return binding.getRoot();
     }
 

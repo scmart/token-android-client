@@ -130,7 +130,7 @@ public class ControlView extends LinearLayout implements ControlAdapter.OnContro
         controlGroupRv.setLayoutManager(new LinearLayoutManager(this.getContext()));
         controlGroupRv.setAdapter(adapter);
         controlGroupRv.setVisibility(View.VISIBLE);
-        controlGroupRv.addItemDecoration(new RecycleviewDivider(this.getContext(), padding));
+        controlGroupRv.addItemDecoration(new RecyclerViewDivider(this.getContext(), padding));
         adapter.setOnItemClickListener(new ControlGroupAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(Control control) {
