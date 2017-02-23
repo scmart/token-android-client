@@ -170,7 +170,7 @@ public class TransactionManager {
     private TransactionRequest generateTransactionRequest(final Payment payment) {
         return new TransactionRequest()
                 .setValue(payment.getValue())
-                .setFromAddress(this.wallet.getPaymentAddress())
+                .setFromAddress(payment.getFromAddress())
                 .setToAddress(payment.getToAddress());
     }
 

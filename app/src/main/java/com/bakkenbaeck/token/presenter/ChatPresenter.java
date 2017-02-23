@@ -615,7 +615,7 @@ public final class ChatPresenter implements
     private void sendPaymentWithValue(final String value) {
         final Payment payment = new Payment()
                 .setValue(value)
-                .setOwnerAddress(remoteUser.getOwnerAddress())
+                .setFromAddress(userWallet.getPaymentAddress())
                 .setToAddress(remoteUser.getPaymentAddress());
 
         BaseApplication.get()

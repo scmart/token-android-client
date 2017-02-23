@@ -12,7 +12,7 @@ public class Payment {
 
     private String value;
     private String toAddress;
-    private String ownerAddress;
+    private String fromAddress;
     private String txHash;
     private String status;
 
@@ -40,12 +40,12 @@ public class Payment {
         return this;
     }
 
-    public String getOwnerAddress() {
-        return ownerAddress;
+    public String getFromAddress() {
+        return fromAddress;
     }
 
-    public Payment setOwnerAddress(final String ownerAddress) {
-        this.ownerAddress = ownerAddress;
+    public Payment setFromAddress(final String ownerAddress) {
+        this.fromAddress = ownerAddress;
         return this;
     }
 

@@ -19,21 +19,19 @@ package com.bakkenbaeck.token.service;
 import android.os.Bundle;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.crypto.signal.model.DecryptedSignalMessage;
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
-import com.bakkenbaeck.token.model.local.PendingTransaction;
 import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
-import com.bakkenbaeck.token.presenter.store.PendingTransactionStore;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.notification.ChatNotificationManager;
 import com.google.android.gms.gcm.GcmListenerService;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Locale;
@@ -111,24 +109,20 @@ public class GcmMessageReceiver extends GcmListenerService {
             return;
         }
 
-        new PendingTransactionStore()
-                .load(payment.getTxHash())
-                .subscribe((pt) -> handleTxLookup(pt, payment));
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getWallet()
+                .subscribe((w) -> showOnlyIncomingPaymentNotification(w, payment));
     }
 
-    private void handleTxLookup(final PendingTransaction transaction, final Payment passedInPayment) {
-        if (transaction == null) {
-            LogUtil.w(getClass(), "Couldn't find pending transaction");
-            renderNotificationForPayment(passedInPayment);
-        } else {
-            try {
-                final Payment payment = adapters.paymentFrom(transaction.getSofaMessage().getPayload());
-                renderNotificationForPayment(payment);
-            } catch (IOException e) {
-                // Shouldn't happen but we handle it anyway.
-                renderNotificationForPayment(passedInPayment);
-            }
+    private void showOnlyIncomingPaymentNotification(final HDWallet wallet, final Payment payment) {
+        if (wallet.getPaymentAddress().equals(payment.getFromAddress())) {
+            // This payment was sent by us. Show no notification.
+            LogUtil.i(getClass(), "Suppressing payment notification. Payment sent by local user.");
+            return;
         }
+        renderNotificationForPayment(payment);
     }
 
     private void renderNotificationForPayment(final Payment payment) {
@@ -137,6 +131,6 @@ public class GcmMessageReceiver extends GcmListenerService {
         final BigDecimal ethAmount = EthUtil.weiToEth(weiAmount);
         final String localCurrency = BaseApplication.get().getTokenManager().getBalanceManager().convertEthToLocalCurrencyString(ethAmount);
         final String content = String.format(Locale.getDefault(), "Received: %s", localCurrency);
-        ChatNotificationManager.showNotification(title, content, payment.getOwnerAddress());
+        ChatNotificationManager.showNotification(title, content, payment.getFromAddress());
     }
 }
