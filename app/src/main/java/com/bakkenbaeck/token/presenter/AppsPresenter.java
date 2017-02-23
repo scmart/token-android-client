@@ -37,7 +37,7 @@ public class AppsPresenter implements Presenter<AppsFragment>{
     public void onViewAttached(AppsFragment view) {
         this.fragment = view;
 
-        if (firstTimeAttaching) {
+        if (this.firstTimeAttaching) {
             this.firstTimeAttaching = false;
             initLongLivingObjects();
         }
@@ -47,7 +47,7 @@ public class AppsPresenter implements Presenter<AppsFragment>{
     }
 
     private void initLongLivingObjects() {
-        subscriptions = new CompositeSubscription();
+        this.subscriptions = new CompositeSubscription();
     }
 
     private void initView() {
@@ -56,7 +56,7 @@ public class AppsPresenter implements Presenter<AppsFragment>{
     }
 
     private void checkIfAppsRequestIsNeeded() {
-        if (apps != null) {
+        if (this.apps != null) {
             addAppsData(this.apps);
         } else {
             requestAppData();
@@ -96,7 +96,7 @@ public class AppsPresenter implements Presenter<AppsFragment>{
                 .subscribe(this::handleSearchResponse, this::handleSearchErrorResponse);
 
         updateViewState();
-        subscriptions.add(sub);
+        this.subscriptions.add(sub);
     }
 
     private Observable<Response<Apps>> runSearchQuery(final String searchString) {
@@ -143,7 +143,7 @@ public class AppsPresenter implements Presenter<AppsFragment>{
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleRecommendedAppsResponse, this::handleRecommendedAppsErrorResponse);
 
-        subscriptions.add(sub);
+        this.subscriptions.add(sub);
     }
 
     private void handleRecommendedAppsResponse(final Response<Apps> response) {
@@ -174,7 +174,6 @@ public class AppsPresenter implements Presenter<AppsFragment>{
     public void onViewDestroyed() {
         if (this.subscriptions != null) {
             this.subscriptions.unsubscribe();
-            this.subscriptions = null;
         }
 
         this.fragment = null;
