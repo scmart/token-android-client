@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.v7.app.AlertDialog;
 import android.util.Pair;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -45,6 +46,7 @@ import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AmountActivity;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
+import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.custom.ControlRecyclerView;
@@ -84,7 +86,6 @@ public final class ChatPresenter implements
     @Override
     public void onViewAttached(final ChatActivity activity) {
         this.activity = activity;
-
 
         if (firstViewAttachment) {
             firstViewAttachment = false;
@@ -208,6 +209,8 @@ public final class ChatPresenter implements
     private void initToolbar(final User remoteUser) {
         this.activity.getBinding().title.setText(remoteUser.getDisplayName());
         this.activity.getBinding().closeButton.setOnClickListener(this.backButtonClickListener);
+        this.activity.setSupportActionBar(this.activity.getBinding().toolbar);
+        this.activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         Glide.with(this.activity.getBinding().avatar.getContext())
                 .load(remoteUser.getAvatar())
@@ -684,5 +687,29 @@ public final class ChatPresenter implements
                 .sendAndSaveMessage(remoteUser, message);
     }
 
+    public void handleActionMenuClicked(final MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.rate: {
+                Toast.makeText(this.activity, "Not implemented yet", Toast.LENGTH_SHORT).show();
+                break;
+            }
+            case R.id.view_profile: {
+                viewProfile();
+                break;
+            }
+            default: {
+                LogUtil.d(getClass(), "Not valid menu item");
+            }
+        }
+    }
 
+    private void viewProfile() {
+        if (this.remoteUser == null) {
+            return;
+        }
+
+        final Intent intent = new Intent(this.activity, ViewUserActivity.class)
+                .putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, this.remoteUser.getOwnerAddress());
+        this.activity.startActivity(intent);
+    }
 }

@@ -118,4 +118,6 @@
     <string name="confirmation_dialog_title_request">Confirm request to</string>
     <string name="not_enough_funds_title">Payment request failed</string>
     <string name="not_enough_funds_message">Not enough funds</string>
+    <string name="rate">Rate</string>
+    <string name="view_profile">View profile</string>
 </resources>
