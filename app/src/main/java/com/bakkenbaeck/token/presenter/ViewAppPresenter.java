@@ -8,7 +8,7 @@ import android.widget.Toast;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.App;
-import com.bakkenbaeck.token.network.DirectoryService;
+import com.bakkenbaeck.token.manager.network.DirectoryService;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;

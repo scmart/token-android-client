@@ -1,4 +1,4 @@
-package com.bakkenbaeck.token.network.interceptor;
+package com.bakkenbaeck.token.manager.network.interceptor;
 
 
 import android.util.Base64;

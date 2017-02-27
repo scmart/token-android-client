@@ -7,7 +7,7 @@ import android.view.View;
 
 import com.bakkenbaeck.token.model.network.App;
 import com.bakkenbaeck.token.model.network.Apps;
-import com.bakkenbaeck.token.network.DirectoryService;
+import com.bakkenbaeck.token.manager.network.DirectoryService;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.activity.ViewAppActivity;
 import com.bakkenbaeck.token.view.adapter.RecommendedAppsAdapter;

@@ -1,12 +1,13 @@
-package com.bakkenbaeck.token.presenter.store;
+package com.bakkenbaeck.token.manager.store;
 
 
 import com.bakkenbaeck.token.model.local.User;
 
+import java.util.List;
+
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmQuery;
-import io.realm.RealmResults;
 import rx.Observable;
 import rx.Single;
 

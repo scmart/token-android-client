@@ -7,11 +7,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.manager.store.ContactStore;
 import com.bakkenbaeck.token.model.local.Contact;
 import com.bakkenbaeck.token.model.local.User;
-import com.bakkenbaeck.token.presenter.store.ContactStore;
-import com.bakkenbaeck.token.presenter.store.UserStore;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
+import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.adapter.viewholder.ClickableViewHolder;
 import com.bakkenbaeck.token.view.adapter.viewholder.ContactViewHolder;
@@ -19,7 +19,7 @@ import com.bakkenbaeck.token.view.adapter.viewholder.ContactViewHolder;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.realm.RealmResults;
+import rx.android.schedulers.AndroidSchedulers;
 
 public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> implements ClickableViewHolder.OnClickListener {
 

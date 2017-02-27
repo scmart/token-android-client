@@ -27,7 +27,7 @@ import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.network.Addresses;
 import com.bakkenbaeck.token.model.network.GcmRegistration;
 import com.bakkenbaeck.token.model.network.ServerTime;
-import com.bakkenbaeck.token.network.BalanceService;
+import com.bakkenbaeck.token.manager.network.BalanceService;
 import com.bakkenbaeck.token.util.FileNames;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.BaseApplication;

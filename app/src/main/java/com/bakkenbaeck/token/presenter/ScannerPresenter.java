@@ -9,7 +9,7 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.local.PermissionResultHolder;
 import com.bakkenbaeck.token.model.local.ScanResult;
 import com.bakkenbaeck.token.model.network.ServerTime;
-import com.bakkenbaeck.token.network.IdService;
+import com.bakkenbaeck.token.manager.network.IdService;
 import com.bakkenbaeck.token.util.PaymentType;
 import com.bakkenbaeck.token.util.SoundManager;
 import com.bakkenbaeck.token.view.BaseApplication;

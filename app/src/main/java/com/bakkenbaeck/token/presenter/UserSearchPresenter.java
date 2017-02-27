@@ -9,7 +9,7 @@ import android.view.View;
 
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.UserSearchResults;
-import com.bakkenbaeck.token.network.IdService;
+import com.bakkenbaeck.token.manager.network.IdService;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;

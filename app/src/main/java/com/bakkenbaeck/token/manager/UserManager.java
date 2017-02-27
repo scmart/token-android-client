@@ -5,20 +5,22 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
+import com.bakkenbaeck.token.manager.network.IdService;
+import com.bakkenbaeck.token.manager.store.UserStore;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.ServerTime;
 import com.bakkenbaeck.token.model.network.UserDetails;
-import com.bakkenbaeck.token.network.IdService;
-import com.bakkenbaeck.token.presenter.store.UserStore;
 import com.bakkenbaeck.token.util.FileNames;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
+import rx.Single;
 import rx.SingleSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;

@@ -11,9 +11,8 @@ import android.widget.ToggleButton;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.databinding.ActivityScanResultBinding;
+import com.bakkenbaeck.token.manager.store.ContactStore;
 import com.bakkenbaeck.token.model.local.User;
-import com.bakkenbaeck.token.presenter.store.ContactStore;
-import com.bakkenbaeck.token.presenter.store.UserStore;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;

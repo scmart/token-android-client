@@ -1,10 +1,10 @@
-package com.bakkenbaeck.token.network;
+package com.bakkenbaeck.token.manager.network;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.network.App;
-import com.bakkenbaeck.token.network.interceptor.AppCacheInterceptor;
-import com.bakkenbaeck.token.network.interceptor.LoggingInterceptor;
-import com.bakkenbaeck.token.network.interceptor.UserAgentInterceptor;
+import com.bakkenbaeck.token.manager.network.interceptor.AppCacheInterceptor;
+import com.bakkenbaeck.token.manager.network.interceptor.LoggingInterceptor;
+import com.bakkenbaeck.token.manager.network.interceptor.UserAgentInterceptor;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.Moshi;
 

@@ -11,7 +11,7 @@ import com.bakkenbaeck.token.model.local.ActivityResultHolder;
 import com.bakkenbaeck.token.model.network.App;
 import com.bakkenbaeck.token.model.network.Apps;
 import com.bakkenbaeck.token.model.network.Balance;
-import com.bakkenbaeck.token.network.DirectoryService;
+import com.bakkenbaeck.token.manager.network.DirectoryService;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.PaymentType;

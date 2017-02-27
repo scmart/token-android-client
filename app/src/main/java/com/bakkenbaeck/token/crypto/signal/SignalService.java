@@ -6,9 +6,9 @@ import com.bakkenbaeck.token.crypto.signal.model.SignalBootstrap;
 import com.bakkenbaeck.token.crypto.signal.network.SignalInterface;
 import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
 import com.bakkenbaeck.token.model.network.ServerTime;
-import com.bakkenbaeck.token.network.interceptor.LoggingInterceptor;
-import com.bakkenbaeck.token.network.interceptor.SigningInterceptor;
-import com.bakkenbaeck.token.network.interceptor.UserAgentInterceptor;
+import com.bakkenbaeck.token.manager.network.interceptor.LoggingInterceptor;
+import com.bakkenbaeck.token.manager.network.interceptor.SigningInterceptor;
+import com.bakkenbaeck.token.manager.network.interceptor.UserAgentInterceptor;
 import com.squareup.moshi.Moshi;
 
 import org.whispersystems.libsignal.IdentityKey;
