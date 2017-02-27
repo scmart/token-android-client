@@ -43,16 +43,16 @@ public class MainPresenter implements Presenter<MainActivity> {
             manuallySelectFirstTab();
         }
         initNavBar();
-        selectCorrectTab();
+        selectTabFromIntent();
     }
 
     private void manuallySelectFirstTab() {
         this.tabListener.onTabSelected(DEFAULT_TAB, false);
     }
 
-    private void selectCorrectTab() {
+    private void selectTabFromIntent() {
         final Intent intent = this.activity.getIntent();
-        final int activeTab = intent.getIntExtra(MainActivity.EXTRA__ACTIVE_TAB, DEFAULT_TAB);
+        final int activeTab = intent.getIntExtra(MainActivity.EXTRA__ACTIVE_TAB, this.activity.getBinding().navBar.getCurrentItem());
         this.activity.getIntent().removeExtra(MainActivity.EXTRA__ACTIVE_TAB);
         this.activity.getBinding().navBar.setCurrentItem(activeTab);
     }

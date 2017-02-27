@@ -211,7 +211,6 @@ public final class ChatPresenter implements
         this.activity.getBinding().closeButton.setOnClickListener(this.backButtonClickListener);
         this.activity.setSupportActionBar(this.activity.getBinding().toolbar);
         this.activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
-
         Glide.with(this.activity.getBinding().avatar.getContext())
                 .load(remoteUser.getAvatar())
                 .into(this.activity.getBinding().avatar);
