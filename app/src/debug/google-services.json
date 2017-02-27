@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "405418956142",
+    "project_id": "token-abfd6"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:405418956142:android:2e3b5d52175eef1d",
+        "android_client_info": {
+          "package_name": "com.tokenbrowser.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAuce4ljwL_75LpU_QLT1VL3rSXTUI1Hk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
