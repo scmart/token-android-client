@@ -62,7 +62,8 @@ public final class ContactsListPresenter implements
 
     private void initLongLivingObjects() {
         this.adapter = new ContactsAdapter()
-                .setOnItemClickListener(this);
+                .setOnItemClickListener(this)
+                .setOnUpdateListener(this::updateEmptyState);
     }
 
     @Override

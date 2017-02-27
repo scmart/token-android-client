@@ -7,12 +7,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.manager.store.ContactStore;
 import com.bakkenbaeck.token.model.local.Contact;
 import com.bakkenbaeck.token.model.local.User;
-import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
+import com.bakkenbaeck.token.view.adapter.listeners.OnUpdateListener;
 import com.bakkenbaeck.token.view.adapter.viewholder.ClickableViewHolder;
 import com.bakkenbaeck.token.view.adapter.viewholder.ContactViewHolder;
 
@@ -25,25 +24,29 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> imp
 
     private List<User> users;
     private OnItemClickListener<User> onItemClickListener;
+    private OnUpdateListener onUpdateListener;
 
     public ContactsAdapter() {
         this.users = new ArrayList<>(0);
     }
 
     public ContactsAdapter loadAllStoredContacts() {
-        new ContactStore()
-                .loadAll()
-                .subscribe(new SingleSuccessSubscriber<List<Contact>>() {
-                    @Override
-                    public void onSuccess(final List<Contact> contacts) {
-                        ContactsAdapter.this.users = new ArrayList<>(contacts.size());
-                        for (final Contact contact : contacts) {
-                            ContactsAdapter.this.users.add(contact.getUser());
-                        }
-                        notifyDataSetChanged();
-                    }
-                });
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .loadAllContacts()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::mapContactsToUsers);
         return this;
+    }
+
+    private void mapContactsToUsers(final List<Contact> contacts) {
+        this.users = new ArrayList<>(contacts.size());
+        for (final Contact contact : contacts) {
+            this.users.add(contact.getUser());
+        }
+        notifyAdapterChanged();
     }
 
     public void filter(final String searchString) {
@@ -59,7 +62,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> imp
 
     public ContactsAdapter setUsers(final List<User> users) {
         this.users = users;
-        notifyDataSetChanged();
+        notifyAdapterChanged();
         return this;
     }
 
@@ -96,8 +99,24 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> imp
         return this;
     }
 
+    public ContactsAdapter setOnUpdateListener(final OnUpdateListener onUpdateListener) {
+        this.onUpdateListener = onUpdateListener;
+        return this;
+    }
+
     public void clear() {
         this.users.clear();
+        notifyAdapterChanged();
+    }
+
+    private void notifyAdapterChanged() {
         notifyDataSetChanged();
+        notifyListeners();
+    }
+
+    private void notifyListeners() {
+        if (this.onUpdateListener != null) {
+            this.onUpdateListener.onUpdate();
+        }
     }
 }

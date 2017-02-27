@@ -11,7 +11,6 @@ import android.widget.ToggleButton;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.databinding.ActivityScanResultBinding;
-import com.bakkenbaeck.token.manager.store.ContactStore;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
@@ -27,7 +26,6 @@ import rx.schedulers.Schedulers;
 public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
 
     private boolean firstTimeAttached = true;
-    private ContactStore contactStore;
     private ViewUserActivity activity;
     private User scannedUser;
 
@@ -42,7 +40,6 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     }
 
     private void initLongLivingObjects() {
-        this.contactStore = new ContactStore();
         final Intent intent = activity.getIntent();
         final String userAddress = intent.getStringExtra(ViewUserActivity.EXTRA__USER_ADDRESS);
         loadOrFetchUser(userAddress);
@@ -94,7 +91,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     }
 
     private void updateAddContactState() {
-        final boolean isAContact = contactStore.userIsAContact(scannedUser);
+        final boolean isAContact = isAContact(scannedUser);
         final ToggleButton addContactButton = this.activity.getBinding().addContactButton;
         addContactButton.setChecked(isAContact);
         addContactButton.setSoundEffectsEnabled(isAContact);
@@ -107,16 +104,40 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     private final OnSingleClickListener handleOnAddContact = new OnSingleClickListener() {
         @Override
         public void onSingleClick(final View v) {
-            final boolean isAContact = contactStore.userIsAContact(scannedUser);
+            final boolean isAContact = isAContact(scannedUser);
             if (isAContact) {
-                contactStore.delete(scannedUser);
+                deleteContact(scannedUser);
             } else {
-                contactStore.save(scannedUser);
+                saveContact(scannedUser);
                 SoundManager.getInstance().playSound(SoundManager.ADD_CONTACT);
             }
             updateAddContactState();
         }
     };
+
+    private boolean isAContact(final User user) {
+        return BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .isUserAContact(user);
+    }
+
+    private void deleteContact(final User user) {
+        BaseApplication
+            .get()
+            .getTokenManager()
+            .getUserManager()
+            .deleteContact(user);
+    }
+
+    private void saveContact(final User user) {
+        BaseApplication
+            .get()
+            .getTokenManager()
+            .getUserManager()
+            .saveContact(user);
+    }
 
     private void handleMessageContactButton(final View view) {
         final Intent intent = new Intent(this.activity, ChatActivity.class);

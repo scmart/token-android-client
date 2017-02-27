@@ -6,7 +6,9 @@ import android.content.SharedPreferences;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.manager.network.IdService;
+import com.bakkenbaeck.token.manager.store.ContactStore;
 import com.bakkenbaeck.token.manager.store.UserStore;
+import com.bakkenbaeck.token.model.local.Contact;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.ServerTime;
 import com.bakkenbaeck.token.model.network.UserDetails;
@@ -34,6 +36,7 @@ public class UserManager {
     private SharedPreferences prefs;
     private HDWallet wallet;
     private ExecutorService dbThreadExecutor;
+    private ContactStore contactStore;
     private UserStore userStore;
 
     public final BehaviorSubject<User> getUserObservable() {
@@ -49,7 +52,10 @@ public class UserManager {
 
     private void initDatabase() {
         this.dbThreadExecutor = Executors.newSingleThreadExecutor();
-        this.dbThreadExecutor.submit((Runnable) () -> UserManager.this.userStore = new UserStore());
+        this.dbThreadExecutor.submit(() -> {
+            UserManager.this.contactStore = new ContactStore();
+            UserManager.this.userStore = new UserStore();
+        });
     }
 
     private void initUser() {
@@ -154,6 +160,13 @@ public class UserManager {
         this.userStore.save(user);
     }
 
+    public Single<List<Contact>> loadAllContacts() {
+        return this.contactStore
+                .loadAll()
+                .subscribeOn(Schedulers.from(this.dbThreadExecutor))
+                .observeOn(Schedulers.from(this.dbThreadExecutor));
+    }
+
     public Single<List<User>> searchOfflineUsers(final String query) {
         return this.userStore
                 .queryUsername(query)
@@ -170,13 +183,13 @@ public class UserManager {
     }
 
     public Single<Void> webLogin(final String loginToken) {
-            return IdService
-                .getApi()
-                .getTimestamp()
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .flatMap((st) -> webLoginWithTimestamp(loginToken, st));
-        }
+        return IdService
+            .getApi()
+            .getTimestamp()
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.io())
+            .flatMap((st) -> webLoginWithTimestamp(loginToken, st));
+    }
 
     private Single<Void> webLoginWithTimestamp(final String loginToken, final ServerTime serverTime) {
         if (serverTime == null) {
@@ -186,5 +199,17 @@ public class UserManager {
         return IdService
                 .getApi()
                 .webLogin(loginToken, serverTime.get());
+    }
+
+    public boolean isUserAContact(final User user) {
+        return this.contactStore.userIsAContact(user);
+    }
+
+    public void deleteContact(final User user) {
+        this.contactStore.delete(user);
+    }
+
+    public void saveContact(final User user) {
+        this.contactStore.save(user);
     }
 }
