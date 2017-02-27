@@ -119,8 +119,10 @@ public final class ChatPresenter implements
     }
 
     private void initPendingTransactionStore() {
-        final PendingTransactionStore pendingTransactionStore = new PendingTransactionStore();
-        pendingTransactionStore
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getTransactionManager()
                 .getPendingTransactionObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

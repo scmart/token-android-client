@@ -3,9 +3,12 @@ package com.bakkenbaeck.token.manager;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.exception.UnknownTransactionException;
 import com.bakkenbaeck.token.manager.model.PaymentTask;
-import com.bakkenbaeck.token.model.local.SofaMessage;
+import com.bakkenbaeck.token.manager.network.BalanceService;
+import com.bakkenbaeck.token.manager.store.ConversationStore;
+import com.bakkenbaeck.token.manager.store.PendingTransactionStore;
 import com.bakkenbaeck.token.model.local.PendingTransaction;
 import com.bakkenbaeck.token.model.local.SendState;
+import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.SentTransaction;
 import com.bakkenbaeck.token.model.network.ServerTime;
@@ -14,9 +17,6 @@ import com.bakkenbaeck.token.model.network.TransactionRequest;
 import com.bakkenbaeck.token.model.network.UnsignedTransaction;
 import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
-import com.bakkenbaeck.token.manager.network.BalanceService;
-import com.bakkenbaeck.token.manager.store.ConversationStore;
-import com.bakkenbaeck.token.manager.store.PendingTransactionStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -47,6 +47,10 @@ public class TransactionManager {
         this.wallet = wallet;
         new Thread(this::initEverything).start();
         return this;
+    }
+
+    public PublishSubject<PendingTransaction> getPendingTransactionObservable() {
+        return this.pendingTransactionStore.getPendingTransactionObservable();
     }
 
     public final void sendPayment(final User receiver, final Payment payment) {
