@@ -8,11 +8,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.bakkenbaeck.token.model.local.User;
-import com.bakkenbaeck.token.model.network.UserSearchResults;
-import com.bakkenbaeck.token.manager.network.IdService;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
-import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
+import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.UserSearchActivity;
 import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 import com.bakkenbaeck.token.view.adapter.ContactsAdapter;
@@ -23,7 +21,6 @@ import com.jakewharton.rxbinding.widget.TextViewTextChangeEvent;
 import java.util.concurrent.TimeUnit;
 
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public final class UserSearchPresenter
         implements
@@ -92,17 +89,13 @@ public final class UserSearchPresenter
             return;
         }
 
-        IdService
-                .getApi()
-                .searchByUsername(query)
-                .subscribeOn(Schedulers.io())
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .searchOnlineUsers(query)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleSuccessSubscriber<UserSearchResults>() {
-                    @Override
-                    public void onSuccess(final UserSearchResults userSearchResults) {
-                        UserSearchPresenter.this.adapter.setUsers(userSearchResults.getResults());
-                    }
-                });
+                .subscribe((users -> this.adapter.setUsers(users)));
     }
 
     private final OnSingleClickListener handleCloseClicked = new OnSingleClickListener() {

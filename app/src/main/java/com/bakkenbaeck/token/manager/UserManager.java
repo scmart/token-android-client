@@ -10,6 +10,7 @@ import com.bakkenbaeck.token.manager.store.UserStore;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.ServerTime;
 import com.bakkenbaeck.token.model.network.UserDetails;
+import com.bakkenbaeck.token.model.network.UserSearchResults;
 import com.bakkenbaeck.token.util.FileNames;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -153,11 +154,37 @@ public class UserManager {
         this.userStore.save(user);
     }
 
-    public Single<List<User>> searchByUsername(final String query) {
+    public Single<List<User>> searchOfflineUsers(final String query) {
         return this.userStore
                 .queryUsername(query)
                 .subscribeOn(Schedulers.from(this.dbThreadExecutor))
                 .observeOn(Schedulers.from(this.dbThreadExecutor));
     }
 
+    public Single<List<User>> searchOnlineUsers(final String query) {
+        return IdService
+                .getApi()
+                .searchByUsername(query)
+                .subscribeOn(Schedulers.io())
+                .map(UserSearchResults::getResults);
+    }
+
+    public Single<Void> webLogin(final String loginToken) {
+            return IdService
+                .getApi()
+                .getTimestamp()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .flatMap((st) -> webLoginWithTimestamp(loginToken, st));
+        }
+
+    private Single<Void> webLoginWithTimestamp(final String loginToken, final ServerTime serverTime) {
+        if (serverTime == null) {
+            throw new IllegalStateException("ServerTime was null");
+        }
+
+        return IdService
+                .getApi()
+                .webLogin(loginToken, serverTime.get());
+    }
 }

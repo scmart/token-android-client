@@ -51,7 +51,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> imp
                 .get()
                 .getTokenManager()
                 .getUserManager()
-                .searchByUsername(searchString)
+                .searchOfflineUsers(searchString)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::setUsers);
     }
