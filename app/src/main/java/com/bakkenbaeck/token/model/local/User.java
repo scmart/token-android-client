@@ -2,6 +2,7 @@ package com.bakkenbaeck.token.model.local;
 
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.manager.TokenManager;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.Json;
 
@@ -17,9 +18,12 @@ public class User extends RealmObject {
     @Json(name = "custom")
     private CustomUserInformation customUserInfo;
     private CustomAppInformation customAppInfo;
+    private long cacheTimestamp;
 
     // ctors
-    public User() {}
+    public User() {
+        this.cacheTimestamp = System.currentTimeMillis();
+    }
 
     public User(final User user) {
         this.owner_address = user.getOwnerAddress();
@@ -79,5 +83,9 @@ public class User extends RealmObject {
 
     public void setUsername(final String username) {
         this.username = username;
+    }
+
+    public boolean needsRefresh() {
+        return System.currentTimeMillis() - cacheTimestamp > TokenManager.CACHE_TIMEOUT;
     }
 }

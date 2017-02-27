@@ -19,7 +19,6 @@ import java.util.concurrent.Executors;
 
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
-import rx.Single;
 import rx.SingleSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
@@ -43,6 +42,54 @@ public class UserManager {
         initDatabase();
         initUser();
         return this;
+    }
+
+    public Observable<User> getUserFromAddress(final String userAddress) {
+        return Observable
+                .concat(
+                    this.userStore.loadForAddress(userAddress),
+                    this.fetchAndCacheFromNetwork(userAddress))
+                .subscribeOn(Schedulers.from(this.dbThreadExecutor))
+                .observeOn(Schedulers.from(this.dbThreadExecutor))
+                .first(user -> user != null && !user.needsRefresh());
+    }
+
+    private Observable<User> fetchAndCacheFromNetwork(final String userAddress) {
+        return IdService
+                .getApi()
+                .getUser(userAddress)
+                .toObservable()
+                .subscribeOn(Schedulers.from(this.dbThreadExecutor))
+                .observeOn(Schedulers.from(this.dbThreadExecutor))
+                .doOnNext(this::cacheUser);
+    }
+
+    private void cacheUser(final User user) {
+        if (this.userStore == null) {
+            return;
+        }
+
+        this.userStore.save(user);
+    }
+
+    public void updateUser(final UserDetails userDetails, final SingleSubscriber<Void> completionCallback) {
+        IdService
+            .getApi()
+            .getTimestamp()
+            .subscribe(new SingleSubscriber<ServerTime>() {
+                @Override
+                public void onSuccess(final ServerTime serverTime) {
+                    final long timestamp = serverTime.get();
+                    updateUserWithTimestamp(userDetails, timestamp, completionCallback);
+                    this.unsubscribe();
+                }
+
+                @Override
+                public void onError(final Throwable error) {
+                    this.unsubscribe();
+                    completionCallback.onError(error);
+                }
+            });
     }
 
     private void initDatabase() {
@@ -121,26 +168,6 @@ public class UserManager {
                 .subscribe(this.newUserSubscriber);
     }
 
-    public void updateUser(final UserDetails userDetails, final SingleSubscriber<Void> completionCallback) {
-        IdService
-            .getApi()
-            .getTimestamp()
-            .subscribe(new SingleSubscriber<ServerTime>() {
-                @Override
-                public void onSuccess(final ServerTime serverTime) {
-                    final long timestamp = serverTime.get();
-                    updateUserWithTimestamp(userDetails, timestamp, completionCallback);
-                    this.unsubscribe();
-                }
-
-                @Override
-                public void onError(final Throwable error) {
-                    this.unsubscribe();
-                    completionCallback.onError(error);
-                }
-            });
-    }
-
     private void updateUserWithTimestamp(
             final UserDetails userDetails,
             final long timestamp,
@@ -161,14 +188,6 @@ public class UserManager {
                         completionCallback.onError(error);
                     }
                 });
-    }
-
-    public Observable<User> getUserFromAddress(final String contactAddress) {
-        return Single.merge(
-                this.userStore.loadForAddress(contactAddress),
-                IdService.getApi().getUser(contactAddress))
-                .subscribeOn(Schedulers.from(this.dbThreadExecutor))
-                .observeOn(Schedulers.from(this.dbThreadExecutor));
     }
 
 }

@@ -594,10 +594,15 @@ public final class ChatPresenter implements
             this.getUserSubscription.unsubscribe();
             this.getUserSubscription = null;
         }
+
         this.handleNewMessage.unsubscribe();
         this.handleUpdatedMessage.unsubscribe();
-        this.conversationStore.stopListeningForChanges();
-        this.conversationStore = null;
+
+        if (this.conversationStore != null) {
+            this.conversationStore.stopListeningForChanges();
+            this.conversationStore = null;
+        }
+
         ChatNotificationManager.stopNotificationSuppresion();
         this.activity = null;
     }

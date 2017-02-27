@@ -120,4 +120,5 @@
     <string name="not_enough_funds_message">Not enough funds</string>
     <string name="rate">Rate</string>
     <string name="view_profile">View profile</string>
+    <string name="error_unknown_user">Unable to find user at this address</string>
 </resources>

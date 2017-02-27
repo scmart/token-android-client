@@ -5,6 +5,7 @@ import android.content.ComponentCallbacks2;
 import android.support.multidex.MultiDexApplication;
 
 import com.bakkenbaeck.token.manager.TokenManager;
+import com.bakkenbaeck.token.presenter.store.TokenMigration;
 import com.bakkenbaeck.token.util.LogUtil;
 
 import io.realm.Realm;
@@ -61,6 +62,8 @@ public final class BaseApplication extends MultiDexApplication {
         Realm.init(this);
         final RealmConfiguration config = new RealmConfiguration
                 .Builder()
+                .schemaVersion(1)
+                .migration(new TokenMigration())
                 .build();
         Realm.setDefaultConfiguration(config);
     }

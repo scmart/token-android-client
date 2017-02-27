@@ -6,6 +6,8 @@ import com.bakkenbaeck.token.crypto.HDWallet;
 import rx.Single;
 
 public class TokenManager {
+    
+    public static final long CACHE_TIMEOUT = 1000 * 60 * 60 * 24;
 
     private BalanceManager balanceManager;
     private HDWallet wallet;

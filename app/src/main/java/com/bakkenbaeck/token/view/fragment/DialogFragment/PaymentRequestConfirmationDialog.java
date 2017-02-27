@@ -14,7 +14,6 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.bakkenbaeck.token.databinding.FragmentPaymentRequestConfirmationBinding;
 import com.bakkenbaeck.token.model.local.User;
-import com.bakkenbaeck.token.network.IdService;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.PaymentType;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -89,9 +88,11 @@ public class PaymentRequestConfirmationDialog extends DialogFragment {
     }
 
     private void fetchUser() {
-        this.userSubscription = IdService
-                .getApi()
-                .getUser(this.userAddress)
+        this.userSubscription = BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .getUserFromAddress(this.userAddress)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::updateView);
