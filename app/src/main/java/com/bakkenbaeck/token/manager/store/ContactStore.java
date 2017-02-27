@@ -43,10 +43,10 @@ public class ContactStore {
         realm.commitTransaction();
     }
 
-    public Single<RealmResults<Contact>> loadAll() {
+    public Single<List<Contact>> loadAll() {
         return Single.fromCallable(() -> {
             final RealmQuery<Contact> query = realm.where(Contact.class);
-            return query.findAll();
+            return realm.copyFromRealm(query.findAll());
         });
     }
 }

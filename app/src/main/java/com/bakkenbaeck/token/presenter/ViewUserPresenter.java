@@ -28,7 +28,6 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
 
     private boolean firstTimeAttached = true;
     private ContactStore contactStore;
-    private UserStore userStore;
     private ViewUserActivity activity;
     private User scannedUser;
 
@@ -44,7 +43,6 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
 
     private void initLongLivingObjects() {
         this.contactStore = new ContactStore();
-        this.userStore = new UserStore();
         final Intent intent = activity.getIntent();
         final String userAddress = intent.getStringExtra(ViewUserActivity.EXTRA__USER_ADDRESS);
         loadOrFetchUser(userAddress);

@@ -1,4 +1,4 @@
-package com.bakkenbaeck.token.presenter.store;
+package com.bakkenbaeck.token.manager.store;
 
 
 import com.bakkenbaeck.token.model.local.PendingTransaction;

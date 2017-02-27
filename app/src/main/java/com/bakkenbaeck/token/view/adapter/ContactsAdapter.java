@@ -33,9 +33,9 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> imp
     public ContactsAdapter loadAllStoredContacts() {
         new ContactStore()
                 .loadAll()
-                .subscribe(new SingleSuccessSubscriber<RealmResults<Contact>>() {
+                .subscribe(new SingleSuccessSubscriber<List<Contact>>() {
                     @Override
-                    public void onSuccess(final RealmResults<Contact> contacts) {
+                    public void onSuccess(final List<Contact> contacts) {
                         ContactsAdapter.this.users = new ArrayList<>(contacts.size());
                         for (final Contact contact : contacts) {
                             ContactsAdapter.this.users.add(contact.getUser());
@@ -47,15 +47,13 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> imp
     }
 
     public void filter(final String searchString) {
-        new UserStore()
-                .loadForUsername(searchString)
-                .subscribe(new SingleSuccessSubscriber<RealmResults<User>>() {
-                    @Override
-                    public void onSuccess(RealmResults<User> users) {
-                        ContactsAdapter.this.users = users;
-                        notifyDataSetChanged();
-                    }
-                });
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .searchByUsername(searchString)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::setUsers);
     }
 
 

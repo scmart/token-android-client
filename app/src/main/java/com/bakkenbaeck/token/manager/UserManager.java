@@ -46,11 +46,90 @@ public class UserManager {
         return this;
     }
 
+    private void initDatabase() {
+        this.dbThreadExecutor = Executors.newSingleThreadExecutor();
+        this.dbThreadExecutor.submit((Runnable) () -> UserManager.this.userStore = new UserStore());
+    }
+
+    private void initUser() {
+        this.prefs = BaseApplication.get().getSharedPreferences(FileNames.USER_PREFS, Context.MODE_PRIVATE);
+        if (!userExistsInPrefs()) {
+            registerNewUser();
+        } else {
+            getExistingUser();
+        }
+    }
+
+    private boolean userExistsInPrefs() {
+        final String userId = this.prefs.getString(USER_ID, null);
+        final String expectedAddress = wallet.getOwnerAddress();
+        return userId != null && userId.equals(expectedAddress);
+    }
+
+    private void registerNewUser() {
+        IdService
+            .getApi()
+            .getTimestamp()
+            .subscribe(this::registerNewUserWithTimestamp, this::handleError);
+    }
+
+    private void handleError(final Throwable throwable) {
+        LogUtil.e(getClass(), "Unable to register user");
+        throw new RuntimeException(throwable);
+    }
+
+    private void registerNewUserWithTimestamp(final ServerTime serverTime) {
+        final UserDetails ud = new UserDetails().setPaymentAddress(this.wallet.getPaymentAddress());
+
+        IdService
+                .getApi()
+                .registerUser(ud, serverTime.get())
+                .subscribe(this::updateCurrentUser, this::handleUserRegistrationFailed);
+    }
+
+    private void handleUserRegistrationFailed(final Throwable throwable) {
+        LogUtil.error(getClass(), throwable.toString());
+        if (throwable instanceof HttpException && ((HttpException)throwable).code() == 400) {
+            getExistingUser();
+        }
+    }
+
+    private void getExistingUser() {
+        IdService.getApi()
+                .getUser(this.wallet.getOwnerAddress())
+                .subscribe(this::updateCurrentUser);
+    }
+
+    private void updateCurrentUser(final User user) {
+        prefs
+            .edit()
+            .putString(USER_ID, user.getOwnerAddress())
+            .apply();
+        this.userSubject.onNext(user);
+    }
+
+    public void updateUser(final UserDetails userDetails, final SingleSubscriber<Void> completionCallback) {
+        IdService
+                .getApi()
+                .getTimestamp()
+                .subscribe((st) -> updateUserWithTimestamp(userDetails, st, completionCallback), completionCallback::onError);
+    }
+
+    private void updateUserWithTimestamp(
+            final UserDetails userDetails,
+            final ServerTime serverTime,
+            final SingleSubscriber<Void> completionCallback) {
+
+        IdService.getApi()
+                .updateUser(this.wallet.getOwnerAddress(), userDetails, serverTime.get())
+                .subscribe(this::updateCurrentUser, completionCallback::onError);
+    }
+
     public Observable<User> getUserFromAddress(final String userAddress) {
         return Observable
                 .concat(
-                    this.userStore.loadForAddress(userAddress),
-                    this.fetchAndCacheFromNetwork(userAddress))
+                        this.userStore.loadForAddress(userAddress),
+                        this.fetchAndCacheFromNetwork(userAddress))
                 .subscribeOn(Schedulers.from(this.dbThreadExecutor))
                 .observeOn(Schedulers.from(this.dbThreadExecutor))
                 .first(user -> user != null && !user.needsRefresh());
@@ -74,122 +153,11 @@ public class UserManager {
         this.userStore.save(user);
     }
 
-    public void updateUser(final UserDetails userDetails, final SingleSubscriber<Void> completionCallback) {
-        IdService
-            .getApi()
-            .getTimestamp()
-            .subscribe(new SingleSubscriber<ServerTime>() {
-                @Override
-                public void onSuccess(final ServerTime serverTime) {
-                    final long timestamp = serverTime.get();
-                    updateUserWithTimestamp(userDetails, timestamp, completionCallback);
-                    this.unsubscribe();
-                }
-
-                @Override
-                public void onError(final Throwable error) {
-                    this.unsubscribe();
-                    completionCallback.onError(error);
-                }
-            });
-    }
-
-    private void initDatabase() {
-        this.dbThreadExecutor = Executors.newSingleThreadExecutor();
-        this.dbThreadExecutor.submit((Runnable) () -> UserManager.this.userStore = new UserStore());
-    }
-
-    private void initUser() {
-        this.prefs = BaseApplication.get().getSharedPreferences(FileNames.USER_PREFS, Context.MODE_PRIVATE);
-        if (!userExistsInPrefs()) {
-            registerNewUser();
-        } else {
-            getExistingUser();
-        }
-    }
-
-    private boolean userExistsInPrefs() {
-        final String userId = this.prefs.getString(USER_ID, null);
-        final String expectedAddress = wallet.getOwnerAddress();
-        return userId != null && userId.equals(expectedAddress);
-    }
-
-    private void registerNewUser() {
-        IdService.getApi()
-        .getTimestamp()
-        .subscribe(new SingleSubscriber<ServerTime>() {
-            @Override
-            public void onSuccess(final ServerTime serverTime) {
-                final long timestamp = serverTime.get();
-                registerNewUserWithTimestamp(timestamp);
-                this.unsubscribe();
-            }
-
-            @Override
-            public void onError(final Throwable error) {
-                LogUtil.e(getClass(), error.toString());
-                this.unsubscribe();
-            }
-        });
-    }
-
-    private void registerNewUserWithTimestamp(final long timestamp) {
-        final UserDetails ud = new UserDetails().setPaymentAddress(this.wallet.getPaymentAddress());
-
-        IdService.getApi()
-                .registerUser(ud, timestamp)
-                .subscribe(newUserSubscriber);
-    }
-
-    private final SingleSubscriber<User> newUserSubscriber = new SingleSubscriber<User>() {
-
-        @Override
-        public void onSuccess(final User user) {
-            updateCurrentUser(user);
-        }
-
-        @Override
-        public void onError(final Throwable error) {
-            LogUtil.error(getClass(), error.toString());
-            if (error instanceof HttpException && ((HttpException)error).code() == 400) {
-                getExistingUser();
-            }
-        }
-    };
-
-    private void updateCurrentUser(final User user) {
-        prefs.edit()
-                .putString(USER_ID, user.getOwnerAddress())
-                .apply();
-        this.userSubject.onNext(user);
-    }
-
-    private void getExistingUser() {
-        IdService.getApi()
-                .getUser(this.wallet.getOwnerAddress())
-                .subscribe(this.newUserSubscriber);
-    }
-
-    private void updateUserWithTimestamp(
-            final UserDetails userDetails,
-            final long timestamp,
-            final SingleSubscriber<Void> completionCallback) {
-
-        IdService.getApi()
-                .updateUser(this.wallet.getOwnerAddress(), userDetails, timestamp)
-                .subscribe(new SingleSubscriber<User>() {
-                    @Override
-                    public void onSuccess(final User user) {
-                        updateCurrentUser(user);
-                        completionCallback.onSuccess(null);
-                    }
-
-                    @Override
-                    public void onError(final Throwable error) {
-                        this.unsubscribe();
-                        completionCallback.onError(error);
-                    }
-                });
+    public Single<List<User>> searchByUsername(final String query) {
+        return this.userStore
+                .queryUsername(query)
+                .subscribeOn(Schedulers.from(this.dbThreadExecutor))
+                .observeOn(Schedulers.from(this.dbThreadExecutor));
     }
 
 }
