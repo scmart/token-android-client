@@ -7,7 +7,6 @@ import android.support.v4.app.ActivityCompat;
 import android.view.View;
 
 import com.bakkenbaeck.token.crypto.HDWallet;
-import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.util.FileNames;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.BackupPhraseVerifyActivity;
@@ -15,35 +14,45 @@ import com.bakkenbaeck.token.view.activity.MainActivity;
 
 import java.util.Arrays;
 
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 public class BackupPhraseVerifyPresenter implements Presenter<BackupPhraseVerifyActivity> {
 
     public static final String BACKUP_PHRASE_STATE = "back_phrase_state";
 
     private BackupPhraseVerifyActivity activity;
+    private CompositeSubscription subscriptions;
+    private boolean firstTimeAttaching = true;
 
     @Override
     public void onViewAttached(BackupPhraseVerifyActivity view) {
         this.activity = view;
+
+        if (this.firstTimeAttaching) {
+            this.firstTimeAttaching = false;
+            initLongLivingObjects();
+        }
+
         addBackupPhrase();
         initListeners();
     }
 
+    private void initLongLivingObjects() {
+        this.subscriptions = new CompositeSubscription();
+    }
+
     private void addBackupPhrase() {
-        BaseApplication.get()
+        final Subscription sub = BaseApplication.get()
                 .getTokenManager()
                 .getWallet()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleSuccessSubscriber<HDWallet>() {
-                    @Override
-                    public void onSuccess(HDWallet hdWallet) {
-                        handleBackupPhraseCallback(hdWallet);
-                        this.unsubscribe();
-                    }
-                });
+                .subscribe(this::handleBackupPhraseCallback);
+
+        this.subscriptions.add(sub);
     }
 
     private void handleBackupPhraseCallback(final HDWallet wallet) {
@@ -78,6 +87,7 @@ public class BackupPhraseVerifyPresenter implements Presenter<BackupPhraseVerify
 
     @Override
     public void onViewDestroyed() {
+        this.subscriptions.clear();
         this.activity = null;
     }
 }
