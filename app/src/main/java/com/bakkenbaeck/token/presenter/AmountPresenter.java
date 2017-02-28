@@ -113,7 +113,7 @@ public class AmountPresenter implements Presenter<AmountActivity> {
     }
 
     private void handleValueClicked(final char value) {
-        if (value == separator) {
+        if (value == this.separator) {
             handleSeparatorClicked();
         } else {
             updateValue(value);
@@ -124,11 +124,11 @@ public class AmountPresenter implements Presenter<AmountActivity> {
         final String currentLocalValue = this.activity.getBinding().localValue.getText().toString();
 
         // Only allow a single decimal separator
-        if (currentLocalValue.indexOf(separator) >= 0) {
+        if (currentLocalValue.indexOf(this.separator) >= 0) {
             return;
         }
 
-        updateValue(separator);
+        updateValue(this.separator);
     }
 
     private void updateValue(final char value) {
@@ -142,12 +142,13 @@ public class AmountPresenter implements Presenter<AmountActivity> {
             return;
         }
 
-        if (currentLocalValue.length() == 0 && value == zero) {
+        if (currentLocalValue.length() == 0 && value == this.zero) {
             return;
         }
 
-        if (currentLocalValue.length() == 0 && value == separator) {
-            this.activity.getBinding().localValue.setText(String.valueOf(zero) + String.valueOf(separator));
+        if (currentLocalValue.length() == 0 && value == this.separator) {
+            final String localValue = String.format("%s%s", String.valueOf(this.zero), String.valueOf(this.separator));
+            this.activity.getBinding().localValue.setText(localValue);
             return;
         }
 
@@ -174,11 +175,11 @@ public class AmountPresenter implements Presenter<AmountActivity> {
     @NonNull
     private BigDecimal getLocalValueAsBigDecimal() {
         final String currentLocalValue = this.activity.getBinding().localValue.getText().toString();
-        if (currentLocalValue.length() == 0 || currentLocalValue.equals(String.valueOf(separator))) {
+        if (currentLocalValue.length() == 0 || currentLocalValue.equals(String.valueOf(this.separator))) {
             return BigDecimal.ZERO;
         }
 
-        final String[] parts = currentLocalValue.split(String.valueOf(separator));
+        final String[] parts = currentLocalValue.split(String.valueOf(this.separator));
         final String integerPart = parts.length == 0 ? currentLocalValue : parts[0];
         final String fractionalPart = parts.length < 2 ? "0" : parts[1];
         final String fullValue = integerPart + "." + fractionalPart;
