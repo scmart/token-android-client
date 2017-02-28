@@ -55,6 +55,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
+import rx.subscriptions.CompositeSubscription;
 
 
 public final class ChatPresenter implements
@@ -69,7 +70,7 @@ public final class ChatPresenter implements
     private SpeedyLinearLayoutManager layoutManager;
     private SofaAdapters adapters;
     private HDWallet userWallet;
-    private Subscription getUserSubscription;
+    private CompositeSubscription subscriptions;
     private Dialog notEnoughFundsDialog;
     private boolean firstViewAttachment = true;
     private int lastVisibleMessagePosition;
@@ -86,20 +87,20 @@ public final class ChatPresenter implements
     }
 
     private void initLongLivingObjects() {
+        this.subscriptions = new CompositeSubscription();
         initMessageAdapter();
         initPendingTransactionStore();
+        initSubscribers();
+    }
 
-        BaseApplication.get()
+    private void initSubscribers() {
+        final Subscription sub = BaseApplication.get()
                 .getTokenManager()
                 .getWallet()
                 .subscribeOn(Schedulers.io())
-                .subscribe(new SingleSuccessSubscriber<HDWallet>() {
-                    @Override
-                    public void onSuccess(final HDWallet wallet) {
-                        userWallet = wallet;
-                        this.unsubscribe();
-                    }
-                });
+                .subscribe(wallet -> this.userWallet = wallet);
+
+        this.subscriptions.add(sub);
     }
 
     private void initMessageAdapter() {
@@ -110,7 +111,7 @@ public final class ChatPresenter implements
     }
 
     private void initPendingTransactionStore() {
-        BaseApplication
+        final Subscription sub = BaseApplication
                 .get()
                 .getTokenManager()
                 .getTransactionManager()
@@ -118,6 +119,8 @@ public final class ChatPresenter implements
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handlePendingTransactionChange);
+
+        this.subscriptions.add(sub);
     }
 
     private void initShortLivingObjects() {
@@ -164,11 +167,7 @@ public final class ChatPresenter implements
     }
 
     private void fetchUserFromAddress(final String remoteUserAddress) {
-        if (this.getUserSubscription != null) {
-            this.getUserSubscription.unsubscribe();
-        }
-
-        this.getUserSubscription =
+        final Subscription sub =
                 BaseApplication
                         .get()
                         .getTokenManager()
@@ -177,6 +176,8 @@ public final class ChatPresenter implements
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(this::handleUserLoaded, this::handleUserFetchFailed);
+
+        this.subscriptions.add(sub);
     }
 
     private void handleUserLoaded(final User user) {
@@ -211,13 +212,6 @@ public final class ChatPresenter implements
 
     private void initChatMessageStore(final User remoteUser) {
         ChatNotificationManager.suppressNotificationsForConversation(remoteUser.getOwnerAddress());
-        BaseApplication
-                .get()
-                .getTokenManager()
-                .getSofaMessageManager()
-                .loadConversation(remoteUser.getOwnerAddress())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleConversationLoaded);
 
         final Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> observables =
                 BaseApplication
@@ -226,14 +220,25 @@ public final class ChatPresenter implements
                 .getSofaMessageManager()
                 .registerForConversationChanges(remoteUser.getOwnerAddress());
 
-        observables.first
+        final Subscription subConversationLoaded = BaseApplication
+                .get()
+                .getTokenManager()
+                .getSofaMessageManager()
+                .loadConversation(remoteUser.getOwnerAddress())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this.handleConversationLoaded);
+
+        final Subscription subNewMessage = observables.first
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleNewMessage);
-        observables.second
+
+        final Subscription subUpdateMessage = observables.second
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleUpdatedMessage);
+
+        this.subscriptions.addAll(subConversationLoaded, subNewMessage, subUpdateMessage);
     }
 
     private void initLoadingSpinner(final User remoteUser) {
@@ -545,39 +550,6 @@ public final class ChatPresenter implements
         }
     }
 
-    @Override
-    public void onViewDetached() {
-        if (this.notEnoughFundsDialog != null) {
-            this.notEnoughFundsDialog.dismiss();
-        }
-        this.lastVisibleMessagePosition = this.layoutManager.findLastVisibleItemPosition();
-        this.activity = null;
-    }
-
-    @Override
-    public void onViewDestroyed() {
-        if (this.messageAdapter != null) {
-            this.messageAdapter = null;
-        }
-
-        if (this.getUserSubscription != null) {
-            this.getUserSubscription.unsubscribe();
-            this.getUserSubscription = null;
-        }
-
-        this.handleNewMessage.unsubscribe();
-        this.handleUpdatedMessage.unsubscribe();
-
-        BaseApplication
-                .get()
-                .getTokenManager()
-                .getSofaMessageManager()
-                .stopListeningForConversationChanges();
-
-        ChatNotificationManager.stopNotificationSuppresion();
-        this.activity = null;
-    }
-
     private final View.OnClickListener backButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(final View v) {
@@ -659,5 +631,31 @@ public final class ChatPresenter implements
         final Intent intent = new Intent(this.activity, ViewUserActivity.class)
                 .putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, this.remoteUser.getOwnerAddress());
         this.activity.startActivity(intent);
+    }
+
+    @Override
+    public void onViewDetached() {
+        if (this.notEnoughFundsDialog != null) {
+            this.notEnoughFundsDialog.dismiss();
+        }
+        this.lastVisibleMessagePosition = this.layoutManager.findLastVisibleItemPosition();
+        this.activity = null;
+    }
+
+    @Override
+    public void onViewDestroyed() {
+        this.messageAdapter = null;
+        this.subscriptions.clear();
+        this.handleNewMessage.unsubscribe();
+        this.handleUpdatedMessage.unsubscribe();
+
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getSofaMessageManager()
+                .stopListeningForConversationChanges();
+
+        ChatNotificationManager.stopNotificationSuppresion();
+        this.activity = null;
     }
 }
