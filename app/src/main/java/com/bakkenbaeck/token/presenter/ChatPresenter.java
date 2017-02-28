@@ -20,7 +20,6 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.model.local.ActivityResultHolder;
 import com.bakkenbaeck.token.model.local.Conversation;
-import com.bakkenbaeck.token.model.local.PendingTransaction;
 import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.sofa.Command;
@@ -32,10 +31,8 @@ import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
 import com.bakkenbaeck.token.util.LogUtil;
-import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.PaymentType;
-import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.util.SoundManager;
 import com.bakkenbaeck.token.view.Animation.SlideUpAnimator;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -43,7 +40,6 @@ import com.bakkenbaeck.token.view.activity.AmountActivity;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
-import com.bakkenbaeck.token.view.custom.ControlView;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 import com.bakkenbaeck.token.view.notification.ChatNotificationManager;
 import com.bumptech.glide.Glide;
@@ -93,21 +89,21 @@ public final class ChatPresenter implements
         initSubscribers();
     }
 
-    private void initSubscribers() {
-        final Subscription sub = BaseApplication.get()
-                .getTokenManager()
-                .getWallet()
-                .subscribeOn(Schedulers.io())
-                .subscribe(wallet -> this.userWallet = wallet);
-
-        this.subscriptions.add(sub);
-    }
-
     private void initMessageAdapter() {
         this.adapters = new SofaAdapters();
         this.messageAdapter = new MessageAdapter()
                 .addOnPaymentRequestApproveListener(message -> updatePaymentRequestState(message, PaymentRequest.ACCEPTED))
                 .addOnPaymentRequestRejectListener(message -> updatePaymentRequestState(message, PaymentRequest.REJECTED));
+    }
+
+    private void updatePaymentRequestState(
+            final SofaMessage existingMessage,
+            final @PaymentRequest.State int newState) {
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getTransactionManager()
+                .updatePaymentRequestState(this.remoteUser, existingMessage, newState);
     }
 
     private void initPendingTransactionStore() {
@@ -118,7 +114,21 @@ public final class ChatPresenter implements
                 .getPendingTransactionObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handlePendingTransactionChange);
+                .subscribe(pendingTransaction -> handleUpdatedMessage(pendingTransaction.getSofaMessage()));
+
+        this.subscriptions.add(sub);
+    }
+
+    private void handleUpdatedMessage(final SofaMessage sofaMessage) {
+        this.messageAdapter.updateMessage(sofaMessage);
+    }
+
+    private void initSubscribers() {
+        final Subscription sub = BaseApplication.get()
+                .getTokenManager()
+                .getWallet()
+                .subscribeOn(Schedulers.io())
+                .subscribe(wallet -> this.userWallet = wallet);
 
         this.subscriptions.add(sub);
     }
@@ -133,132 +143,9 @@ public final class ChatPresenter implements
         initLoadingSpinner(this.remoteUser);
     }
 
-    private void processIntentData() {
-        if (this.remoteUser == null) {
-            final String remoteUserAddress = this.activity.getIntent().getStringExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS);
-            fetchUserFromAddress(remoteUserAddress);
-            return;
-        }
-
-        updateUiFromRemoteUser();
-        processPaymentFromIntent();
-    }
-
-    private void processPaymentFromIntent() {
-        if (this.remoteUser == null) {
-            return;
-        }
-
-        final String value = this.activity.getIntent().getStringExtra(ChatActivity.EXTRA__ETH_AMOUNT);
-        final int paymentAction = this.activity.getIntent().getIntExtra(ChatActivity.EXTRA__PAYMENT_ACTION, 0);
-
-        this.activity.getIntent().removeExtra(ChatActivity.EXTRA__ETH_AMOUNT);
-        this.activity.getIntent().removeExtra(ChatActivity.EXTRA__PAYMENT_ACTION);
-
-        if (value == null || paymentAction == 0) {
-            return;
-        }
-
-        if (paymentAction == PaymentType.TYPE_SEND) {
-            sendPaymentWithValue(value);
-        } else if (paymentAction == PaymentType.TYPE_REQUEST) {
-            sendPaymentRequestWithValue(value);
-        }
-    }
-
-    private void fetchUserFromAddress(final String remoteUserAddress) {
-        final Subscription sub =
-                BaseApplication
-                        .get()
-                        .getTokenManager()
-                        .getUserManager()
-                        .getUserFromAddress(remoteUserAddress)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(this::handleUserLoaded, this::handleUserFetchFailed);
-
-        this.subscriptions.add(sub);
-    }
-
-    private void handleUserLoaded(final User user) {
-        this.remoteUser = user;
-        if (this.remoteUser != null) {
-            processIntentData();
-        }
-    }
-
-    private void handleUserFetchFailed(final Throwable throwable) {
-        Toast.makeText(BaseApplication.get(), R.string.error__app_loading, Toast.LENGTH_LONG).show();
-        if (this.activity != null) {
-            this.activity.finish();
-        }
-    }
-
-    private void updateUiFromRemoteUser() {
-        initToolbar(this.remoteUser);
-        initChatMessageStore(this.remoteUser);
-        initLoadingSpinner(this.remoteUser);
-    }
-
-    private void initToolbar(final User remoteUser) {
-        this.activity.getBinding().title.setText(remoteUser.getDisplayName());
-        this.activity.getBinding().closeButton.setOnClickListener(this.backButtonClickListener);
-        this.activity.setSupportActionBar(this.activity.getBinding().toolbar);
-        this.activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
-        Glide.with(this.activity.getBinding().avatar.getContext())
-                .load(remoteUser.getAvatar())
-                .into(this.activity.getBinding().avatar);
-    }
-
-    private void initChatMessageStore(final User remoteUser) {
-        ChatNotificationManager.suppressNotificationsForConversation(remoteUser.getOwnerAddress());
-
-        final Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> observables =
-                BaseApplication
-                .get()
-                .getTokenManager()
-                .getSofaMessageManager()
-                .registerForConversationChanges(remoteUser.getOwnerAddress());
-
-        final Subscription subConversationLoaded = BaseApplication
-                .get()
-                .getTokenManager()
-                .getSofaMessageManager()
-                .loadConversation(remoteUser.getOwnerAddress())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleConversationLoaded);
-
-        final Subscription subNewMessage = observables.first
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleNewMessage);
-
-        final Subscription subUpdateMessage = observables.second
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleUpdatedMessage);
-
-        this.subscriptions.addAll(subConversationLoaded, subNewMessage, subUpdateMessage);
-    }
-
-    private void initLoadingSpinner(final User remoteUser) {
-        if (this.activity == null) return;
-        this.activity.getBinding().loadingViewContainer.setVisibility(remoteUser == null ? View.VISIBLE : View.GONE);
-        if (remoteUser == null) {
-            final Animation rotateAnimation = AnimationUtils.loadAnimation(this.activity, R.anim.rotate);
-            this.activity.getBinding().loadingView.startAnimation(rotateAnimation);
-        } else {
-            this.activity.getBinding().loadingView.clearAnimation();
-        }
-    }
-
     private void initLayoutManager() {
         this.layoutManager = new SpeedyLinearLayoutManager(this.activity);
         this.activity.getBinding().messagesList.setLayoutManager(this.layoutManager);
-    }
-
-    private void initControlView() {
-        this.activity.getBinding().controlView.setOnSizeChangedListener(this::setPadding);
     }
 
     private void initAdapterAnimation() {
@@ -287,34 +174,24 @@ public final class ChatPresenter implements
         updateEmptyState();
     }
 
-    private void sendCommandMessage(final Control control) {
-        final Command command = new Command()
-                .setBody(control.getLabel())
-                .setValue(control.getValue());
-        final String commandPayload = adapters.toJson(command);
-        final SofaMessage sofaCommandMessage = new SofaMessage().makeNew(true, commandPayload);
+    private void updateEmptyState() {
+        // Hide empty state if we have some content
+        final boolean showingEmptyState = this.activity.getBinding().emptyStateSwitcher.getCurrentView().getId() == this.activity.getBinding().emptyState.getId();
+        final boolean shouldShowEmptyState = this.messageAdapter.getItemCount() == 0;
 
-        BaseApplication.get()
-                .getTokenManager()
-                .getSofaMessageManager()
-                .sendAndSaveMessage(remoteUser, sofaCommandMessage);
+        if (shouldShowEmptyState && !showingEmptyState) {
+            this.activity.getBinding().emptyStateSwitcher.showPrevious();
+        } else if (!shouldShowEmptyState && showingEmptyState) {
+            this.activity.getBinding().emptyStateSwitcher.showNext();
+        }
     }
 
     private void initButtons() {
         this.activity.getBinding().sendButton.setOnClickListener(this.sendButtonClicked);
         this.activity.getBinding().balanceBar.setOnRequestClicked(this.requestButtonClicked);
         this.activity.getBinding().balanceBar.setOnPayClicked(this.payButtonClicked);
-        this.activity.getBinding().controlView.setOnControlClickedListener(this.controlClicked);
+        this.activity.getBinding().controlView.setOnControlClickedListener(this::handleControlClicked);
     }
-
-    private final ControlView.OnControlClickedListener controlClicked = new ControlView.OnControlClickedListener() {
-        @Override
-        public void onControlClicked(Control control) {
-            activity.getBinding().controlView.hideView();
-            removePadding();
-            sendCommandMessage(control);
-        }
-    };
 
     private final OnSingleClickListener sendButtonClicked = new OnSingleClickListener() {
         @Override
@@ -358,32 +235,259 @@ public final class ChatPresenter implements
         }
     };
 
-    private void updatePaymentRequestState(
-            final SofaMessage existingMessage,
-            final @PaymentRequest.State int newState) {
-        BaseApplication
-            .get()
-            .getTokenManager()
-            .getTransactionManager()
-            .updatePaymentRequestState(remoteUser, existingMessage, newState);
+    private void handleControlClicked(final Control control) {
+        this.activity.getBinding().controlView.hideView();
+        removePadding();
+        sendCommandMessage(control);
     }
 
-    private final OnNextSubscriber<SofaMessage> handleNewMessage = new OnNextSubscriber<SofaMessage>() {
-        @Override
-        public void onNext(final SofaMessage sofaMessage) {
-            if (isInitRequest(sofaMessage)) {
-                sendInitMessage(sofaMessage);
-                return;
-            }
+    private void removePadding() {
+        final int paddingRight = this.activity.getBinding().messagesList.getPaddingRight();
+        final int paddingLeft = this.activity.getBinding().messagesList.getPaddingLeft();
+        final int paddingBottom = this.activity.getResources().getDimensionPixelSize(R.dimen.message_list_bottom_padding);
+        this.activity.getBinding().messagesList.setPadding(paddingLeft, 0 , paddingRight, paddingBottom);
+    }
 
-            setControlView(sofaMessage);
-            messageAdapter.addMessage(sofaMessage);
-            updateEmptyState();
-            tryScrollToBottom(true);
-            playNewMessageSound(sofaMessage.isSentByLocal());
-            handleKeyboardVisibility(sofaMessage);
+    private void sendCommandMessage(final Control control) {
+        final Command command = new Command()
+                .setBody(control.getLabel())
+                .setValue(control.getValue());
+        final String commandPayload = adapters.toJson(command);
+        final SofaMessage sofaCommandMessage = new SofaMessage().makeNew(true, commandPayload);
+
+        BaseApplication.get()
+                .getTokenManager()
+                .getSofaMessageManager()
+                .sendAndSaveMessage(remoteUser, sofaCommandMessage);
+    }
+
+    private void initControlView() {
+        this.activity.getBinding().controlView.setOnSizeChangedListener(this::setPadding);
+    }
+
+    private void setPadding(final int height) {
+        final int paddingRight = this.activity.getBinding().messagesList.getPaddingRight();
+        final int paddingLeft = this.activity.getBinding().messagesList.getPaddingLeft();
+        this.activity.getBinding().messagesList.setPadding(paddingLeft, 0 , paddingRight, height);
+        this.activity.getBinding().messagesList.scrollToPosition(this.messageAdapter.getItemCount() - 1);
+    }
+
+    private void processIntentData() {
+        if (this.remoteUser == null) {
+            final String remoteUserAddress = this.activity.getIntent().getStringExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS);
+            fetchUserFromAddress(remoteUserAddress);
+            return;
         }
-    };
+
+        updateUiFromRemoteUser();
+        processPaymentFromIntent();
+    }
+
+    private void fetchUserFromAddress(final String remoteUserAddress) {
+        final Subscription sub =
+                BaseApplication
+                        .get()
+                        .getTokenManager()
+                        .getUserManager()
+                        .getUserFromAddress(remoteUserAddress)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(this::handleUserLoaded, this::handleUserFetchFailed);
+
+        this.subscriptions.add(sub);
+    }
+
+    private void handleUserLoaded(final User user) {
+        this.remoteUser = user;
+        if (this.remoteUser != null) {
+            processIntentData();
+        }
+    }
+
+    private void handleUserFetchFailed(final Throwable throwable) {
+        Toast.makeText(BaseApplication.get(), R.string.error__app_loading, Toast.LENGTH_LONG).show();
+        if (this.activity != null) {
+            this.activity.finish();
+        }
+    }
+
+    private void updateUiFromRemoteUser() {
+        initToolbar(this.remoteUser);
+        initChatMessageStore(this.remoteUser);
+        initLoadingSpinner(this.remoteUser);
+    }
+
+    private void processPaymentFromIntent() {
+        if (this.remoteUser == null) {
+            return;
+        }
+
+        final String value = this.activity.getIntent().getStringExtra(ChatActivity.EXTRA__ETH_AMOUNT);
+        final int paymentAction = this.activity.getIntent().getIntExtra(ChatActivity.EXTRA__PAYMENT_ACTION, 0);
+
+        this.activity.getIntent().removeExtra(ChatActivity.EXTRA__ETH_AMOUNT);
+        this.activity.getIntent().removeExtra(ChatActivity.EXTRA__PAYMENT_ACTION);
+
+        if (value == null || paymentAction == 0) {
+            return;
+        }
+
+        if (paymentAction == PaymentType.TYPE_SEND) {
+            sendPaymentWithValue(value);
+        } else if (paymentAction == PaymentType.TYPE_REQUEST) {
+            sendPaymentRequestWithValue(value);
+        }
+    }
+
+    private void sendPaymentWithValue(final String value) {
+        BaseApplication.get()
+                .getTokenManager()
+                .getTransactionManager()
+                .sendPayment(remoteUser, value);
+    }
+
+    private void sendPaymentRequestWithValue(final String value) {
+        final PaymentRequest request = new PaymentRequest()
+                .setDestinationAddress(userWallet.getPaymentAddress())
+                .setValue(value);
+        final String messageBody = this.adapters.toJson(request);
+        final SofaMessage message = new SofaMessage().makeNew(true, messageBody);
+
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getSofaMessageManager()
+                .sendAndSaveMessage(remoteUser, message);
+    }
+
+    private void initLoadingSpinner(final User remoteUser) {
+        if (this.activity == null) return;
+        this.activity.getBinding().loadingViewContainer.setVisibility(remoteUser == null ? View.VISIBLE : View.GONE);
+        if (remoteUser == null) {
+            final Animation rotateAnimation = AnimationUtils.loadAnimation(this.activity, R.anim.rotate);
+            this.activity.getBinding().loadingView.startAnimation(rotateAnimation);
+        } else {
+            this.activity.getBinding().loadingView.clearAnimation();
+        }
+    }
+
+    private void initToolbar(final User remoteUser) {
+        this.activity.getBinding().title.setText(remoteUser.getDisplayName());
+        this.activity.getBinding().closeButton.setOnClickListener(this::handleBackButtonClicked);
+        this.activity.setSupportActionBar(this.activity.getBinding().toolbar);
+        this.activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+        Glide.with(this.activity.getBinding().avatar.getContext())
+                .load(remoteUser.getAvatar())
+                .into(this.activity.getBinding().avatar);
+    }
+
+    private void handleBackButtonClicked(final View v) {
+        hideKeyboard();
+        this.activity.onBackPressed();
+    }
+
+    private void initChatMessageStore(final User remoteUser) {
+        ChatNotificationManager.suppressNotificationsForConversation(remoteUser.getOwnerAddress());
+
+        final Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> observables =
+                BaseApplication
+                .get()
+                .getTokenManager()
+                .getSofaMessageManager()
+                .registerForConversationChanges(remoteUser.getOwnerAddress());
+
+        final Subscription subConversationLoaded = BaseApplication
+                .get()
+                .getTokenManager()
+                .getSofaMessageManager()
+                .loadConversation(remoteUser.getOwnerAddress())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleConversationLoaded);
+
+        final Subscription subNewMessage = observables.first
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleNewMessage);
+
+        final Subscription subUpdateMessage = observables.second
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleUpdatedMessage);
+
+        this.subscriptions.addAll(subConversationLoaded, subNewMessage, subUpdateMessage);
+    }
+
+    private void handleConversationLoaded(final Conversation conversation) {
+        if (conversation == null) {
+            return;
+        }
+
+        final RealmList<SofaMessage> messages = conversation.getAllMessages();
+        if (messages.size() > 0) {
+            this.messageAdapter.addMessages(messages);
+            forceScrollToBottom();
+            updateEmptyState();
+
+            final SofaMessage lastSofaMessage = messages.get(messages.size() - 1);
+            setControlView(lastSofaMessage);
+        }
+    }
+
+    private void handleNewMessage(final SofaMessage sofaMessage) {
+        if (isInitRequest(sofaMessage)) {
+            sendInitMessage(sofaMessage);
+            return;
+        }
+
+        setControlView(sofaMessage);
+        this.messageAdapter.addMessage(sofaMessage);
+        updateEmptyState();
+        tryScrollToBottom(true);
+        playNewMessageSound(sofaMessage.isSentByLocal());
+        handleKeyboardVisibility(sofaMessage);
+    }
+
+    private boolean isInitRequest(final SofaMessage sofaMessage) {
+        final String type = SofaType.createHeader(SofaType.INIT_REQUEST);
+        return sofaMessage.getAsSofaMessage().startsWith(type);
+    }
+
+    private void sendInitMessage(final SofaMessage sofaMessage) {
+        if (this.userWallet == null || this.adapters == null) {
+            return;
+        }
+
+        try {
+            final InitRequest initRequest = this.adapters.initRequestFrom(sofaMessage.getPayload());
+            final Init initMessage = new Init().construct(initRequest, this.userWallet.getPaymentAddress());
+            final String payload = this.adapters.toJson(initMessage);
+            final SofaMessage newSofaMessage = new SofaMessage().makeNew(false, payload);
+
+            BaseApplication.get()
+                    .getTokenManager()
+                    .getSofaMessageManager()
+                    .sendMessage(this.remoteUser, newSofaMessage);
+        } catch (IOException e) {
+            LogUtil.e(getClass(), "IOException " + e);
+        }
+    }
+
+    private void tryScrollToBottom(final boolean animate) {
+        if (this.activity == null || this.layoutManager == null || this.messageAdapter.getItemCount() == 0) {
+            return;
+        }
+
+        // Only animate if we're already near the bottom
+        if (this.layoutManager.findLastVisibleItemPosition() < this.messageAdapter.getItemCount() - 3) {
+            return;
+        }
+
+        if (animate) {
+            this.activity.getBinding().messagesList.smoothScrollToPosition(this.messageAdapter.getItemCount() - 1);
+        } else {
+            forceScrollToBottom();
+        }
+    }
 
     private void playNewMessageSound(final boolean sentByLocal) {
         if (sentByLocal) {
@@ -423,66 +527,6 @@ public final class ChatPresenter implements
                 .hideSoftInputFromWindow(activity.getBinding().userInput.getWindowToken(), 0);
     }
 
-    private final OnNextSubscriber<SofaMessage> handleUpdatedMessage = new OnNextSubscriber<SofaMessage>() {
-        @Override
-        public void onNext(final SofaMessage sofaMessage) {
-            messageAdapter.updateMessage(sofaMessage);
-        }
-    };
-
-    private final OnNextSubscriber<PendingTransaction> handlePendingTransactionChange = new OnNextSubscriber<PendingTransaction>() {
-        @Override
-        public void onNext(final PendingTransaction pendingTransaction) {
-            handleUpdatedMessage.onNext(pendingTransaction.getSofaMessage());
-        }
-    };
-
-    private boolean isInitRequest(final SofaMessage sofaMessage) {
-        final String type = SofaType.createHeader(SofaType.INIT_REQUEST);
-        return sofaMessage.getAsSofaMessage().startsWith(type);
-    }
-
-    private void sendInitMessage(final SofaMessage sofaMessage) {
-        if (userWallet == null || adapters == null) {
-            return;
-        }
-
-        try {
-            final InitRequest initRequest = adapters.initRequestFrom(sofaMessage.getPayload());
-            final Init initMessage = new Init().construct(initRequest, this.userWallet.getPaymentAddress());
-            final String payload = adapters.toJson(initMessage);
-            final SofaMessage newSofaMessage = new SofaMessage().makeNew(false, payload);
-
-            BaseApplication.get()
-                    .getTokenManager()
-                    .getSofaMessageManager()
-                    .sendMessage(remoteUser, newSofaMessage);
-        } catch (IOException e) {
-            LogUtil.e(getClass(), "IOException " + e);
-        }
-    }
-
-    private final SingleSuccessSubscriber<Conversation> handleConversationLoaded = new SingleSuccessSubscriber<Conversation>() {
-        @Override
-        public void onSuccess(final Conversation conversation) {
-            if (conversation == null) {
-                return;
-            }
-
-            final RealmList<SofaMessage> messages = conversation.getAllMessages();
-            if (messages.size() > 0) {
-                messageAdapter.addMessages(messages);
-                forceScrollToBottom();
-                updateEmptyState();
-
-                final SofaMessage lastSofaMessage = messages.get(messages.size() - 1);
-                setControlView(lastSofaMessage);
-            }
-
-            this.unsubscribe();
-        }
-    };
-
     private void setControlView(final SofaMessage sofaMessage) {
         if (sofaMessage == null) {
             return;
@@ -503,60 +547,9 @@ public final class ChatPresenter implements
         }
     }
 
-    private void setPadding(final int height) {
-        final int paddingRight = this.activity.getBinding().messagesList.getPaddingRight();
-        final int paddingLeft = this.activity.getBinding().messagesList.getPaddingLeft();
-        this.activity.getBinding().messagesList.setPadding(paddingLeft, 0 , paddingRight, height);
-        this.activity.getBinding().messagesList.scrollToPosition(this.messageAdapter.getItemCount() - 1);
-    }
-
-    private void removePadding() {
-        final int paddingRight = this.activity.getBinding().messagesList.getPaddingRight();
-        final int paddingLeft = this.activity.getBinding().messagesList.getPaddingLeft();
-        final int paddingBottom = this.activity.getResources().getDimensionPixelSize(R.dimen.message_list_bottom_padding);
-        this.activity.getBinding().messagesList.setPadding(paddingLeft, 0 , paddingRight, paddingBottom);
-    }
-
-    private void tryScrollToBottom(final boolean animate) {
-        if (this.activity == null || this.layoutManager == null || this.messageAdapter.getItemCount() == 0) {
-            return;
-        }
-
-        // Only animate if we're already near the bottom
-        if (this.layoutManager.findLastVisibleItemPosition() < this.messageAdapter.getItemCount() - 3) {
-            return;
-        }
-
-        if (animate) {
-            this.activity.getBinding().messagesList.smoothScrollToPosition(this.messageAdapter.getItemCount() - 1);
-        } else {
-            forceScrollToBottom();
-        }
-    }
-
     private void forceScrollToBottom() {
         this.activity.getBinding().messagesList.scrollToPosition(this.messageAdapter.getItemCount() - 1);
     }
-
-    private void updateEmptyState() {
-        // Hide empty state if we have some content
-        final boolean showingEmptyState = this.activity.getBinding().emptyStateSwitcher.getCurrentView().getId() == this.activity.getBinding().emptyState.getId();
-        final boolean shouldShowEmptyState = this.messageAdapter.getItemCount() == 0;
-
-        if (shouldShowEmptyState && !showingEmptyState) {
-            this.activity.getBinding().emptyStateSwitcher.showPrevious();
-        } else if (!shouldShowEmptyState && showingEmptyState) {
-            this.activity.getBinding().emptyStateSwitcher.showNext();
-        }
-    }
-
-    private final View.OnClickListener backButtonClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(final View v) {
-            hideKeyboard();
-            activity.onBackPressed();
-        }
-    };
 
     public void handleActivityResult(final ActivityResultHolder resultHolder) {
         if (resultHolder.getResultCode() != Activity.RESULT_OK) {
@@ -572,13 +565,6 @@ public final class ChatPresenter implements
         }
     }
 
-    private void sendPaymentWithValue(final String value) {
-        BaseApplication.get()
-                .getTokenManager()
-                .getTransactionManager()
-                .sendPayment(remoteUser, value);
-    }
-
     private void showNotEnoughFundsDialog() {
         if (this.activity == null) {
             return;
@@ -591,20 +577,6 @@ public final class ChatPresenter implements
                     dialog.dismiss();
                 })
                 .show();
-    }
-
-    private void sendPaymentRequestWithValue(final String value) {
-        final PaymentRequest request = new PaymentRequest()
-                .setDestinationAddress(userWallet.getPaymentAddress())
-                .setValue(value);
-        final String messageBody = this.adapters.toJson(request);
-        final SofaMessage message = new SofaMessage().makeNew(true, messageBody);
-
-        BaseApplication
-                .get()
-                .getTokenManager()
-                .getSofaMessageManager()
-                .sendAndSaveMessage(remoteUser, message);
     }
 
     public void handleActionMenuClicked(final MenuItem item) {
@@ -646,16 +618,16 @@ public final class ChatPresenter implements
     public void onViewDestroyed() {
         this.messageAdapter = null;
         this.subscriptions.clear();
-        this.handleNewMessage.unsubscribe();
-        this.handleUpdatedMessage.unsubscribe();
+        stopListeningForConversationChanges();
+        ChatNotificationManager.stopNotificationSuppresion();
+        this.activity = null;
+    }
 
+    private void stopListeningForConversationChanges() {
         BaseApplication
                 .get()
                 .getTokenManager()
                 .getSofaMessageManager()
                 .stopListeningForConversationChanges();
-
-        ChatNotificationManager.stopNotificationSuppresion();
-        this.activity = null;
     }
 }
