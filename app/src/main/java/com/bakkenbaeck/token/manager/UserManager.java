@@ -188,7 +188,7 @@ public class UserManager {
             .getTimestamp()
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
-            .flatMap((st) -> webLoginWithTimestamp(loginToken, st));
+            .flatMap((serverTime) -> webLoginWithTimestamp(loginToken, serverTime));
     }
 
     private Single<Void> webLoginWithTimestamp(final String loginToken, final ServerTime serverTime) {

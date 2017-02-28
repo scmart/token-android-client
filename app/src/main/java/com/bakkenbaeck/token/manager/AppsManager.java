@@ -24,8 +24,8 @@ public class AppsManager {
         return DirectoryService
                 .getApi()
                 .getApps()
-                .first((r) -> r.code() == 200)
-                .flatMap((r) -> Observable.just(r.body().getApps()));
+                .first((response) -> response.code() == 200)
+                .flatMap(response -> Observable.just(response.body().getApps()));
     }
 
     public Observable<List<App>> getFeaturedApps() {
@@ -33,15 +33,15 @@ public class AppsManager {
                 .getApi()
                 .getFeaturedApps()
                 .subscribeOn(Schedulers.io())
-                .first((r) -> r.code() == 200)
-                .flatMap((r) -> Observable.just(r.body().getApps()));
+                .first((response) -> response.code() == 200)
+                .flatMap((response) -> Observable.just(response.body().getApps()));
     }
     public Observable<List<App>> searchApps(final String query) {
         return DirectoryService
                 .getApi()
                 .searchApps(query)
                 .subscribeOn(Schedulers.io())
-                .first((r) -> r.code() == 200)
-                .flatMap((r) -> Observable.just(r.body().getApps()));
+                .first((response) -> response.code() == 200)
+                .flatMap((response) -> Observable.just(response.body().getApps()));
     }
 }
