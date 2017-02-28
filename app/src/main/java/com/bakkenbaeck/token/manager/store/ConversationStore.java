@@ -95,9 +95,14 @@ public class ConversationStore {
     }
 
     private Conversation loadWhere(final String fieldName, final String value) {
-        final RealmQuery<Conversation> query = realm.where(Conversation.class);
-        query.equalTo(fieldName, value);
-        return query.findFirst();
+        final Conversation result = realm
+                .where(Conversation.class)
+                .equalTo(fieldName, value)
+                .findFirst();
+        if (result == null) {
+            return null;
+        }
+        return realm.copyFromRealm(result);
     }
 
     public void updateMessage(final User user, final SofaMessage message) {

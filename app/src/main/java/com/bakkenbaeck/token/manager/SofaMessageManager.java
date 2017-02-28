@@ -3,6 +3,7 @@ package com.bakkenbaeck.token.manager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Pair;
 
 import com.bakkenbaeck.token.BuildConfig;
 import com.bakkenbaeck.token.R;
@@ -13,6 +14,7 @@ import com.bakkenbaeck.token.crypto.signal.model.DecryptedSignalMessage;
 import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
 import com.bakkenbaeck.token.crypto.signal.store.SignalTrustStore;
 import com.bakkenbaeck.token.manager.model.SofaMessageTask;
+import com.bakkenbaeck.token.model.local.Conversation;
 import com.bakkenbaeck.token.model.local.SendState;
 import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.User;
@@ -59,6 +61,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import rx.Single;
 import rx.SingleSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
@@ -153,6 +156,20 @@ public final class SofaMessageManager {
             this.messagePipe.shutdown();
             this.messagePipe = null;
         }
+    }
+
+    public final Single<Conversation> loadConversation(final String conversationId) {
+        return this.conversationStore.loadByAddress(conversationId);
+    }
+
+    // Returns a pair of RxSubjects, the first being the observable for new messages
+    // the second being the observable for updated messages.
+    public final Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> registerForConversationChanges(final String conversationId) {
+        return this.conversationStore.registerForChanges(conversationId);
+    }
+
+    public final void stopListeningForConversationChanges() {
+        this.conversationStore.stopListeningForChanges();
     }
 
     private void initEverything() {

@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
+import com.bakkenbaeck.token.manager.store.ConversationStore;
 import com.bakkenbaeck.token.model.local.ActivityResultHolder;
 import com.bakkenbaeck.token.model.local.Conversation;
 import com.bakkenbaeck.token.model.local.PendingTransaction;
@@ -34,8 +35,6 @@ import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
-import com.bakkenbaeck.token.manager.store.ConversationStore;
-import com.bakkenbaeck.token.manager.store.PendingTransactionStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
@@ -73,7 +72,6 @@ public final class ChatPresenter implements
 
     private ChatActivity activity;
     private MessageAdapter messageAdapter;
-    private ConversationStore conversationStore;
     private User remoteUser;
     private SpeedyLinearLayoutManager layoutManager;
     private SofaAdapters adapters;
@@ -114,8 +112,8 @@ public final class ChatPresenter implements
     private void initMessageAdapter() {
         this.adapters = new SofaAdapters();
         this.messageAdapter = new MessageAdapter()
-                .addOnPaymentRequestApproveListener(this.handlePaymentRequestApprove)
-                .addOnPaymentRequestRejectListener(this.handlePaymentRequestReject);
+                .addOnPaymentRequestApproveListener(message -> updatePaymentRequestState(message, PaymentRequest.ACCEPTED))
+                .addOnPaymentRequestRejectListener(message -> updatePaymentRequestState(message, PaymentRequest.REJECTED));
     }
 
     private void initPendingTransactionStore() {
@@ -219,14 +217,23 @@ public final class ChatPresenter implements
     }
 
     private void initChatMessageStore(final User remoteUser) {
-        if (this.conversationStore != null) {
-            return;
-        }
-
         ChatNotificationManager.suppressNotificationsForConversation(remoteUser.getOwnerAddress());
-        this.conversationStore = new ConversationStore();
-        final Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> observables
-                = this.conversationStore.registerForChanges(remoteUser.getOwnerAddress());
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getSofaMessageManager()
+                .loadConversation(remoteUser.getOwnerAddress())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this.handleConversationLoaded);
+
+        final Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> observables =
+                BaseApplication
+                .get()
+                .getTokenManager()
+                .getSofaMessageManager()
+                .registerForConversationChanges(remoteUser.getOwnerAddress());
+
         observables.first
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -235,9 +242,6 @@ public final class ChatPresenter implements
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleUpdatedMessage);
-        this.conversationStore.loadByAddress(remoteUser.getOwnerAddress())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleConversationLoaded);
     }
 
     private void initLoadingSpinner(final User remoteUser) {
@@ -359,39 +363,14 @@ public final class ChatPresenter implements
         }
     };
 
-    private final OnItemClickListener<SofaMessage> handlePaymentRequestApprove = new OnItemClickListener<SofaMessage>() {
-        @Override
-        public void onItemClick(final SofaMessage existingMessage) {
-            final PaymentRequest request = updatePaymentRequestState(existingMessage, PaymentRequest.ACCEPTED);
-            sendPaymentWithValue(request.getValue());
-        }
-    };
-
-    private final OnItemClickListener<SofaMessage> handlePaymentRequestReject = new OnItemClickListener<SofaMessage>() {
-        @Override
-        public void onItemClick(final SofaMessage existingMessage) {
-            updatePaymentRequestState(existingMessage, PaymentRequest.REJECTED);
-        }
-    };
-
-    private PaymentRequest updatePaymentRequestState(
+    private void updatePaymentRequestState(
             final SofaMessage existingMessage,
             final @PaymentRequest.State int newState) {
-        try {
-            final PaymentRequest paymentRequest = adapters
-                    .txRequestFrom(existingMessage.getPayload())
-                    .setState(newState);
-
-            final String updatedPayload = adapters.toJson(paymentRequest);
-            final SofaMessage updatedMessage = new SofaMessage(existingMessage).setPayload(updatedPayload);
-
-            conversationStore.updateMessage(remoteUser, updatedMessage);
-            return paymentRequest;
-
-        } catch (final IOException ex) {
-            LogUtil.e(ChatPresenter.this.getClass(), "Error change Payment Request state. " + ex);
-        }
-        return null;
+        BaseApplication
+            .get()
+            .getTokenManager()
+            .getTransactionManager()
+            .updatePaymentRequestState(remoteUser, existingMessage, newState);
     }
 
     private final OnNextSubscriber<SofaMessage> handleNewMessage = new OnNextSubscriber<SofaMessage>() {
@@ -599,10 +578,11 @@ public final class ChatPresenter implements
         this.handleNewMessage.unsubscribe();
         this.handleUpdatedMessage.unsubscribe();
 
-        if (this.conversationStore != null) {
-            this.conversationStore.stopListeningForChanges();
-            this.conversationStore = null;
-        }
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getSofaMessageManager()
+                .stopListeningForConversationChanges();
 
         ChatNotificationManager.stopNotificationSuppresion();
         this.activity = null;
@@ -633,36 +613,8 @@ public final class ChatPresenter implements
     private void sendPaymentWithValue(final String value) {
         BaseApplication.get()
                 .getTokenManager()
-                .getBalanceManager()
-                .getBalanceObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new OnNextSubscriber<Balance>() {
-                    @Override
-                    public void onNext(Balance balance) {
-                        this.unsubscribe();
-                        trySendPayment(balance, value);
-                    }
-                });
-    }
-
-    private void trySendPayment(final Balance balance, final String value) {
-        final BigInteger paymentAmount = TypeConverter.StringHexToBigInteger(value);
-        final BigInteger localAmount = balance.getConfirmedBalance();
-        if (localAmount.compareTo(paymentAmount) == -1) {
-            showNotEnoughFundsDialog();
-            return;
-        }
-
-        final Payment payment = new Payment()
-                .setValue(value)
-                .setFromAddress(userWallet.getPaymentAddress())
-                .setToAddress(remoteUser.getPaymentAddress());
-
-        BaseApplication.get()
-                .getTokenManager()
                 .getTransactionManager()
-                .sendPayment(remoteUser, payment);
+                .sendPayment(remoteUser, value);
     }
 
     private void showNotEnoughFundsDialog() {
