@@ -211,7 +211,6 @@ public final class ChatPresenter implements
         this.activity.getBinding().closeButton.setOnClickListener(this.backButtonClickListener);
         this.activity.setSupportActionBar(this.activity.getBinding().toolbar);
         this.activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
-
         Glide.with(this.activity.getBinding().avatar.getContext())
                 .load(remoteUser.getAvatar())
                 .into(this.activity.getBinding().avatar);
@@ -594,10 +593,15 @@ public final class ChatPresenter implements
             this.getUserSubscription.unsubscribe();
             this.getUserSubscription = null;
         }
+
         this.handleNewMessage.unsubscribe();
         this.handleUpdatedMessage.unsubscribe();
-        this.conversationStore.stopListeningForChanges();
-        this.conversationStore = null;
+
+        if (this.conversationStore != null) {
+            this.conversationStore.stopListeningForChanges();
+            this.conversationStore = null;
+        }
+
         ChatNotificationManager.stopNotificationSuppresion();
         this.activity = null;
     }

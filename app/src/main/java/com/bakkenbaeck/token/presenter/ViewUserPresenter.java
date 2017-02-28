@@ -3,26 +3,25 @@ package com.bakkenbaeck.token.presenter;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.content.res.AppCompatResources;
 import android.view.View;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.databinding.ActivityScanResultBinding;
 import com.bakkenbaeck.token.model.local.User;
-import com.bakkenbaeck.token.network.IdService;
 import com.bakkenbaeck.token.presenter.store.ContactStore;
 import com.bakkenbaeck.token.presenter.store.UserStore;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.util.SoundManager;
+import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 
-import rx.SingleSubscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -66,52 +65,35 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     }
 
     private void loadOrFetchUser(final String userAddress) {
-        this.userStore
-                .loadForAddress(userAddress)
-                .subscribe(new SingleSubscriber<User>() {
-                    @Override
-                    public void onSuccess(final User user) {
-                        if (user == null) {
-                            fetchContactFromServer();
-                            return;
-                        }
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .getUserFromAddress(userAddress)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleUserLoaded, this::handleUserLoadingFailed);
+    }
 
-                        handleUserLoaded(user);
-                    }
-
-                    @Override
-                    public void onError(final Throwable error) {
-                        fetchContactFromServer();
-                    }
-
-                    private void fetchContactFromServer() {
-                        IdService
-                                .getApi()
-                                .getUser(userAddress)
-                                .subscribe(new SingleSuccessSubscriber<User>() {
-                                    @Override
-                                    public void onSuccess(final User user) {
-                                        handleUserLoaded(user);
-                                    }
-                                });
-                    }
-                });
+    private void handleUserLoadingFailed(final Throwable throwable) {
+        if (this.activity != null) {
+            this.activity.finish();
+            Toast.makeText(this.activity, R.string.error_unknown_user, Toast.LENGTH_LONG).show();
+        }
     }
 
     private void handleUserLoaded(final User scannedUser) {
-        new Handler(Looper.getMainLooper()).post(() -> {
-            ViewUserPresenter.this.scannedUser = scannedUser;
-            ViewUserPresenter.this.activity.getBinding().title.setText(scannedUser.getDisplayName());
-            ViewUserPresenter.this.activity.getBinding().name.setText(scannedUser.getDisplayName());
-            ViewUserPresenter.this.activity.getBinding().username.setText(scannedUser.getUsername());
-            ViewUserPresenter.this.activity.getBinding().about.setText(scannedUser.getAbout());
-            ViewUserPresenter.this.activity.getBinding().location.setText(scannedUser.getLocation());
-            ViewUserPresenter.this.activity.getBinding().addContactButton.setOnClickListener(handleOnAddContact);
-            ViewUserPresenter.this.activity.getBinding().addContactButton.setEnabled(true);
-            ViewUserPresenter.this.activity.getBinding().messageContactButton.setOnClickListener(ViewUserPresenter.this::handleMessageContactButton);
-            ViewUserPresenter.this.activity.getBinding().ratingView.setStars(3.6);
-            updateAddContactState();
-        });
+        this.scannedUser = scannedUser;
+        final ActivityScanResultBinding binding = this.activity.getBinding();
+        binding.title.setText(scannedUser.getDisplayName());
+        binding.name.setText(scannedUser.getDisplayName());
+        binding.username.setText(scannedUser.getUsername());
+        binding.about.setText(scannedUser.getAbout());
+        binding.location.setText(scannedUser.getLocation());
+        binding.addContactButton.setOnClickListener(handleOnAddContact);
+        binding.addContactButton.setEnabled(true);
+        binding.messageContactButton.setOnClickListener(this::handleMessageContactButton);
+        binding.ratingView.setStars(3.6);
+        updateAddContactState();
     }
 
     private void updateAddContactState() {

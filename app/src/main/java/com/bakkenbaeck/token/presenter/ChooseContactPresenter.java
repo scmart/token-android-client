@@ -11,7 +11,6 @@ import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.util.TypeConverter;
 import com.bakkenbaeck.token.model.local.ActivityResultHolder;
 import com.bakkenbaeck.token.model.local.User;
-import com.bakkenbaeck.token.network.IdService;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.PaymentType;
@@ -191,9 +190,11 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
     }
 
     private void fetchUser(final String userAddress) {
-       final Subscription sub = IdService
-                .getApi()
-                .getUser(userAddress)
+       final Subscription sub = BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .getUserFromAddress(userAddress)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleUserLoaded, this::handleErrorResponse);
