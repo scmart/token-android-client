@@ -6,9 +6,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.bakkenbaeck.token.model.network.App;
-import com.bakkenbaeck.token.model.network.Apps;
-import com.bakkenbaeck.token.manager.network.DirectoryService;
 import com.bakkenbaeck.token.util.LogUtil;
+import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ViewAppActivity;
 import com.bakkenbaeck.token.view.adapter.RecommendedAppsAdapter;
 import com.bakkenbaeck.token.view.adapter.SearchAppAdapter;
@@ -19,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import retrofit2.Response;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -89,29 +87,21 @@ public class AppsPresenter implements Presenter<AppsFragment>{
                 .skip(1)
                 .debounce(400, TimeUnit.MILLISECONDS)
                 .map(CharSequence::toString)
-                .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(searchString -> updateViewState())
                 .flatMap(this::runSearchQuery)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::handleSearchResponse, this::handleSearchErrorResponse);
+                .subscribe(this::addAppsToRecyclerView, this::handleSearchErrorResponse);
 
         updateViewState();
         this.subscriptions.add(sub);
     }
 
-    private Observable<Response<Apps>> runSearchQuery(final String searchString) {
-        return DirectoryService
-                .getApi()
-                .searchApps(searchString)
-                .subscribeOn(Schedulers.io());
-    }
-
-    private void handleSearchResponse(final Response<Apps> response) {
-        if (response.code() == 200) {
-            addAppsToRecyclerView(response.body().getApps());
-        } else {
-            LogUtil.e(getClass(), response.message());
-        }
+    private Observable<List<App>> runSearchQuery(final String searchString) {
+        return BaseApplication
+                .get()
+                .getTokenManager()
+                .getAppsManager()
+                .searchApps(searchString);
     }
 
     private void handleSearchErrorResponse(final Throwable throwable) {
@@ -136,24 +126,17 @@ public class AppsPresenter implements Presenter<AppsFragment>{
     }
 
     private void requestAppData() {
-        final Subscription sub = DirectoryService
-                .getApi()
-                .getApps()
+        final Subscription sub =
+                BaseApplication
+                .get()
+                .getTokenManager()
+                .getAppsManager()
+                .getRecommendedApps()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::handleRecommendedAppsResponse, this::handleRecommendedAppsErrorResponse);
+                .subscribe(this::addAppsData, this::handleRecommendedAppsErrorResponse);
 
         this.subscriptions.add(sub);
-    }
-
-    private void handleRecommendedAppsResponse(final Response<Apps> response) {
-        if (response.code() == 200) {
-            final List<App> apps = response.body().getApps();
-            AppsPresenter.this.apps = apps;
-            addAppsData(apps);
-        } else {
-            LogUtil.e(getClass(), response.message());
-        }
     }
 
     private void handleRecommendedAppsErrorResponse(final Throwable throwable) {
