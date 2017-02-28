@@ -1,4 +1,4 @@
-package com.bakkenbaeck.token.presenter.store;
+package com.bakkenbaeck.token.manager.store;
 
 
 import com.bakkenbaeck.token.model.local.PendingTransaction;
@@ -10,11 +10,12 @@ import rx.subjects.PublishSubject;
 
 public class PendingTransactionStore {
 
-    private final static PublishSubject<PendingTransaction> pendingTransactionObservable = PublishSubject.create();
     private final Realm realm;
+    private final PublishSubject<PendingTransaction> pendingTransactionObservable;
 
     public PendingTransactionStore() {
         this.realm = Realm.getDefaultInstance();
+        this.pendingTransactionObservable = PublishSubject.create();
     }
 
     public PublishSubject<PendingTransaction> getPendingTransactionObservable() {
@@ -33,13 +34,17 @@ public class PendingTransactionStore {
     }
 
     private PendingTransaction loadWhere(final String fieldName, final String value) {
-        final RealmQuery<PendingTransaction> query = realm.where(PendingTransaction.class);
-        query.equalTo(fieldName, value);
-        return query.findFirst();
+        final RealmQuery<PendingTransaction> query = realm
+                        .where(PendingTransaction.class)
+                        .equalTo(fieldName, value);
+
+        final PendingTransaction pendingTransaction = query.findFirst();
+        if (pendingTransaction == null) return null;
+        return realm.copyFromRealm(pendingTransaction);
     }
 
     private void broadcastPendingTransaction(final PendingTransaction pendingTransaction) {
-        pendingTransactionObservable.onNext(pendingTransaction);
+        this.pendingTransactionObservable.onNext(pendingTransaction);
     }
 
     private void close() {

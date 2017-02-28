@@ -1,12 +1,13 @@
-package com.bakkenbaeck.token.presenter.store;
+package com.bakkenbaeck.token.manager.store;
 
 
 import com.bakkenbaeck.token.model.local.Contact;
 import com.bakkenbaeck.token.model.local.User;
 
+import java.util.List;
+
 import io.realm.Realm;
 import io.realm.RealmQuery;
-import io.realm.RealmResults;
 import rx.Single;
 
 public class ContactStore {
@@ -42,10 +43,10 @@ public class ContactStore {
         realm.commitTransaction();
     }
 
-    public Single<RealmResults<Contact>> loadAll() {
+    public Single<List<Contact>> loadAll() {
         return Single.fromCallable(() -> {
             final RealmQuery<Contact> query = realm.where(Contact.class);
-            return query.findAll();
+            return realm.copyFromRealm(query.findAll());
         });
     }
 }

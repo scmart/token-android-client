@@ -23,21 +23,12 @@ import android.content.SharedPreferences;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.bakkenbaeck.token.R;
-import com.bakkenbaeck.token.crypto.HDWallet;
-import com.bakkenbaeck.token.model.network.Addresses;
-import com.bakkenbaeck.token.model.network.GcmRegistration;
-import com.bakkenbaeck.token.model.network.ServerTime;
-import com.bakkenbaeck.token.network.BalanceService;
 import com.bakkenbaeck.token.util.FileNames;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import rx.SingleSubscriber;
 import rx.schedulers.Schedulers;
 
 public class RegistrationIntentService extends IntentService {
@@ -77,8 +68,12 @@ public class RegistrationIntentService extends IntentService {
 
     private void registerChatServiceGcm(final String token, final boolean forceUpdate) {
         final boolean sentToServer = sharedPreferences.getBoolean(CHAT_SERVICE_SENT_TOKEN_TO_SERVER, false);
+        final boolean watchingTransactions = sharedPreferences.getBoolean(WATCHING_TRANSACTIONS, false);
+
         if (!forceUpdate && sentToServer) {
-            return;
+            if (!watchingTransactions) {
+                watchWalletTransactions();
+            }
         }
 
         BaseApplication
@@ -94,86 +89,43 @@ public class RegistrationIntentService extends IntentService {
             return;
         }
 
-        BalanceService
-                .getApi()
-                .getTimestamp()
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe(new SingleSubscriber<ServerTime>() {
-                    @Override
-                    public void onSuccess(final ServerTime serverTime) {
-                        registerGcmTokenWithTimestamp(token, serverTime.get());
-                    }
-
-                    @Override
-                    public void onError(final Throwable error) {
-                        sharedPreferences.edit().putBoolean(ETH_SERVICE_SENT_TOKEN_TO_SERVER, false).apply();
-                        LogUtil.e(getClass(), "sendRegistrationToServer onError " + error);
-                    }
-                });
-    }
-
-    private void registerGcmTokenWithTimestamp(final String token, final long timestamp) {
-        BalanceService
-                .getApi()
-                .registerGcm(timestamp, new GcmRegistration(token))
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe(new SingleSubscriber<Void>() {
-                    @Override
-                    public void onSuccess(final Void value) {
-                        sharedPreferences.edit().putBoolean(ETH_SERVICE_SENT_TOKEN_TO_SERVER, true).apply();
-                        getWalletForTransactionListening(timestamp);
-                    }
-
-                    @Override
-                    public void onError(final Throwable error) {
-                        sharedPreferences.edit().putBoolean(ETH_SERVICE_SENT_TOKEN_TO_SERVER, false).apply();
-                        LogUtil.e(getClass(), "regGcm onError " + error);
-                    }
-                });
-    }
-
-    private void getWalletForTransactionListening(final long timestamp) {
-        BaseApplication.get()
+        BaseApplication
+                .get()
                 .getTokenManager()
-                .getWallet()
+                .getBalanceManager()
+                .registerForGcm(token, forceUpdate)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .subscribe(new SingleSubscriber<HDWallet>() {
-                    @Override
-                    public void onSuccess(final HDWallet wallet) {
-                        registerForTransactionsOnWallet(timestamp, wallet);
-                    }
-
-                    @Override
-                    public void onError(final Throwable error) {
-                        LogUtil.e(getClass(), "getWallet onError " + error);
-                    }
-                });
+                .subscribe(this::handleGcmSuccess, this::handleGcmFailure);
     }
 
-    private void registerForTransactionsOnWallet(final long timestamp, final HDWallet wallet) {
-        final List<String> list = new ArrayList<>();
-        list.add(wallet.getPaymentAddress());
+    public void handleGcmSuccess(final Void unused) {
+        this.sharedPreferences.edit().putBoolean(ETH_SERVICE_SENT_TOKEN_TO_SERVER, true).apply();
+        watchWalletTransactions();
+    }
 
-        final Addresses addresses = new Addresses(list);
-
-        BalanceService
-                .getApi()
-                .startWatchingAddresses(timestamp, addresses)
+    private void watchWalletTransactions() {
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getBalanceManager()
+                .watchForWalletTransactions()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .subscribe(new SingleSubscriber<Void>() {
-                    @Override
-                    public void onSuccess(final Void value) {
-                        sharedPreferences.edit().putBoolean(ETH_SERVICE_SENT_TOKEN_TO_SERVER, true).apply();
-                    }
+                .subscribe(this::handleWatchWalletSuccess, this::handleWatchWalletFailure);
+    }
 
-                    @Override
-                    public void onError(final Throwable error) {
-                        LogUtil.e(getClass(), "registerAddress onError " + error);
-                    }
-                });
+    public void handleGcmFailure(final Throwable error) {
+        this.sharedPreferences.edit().putBoolean(ETH_SERVICE_SENT_TOKEN_TO_SERVER, false).apply();
+        LogUtil.e(getClass(), "regGcm onError " + error);
+    }
+
+    private void handleWatchWalletSuccess(final Void unused) {
+        sharedPreferences.edit().putBoolean(WATCHING_TRANSACTIONS, true).apply();
+    }
+
+    private void handleWatchWalletFailure(final Throwable error) {
+        sharedPreferences.edit().putBoolean(WATCHING_TRANSACTIONS, false).apply();
+        LogUtil.e(getClass(), "registerAddress onError " + error);
     }
 }

@@ -14,7 +14,7 @@ import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
-import com.bakkenbaeck.token.presenter.store.ConversationStore;
+import com.bakkenbaeck.token.manager.store.ConversationStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
 import com.bakkenbaeck.token.view.adapter.listeners.OnUpdateListener;

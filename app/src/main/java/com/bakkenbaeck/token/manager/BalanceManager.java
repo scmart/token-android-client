@@ -2,10 +2,13 @@ package com.bakkenbaeck.token.manager;
 
 
 import com.bakkenbaeck.token.crypto.HDWallet;
+import com.bakkenbaeck.token.manager.network.BalanceService;
+import com.bakkenbaeck.token.manager.network.CurrencyService;
+import com.bakkenbaeck.token.model.network.Addresses;
 import com.bakkenbaeck.token.model.network.Balance;
+import com.bakkenbaeck.token.model.network.GcmRegistration;
 import com.bakkenbaeck.token.model.network.MarketRates;
-import com.bakkenbaeck.token.network.BalanceService;
-import com.bakkenbaeck.token.network.CurrencyService;
+import com.bakkenbaeck.token.model.network.ServerTime;
 import com.bakkenbaeck.token.util.EthUtil;
 import com.bakkenbaeck.token.util.LocaleUtil;
 import com.bakkenbaeck.token.util.LogUtil;
@@ -13,7 +16,10 @@ import com.bakkenbaeck.token.util.LogUtil;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
+import rx.Single;
 import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 
@@ -113,5 +119,47 @@ public class BalanceManager {
     // Get the value of ethereum in another currency
     private BigDecimal getEthMarketRate(final String currency) {
         return this.rates.getRate(currency);
+    }
+
+    public Single<Void> registerForGcm(final String token, final boolean forceUpdate) {
+        return BalanceService
+                .getApi()
+                .getTimestamp()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .flatMap((st) -> registerForGcmWithTimestamp(token, st));
+    }
+
+    private Single<Void> registerForGcmWithTimestamp(final String token, final ServerTime serverTime) {
+        if (serverTime == null) {
+            throw new IllegalStateException("ServerTime was null");
+        }
+
+        return BalanceService
+                .getApi()
+                .registerGcm(serverTime.get(), new GcmRegistration(token));
+    }
+
+    public Single<Void> watchForWalletTransactions() {
+        return BalanceService
+                .getApi()
+                .getTimestamp()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .flatMap(this::watchForWalletTransactionsWithTimestamp);
+    }
+
+    private Single<Void> watchForWalletTransactionsWithTimestamp(final ServerTime serverTime) {
+        if (serverTime == null) {
+            throw new IllegalStateException("ServerTime was null");
+        }
+
+        final List<String> list = new ArrayList<>();
+        list.add(wallet.getPaymentAddress());
+        final Addresses addresses = new Addresses(list);
+
+        return BalanceService
+                .getApi()
+                .startWatchingAddresses(serverTime.get(), addresses);
     }
 }

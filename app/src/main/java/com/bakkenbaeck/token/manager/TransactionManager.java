@@ -3,9 +3,12 @@ package com.bakkenbaeck.token.manager;
 import com.bakkenbaeck.token.crypto.HDWallet;
 import com.bakkenbaeck.token.exception.UnknownTransactionException;
 import com.bakkenbaeck.token.manager.model.PaymentTask;
-import com.bakkenbaeck.token.model.local.SofaMessage;
+import com.bakkenbaeck.token.manager.network.BalanceService;
+import com.bakkenbaeck.token.manager.store.ConversationStore;
+import com.bakkenbaeck.token.manager.store.PendingTransactionStore;
 import com.bakkenbaeck.token.model.local.PendingTransaction;
 import com.bakkenbaeck.token.model.local.SendState;
+import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.SentTransaction;
 import com.bakkenbaeck.token.model.network.ServerTime;
@@ -13,10 +16,8 @@ import com.bakkenbaeck.token.model.network.SignedTransaction;
 import com.bakkenbaeck.token.model.network.TransactionRequest;
 import com.bakkenbaeck.token.model.network.UnsignedTransaction;
 import com.bakkenbaeck.token.model.sofa.Payment;
+import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
-import com.bakkenbaeck.token.network.BalanceService;
-import com.bakkenbaeck.token.presenter.store.ConversationStore;
-import com.bakkenbaeck.token.presenter.store.PendingTransactionStore;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -49,13 +50,43 @@ public class TransactionManager {
         return this;
     }
 
-    public final void sendPayment(final User receiver, final Payment payment) {
+    public PublishSubject<PendingTransaction> getPendingTransactionObservable() {
+        return this.pendingTransactionStore.getPendingTransactionObservable();
+    }
+
+    public final void sendPayment(final User receiver, final String amount) {
+        final Payment payment = new Payment()
+                .setValue(amount)
+                .setFromAddress(this.wallet.getPaymentAddress())
+                .setToAddress(receiver.getPaymentAddress());
+
         final PaymentTask task = new PaymentTask(receiver, payment, OUTGOING);
         this.newPaymentQueue.onNext(task);
     }
 
     public final void updatePayment(final Payment payment) {
         this.updatePaymentQueue.onNext(payment);
+    }
+
+    public final void updatePaymentRequestState(final User remoteUser,
+                                                final SofaMessage existingMessage,
+                                                final @PaymentRequest.State int newState) {
+        try {
+            final PaymentRequest paymentRequest = adapters
+                    .txRequestFrom(existingMessage.getPayload())
+                    .setState(newState);
+
+            final String updatedPayload = adapters.toJson(paymentRequest);
+            final SofaMessage updatedMessage = new SofaMessage(existingMessage).setPayload(updatedPayload);
+            conversationStore.updateMessage(remoteUser, updatedMessage);
+
+            if (newState == PaymentRequest.ACCEPTED) {
+                sendPayment(remoteUser, paymentRequest.getValue());
+            }
+
+        } catch (final IOException ex) {
+            LogUtil.e(getClass(), "Error changing Payment Request state. " + ex);
+        }
     }
 
     public final void processIncomingPayment(final User sender, final Payment payment) {

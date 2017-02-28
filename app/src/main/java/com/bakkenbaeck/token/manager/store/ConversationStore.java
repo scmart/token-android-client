@@ -1,4 +1,4 @@
-package com.bakkenbaeck.token.presenter.store;
+package com.bakkenbaeck.token.manager.store;
 
 
 import android.util.Pair;
@@ -13,7 +13,6 @@ import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
-import rx.Single;
 import rx.subjects.PublishSubject;
 
 public class ConversationStore {
@@ -31,7 +30,6 @@ public class ConversationStore {
     // the second being the observable for updated messages.
     public Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> registerForChanges(final String conversationId) {
         watchedConversationId = conversationId;
-        resetUnreadMessageCounter(conversationId);
         return new Pair<>(newMessageObservable, updatedMessageObservable);
     }
 
@@ -77,7 +75,7 @@ public class ConversationStore {
         storedConversation.setNumberOfUnread(0);
         realm.insertOrUpdate(storedConversation);
         realm.commitTransaction();
-        broadcastConversationChanged(realm.copyFromRealm(storedConversation));
+        broadcastConversationChanged(storedConversation);
     }
 
     public List<Conversation> loadAll() {
@@ -90,14 +88,20 @@ public class ConversationStore {
         conversationChangedObservable.onNext(conversation);
     }
 
-    public Single<Conversation> loadByAddress(final String address) {
-        return Single.fromCallable(() -> loadWhere("conversationId", address));
+    public Conversation loadByAddress(final String address) {
+        resetUnreadMessageCounter(address);
+        return loadWhere("conversationId", address);
     }
 
     private Conversation loadWhere(final String fieldName, final String value) {
-        final RealmQuery<Conversation> query = realm.where(Conversation.class);
-        query.equalTo(fieldName, value);
-        return query.findFirst();
+        final Conversation result = realm
+                .where(Conversation.class)
+                .equalTo(fieldName, value)
+                .findFirst();
+        if (result == null) {
+            return null;
+        }
+        return realm.copyFromRealm(result);
     }
 
     public void updateMessage(final User user, final SofaMessage message) {

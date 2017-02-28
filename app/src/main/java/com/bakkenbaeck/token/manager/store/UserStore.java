@@ -1,12 +1,13 @@
-package com.bakkenbaeck.token.presenter.store;
+package com.bakkenbaeck.token.manager.store;
 
 
 import com.bakkenbaeck.token.model.local.User;
 
+import java.util.List;
+
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmQuery;
-import io.realm.RealmResults;
 import rx.Observable;
 import rx.Single;
 
@@ -22,8 +23,8 @@ public class UserStore {
         return Observable.fromCallable(() -> loadWhere("owner_address", address));
     }
 
-    public Single<RealmResults<User>> loadForUsername(final String username) {
-        return Single.fromCallable(() -> queryWhere("username", username));
+    public Single<List<User>> queryUsername(final String query) {
+        return Single.fromCallable(() -> filter("username", query));
     }
 
     public void save(final User user) {
@@ -45,10 +46,10 @@ public class UserStore {
         return realm.copyFromRealm(user);
     }
 
-    private RealmResults<User> queryWhere(final String fieldName, final String value) {
+    private List<User> filter(final String fieldName, final String value) {
         final RealmQuery<User> query = realm.where(User.class);
         query.contains(fieldName, value, Case.INSENSITIVE);
-        return query.findAll();
+        return realm.copyFromRealm(query.findAll());
     }
 
 }

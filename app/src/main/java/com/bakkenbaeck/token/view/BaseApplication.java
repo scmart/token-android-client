@@ -5,7 +5,7 @@ import android.content.ComponentCallbacks2;
 import android.support.multidex.MultiDexApplication;
 
 import com.bakkenbaeck.token.manager.TokenManager;
-import com.bakkenbaeck.token.presenter.store.TokenMigration;
+import com.bakkenbaeck.token.manager.store.TokenMigration;
 import com.bakkenbaeck.token.util.LogUtil;
 
 import io.realm.Realm;

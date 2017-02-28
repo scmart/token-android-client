@@ -1,11 +1,11 @@
-package com.bakkenbaeck.token.network;
+package com.bakkenbaeck.token.manager.network;
 
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.adapter.BigIntegerAdapter;
-import com.bakkenbaeck.token.network.interceptor.LoggingInterceptor;
-import com.bakkenbaeck.token.network.interceptor.SigningInterceptor;
-import com.bakkenbaeck.token.network.interceptor.UserAgentInterceptor;
+import com.bakkenbaeck.token.manager.network.interceptor.LoggingInterceptor;
+import com.bakkenbaeck.token.manager.network.interceptor.SigningInterceptor;
+import com.bakkenbaeck.token.manager.network.interceptor.UserAgentInterceptor;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.squareup.moshi.Moshi;
 

@@ -8,8 +8,7 @@ import android.widget.Toast;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.local.PermissionResultHolder;
 import com.bakkenbaeck.token.model.local.ScanResult;
-import com.bakkenbaeck.token.model.network.ServerTime;
-import com.bakkenbaeck.token.network.IdService;
+import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.PaymentType;
 import com.bakkenbaeck.token.util.SoundManager;
 import com.bakkenbaeck.token.view.BaseApplication;
@@ -152,29 +151,14 @@ public final class ScannerPresenter implements
     }
 
     private void webLoginWithToken(final String loginToken) {
-        IdService
-            .getApi()
-            .getTimestamp()
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .subscribe((st) -> handleFetchTime(st, loginToken), this::handleLoginFailure);
-    }
-
-    private void handleFetchTime(final ServerTime serverTime, final String loginToken) {
-        if (serverTime == null) {
-            handleLoginFailure(new Throwable("ServerTime was null"));
-        }
-
-        IdService
-            .getApi()
-            .webLogin(loginToken, serverTime.get())
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(this::handleLoginSuccess, this::handleLoginFailure);
-    }
-
-    private void handleLoginFailure(final Throwable throwable) {
-        Toast.makeText(BaseApplication.get(), R.string.error__web_signin, Toast.LENGTH_LONG).show();
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .webLogin(loginToken)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleLoginSuccess, this::handleLoginFailure);
     }
 
     private void handleLoginSuccess(final Void unused) {
@@ -182,5 +166,10 @@ public final class ScannerPresenter implements
         if (activity != null) {
             activity.finish();
         }
+    }
+
+    private void handleLoginFailure(final Throwable throwable) {
+        LogUtil.e(getClass(), throwable.toString());
+        Toast.makeText(BaseApplication.get(), R.string.error__web_signin, Toast.LENGTH_LONG).show();
     }
 }

@@ -1,4 +1,4 @@
-package com.bakkenbaeck.token.network;
+package com.bakkenbaeck.token.manager.network;
 
 import com.bakkenbaeck.token.model.network.Apps;
 

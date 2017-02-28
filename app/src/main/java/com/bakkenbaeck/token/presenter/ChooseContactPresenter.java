@@ -63,7 +63,8 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
         subscriptions = new CompositeSubscription();
         this.adapter = new ContactsAdapter()
                 .loadAllStoredContacts()
-                .setOnItemClickListener(this::handleItemClicked);
+                .setOnItemClickListener(this::handleItemClicked)
+                .setOnUpdateListener(this::updateEmptyState);
     }
 
     @SuppressWarnings("WrongConstant")

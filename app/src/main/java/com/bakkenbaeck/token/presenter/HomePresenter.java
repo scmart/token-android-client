@@ -9,9 +9,7 @@ import android.view.View;
 
 import com.bakkenbaeck.token.model.local.ActivityResultHolder;
 import com.bakkenbaeck.token.model.network.App;
-import com.bakkenbaeck.token.model.network.Apps;
 import com.bakkenbaeck.token.model.network.Balance;
-import com.bakkenbaeck.token.network.DirectoryService;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.PaymentType;
@@ -28,7 +26,6 @@ import com.bakkenbaeck.token.view.fragment.toplevel.HomeFragment;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Response;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -119,12 +116,15 @@ public class HomePresenter implements Presenter<HomeFragment> {
             return;
         }
 
-        final Subscription sub = DirectoryService
-                .getApi()
+        final Subscription sub =
+                BaseApplication
+                .get()
+                .getTokenManager()
+                .getAppsManager()
                 .getFeaturedApps()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::handleResponse, this::handleErrorResponse);
+                .subscribe(this::handleFeaturedApps, this::handleErrorResponse);
 
         this.subscriptions.add(sub);
     }
@@ -133,12 +133,9 @@ public class HomePresenter implements Presenter<HomeFragment> {
         LogUtil.e(getClass(), "Error during featuredApps request");
     }
 
-    private void handleResponse(final Response<Apps> response) {
-        if (response.code() == 200) {
-            final List<App> featuredApps = response.body().getApps();
-            this.featuredApps = featuredApps;
-            addFeaturedAppsData(featuredApps);
-        }
+    private void handleFeaturedApps(final List<App> featuredApps) {
+        this.featuredApps = featuredApps;
+        addFeaturedAppsData(featuredApps);
     }
 
     private void addFeaturedAppsData(final List<App> apps) {
