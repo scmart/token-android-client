@@ -201,8 +201,10 @@ public class UserManager {
                 .webLogin(loginToken, serverTime.get());
     }
 
-    public boolean isUserAContact(final User user) {
-        return this.contactStore.userIsAContact(user);
+    public Single<Boolean> isUserAContact(final User user) {
+        return Single
+                .fromCallable(() -> contactStore.userIsAContact(user))
+                .subscribeOn(Schedulers.from(this.dbThreadExecutor));
     }
 
     public void deleteContact(final User user) {

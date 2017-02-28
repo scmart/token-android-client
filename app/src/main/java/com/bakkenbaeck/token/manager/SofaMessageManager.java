@@ -14,6 +14,8 @@ import com.bakkenbaeck.token.crypto.signal.model.DecryptedSignalMessage;
 import com.bakkenbaeck.token.crypto.signal.store.ProtocolStore;
 import com.bakkenbaeck.token.crypto.signal.store.SignalTrustStore;
 import com.bakkenbaeck.token.manager.model.SofaMessageTask;
+import com.bakkenbaeck.token.manager.network.IdService;
+import com.bakkenbaeck.token.manager.store.ConversationStore;
 import com.bakkenbaeck.token.model.local.Conversation;
 import com.bakkenbaeck.token.model.local.SendState;
 import com.bakkenbaeck.token.model.local.SofaMessage;
@@ -24,8 +26,6 @@ import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
-import com.bakkenbaeck.token.manager.network.IdService;
-import com.bakkenbaeck.token.manager.store.ConversationStore;
 import com.bakkenbaeck.token.service.RegistrationIntentService;
 import com.bakkenbaeck.token.util.FileNames;
 import com.bakkenbaeck.token.util.LogUtil;
@@ -159,7 +159,9 @@ public final class SofaMessageManager {
     }
 
     public final Single<Conversation> loadConversation(final String conversationId) {
-        return this.conversationStore.loadByAddress(conversationId);
+        return Single
+                .fromCallable(() -> conversationStore.loadByAddress(conversationId))
+                .subscribeOn(Schedulers.from(this.dbThreadExecutor));
     }
 
     // Returns a pair of RxSubjects, the first being the observable for new messages

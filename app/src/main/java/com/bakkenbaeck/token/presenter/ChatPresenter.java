@@ -18,20 +18,16 @@ import android.widget.Toast;
 
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.crypto.HDWallet;
-import com.bakkenbaeck.token.crypto.util.TypeConverter;
-import com.bakkenbaeck.token.manager.store.ConversationStore;
 import com.bakkenbaeck.token.model.local.ActivityResultHolder;
 import com.bakkenbaeck.token.model.local.Conversation;
 import com.bakkenbaeck.token.model.local.PendingTransaction;
 import com.bakkenbaeck.token.model.local.SofaMessage;
 import com.bakkenbaeck.token.model.local.User;
-import com.bakkenbaeck.token.model.network.Balance;
 import com.bakkenbaeck.token.model.sofa.Command;
 import com.bakkenbaeck.token.model.sofa.Control;
 import com.bakkenbaeck.token.model.sofa.Init;
 import com.bakkenbaeck.token.model.sofa.InitRequest;
 import com.bakkenbaeck.token.model.sofa.Message;
-import com.bakkenbaeck.token.model.sofa.Payment;
 import com.bakkenbaeck.token.model.sofa.PaymentRequest;
 import com.bakkenbaeck.token.model.sofa.SofaAdapters;
 import com.bakkenbaeck.token.model.sofa.SofaType;
@@ -47,15 +43,12 @@ import com.bakkenbaeck.token.view.activity.AmountActivity;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 import com.bakkenbaeck.token.view.adapter.MessageAdapter;
-import com.bakkenbaeck.token.view.adapter.listeners.OnItemClickListener;
-import com.bakkenbaeck.token.view.custom.ControlRecyclerView;
 import com.bakkenbaeck.token.view.custom.ControlView;
 import com.bakkenbaeck.token.view.custom.SpeedyLinearLayoutManager;
 import com.bakkenbaeck.token.view.notification.ChatNotificationManager;
 import com.bumptech.glide.Glide;
 
 import java.io.IOException;
-import java.math.BigInteger;
 
 import io.realm.RealmList;
 import rx.Subscription;
@@ -223,7 +216,6 @@ public final class ChatPresenter implements
                 .getTokenManager()
                 .getSofaMessageManager()
                 .loadConversation(remoteUser.getOwnerAddress())
-                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this.handleConversationLoaded);
 
@@ -261,10 +253,8 @@ public final class ChatPresenter implements
     }
 
     private void initControlView() {
-        this.activity.getBinding().controlView.setOnSizeChangedListener(this.controlViewSizeChangedListener);
+        this.activity.getBinding().controlView.setOnSizeChangedListener(this::setPadding);
     }
-
-    private ControlRecyclerView.OnSizeChangedListener controlViewSizeChangedListener = height -> setPadding(height);
 
     private void initAdapterAnimation() {
         final SlideUpAnimator anim;

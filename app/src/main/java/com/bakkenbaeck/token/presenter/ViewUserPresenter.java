@@ -20,6 +20,7 @@ import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 
+import rx.Single;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -91,7 +92,10 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     }
 
     private void updateAddContactState() {
-        final boolean isAContact = isAContact(scannedUser);
+        isAContact(scannedUser).subscribe(this::updateAddContactState);
+    }
+
+    private void updateAddContactState(final boolean isAContact) {
         final ToggleButton addContactButton = this.activity.getBinding().addContactButton;
         addContactButton.setChecked(isAContact);
         addContactButton.setSoundEffectsEnabled(isAContact);
@@ -104,7 +108,11 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     private final OnSingleClickListener handleOnAddContact = new OnSingleClickListener() {
         @Override
         public void onSingleClick(final View v) {
-            final boolean isAContact = isAContact(scannedUser);
+            isAContact(scannedUser)
+            .subscribe(this::handleAddContact);
+        }
+
+        private void handleAddContact(final boolean isAContact) {
             if (isAContact) {
                 deleteContact(scannedUser);
             } else {
@@ -115,7 +123,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         }
     };
 
-    private boolean isAContact(final User user) {
+    private Single<Boolean> isAContact(final User user) {
         return BaseApplication
                 .get()
                 .getTokenManager()
