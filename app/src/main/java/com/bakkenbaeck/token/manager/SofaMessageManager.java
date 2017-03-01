@@ -405,17 +405,15 @@ public final class SofaMessageManager {
                 }
                 unsubscribe();
 
-                final User threadSafeUser = new User(user);
-
                 final SofaMessage remoteMessage = new SofaMessage().makeNew(false, signalMessage.getBody());
                 if (remoteMessage.getType() == SofaType.PAYMENT) {
-                    sendIncomingPaymentToTransactionManager(threadSafeUser, remoteMessage);
+                    sendIncomingPaymentToTransactionManager(user, remoteMessage);
                     return;
                 } else if(remoteMessage.getType() == SofaType.PAYMENT_REQUEST) {
                     embedLocalAmountIntoPaymentRequest(remoteMessage);
                 }
 
-                dbThreadExecutor.execute(() -> SofaMessageManager.this.conversationStore.saveNewMessage(threadSafeUser, remoteMessage));
+                dbThreadExecutor.execute(() -> SofaMessageManager.this.conversationStore.saveNewMessage(user, remoteMessage));
             }
         });
     }

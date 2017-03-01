@@ -25,12 +25,6 @@ public class User extends RealmObject {
         this.cacheTimestamp = System.currentTimeMillis();
     }
 
-    public User(final User user) {
-        this.owner_address = user.getOwnerAddress();
-        this.username = user.getUsername();
-        this.customUserInfo = new CustomUserInformation(user.getCustomUserInfo());
-    }
-
     public void setCustomAppInfo(final CustomAppInformation customAppInfo) {
         this.customAppInfo = customAppInfo;
     }

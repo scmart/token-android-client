@@ -89,7 +89,7 @@ public class TransactionManager {
         }
     }
 
-    public final void processIncomingPayment(final User sender, final Payment payment) {
+    /* package */ final void processIncomingPayment(final User sender, final Payment payment) {
         final PaymentTask task = new PaymentTask(sender, payment, PaymentTask.INCOMING);
         this.newPaymentQueue.onNext(task);
     }
