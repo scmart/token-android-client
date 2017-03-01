@@ -505,21 +505,13 @@ public final class ChatPresenter implements
 
         try {
             final Message message = this.adapters.messageFrom(sofaMessage.getPayload());
-            if (message.shouldShowKeyboard()) {
-                showKeyboard();
-            } else {
+            if (message.shouldHideKeyboard()) {
                 hideKeyboard();
             }
 
         } catch (IOException e) {
             LogUtil.e(getClass(), "Error during handling visibility of keyboard");
         }
-    }
-
-    private void showKeyboard() {
-        ((InputMethodManager) this.activity.getSystemService(Context.INPUT_METHOD_SERVICE))
-                .toggleSoftInputFromWindow(this.activity.getBinding().userInput.getApplicationWindowToken(),
-                InputMethodManager.SHOW_FORCED, 0);
     }
 
     private void hideKeyboard() {
