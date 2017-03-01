@@ -7,10 +7,11 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import com.tokenbrowser.token.R;
+import com.jakewharton.rxbinding.widget.RxTextView;
 import com.tokenbrowser.crypto.util.TypeConverter;
 import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.model.local.User;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.EthUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.PaymentType;
@@ -20,12 +21,13 @@ import com.tokenbrowser.view.activity.ChooseContactsActivity;
 import com.tokenbrowser.view.activity.ScannerActivity;
 import com.tokenbrowser.view.adapter.ContactsAdapter;
 import com.tokenbrowser.view.custom.HorizontalLineDivider;
-import com.jakewharton.rxbinding.widget.RxTextView;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -57,12 +59,12 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
         getIntentData();
         getLocalCurrency();
         initView();
+        loadContacts();
     }
 
     private void initLongLivingObjects() {
         this.subscriptions = new CompositeSubscription();
         this.adapter = new ContactsAdapter()
-                .loadAllStoredContacts()
                 .setOnItemClickListener(this::handleItemClicked)
                 .setOnUpdateListener(this::updateEmptyState);
     }
@@ -91,6 +93,18 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
         this.activity.getBinding().btnContinue.setOnClickListener(view -> handleSendClicked());
     }
 
+    private void loadContacts() {
+        final Subscription sub = BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .loadAllContacts()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(contacts -> this.adapter.mapContactsToUsers(contacts));
+
+        this.subscriptions.add(sub);
+    }
+
     private void initToolbar() {
         final String paymentAction = this.paymentType == PaymentType.TYPE_SEND
                 ? this.activity.getString(R.string.send)
@@ -108,7 +122,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
         final int dividerLeftPadding = activity.getResources().getDimensionPixelSize(R.dimen.avatar_size_small)
                 + activity.getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
         final HorizontalLineDivider lineDivider =
-                new HorizontalLineDivider(activity.getResources().getColor(R.color.divider))
+                new HorizontalLineDivider(ContextCompat.getColor(this.activity, R.color.divider))
                         .setLeftPadding(dividerLeftPadding);
         recyclerView.addItemDecoration(lineDivider);
         recyclerView.setAdapter(this.adapter);
@@ -145,14 +159,20 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
                 .skip(1)
                 .debounce(400, TimeUnit.MILLISECONDS)
                 .map(CharSequence::toString)
+                .flatMap(this::searchOfflineUsers)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::handleSearch);
+                .subscribe(users -> this.adapter.setUsers(users));
 
         this.subscriptions.add(sub);
     }
 
-    private void handleSearch(final String searchString) {
-        this.adapter.filter(searchString);
+    private Observable<List<User>> searchOfflineUsers(final String searchString) {
+        return BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .searchOfflineUsers(searchString)
+                .toObservable();
     }
 
     private void handleItemClicked(final User user) {

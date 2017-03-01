@@ -6,10 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.tokenbrowser.token.R;
 import com.tokenbrowser.model.local.Contact;
 import com.tokenbrowser.model.local.User;
-import com.tokenbrowser.view.BaseApplication;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
 import com.tokenbrowser.view.adapter.listeners.OnUpdateListener;
 import com.tokenbrowser.view.adapter.viewholder.ClickableViewHolder;
@@ -17,8 +16,6 @@ import com.tokenbrowser.view.adapter.viewholder.ContactViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import rx.android.schedulers.AndroidSchedulers;
 
 public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> implements ClickableViewHolder.OnClickListener {
 
@@ -30,35 +27,13 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> imp
         this.users = new ArrayList<>(0);
     }
 
-    public ContactsAdapter loadAllStoredContacts() {
-        BaseApplication
-                .get()
-                .getTokenManager()
-                .getUserManager()
-                .loadAllContacts()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::mapContactsToUsers);
-        return this;
-    }
-
-    private void mapContactsToUsers(final List<Contact> contacts) {
+    public void mapContactsToUsers(final List<Contact> contacts) {
         this.users = new ArrayList<>(contacts.size());
         for (final Contact contact : contacts) {
             this.users.add(contact.getUser());
         }
         notifyAdapterChanged();
     }
-
-    public void filter(final String searchString) {
-        BaseApplication
-                .get()
-                .getTokenManager()
-                .getUserManager()
-                .searchOfflineUsers(searchString)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::setUsers);
-    }
-
 
     public ContactsAdapter setUsers(final List<User> users) {
         this.users = users;
