@@ -108,7 +108,8 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     }
 
     private void updateAddContactState() {
-        isAContact(this.scannedUser).subscribe(this::updateAddContactState);
+        final Subscription sub = isAContact(this.scannedUser).subscribe(this::updateAddContactState);
+        this.subscriptions.add(sub);
     }
 
     private void updateAddContactState(final boolean isAContact) {
@@ -124,9 +125,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     private final OnSingleClickListener handleOnAddContact = new OnSingleClickListener() {
         @Override
         public void onSingleClick(final View v) {
-            final Subscription sub = isAContact(scannedUser)
-            .subscribe(this::handleAddContact);
-
+            final Subscription sub = isAContact(scannedUser).subscribe(this::handleAddContact);
             subscriptions.add(sub);
         }
 
@@ -146,7 +145,8 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
                 .get()
                 .getTokenManager()
                 .getUserManager()
-                .isUserAContact(user);
+                .isUserAContact(user)
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     private void deleteContact(final User user) {

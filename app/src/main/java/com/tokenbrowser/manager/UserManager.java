@@ -208,10 +208,10 @@ public class UserManager {
     }
 
     public void deleteContact(final User user) {
-        this.contactStore.delete(user);
+        this.dbThreadExecutor.submit(() -> this.contactStore.delete(user));
     }
 
     public void saveContact(final User user) {
-        this.contactStore.save(user);
+        this.dbThreadExecutor.submit(() -> this.contactStore.save(user));
     }
 }
