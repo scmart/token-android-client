@@ -4,7 +4,9 @@ package com.tokenbrowser.model.sofa;
 import android.support.annotation.IntDef;
 
 import com.tokenbrowser.crypto.util.TypeConverter;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.EthUtil;
+import com.tokenbrowser.util.LocaleUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.squareup.moshi.Json;
 
@@ -109,8 +111,14 @@ public class PaymentRequest {
         return this.androidClientSideCustomData.state;
     }
 
-    public String toUserVisibleString() {
-        return String.format("%s %s", "Request", getLocalPrice());
+    public String toUserVisibleString(final boolean sentByLocal) {
+        final int stringId = sentByLocal
+                ? R.string.latest_message__request_outgoing
+                : R.string.latest_message__request_incoming;
+        return String.format(
+                LocaleUtil.getLocale(),
+                BaseApplication.get().getResources().getString(stringId),
+                getLocalPrice());
     }
 
     private static class ClientSideCustomData {

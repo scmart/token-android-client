@@ -132,12 +132,12 @@ public class RecentAdapter extends RecyclerView.Adapter<ConversationViewHolder> 
 
                 case SofaType.PAYMENT: {
                     final Payment payment = this.adapters.paymentFrom(sofaMessage.getPayload());
-                    return payment.toUserVisibleString();
+                    return payment.toUserVisibleString(sofaMessage.isSentByLocal());
                 }
 
                 case SofaType.PAYMENT_REQUEST: {
                     final PaymentRequest request = this.adapters.txRequestFrom(sofaMessage.getPayload());
-                    return request.toUserVisibleString();
+                    return request.toUserVisibleString(sofaMessage.isSentByLocal());
                 }
             }
         } catch (final IOException ex) {

@@ -1,9 +1,11 @@
 package com.tokenbrowser.model.sofa;
 
-import com.tokenbrowser.crypto.util.TypeConverter;
-import com.tokenbrowser.util.EthUtil;
-import com.tokenbrowser.view.BaseApplication;
 import com.squareup.moshi.Json;
+import com.tokenbrowser.crypto.util.TypeConverter;
+import com.tokenbrowser.token.R;
+import com.tokenbrowser.util.EthUtil;
+import com.tokenbrowser.util.LocaleUtil;
+import com.tokenbrowser.view.BaseApplication;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -92,8 +94,14 @@ public class Payment {
         setLocalPrice(localAmount);
     }
 
-    public String toUserVisibleString() {
-        return String.format("%s %s", "Payment", getLocalPrice());
+    public String toUserVisibleString(final boolean sentByLocal) {
+        final int stringId = sentByLocal
+                ? R.string.latest_message__payment_outgoing
+                : R.string.latest_message__payment_incoming;
+        return String.format(
+                LocaleUtil.getLocale(),
+                BaseApplication.get().getResources().getString(stringId),
+                getLocalPrice());
     }
 
     private static class ClientSideCustomData {

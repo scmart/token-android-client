@@ -121,4 +121,8 @@
     <string name="rate">Rate</string>
     <string name="view_profile">View profile</string>
     <string name="error_unknown_user">Unable to find user at this address</string>
+    <string name="latest_message__payment_outgoing">You paid %1$s</string>
+    <string name="latest_message__payment_incoming">Received %1$s</string>
+    <string name="latest_message__request_incoming">Request for %1$s</string>
+    <string name="latest_message__request_outgoing">You requested %1$s</string>
 </resources>
