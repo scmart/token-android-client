@@ -25,9 +25,10 @@
         </activity>
 
         <activity android:name="com.tokenbrowser.view.activity.MainActivity"
-            android:windowSoftInputMode="adjustPan|stateHidden" />
+                  android:windowSoftInputMode="adjustPan|stateHidden" />
         <activity android:name="com.tokenbrowser.view.activity.ChatActivity"
-                  android:parentActivityName="com.tokenbrowser.view.activity.MainActivity">
+                  android:parentActivityName="com.tokenbrowser.view.activity.MainActivity"
+                  android:windowSoftInputMode="stateUnchanged">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.tokenbrowser.view.activity.MainActivity" />
