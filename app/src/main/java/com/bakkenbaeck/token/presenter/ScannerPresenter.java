@@ -125,7 +125,7 @@ public final class ScannerPresenter implements
         final PaymentRequestConfirmationDialog dialog = PaymentRequestConfirmationDialog
                 .newInstance(scanResult.getText(), this.encodedEthAmount, this.paymentType);
         dialog.setOnActionClickedListener(this);
-        dialog.show(activity.getSupportFragmentManager(), PaymentRequestConfirmationDialog.TAG);
+        dialog.show(this.activity.getSupportFragmentManager(), PaymentRequestConfirmationDialog.TAG);
     }
 
     @Override
@@ -163,8 +163,8 @@ public final class ScannerPresenter implements
 
     private void handleLoginSuccess(final Void unused) {
         Toast.makeText(BaseApplication.get(), R.string.web_signin, Toast.LENGTH_LONG).show();
-        if (activity != null) {
-            activity.finish();
+        if (this.activity != null) {
+            this.activity.finish();
         }
     }
 
