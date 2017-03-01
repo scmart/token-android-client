@@ -29,21 +29,33 @@ import java.util.Arrays;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 public class BackupPhrasePresenter implements Presenter<BackupPhraseActivity> {
 
     private BackupPhraseActivity activity;
-    private Subscription backupPhraseSubscription;
+    private CompositeSubscription subscriptions;
+    private boolean firstTimeAttaching = true;
     private String backupPhrase;
     private Dialog dialog;
 
     @Override
     public void onViewAttached(BackupPhraseActivity view) {
         this.activity = view;
+
+        if (this.firstTimeAttaching) {
+            this.firstTimeAttaching = false;
+            initLongLivingObjects();
+        }
+
         initRecyclerView();
         addBackupPhrase();
         initClickListeners();
         initScreenshotListener();
+    }
+
+    private void initLongLivingObjects() {
+        this.subscriptions = new CompositeSubscription();
     }
 
     private void initRecyclerView() {
@@ -63,12 +75,14 @@ public class BackupPhrasePresenter implements Presenter<BackupPhraseActivity> {
     }
 
     private void addBackupPhrase() {
-        this.backupPhraseSubscription = BaseApplication.get()
+        final Subscription sub = BaseApplication.get()
                 .getTokenManager()
                 .getWallet()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleBackupPhraseCallback);
+
+        this.subscriptions.add(sub);
     }
 
     private void handleBackupPhraseCallback(final HDWallet wallet) {
@@ -136,9 +150,7 @@ public class BackupPhrasePresenter implements Presenter<BackupPhraseActivity> {
 
     @Override
     public void onViewDestroyed() {
-        if (this.backupPhraseSubscription != null) {
-            this.backupPhraseSubscription.unsubscribe();
-        }
+        this.subscriptions.clear();
         this.activity = null;
     }
 }

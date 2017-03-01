@@ -56,17 +56,20 @@ public class HomePresenter implements Presenter<HomeFragment> {
     }
 
     private void initLongTermObjects() {
+        this.subscriptions = new CompositeSubscription();
         assignSubscribers();
     }
 
     private void assignSubscribers() {
-        BaseApplication
+        final Subscription sub = BaseApplication
                 .get()
                 .getTokenManager()
                 .getBalanceManager()
                 .getBalanceObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleNewBalance);
+
+        this.subscriptions.add(sub);
     }
 
     private void handleNewBalance(final Balance balance) {
@@ -75,14 +78,9 @@ public class HomePresenter implements Presenter<HomeFragment> {
     }
 
     private void initShortTermObjects() {
-        initSubscriptions();
         assignClickListeners();
         initRecyclerView();
         refreshBalance();
-    }
-
-    private void initSubscriptions() {
-        this.subscriptions = new CompositeSubscription();
     }
 
     private void assignClickListeners() {
@@ -130,7 +128,7 @@ public class HomePresenter implements Presenter<HomeFragment> {
     }
 
     private void handleErrorResponse(final Throwable throwable) {
-        LogUtil.e(getClass(), "Error during featuredApps request");
+        LogUtil.e(getClass(), "Error during featuredApps request " + throwable);
     }
 
     private void handleFeaturedApps(final List<App> featuredApps) {
@@ -209,15 +207,7 @@ public class HomePresenter implements Presenter<HomeFragment> {
 
     @Override
     public void onViewDestroyed() {
-        clearSubscriptions();
+        this.subscriptions.clear();
         this.fragment = null;
-    }
-
-    private void clearSubscriptions() {
-        if (this.subscriptions == null) {
-            return;
-        }
-
-        this.subscriptions.unsubscribe();
     }
 }
