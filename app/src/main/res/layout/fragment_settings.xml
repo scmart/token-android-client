@@ -206,7 +206,7 @@
                 android:layout_marginLeft="30dp"
                 android:textSize="16sp"
                 android:textColor="@color/textColorPrimary"
-                android:text="@string/choose_a_trusted_friend"/>
+                android:text="@string/choose_trusted_friends"/>
 
         </LinearLayout>
 

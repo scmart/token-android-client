@@ -75,7 +75,7 @@
     <string name="error__app_loading">There was a problem loading this app</string>
     <string name="your_account_is_at_risk">Your account is at risk</string>
     <string name="security">Security</string>
-    <string name="choose_a_trusted_friend">Choose a trusted friends</string>
+    <string name="choose_trusted_friends">Choose trusted friends</string>
     <string name="store_backup_phrase">Store backup phrase</string>
     <string name="trusted_friends">Trusted friends</string>
     <string name="coming_soon">Coming soon</string>
