@@ -24,15 +24,6 @@ public class SofaMessage extends RealmObject {
         this.privateKey = UUID.randomUUID().toString();
     }
 
-    public SofaMessage(final SofaMessage sofaMessage) {
-        this.privateKey = sofaMessage.getPrivateKey();
-        this.creationTime = sofaMessage.getCreationTime();
-        this.type = sofaMessage.getType();
-        this.sendState = sofaMessage.getSendState();
-        this.payload = sofaMessage.getPayload();
-        this.sentByLocal = sofaMessage.isSentByLocal();
-    }
-
     // Setters
 
     private SofaMessage setType(final @SofaType.Type int type) {

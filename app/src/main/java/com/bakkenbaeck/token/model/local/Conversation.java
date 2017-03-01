@@ -1,6 +1,8 @@
 package com.bakkenbaeck.token.model.local;
 
 
+import java.util.List;
+
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -44,7 +46,7 @@ public class Conversation extends RealmObject {
         this.allMessages.add(latestMessage);
     }
 
-    public RealmList<SofaMessage> getAllMessages() {
+    public List<SofaMessage> getAllMessages() {
         return allMessages;
     }
 

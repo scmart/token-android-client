@@ -45,8 +45,8 @@ import com.bakkenbaeck.token.view.notification.ChatNotificationManager;
 import com.bumptech.glide.Glide;
 
 import java.io.IOException;
+import java.util.List;
 
-import io.realm.RealmList;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -422,7 +422,7 @@ public final class ChatPresenter implements
             return;
         }
 
-        final RealmList<SofaMessage> messages = conversation.getAllMessages();
+        final List<SofaMessage> messages = conversation.getAllMessages();
         if (messages.size() > 0) {
             this.messageAdapter.addMessages(messages);
             forceScrollToBottom();

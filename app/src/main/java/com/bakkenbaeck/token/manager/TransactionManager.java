@@ -69,24 +69,26 @@ public class TransactionManager {
     }
 
     public final void updatePaymentRequestState(final User remoteUser,
-                                                final SofaMessage existingMessage,
+                                                final SofaMessage sofaMessage,
                                                 final @PaymentRequest.State int newState) {
-        try {
-            final PaymentRequest paymentRequest = adapters
-                    .txRequestFrom(existingMessage.getPayload())
-                    .setState(newState);
+        this.dbThreadExecutor.submit(() -> {
+            try {
+                final PaymentRequest paymentRequest = adapters
+                        .txRequestFrom(sofaMessage.getPayload())
+                        .setState(newState);
 
-            final String updatedPayload = adapters.toJson(paymentRequest);
-            final SofaMessage updatedMessage = new SofaMessage(existingMessage).setPayload(updatedPayload);
-            conversationStore.updateMessage(remoteUser, updatedMessage);
+                final String updatedPayload = adapters.toJson(paymentRequest);
+                sofaMessage.setPayload(updatedPayload);
+                conversationStore.updateMessage(remoteUser, sofaMessage);
 
-            if (newState == PaymentRequest.ACCEPTED) {
-                sendPayment(remoteUser, paymentRequest.getValue());
+                if (newState == PaymentRequest.ACCEPTED) {
+                    sendPayment(remoteUser, paymentRequest.getValue());
+                }
+
+            } catch (final IOException ex) {
+                LogUtil.e(getClass(), "Error changing Payment Request state. " + ex);
             }
-
-        } catch (final IOException ex) {
-            LogUtil.e(getClass(), "Error changing Payment Request state. " + ex);
-        }
+        });
     }
 
     /* package */ final void processIncomingPayment(final User sender, final Payment payment) {
@@ -291,14 +293,12 @@ public class TransactionManager {
             throw new UnknownTransactionException("PendingTransaction could not be found. This transaction probably came from outside of Token.");
         }
 
-        final SofaMessage existingMessage = pendingTransaction.getSofaMessage();
-        final Payment existingPayment = adapters.paymentFrom(existingMessage.getPayload());
+        final SofaMessage sofaMessage = pendingTransaction.getSofaMessage();
+        final Payment existingPayment = adapters.paymentFrom(sofaMessage.getPayload());
 
         existingPayment.setStatus(updatedPayment.getStatus());
 
         final String messageBody = adapters.toJson(existingPayment);
-
-        final SofaMessage updatedMessage = new SofaMessage(existingMessage);
-        return updatedMessage.setPayload(messageBody);
+        return sofaMessage.setPayload(messageBody);
     }
 }
