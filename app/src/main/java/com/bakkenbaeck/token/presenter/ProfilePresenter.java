@@ -65,10 +65,11 @@ public final class ProfilePresenter implements Presenter<ProfileActivity> {
 
     @Override
     public void onViewDetached() {
-
+        this.activity = null;
     }
 
     @Override
     public void onViewDestroyed() {
+        this.activity = null;
     }
 }

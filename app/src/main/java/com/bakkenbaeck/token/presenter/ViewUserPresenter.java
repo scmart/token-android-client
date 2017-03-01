@@ -3,8 +3,8 @@ package com.bakkenbaeck.token.presenter;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v7.content.res.AppCompatResources;
 import android.view.View;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -14,19 +14,21 @@ import com.bakkenbaeck.token.databinding.ActivityScanResultBinding;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
-import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.util.SoundManager;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
 import com.bakkenbaeck.token.view.activity.ViewUserActivity;
 
 import rx.Single;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
 
     private boolean firstTimeAttached = true;
+    private CompositeSubscription subscriptions;
     private ViewUserActivity activity;
     private User scannedUser;
 
@@ -41,6 +43,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     }
 
     private void initLongLivingObjects() {
+        this.subscriptions = new CompositeSubscription();
         final Intent intent = activity.getIntent();
         final String userAddress = intent.getStringExtra(ViewUserActivity.EXTRA__USER_ADDRESS);
         loadOrFetchUser(userAddress);
@@ -48,25 +51,38 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     }
 
     private void generateQrCode(final String address) {
-        ImageUtil
+        final Subscription sub = ImageUtil
                 .generateQrCodeForWalletAddress(address)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleQrCodeLoaded);
+                .subscribe(this::renderQrCode);
+
+        this.subscriptions.add(sub);
+    }
+
+    private void renderQrCode(final Bitmap qrCodeBitmap) {
+        if (this.activity == null || this.activity.getBinding() == null) {
+            return;
+        }
+        this.activity.getBinding().qrCodeImage.setAlpha(0.0f);
+        this.activity.getBinding().qrCodeImage.setImageBitmap(qrCodeBitmap);
+        this.activity.getBinding().qrCodeImage.animate().alpha(1f).setDuration(200).start();
     }
 
     private void initShortLivingObjects() {
-        this.activity.getBinding().closeButton.setOnClickListener((View v) -> activity.onBackPressed());
+        this.activity.getBinding().closeButton.setOnClickListener((View v) -> this.activity.onBackPressed());
     }
 
     private void loadOrFetchUser(final String userAddress) {
-        BaseApplication
+        final Subscription sub = BaseApplication
                 .get()
                 .getTokenManager()
                 .getUserManager()
                 .getUserFromAddress(userAddress)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleUserLoaded, this::handleUserLoadingFailed);
+
+        this.subscriptions.add(sub);
     }
 
     private void handleUserLoadingFailed(final Throwable throwable) {
@@ -92,7 +108,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     }
 
     private void updateAddContactState() {
-        isAContact(scannedUser).subscribe(this::updateAddContactState);
+        isAContact(this.scannedUser).subscribe(this::updateAddContactState);
     }
 
     private void updateAddContactState(final boolean isAContact) {
@@ -100,16 +116,18 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         addContactButton.setChecked(isAContact);
         addContactButton.setSoundEffectsEnabled(isAContact);
 
-        final Drawable checkMark = AppCompatResources.getDrawable(this.activity, R.drawable.ic_done);
-        DrawableCompat.setTint(checkMark, this.activity.getResources().getColor(R.color.colorPrimary));
+        final Drawable checkMark = ContextCompat.getDrawable(this.activity, R.drawable.ic_done);
+        DrawableCompat.setTint(checkMark, ContextCompat.getColor(this.activity, R.color.colorPrimary));
         addContactButton.setCompoundDrawablesWithIntrinsicBounds(isAContact ? checkMark : null, null, null, null);
     }
 
     private final OnSingleClickListener handleOnAddContact = new OnSingleClickListener() {
         @Override
         public void onSingleClick(final View v) {
-            isAContact(scannedUser)
+            final Subscription sub = isAContact(scannedUser)
             .subscribe(this::handleAddContact);
+
+            subscriptions.add(sub);
         }
 
         private void handleAddContact(final boolean isAContact) {
@@ -154,22 +172,6 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         this.activity.finish();
     }
 
-    private final SingleSuccessSubscriber<Bitmap> handleQrCodeLoaded = new SingleSuccessSubscriber<Bitmap>() {
-        @Override
-        public void onSuccess(final Bitmap qrBitmap) {
-            renderQrCode(qrBitmap);
-        }
-    };
-
-    private void renderQrCode(final Bitmap qrCodeBitmap) {
-        if (this.activity == null || this.activity.getBinding() == null) {
-            return;
-        }
-        this.activity.getBinding().qrCodeImage.setAlpha(0.0f);
-        this.activity.getBinding().qrCodeImage.setImageBitmap(qrCodeBitmap);
-        this.activity.getBinding().qrCodeImage.animate().alpha(1f).setDuration(200).start();
-    }
-
     @Override
     public void onViewDetached() {
         this.activity = null;
@@ -177,7 +179,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
 
     @Override
     public void onViewDestroyed() {
+        this.subscriptions.clear();
         this.activity = null;
-        this.handleQrCodeLoaded.unsubscribe();
     }
 }

@@ -6,28 +6,39 @@ import android.view.View;
 import com.bakkenbaeck.token.R;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.util.ImageUtil;
-import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.util.SharedPrefsUtil;
-import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ProfileActivity;
 import com.bakkenbaeck.token.view.fragment.children.ViewProfileFragment;
 
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 public final class ViewProfilePresenter implements Presenter<ViewProfileFragment> {
 
     private ViewProfileFragment fragment;
     private User localUser;
     private ProfilePresenter.OnEditButtonListener onEditButtonListener;
-    private  OnNextSubscriber<User> handleUserLoaded;
+    private CompositeSubscription subscriptions;
+    private boolean firstTimeAttaching = true;
 
     @Override
     public void onViewAttached(final ViewProfileFragment fragment) {
         this.fragment = fragment;
+
+        if (this.firstTimeAttaching) {
+            this.firstTimeAttaching = false;
+            initLongLivingObjects();
+        }
+
         initShortLivingObjects();
+    }
+
+    private void initLongLivingObjects() {
+        this.subscriptions = new CompositeSubscription();
     }
 
     private void initShortLivingObjects() {
@@ -68,24 +79,20 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
     }
 
     private void attachListeners() {
-        generateUserLoadedHandler();
-        BaseApplication.get()
+        final Subscription sub = BaseApplication.get()
                 .getTokenManager()
                 .getUserManager()
                 .getUserObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleUserLoaded);
+                .subscribe(this::handleUserLoaded);
+
+        this.subscriptions.add(sub);
     }
 
-    private void generateUserLoadedHandler() {
-        this.handleUserLoaded = new OnNextSubscriber<User>() {
-            @Override
-            public void onNext(final User user) {
-                ViewProfilePresenter.this.localUser = user;
-                updateView();
-            }
-        };
+    private void handleUserLoaded(final User user) {
+        this.localUser = user;
+        updateView();
     }
 
     private void renderQrCode(final byte[] qrCodeImageBytes) {
@@ -103,19 +110,18 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
     }
 
     private void generateQrCode() {
-        ImageUtil.generateQrCodeForWalletAddress(this.localUser.getOwnerAddress())
+        final Subscription sub = ImageUtil.generateQrCodeForWalletAddress(this.localUser.getOwnerAddress())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleQrCodeGenerated);
+                .subscribe(this::handleQrCodeGenerated);
+
+        this.subscriptions.add(sub);
     }
 
-    private SingleSuccessSubscriber<Bitmap> handleQrCodeGenerated = new SingleSuccessSubscriber<Bitmap>() {
-        @Override
-        public void onSuccess(final Bitmap qrBitmap) {
-            SharedPrefsUtil.saveQrCode(ImageUtil.compressBitmap(qrBitmap));
-            renderQrCode(qrBitmap);
-        }
-    };
+    private void handleQrCodeGenerated(final Bitmap bitmap) {
+        SharedPrefsUtil.saveQrCode(ImageUtil.compressBitmap(bitmap));
+        renderQrCode(bitmap);
+    }
 
     private final OnSingleClickListener editProfileClicked = new OnSingleClickListener() {
         @Override
@@ -128,20 +134,18 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
         }
     };
 
+    public void setOnEditButtonListener(final ProfilePresenter.OnEditButtonListener onEditButtonListener) {
+        this.onEditButtonListener = onEditButtonListener;
+    }
+
     @Override
     public void onViewDetached() {
         this.fragment = null;
-        this.handleUserLoaded.unsubscribe();
-        this.handleUserLoaded = null;
     }
 
     @Override
     public void onViewDestroyed() {
+        this.subscriptions.clear();
         this.fragment = null;
-        this.handleQrCodeGenerated.unsubscribe();
-    }
-
-    public void setOnEditButtonListener(final ProfilePresenter.OnEditButtonListener onEditButtonListener) {
-        this.onEditButtonListener = onEditButtonListener;
     }
 }

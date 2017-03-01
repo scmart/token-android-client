@@ -49,8 +49,8 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
     public void onViewAttached(final ChooseContactsActivity view) {
         this.activity = view;
 
-        if (firstTimeAttaching) {
-            firstTimeAttaching = false;
+        if (this.firstTimeAttaching) {
+            this.firstTimeAttaching = false;
             initLongLivingObjects();
         }
 
@@ -60,7 +60,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
     }
 
     private void initLongLivingObjects() {
-        subscriptions = new CompositeSubscription();
+        this.subscriptions = new CompositeSubscription();
         this.adapter = new ContactsAdapter()
                 .loadAllStoredContacts()
                 .setOnItemClickListener(this::handleItemClicked)
@@ -220,11 +220,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
 
     @Override
     public void onViewDestroyed() {
-        if (this.subscriptions != null) {
-            this.subscriptions.unsubscribe();
-            this.subscriptions = null;
-        }
-
+        this.subscriptions.clear();
         this.activity = null;
     }
 }

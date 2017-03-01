@@ -75,8 +75,8 @@ public final class ChatPresenter implements
     public void onViewAttached(final ChatActivity activity) {
         this.activity = activity;
 
-        if (firstViewAttachment) {
-            firstViewAttachment = false;
+        if (this.firstViewAttachment) {
+            this.firstViewAttachment = false;
             initLongLivingObjects();
         }
         initShortLivingObjects();

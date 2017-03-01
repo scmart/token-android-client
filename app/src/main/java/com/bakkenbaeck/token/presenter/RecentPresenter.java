@@ -1,6 +1,7 @@
 package com.bakkenbaeck.token.presenter;
 
 import android.content.Intent;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -41,10 +42,10 @@ public final class RecentPresenter implements
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(this.adapter);
 
-        final int dividerLeftPadding = fragment.getResources().getDimensionPixelSize(R.dimen.avatar_size_small)
-                                     + fragment.getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
+        final int dividerLeftPadding = this.fragment.getResources().getDimensionPixelSize(R.dimen.avatar_size_small)
+                                     + this.fragment.getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
         final HorizontalLineDivider lineDivider =
-                new HorizontalLineDivider(fragment.getResources().getColor(R.color.divider))
+                new HorizontalLineDivider(ContextCompat.getColor(this.fragment.getContext(), R.color.divider))
                 .setLeftPadding(dividerLeftPadding);
         recyclerView.addItemDecoration(lineDivider);
 
@@ -55,16 +56,6 @@ public final class RecentPresenter implements
         this.adapter = new RecentAdapter()
                 .setOnItemClickListener(this)
                 .setOnUpdateListener(this);
-    }
-
-    @Override
-    public void onViewDetached() {
-        this.fragment = null;
-    }
-
-    @Override
-    public void onViewDestroyed() {
-        this.fragment = null;
     }
 
     @Override
@@ -92,5 +83,15 @@ public final class RecentPresenter implements
     @Override
     public void onUpdate() {
         updateEmptyState();
+    }
+
+    @Override
+    public void onViewDetached() {
+        this.fragment = null;
+    }
+
+    @Override
+    public void onViewDestroyed() {
+        this.fragment = null;
     }
 }

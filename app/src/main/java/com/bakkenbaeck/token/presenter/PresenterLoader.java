@@ -19,8 +19,8 @@ public class PresenterLoader<T extends Presenter> extends Loader<T> {
     protected void onStartLoading() {
         // Returns the presenter if one exists
         // otherwise it loads and returns a new presenter
-        if (presenter != null) {
-            deliverResult(presenter);
+        if (this.presenter != null) {
+            deliverResult(this.presenter);
             return;
         }
 
@@ -29,15 +29,15 @@ public class PresenterLoader<T extends Presenter> extends Loader<T> {
 
     @Override
     protected void onForceLoad() {
-        presenter = factory.create();
-        deliverResult(presenter);
+        this.presenter = this.factory.create();
+        deliverResult(this.presenter);
     }
 
     @Override
     protected void onReset() {
-        if (presenter != null) {
-            presenter.onViewDestroyed();
-            presenter = null;
+        if (this.presenter != null) {
+            this.presenter.onViewDestroyed();
+            this.presenter = null;
         }
     }
 }

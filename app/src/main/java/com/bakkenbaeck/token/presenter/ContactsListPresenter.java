@@ -38,9 +38,7 @@ public final class ContactsListPresenter implements
     private void initShortLivingObjects() {
         // Refresh all contacts each time.
         this.adapter.loadAllStoredContacts();
-
         initRecyclerView();
-
         this.fragment.getBinding().userSearch.setOnClickListener(this.handleUserSearchClicked);
         updateEmptyState();
     }
@@ -64,16 +62,6 @@ public final class ContactsListPresenter implements
         this.adapter = new ContactsAdapter()
                 .setOnItemClickListener(this)
                 .setOnUpdateListener(this::updateEmptyState);
-    }
-
-    @Override
-    public void onViewDetached() {
-        this.fragment = null;
-    }
-
-    @Override
-    public void onViewDestroyed() {
-        this.fragment = null;
     }
 
     @Override
@@ -102,4 +90,14 @@ public final class ContactsListPresenter implements
             fragment.startActivity(intent);
         }
     };
+
+    @Override
+    public void onViewDetached() {
+        this.fragment = null;
+    }
+
+    @Override
+    public void onViewDestroyed() {
+        this.fragment = null;
+    }
 }

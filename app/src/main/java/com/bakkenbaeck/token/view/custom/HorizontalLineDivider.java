@@ -14,7 +14,7 @@ public class HorizontalLineDivider extends RecyclerView.ItemDecoration {
 
     public HorizontalLineDivider(final int color) {
         this.paint = new Paint();
-        paint.setColor(color);
+        this.paint.setColor(color);
     }
 
     public HorizontalLineDivider setLeftPadding(final int padding) {

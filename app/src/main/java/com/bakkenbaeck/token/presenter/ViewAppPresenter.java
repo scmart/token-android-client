@@ -6,9 +6,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.bakkenbaeck.token.R;
+import com.bakkenbaeck.token.manager.network.DirectoryService;
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.App;
-import com.bakkenbaeck.token.manager.network.DirectoryService;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
@@ -19,36 +19,33 @@ import com.bakkenbaeck.token.view.activity.ViewAppActivity;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 public class ViewAppPresenter implements Presenter<ViewAppActivity> {
 
     private ViewAppActivity activity;
     private App app;
     private User user;
-    private Subscription userSubscription;
+    private CompositeSubscription subscriptions;
+    private boolean firstTimeAttaching = true;
 
     @Override
     public void onViewAttached(ViewAppActivity view) {
         this.activity = view;
+
+        if (this.firstTimeAttaching) {
+            this.firstTimeAttaching = false;
+            initLongLivingObjects();
+        }
+
         getIntentData();
         fetchUserFromApp();
         initView();
         initClickListeners();
     }
 
-    private void fetchUserFromApp() {
-        if (this.userSubscription != null) {
-            this.userSubscription.unsubscribe();
-        }
-
-        this.userSubscription = BaseApplication
-            .get()
-            .getTokenManager()
-            .getUserManager()
-            .getUserFromAddress(this.app.getOwnerAddress())
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(this::handleAppLoaded, this::handleAppLoadingFailed);
+    private void initLongLivingObjects() {
+        this.subscriptions = new CompositeSubscription();
     }
 
     private void getIntentData() {
@@ -60,29 +57,37 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
         }
     }
 
+    private void fetchUserFromApp() {
+        final Subscription sub = BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .getUserFromAddress(this.app.getOwnerAddress())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleAppLoaded, this::handleAppLoadingFailed);
+
+        this.subscriptions.add(sub);
+    }
+
     private void initView() {
         this.activity.getBinding().title.setText(app.getDisplayName());
-        activity.getBinding().name.setText(app.getDisplayName());
-        activity.getBinding().about.setText(app.getLanguages().toString());
-        activity.getBinding().location.setText(app.getDisplayName());
-        activity.getBinding().ratingView.setStars(3.6);
+        this.activity.getBinding().name.setText(app.getDisplayName());
+        this.activity.getBinding().about.setText(app.getLanguages().toString());
+        this.activity.getBinding().location.setText(app.getDisplayName());
+        this.activity.getBinding().ratingView.setStars(3.6);
         generateQrCode(this.app.getOwnerAddress());
     }
 
     private void generateQrCode(final String address) {
-        ImageUtil
+        final Subscription sub = ImageUtil
                 .generateQrCodeForWalletAddress(address)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleQrCodeLoaded);
-    }
+                .subscribe(this::renderQrCode);
 
-    private final SingleSuccessSubscriber<Bitmap> handleQrCodeLoaded = new SingleSuccessSubscriber<Bitmap>() {
-        @Override
-        public void onSuccess(final Bitmap qrBitmap) {
-            renderQrCode(qrBitmap);
-        }
-    };
+        this.subscriptions.add(sub);
+    }
 
     private void renderQrCode(final Bitmap qrCodeBitmap) {
         if (this.activity == null || this.activity.getBinding() == null) {
@@ -103,10 +108,10 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
     }
 
     private void handleOnMessageClicked(final View v) {
-        final Intent intent = new Intent(this.activity, ChatActivity.class);
-        if (this.user != null) {
-            intent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, this.user.getOwnerAddress());
+        if (this.user == null) {
+            return;
         }
+        final Intent intent = new Intent(this.activity, ChatActivity.class);
         intent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, this.user.getOwnerAddress());
         this.activity.startActivity(intent);
     }
@@ -135,7 +140,7 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
 
     @Override
     public void onViewDestroyed() {
+        this.subscriptions.clear();
         this.activity = null;
-        this.userSubscription.unsubscribe();
     }
 }
