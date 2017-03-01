@@ -58,16 +58,6 @@ public final class RecentPresenter implements
     }
 
     @Override
-    public void onViewDetached() {
-        this.fragment = null;
-    }
-
-    @Override
-    public void onViewDestroyed() {
-        this.fragment = null;
-    }
-
-    @Override
     public void onItemClick(final Conversation clickedConversation) {
         final Intent intent = new Intent(this.fragment.getActivity(), ChatActivity.class);
         intent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, clickedConversation.getMember().getOwnerAddress());
@@ -92,5 +82,15 @@ public final class RecentPresenter implements
     @Override
     public void onUpdate() {
         updateEmptyState();
+    }
+
+    @Override
+    public void onViewDetached() {
+        this.fragment = null;
+    }
+
+    @Override
+    public void onViewDestroyed() {
+        this.fragment = null;
     }
 }
