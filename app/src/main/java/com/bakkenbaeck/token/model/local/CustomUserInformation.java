@@ -11,13 +11,6 @@ public class CustomUserInformation extends RealmObject {
 
     public CustomUserInformation() {}
 
-    /* package */ CustomUserInformation(final CustomUserInformation customUserInformation) {
-        this.about = customUserInformation.getAbout();
-        this.avatar = customUserInformation.getAvatar();
-        this.location = customUserInformation.getLocation();
-        this.name = customUserInformation.getName();
-    }
-
     public String getAbout() {
         return this.about;
     }
