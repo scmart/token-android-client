@@ -7,7 +7,8 @@ public class Message {
 
     private String body;
     private List<Control> controls;
-    private boolean showKeyboard;
+    // Default behaviour is to how the keyboard
+    private boolean showKeyboard = true;
     private List<Attachment> attachments;
 
     public String getBody() {
@@ -23,8 +24,8 @@ public class Message {
         return this.controls;
     }
 
-    public boolean shouldShowKeyboard() {
-        return this.showKeyboard;
+    public boolean shouldHideKeyboard() {
+        return !this.showKeyboard;
     }
 
     public List<Attachment> getAttachments() {
