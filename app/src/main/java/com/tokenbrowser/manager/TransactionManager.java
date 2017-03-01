@@ -134,6 +134,8 @@ public class TransactionManager {
         final Payment payment = task.getPayment();
         final User user = task.getUser();
 
+        payment.generateLocalPrice();
+
         switch (task.getAction()) {
             case INCOMING: {
                 final SofaMessage storedSofaMessage = storePayment(task.getUser(), payment, false);
