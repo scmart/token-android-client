@@ -7,16 +7,18 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.v7.app.AlertDialog;
 import android.util.Pair;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
-import com.tokenbrowser.token.R;
+import com.bumptech.glide.Glide;
 import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.model.local.Conversation;
@@ -30,6 +32,7 @@ import com.tokenbrowser.model.sofa.Message;
 import com.tokenbrowser.model.sofa.PaymentRequest;
 import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.model.sofa.SofaType;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.util.PaymentType;
@@ -42,7 +45,6 @@ import com.tokenbrowser.view.activity.ViewUserActivity;
 import com.tokenbrowser.view.adapter.MessageAdapter;
 import com.tokenbrowser.view.custom.SpeedyLinearLayoutManager;
 import com.tokenbrowser.view.notification.ChatNotificationManager;
-import com.bumptech.glide.Glide;
 
 import java.io.IOException;
 import java.util.List;
@@ -131,6 +133,18 @@ public final class ChatPresenter implements
                 .subscribe(wallet -> this.userWallet = wallet);
 
         this.subscriptions.add(sub);
+
+        this.activity.getBinding().userInput.setOnEditorActionListener((v, actionId, event) -> {
+            if (event != null && event.getAction() != KeyEvent.ACTION_DOWN) {
+                return false;
+            }
+
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                sendButtonClicked.onSingleClick(v);
+                return true;
+            }
+            return false;
+        });
     }
 
     private void initShortLivingObjects() {
