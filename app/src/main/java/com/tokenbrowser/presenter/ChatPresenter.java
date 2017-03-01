@@ -70,6 +70,7 @@ public final class ChatPresenter implements
     private Dialog notEnoughFundsDialog;
     private boolean firstViewAttachment = true;
     private int lastVisibleMessagePosition;
+    private Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> chatObservables;
 
     @Override
     public void onViewAttached(final ChatActivity activity) {
@@ -389,7 +390,12 @@ public final class ChatPresenter implements
     private void initChatMessageStore(final User remoteUser) {
         ChatNotificationManager.suppressNotificationsForConversation(remoteUser.getOwnerAddress());
 
-        final Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> observables =
+        if (this.chatObservables != null) {
+            // Don't double subscribe
+            return;
+        }
+
+        this.chatObservables =
                 BaseApplication
                 .get()
                 .getTokenManager()
@@ -404,12 +410,12 @@ public final class ChatPresenter implements
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleConversationLoaded);
 
-        final Subscription subNewMessage = observables.first
+        final Subscription subNewMessage = chatObservables.first
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleNewMessage);
 
-        final Subscription subUpdateMessage = observables.second
+        final Subscription subUpdateMessage = chatObservables.second
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleUpdatedMessage);
@@ -621,6 +627,7 @@ public final class ChatPresenter implements
         stopListeningForConversationChanges();
         ChatNotificationManager.stopNotificationSuppresion();
         this.activity = null;
+        this.chatObservables = null;
     }
 
     private void stopListeningForConversationChanges() {
