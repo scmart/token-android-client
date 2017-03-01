@@ -93,7 +93,7 @@ public class RegistrationIntentService extends IntentService {
                 .get()
                 .getTokenManager()
                 .getBalanceManager()
-                .registerForGcm(token, forceUpdate)
+                .registerForGcm(token)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(this::handleGcmSuccess, this::handleGcmFailure);

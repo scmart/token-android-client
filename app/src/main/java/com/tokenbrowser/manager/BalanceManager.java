@@ -121,7 +121,7 @@ public class BalanceManager {
         return this.rates.getRate(currency);
     }
 
-    public Single<Void> registerForGcm(final String token, final boolean forceUpdate) {
+    public Single<Void> registerForGcm(final String token) {
         return BalanceService
                 .getApi()
                 .getTimestamp()
