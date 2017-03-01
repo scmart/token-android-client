@@ -1,20 +1,26 @@
 package com.tokenbrowser.presenter;
 
 import android.content.Intent;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.tokenbrowser.token.R;
 import com.tokenbrowser.model.local.User;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.OnSingleClickListener;
+import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.UserSearchActivity;
 import com.tokenbrowser.view.activity.ViewUserActivity;
 import com.tokenbrowser.view.adapter.ContactsAdapter;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
 import com.tokenbrowser.view.custom.HorizontalLineDivider;
 import com.tokenbrowser.view.fragment.children.ContactsListFragment;
+
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.subscriptions.CompositeSubscription;
 
 public final class ContactsListPresenter implements
         Presenter<ContactsListFragment>,
@@ -23,6 +29,7 @@ public final class ContactsListPresenter implements
     private ContactsListFragment fragment;
     private boolean firstTimeAttaching = true;
     private ContactsAdapter adapter;
+    private CompositeSubscription subscriptions;
 
     @Override
     public void onViewAttached(final ContactsListFragment fragment) {
@@ -36,9 +43,8 @@ public final class ContactsListPresenter implements
     }
 
     private void initShortLivingObjects() {
-        // Refresh all contacts each time.
-        this.adapter.loadAllStoredContacts();
         initRecyclerView();
+        loadContacts();
         this.fragment.getBinding().userSearch.setOnClickListener(this.handleUserSearchClicked);
         updateEmptyState();
     }
@@ -53,12 +59,25 @@ public final class ContactsListPresenter implements
         final int dividerLeftPadding = fragment.getResources().getDimensionPixelSize(R.dimen.avatar_size_small)
                 + fragment.getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
         final HorizontalLineDivider lineDivider =
-                new HorizontalLineDivider(fragment.getResources().getColor(R.color.divider))
+                new HorizontalLineDivider(ContextCompat.getColor(this.fragment.getContext(), R.color.divider))
                         .setLeftPadding(dividerLeftPadding);
         recyclerView.addItemDecoration(lineDivider);
     }
 
+    private void loadContacts() {
+        final Subscription sub = BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .loadAllContacts()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(contacts -> this.adapter.mapContactsToUsers(contacts));
+
+        this.subscriptions.add(sub);
+    }
+
     private void initLongLivingObjects() {
+        this.subscriptions = new CompositeSubscription();
         this.adapter = new ContactsAdapter()
                 .setOnItemClickListener(this)
                 .setOnUpdateListener(this::updateEmptyState);
@@ -98,6 +117,7 @@ public final class ContactsListPresenter implements
 
     @Override
     public void onViewDestroyed() {
+        this.subscriptions.clear();
         this.fragment = null;
     }
 }
