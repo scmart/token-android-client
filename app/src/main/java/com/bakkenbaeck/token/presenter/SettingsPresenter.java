@@ -10,7 +10,6 @@ import android.widget.Toast;
 
 import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.util.FileNames;
-import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.OnSingleClickListener;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.AboutActivity;
@@ -22,19 +21,27 @@ import com.bakkenbaeck.token.view.custom.RecyclerViewDivider;
 import com.bakkenbaeck.token.view.fragment.children.SettingsFragment;
 import com.bumptech.glide.Glide;
 
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 public final class SettingsPresenter implements
         Presenter<SettingsFragment> {
 
     private User localUser;
     private SettingsFragment fragment;
-    private OnNextSubscriber<User> handleUserLoaded;
+    private CompositeSubscription subscriptions;
+    private boolean firstTimeAttaching = true;
 
     @Override
     public void onViewAttached(final SettingsFragment fragment) {
         this.fragment = fragment;
+
+        if (this.firstTimeAttaching) {
+            this.firstTimeAttaching = false;
+            initLongLivingObjects();
+        }
 
         addListeners();
         initRecyclerView();
@@ -43,15 +50,25 @@ public final class SettingsPresenter implements
         initClickListeners();
     }
 
+    private void initLongLivingObjects() {
+        this.subscriptions = new CompositeSubscription();
+    }
+
     private void addListeners() {
-        generateUserLoadedHandler();
-        BaseApplication.get()
+        final Subscription sub = BaseApplication.get()
                 .getTokenManager()
                 .getUserManager()
                 .getUserObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleUserLoaded);
+                .subscribe(this::handleUserLoaded);
+
+        this.subscriptions.add(sub);
+    }
+
+    private void handleUserLoaded(final User user) {
+        this.localUser = user;
+        updateUi();
     }
 
     private void initRecyclerView() {
@@ -75,16 +92,6 @@ public final class SettingsPresenter implements
                 Toast.makeText(this.fragment.getContext(), "This option is not supported", Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    private void generateUserLoadedHandler() {
-        this.handleUserLoaded = new OnNextSubscriber<User>() {
-            @Override
-            public void onNext(final User user) {
-                SettingsPresenter.this.localUser = user;
-                updateUi();
-            }
-        };
     }
 
     private void updateUi() {
@@ -135,16 +142,12 @@ public final class SettingsPresenter implements
 
     @Override
     public void onViewDetached() {
-        destroy();
+        this.fragment = null;
     }
 
     @Override
     public void onViewDestroyed() {
-        destroy();
-    }
-
-    private void destroy() {
-        this.handleUserLoaded.unsubscribe();
+        this.subscriptions.clear();
         this.fragment = null;
     }
 }
