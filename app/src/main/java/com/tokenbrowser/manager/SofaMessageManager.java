@@ -174,6 +174,12 @@ public final class SofaMessageManager {
         this.conversationStore.stopListeningForChanges();
     }
 
+    public final Single<Boolean> areUnreadMessages() {
+        return Single
+                .fromCallable(() -> conversationStore.areUnreadMessages())
+                .subscribeOn(Schedulers.from(this.dbThreadExecutor));
+    }
+
     private void initEverything() {
         generateStores();
         initDatabase();
