@@ -131,6 +131,11 @@ public class GcmMessageReceiver extends GcmListenerService {
         final BigDecimal ethAmount = EthUtil.weiToEth(weiAmount);
         final String localCurrency = BaseApplication.get().getTokenManager().getBalanceManager().convertEthToLocalCurrencyString(ethAmount);
         final String content = String.format(Locale.getDefault(), "Received: %s", localCurrency);
-        ChatNotificationManager.showNotification(title, content, payment.getFromAddress());
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .getUserFromPaymentAddress(payment.getFromAddress())
+                .subscribe((sender) -> ChatNotificationManager.showNotification(title, content, sender.getOwnerAddress()));
     }
 }

@@ -142,7 +142,7 @@ public class UserManager {
                 .first(user -> user != null && !user.needsRefresh());
     }
 
-    /* package */ Single<User> getUserFromPaymentAddress(final String paymentAddress) {
+    public Single<User> getUserFromPaymentAddress(final String paymentAddress) {
         return Single
                 .fromCallable(() -> userStore.loadForPaymentAddress(paymentAddress))
                 .subscribeOn(Schedulers.from(this.dbThreadExecutor))
