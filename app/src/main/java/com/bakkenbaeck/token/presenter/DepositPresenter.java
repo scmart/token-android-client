@@ -12,7 +12,6 @@ import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.util.ImageUtil;
 import com.bakkenbaeck.token.util.OnNextSubscriber;
 import com.bakkenbaeck.token.util.SharedPrefsUtil;
-import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.DepositActivity;
 
@@ -80,16 +79,13 @@ public class DepositPresenter implements Presenter<DepositActivity> {
         ImageUtil.generateQrCodeForWalletAddress(this.localUser.getOwnerAddress())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleQrCodeGenerated);
+                .subscribe(this::handleQrCodeGenerated);
     }
 
-    private SingleSuccessSubscriber<Bitmap> handleQrCodeGenerated = new SingleSuccessSubscriber<Bitmap>() {
-        @Override
-        public void onSuccess(final Bitmap qrBitmap) {
-            SharedPrefsUtil.saveQrCode(ImageUtil.compressBitmap(qrBitmap));
-            renderQrCode(qrBitmap);
-        }
-    };
+    private void handleQrCodeGenerated(final Bitmap qrBitmap) {
+        SharedPrefsUtil.saveQrCode(ImageUtil.compressBitmap(qrBitmap));
+        renderQrCode(qrBitmap);
+    }
 
     private void renderQrCode(final Bitmap qrCodeBitmap) {
         if (this.activity == null) {
