@@ -23,8 +23,10 @@ import com.journeyapps.barcodescanner.CaptureManager;
 
 import java.util.List;
 
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 public final class ScannerPresenter implements
         Presenter<ScannerActivity>,
@@ -35,6 +37,8 @@ public final class ScannerPresenter implements
 
     private CaptureManager capture;
     private ScannerActivity activity;
+    private CompositeSubscription subscriptions;
+    private boolean firstTimeAttaching = true;
     private int resultType;
     private String encodedEthAmount;
     private @PaymentType.Type int paymentType;
@@ -42,8 +46,18 @@ public final class ScannerPresenter implements
     @Override
     public void onViewAttached(final ScannerActivity activity) {
         this.activity = activity;
+
+        if (this.firstTimeAttaching) {
+            this.firstTimeAttaching = false;
+            initLongLivingObjects();
+        }
+
         getIntentData();
         init();
+    }
+
+    private void initLongLivingObjects() {
+        this.subscriptions = new CompositeSubscription();
     }
 
     @SuppressWarnings("WrongConstant")
@@ -134,6 +148,31 @@ public final class ScannerPresenter implements
         this.capture.onRequestPermissionsResult(prh.getRequestCode(), prh.getPermissions(), prh.getGrantResults());
     }
 
+    private void webLoginWithToken(final String loginToken) {
+        final Subscription sub = BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .webLogin(loginToken)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleLoginSuccess, this::handleLoginFailure);
+
+        this.subscriptions.add(sub);
+    }
+
+    private void handleLoginSuccess(final Void unused) {
+        Toast.makeText(BaseApplication.get(), R.string.web_signin, Toast.LENGTH_LONG).show();
+        if (activity != null) {
+            activity.finish();
+        }
+    }
+
+    private void handleLoginFailure(final Throwable throwable) {
+        LogUtil.e(getClass(), throwable.toString());
+        Toast.makeText(BaseApplication.get(), R.string.error__web_signin, Toast.LENGTH_LONG).show();
+    }
+
     @Override
     public void onViewDetached() {
         if (this.capture != null) {
@@ -147,29 +186,7 @@ public final class ScannerPresenter implements
         if (this.capture != null) {
             this.capture.onDestroy();
         }
+        this.subscriptions.clear();
         this.activity = null;
-    }
-
-    private void webLoginWithToken(final String loginToken) {
-        BaseApplication
-                .get()
-                .getTokenManager()
-                .getUserManager()
-                .webLogin(loginToken)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::handleLoginSuccess, this::handleLoginFailure);
-    }
-
-    private void handleLoginSuccess(final Void unused) {
-        Toast.makeText(BaseApplication.get(), R.string.web_signin, Toast.LENGTH_LONG).show();
-        if (activity != null) {
-            activity.finish();
-        }
-    }
-
-    private void handleLoginFailure(final Throwable throwable) {
-        LogUtil.e(getClass(), throwable.toString());
-        Toast.makeText(BaseApplication.get(), R.string.error__web_signin, Toast.LENGTH_LONG).show();
     }
 }
