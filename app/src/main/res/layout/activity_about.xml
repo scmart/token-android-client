@@ -100,7 +100,7 @@
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:background="@color/windowBackground"
             android:textSize="16sp"
-            android:text="@string/open_sourced_libraries"/>
+            android:text="@string/about__licenses"/>
 
     </LinearLayout>
 
