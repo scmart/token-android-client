@@ -10,6 +10,7 @@ import com.bakkenbaeck.token.model.local.User;
 import com.bakkenbaeck.token.model.network.App;
 import com.bakkenbaeck.token.manager.network.DirectoryService;
 import com.bakkenbaeck.token.util.ImageUtil;
+import com.bakkenbaeck.token.util.LogUtil;
 import com.bakkenbaeck.token.util.SingleSuccessSubscriber;
 import com.bakkenbaeck.token.view.BaseApplication;
 import com.bakkenbaeck.token.view.activity.ChatActivity;
@@ -47,7 +48,7 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
             .getUserFromAddress(this.app.getOwnerAddress())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(this::handleUserLoaded);
+            .subscribe(this::handleAppLoaded, this::handleAppLoadingFailed);
     }
 
     private void getIntentData() {
@@ -110,13 +111,21 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
         this.activity.startActivity(intent);
     }
 
-    private void handleUserLoaded(final User user) {
+    private void handleAppLoaded(final User user) {
         this.user = user;
         if (this.user == null || this.activity == null) {
             return;
         }
         this.activity.getBinding().username.setText(user.getDisplayName());
         this.activity.getBinding().username.setText(user.getUsername());
+    }
+
+    private void handleAppLoadingFailed(final Throwable throwable) {
+        LogUtil.print(getClass(), throwable.toString());
+        if (this.activity != null) {
+            this.activity.finish();
+            Toast.makeText(this.activity, R.string.error__app_loading, Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
