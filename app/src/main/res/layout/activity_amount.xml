@@ -94,7 +94,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <com.bakkenbaeck.token.view.custom.AmountInputView
+        <com.tokenbrowser.view.custom.AmountInputView
             android:id="@+id/amount_input_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

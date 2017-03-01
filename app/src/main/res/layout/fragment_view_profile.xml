@@ -102,7 +102,7 @@
                     android:textColor="@color/ratingPrimary"
                     android:text="3.6"/>
 
-                <com.bakkenbaeck.token.view.custom.StarRatingView
+                <com.tokenbrowser.view.custom.StarRatingView
                     android:id="@+id/rating_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
@@ -120,7 +120,7 @@
 
             </LinearLayout>
 
-            <com.bakkenbaeck.token.view.custom.RatingInfo
+            <com.tokenbrowser.view.custom.RatingInfo
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"

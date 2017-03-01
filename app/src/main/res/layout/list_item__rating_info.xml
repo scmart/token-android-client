@@ -19,7 +19,7 @@
         android:layout_marginLeft="4dp"
         app:srcCompat="@drawable/star_grey"/>
 
-    <com.bakkenbaeck.token.view.custom.RatingBar
+    <com.tokenbrowser.view.custom.RatingBar
         android:id="@+id/rating_bar"
         android:layout_width="match_parent"
         android:layout_height="16dp"

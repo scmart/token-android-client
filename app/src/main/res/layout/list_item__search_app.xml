@@ -43,7 +43,7 @@
         android:layout_gravity="right"
         android:layout_marginTop="5dp">
 
-        <com.bakkenbaeck.token.view.custom.StarRatingView
+        <com.tokenbrowser.view.custom.StarRatingView
             android:id="@+id/rating_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

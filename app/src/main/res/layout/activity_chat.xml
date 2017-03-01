@@ -52,7 +52,7 @@
         </android.support.v7.widget.Toolbar>
 
 
-        <com.bakkenbaeck.token.view.custom.BalanceBar
+        <com.tokenbrowser.view.custom.BalanceBar
             android:id="@+id/balance_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -106,7 +106,7 @@
 
             </ViewSwitcher>
 
-            <com.bakkenbaeck.token.view.custom.ControlView
+            <com.tokenbrowser.view.custom.ControlView
                 android:id="@+id/control_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
