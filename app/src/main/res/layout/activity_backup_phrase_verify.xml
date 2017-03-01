@@ -65,7 +65,7 @@
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:text="@string/verify_backup_phrase_message"/>
 
-                <com.bakkenbaeck.token.view.custom.DragAndDropView
+                <com.tokenbrowser.view.custom.DragAndDropView
                     android:id="@+id/drag_and_drop_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>

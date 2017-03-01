@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.bakkenbaeck.token">
+    package="com.tokenbrowser.token">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -11,11 +11,11 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:hardwareAccelerated="true"
-        android:name="com.bakkenbaeck.token.view.BaseApplication"
+        android:name="com.tokenbrowser.view.BaseApplication"
         android:theme="@style/AppTheme">
 
         <activity
-            android:name="com.bakkenbaeck.token.view.activity.SplashActivity"
+            android:name="com.tokenbrowser.view.activity.SplashActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,30 +24,30 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.bakkenbaeck.token.view.activity.MainActivity"
+        <activity android:name="com.tokenbrowser.view.activity.MainActivity"
             android:windowSoftInputMode="adjustPan|stateHidden" />
-        <activity android:name="com.bakkenbaeck.token.view.activity.ChatActivity"
-                  android:parentActivityName="com.bakkenbaeck.token.view.activity.MainActivity">
+        <activity android:name="com.tokenbrowser.view.activity.ChatActivity"
+                  android:parentActivityName="com.tokenbrowser.view.activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.bakkenbaeck.token.view.activity.MainActivity" />
+                android:value="com.tokenbrowser.view.activity.MainActivity" />
         </activity>
 
-        <activity android:name="com.bakkenbaeck.token.view.activity.ViewUserActivity" />
-        <activity android:name="com.bakkenbaeck.token.view.activity.ProfileActivity" />
-        <activity android:name="com.bakkenbaeck.token.view.activity.UserSearchActivity" />
-        <activity android:name="com.bakkenbaeck.token.view.activity.AmountActivity" />
-        <activity android:name="com.bakkenbaeck.token.view.activity.ScannerActivity" />
-        <activity android:name="com.bakkenbaeck.token.view.activity.ChooseContactsActivity" />
-        <activity android:name="com.bakkenbaeck.token.view.activity.AboutActivity" />
-        <activity android:name="com.bakkenbaeck.token.view.activity.LicenseListActivity" />
-        <activity android:name="com.bakkenbaeck.token.view.activity.LicenseActivity" />
-        <activity android:name="com.bakkenbaeck.token.view.activity.ViewAppActivity" />
-        <activity android:name="com.bakkenbaeck.token.view.activity.TrustedFriendsActivity" />
-        <activity android:name="com.bakkenbaeck.token.view.activity.BackupPhraseInfoActivity" />
-        <activity android:name="com.bakkenbaeck.token.view.activity.BackupPhraseActivity" />
-        <activity android:name="com.bakkenbaeck.token.view.activity.BackupPhraseVerifyActivity" />
-        <activity android:name="com.bakkenbaeck.token.view.activity.DepositActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.ViewUserActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.ProfileActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.UserSearchActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.AmountActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.ScannerActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.ChooseContactsActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.AboutActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.LicenseListActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.LicenseActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.ViewAppActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.TrustedFriendsActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.BackupPhraseInfoActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.BackupPhraseActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.BackupPhraseVerifyActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.DepositActivity" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
@@ -65,7 +65,7 @@
         </receiver>
 
         <service
-            android:name=".service.GcmMessageReceiver"
+            android:name="com.tokenbrowser.service.GcmMessageReceiver"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -73,7 +73,7 @@
         </service>
 
         <service
-            android:name=".service.InstanceIdService"
+            android:name="com.tokenbrowser.service.InstanceIdService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.gms.iid.InstanceID"/>
@@ -81,7 +81,7 @@
         </service>
 
         <service
-            android:name=".service.RegistrationIntentService"
+            android:name="com.tokenbrowser.service.RegistrationIntentService"
             android:exported="false">
         </service>
 

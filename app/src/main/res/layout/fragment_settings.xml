@@ -71,7 +71,7 @@
                 android:layout_height="wrap_content"
                 app:layout_columnWeight="1"/>
 
-            <com.bakkenbaeck.token.view.custom.StarRatingView
+            <com.tokenbrowser.view.custom.StarRatingView
                 android:id="@+id/rating_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
