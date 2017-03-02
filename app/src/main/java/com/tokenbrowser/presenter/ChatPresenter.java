@@ -460,7 +460,7 @@ public final class ChatPresenter implements
         }
 
         setControlView(sofaMessage);
-        this.messageAdapter.addMessage(sofaMessage);
+        this.messageAdapter.updateMessage(sofaMessage);
         updateEmptyState();
         tryScrollToBottom(true);
         playNewMessageSound(sofaMessage.isSentByLocal());
