@@ -71,17 +71,24 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public void setClickableItems(final OnItemClickListener<String> listener) {
+    public void setClickableUsernames(final OnItemClickListener<String> listener) {
         final SpannableString spannableString = new SpannableString(this.text);
-        for (final String word : getUsernames()){
+        int lastEndPos = 0;
+
+        for (final String word : getUsernames()) {
+            final int currentStartPos = this.text.indexOf(word, lastEndPos);
+            final int currentEndPos = this.text.indexOf(word, lastEndPos) + word.length();
+
             spannableString.setSpan(new ClickableSpan() {
                 @Override
                 public void onClick(final View view) {
                    handleSpannedClicked(view, listener, this);
                 }
-            }, this.text.indexOf(word),
-               this.text.indexOf(word) + word.length(),
-               Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }, currentStartPos,
+               currentEndPos,
+               Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+            lastEndPos = currentEndPos;
         }
 
         this.localText.setText(spannableString);
@@ -91,11 +98,12 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
     }
 
     private List<String> getUsernames() {
-        final Pattern pattern = Pattern.compile("@\\w+");
+        final Pattern pattern = Pattern.compile("(?:^|\\s)@(\\w+)");
         final Matcher matcher = pattern.matcher(this.text);
         final List<String> matches = new ArrayList<>();
+
         while (matcher.find()) {
-            matches.add(matcher.group());
+            matches.add(matcher.group(1));
         }
 
         return matches;
@@ -108,9 +116,11 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
         final Spanned spannedString = (Spanned) tv.getText();
         final String username =
                 spannedString
-                        .subSequence(spannedString.getSpanStart(clickableSpan), spannedString.getSpanEnd(clickableSpan))
-                        .toString()
-                        .substring(1);
+                        .subSequence(
+                                spannedString.getSpanStart(clickableSpan),
+                                spannedString.getSpanEnd(clickableSpan))
+                        .toString();
+
         listener.onItemClick(username);
     }
 }
