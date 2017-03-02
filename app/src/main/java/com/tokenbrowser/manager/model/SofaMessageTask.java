@@ -8,11 +8,12 @@ import com.tokenbrowser.model.local.User;
 
 public class SofaMessageTask {
 
-    @IntDef({SEND_AND_SAVE, SAVE_ONLY, SEND_ONLY})
+    @IntDef({SEND_AND_SAVE, SAVE_ONLY, SEND_ONLY, UPDATE_MESSAGE})
     public @interface Action {}
     public static final int SEND_AND_SAVE = 0;
     public static final int SAVE_ONLY = 1;
     public static final int SEND_ONLY = 2;
+    public static final int UPDATE_MESSAGE = 3;
 
     private final User receiver;
     private final SofaMessage sofaMessage;

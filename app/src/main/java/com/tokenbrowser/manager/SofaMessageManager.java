@@ -143,6 +143,12 @@ public final class SofaMessageManager {
         this.chatMessageQueue.onNext(messageTask);
     }
 
+    // Updates a pre-existing message.
+    /* package */ final void updateMessage(final User receiver, final SofaMessage message) {
+        final SofaMessageTask messageTask = new SofaMessageTask(receiver, message, SofaMessageTask.UPDATE_MESSAGE);
+        this.chatMessageQueue.onNext(messageTask);
+    }
+
     public final void resumeMessageReceiving() {
         if (haveRegisteredWithServer() && this.wallet != null) {
             receiveMessagesAsync();
@@ -237,12 +243,19 @@ public final class SofaMessageManager {
             @Override
             public void onNext(final SofaMessageTask messageTask) {
                 dbThreadExecutor.submit(() -> {
-                    if (messageTask.getAction() == SofaMessageTask.SEND_AND_SAVE) {
-                        sendMessageToRemotePeer(messageTask.getReceiver(), messageTask.getSofaMessage(), true);
-                    } else if (messageTask.getAction() == SofaMessageTask.SAVE_ONLY) {
-                        storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage());
-                    } else {
-                        sendMessageToRemotePeer(messageTask.getReceiver(), messageTask.getSofaMessage(), false);
+                    switch (messageTask.getAction()) {
+                        case SofaMessageTask.SEND_AND_SAVE:
+                            sendMessageToRemotePeer(messageTask.getReceiver(), messageTask.getSofaMessage(), true);
+                            break;
+                        case SofaMessageTask.SAVE_ONLY:
+                            storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage());
+                            break;
+                        case SofaMessageTask.SEND_ONLY:
+                            sendMessageToRemotePeer(messageTask.getReceiver(), messageTask.getSofaMessage(), false);
+                            break;
+                        case SofaMessageTask.UPDATE_MESSAGE:
+                            updateExistingMessage(messageTask.getReceiver(), messageTask.getSofaMessage());
+                            break;
                     }
                 });
             }
@@ -259,7 +272,7 @@ public final class SofaMessageManager {
 
             if (saveMessageToDatabase) {
                 message.setSendState(SendState.STATE_SENT);
-                this.conversationStore.updateMessage(receiver, message);
+                updateExistingMessage(receiver, message);
             }
         } catch (final UntrustedIdentityException ue) {
             LogUtil.error(getClass(), "Keys have changed. " + ue);
@@ -270,7 +283,7 @@ public final class SofaMessageManager {
             LogUtil.error(getClass(), ex.toString());
             if (saveMessageToDatabase) {
                 message.setSendState(SendState.STATE_FAILED);
-                this.conversationStore.updateMessage(receiver, message);
+                updateExistingMessage(receiver, message);
             }
         }
     }
@@ -296,6 +309,10 @@ public final class SofaMessageManager {
     private void storeMessage(final User receiver, final SofaMessage message) {
         message.setSendState(SendState.STATE_LOCAL_ONLY);
         this.conversationStore.saveNewMessage(receiver, message);
+    }
+
+    private void updateExistingMessage(final User receiver, final SofaMessage message) {
+        this.conversationStore.updateMessage(receiver, message);
     }
 
     private void receiveMessagesAsync() {
