@@ -84,14 +84,23 @@ public class MainPresenter implements Presenter<MainActivity> {
                 .getTokenManager()
                 .getSofaMessageManager();
 
-        final Subscription sub =
+        final Subscription allChangesSubscription =
                 messageManager
                     .isReady().toObservable()
                     .flatMap((unused) -> messageManager.registerForAllConversationChanges())
                     .flatMap((unused) -> messageManager.areUnreadMessages().toObservable())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(this::handleUnreadMessages);
-        this.subscriptions.add(sub);
+
+        final Subscription firstTimeSubscription =
+                messageManager
+                .isReady().toObservable()
+                .flatMap((unused) -> messageManager.areUnreadMessages().toObservable())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleUnreadMessages);
+
+        this.subscriptions.add(allChangesSubscription);
+        this.subscriptions.add(firstTimeSubscription);
     }
 
     private void handleUnreadMessages(final boolean areUnreadMessages) {
