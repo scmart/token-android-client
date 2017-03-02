@@ -184,6 +184,17 @@ public final class SofaMessageManager {
         this.conversationStore.stopListeningForChanges();
     }
 
+    public final Single<Boolean> isReady() {
+        return Single
+                .fromCallable(() -> {
+                    while (this.conversationStore == null) {
+                        Thread.sleep(50);
+                    }
+                    return true;
+                })
+                .subscribeOn(Schedulers.io());
+    }
+
     public final Single<Boolean> areUnreadMessages() {
         return Single
                 .fromCallable(() -> conversationStore.areUnreadMessages())
