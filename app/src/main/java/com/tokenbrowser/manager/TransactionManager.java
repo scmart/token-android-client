@@ -4,7 +4,6 @@ import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.exception.UnknownTransactionException;
 import com.tokenbrowser.manager.model.PaymentTask;
 import com.tokenbrowser.manager.network.BalanceService;
-import com.tokenbrowser.manager.store.ConversationStore;
 import com.tokenbrowser.manager.store.PendingTransactionStore;
 import com.tokenbrowser.model.local.PendingTransaction;
 import com.tokenbrowser.model.local.SendState;
@@ -39,7 +38,6 @@ public class TransactionManager {
     private final PublishSubject<Payment> updatePaymentQueue = PublishSubject.create();
 
     private HDWallet wallet;
-    private ConversationStore conversationStore;
     private PendingTransactionStore pendingTransactionStore;
     private ExecutorService dbThreadExecutor;
     private SofaAdapters adapters;
@@ -79,7 +77,11 @@ public class TransactionManager {
 
                 final String updatedPayload = adapters.toJson(paymentRequest);
                 sofaMessage.setPayload(updatedPayload);
-                conversationStore.updateMessage(remoteUser, sofaMessage);
+                BaseApplication
+                        .get()
+                        .getTokenManager()
+                        .getSofaMessageManager()
+                        .updateMessage(remoteUser, sofaMessage);
 
                 if (newState == PaymentRequest.ACCEPTED) {
                     sendPayment(remoteUser, paymentRequest.getValue());
@@ -104,7 +106,6 @@ public class TransactionManager {
     private void initDatabase() {
         this.dbThreadExecutor = Executors.newSingleThreadExecutor();
         this.dbThreadExecutor.submit(() -> {
-            TransactionManager.this.conversationStore = new ConversationStore();
             TransactionManager.this.pendingTransactionStore = new PendingTransactionStore();
         });
     }
@@ -238,7 +239,11 @@ public class TransactionManager {
     }
 
     private void updateMessage(final User user, final SofaMessage message) {
-        this.conversationStore.updateMessage(user, message);
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getSofaMessageManager()
+                .updateMessage(user, message);
     }
 
 
@@ -266,7 +271,11 @@ public class TransactionManager {
 
     private void storeMessage(final User user, final SofaMessage message) {
         message.setSendState(SendState.STATE_SENDING);
-        this.conversationStore.saveNewMessage(user, message);
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getSofaMessageManager()
+                .saveMessage(user, message);
     }
 
     private void storeUnconfirmedTransaction(final String txHash, final SofaMessage message) {
