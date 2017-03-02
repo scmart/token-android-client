@@ -47,7 +47,7 @@ public class ConversationStore {
         final Conversation conversationToStore = existingConversation == null
                 ? new Conversation(user)
                 : existingConversation;
-        final SofaMessage storedMessage = realm.copyToRealm(message);
+        final SofaMessage storedMessage = realm.copyToRealmOrUpdate(message);
         conversationToStore.setLatestMessage(storedMessage);
         conversationToStore.setNumberOfUnread(calculateNumberOfUnread(conversationToStore));
         final Conversation storedConversation = realm.copyToRealmOrUpdate(conversationToStore);
