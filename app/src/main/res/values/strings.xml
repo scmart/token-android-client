@@ -8,7 +8,6 @@
     <string name="tab_2">Apps</string>
     <string name="tab_3">Scan</string>
     <string name="tab_4">Contacts</string>
-    <string name="contacts_title">Search for people</string>
     <string name="tab_5">Settings</string>
     <string name="message">Message…</string>
     <string name="chat__empty_state">There are no messages, yet!</string>
@@ -22,7 +21,7 @@
     <string name="profile_about">About</string>
     <string name="profile_location">Location</string>
     <string name="profile_name">Display Name</string>
-    <string name="contacts__user_search_hint">Find a user</string>
+    <string name="contacts__user_search_hint">Search for people</string>
     <string name="contact_list__empty_state">You have no contacts, yet!</string>
     <string name="error__required">This is required</string>
     <string name="error__invalid_characters">Invalid characters. No spaces allowed.</string>
