@@ -142,6 +142,14 @@ public class UserManager {
                 .first(user -> user != null && !user.needsRefresh());
     }
 
+    public Single<User> getUserFromPaymentAddress(final String paymentAddress) {
+        return Single
+                .fromCallable(() -> userStore.loadForPaymentAddress(paymentAddress))
+                .subscribeOn(Schedulers.from(this.dbThreadExecutor))
+                .observeOn(Schedulers.from(this.dbThreadExecutor));
+
+    }
+
     private Observable<User> fetchAndCacheFromNetwork(final String userAddress) {
         return IdService
                 .getApi()

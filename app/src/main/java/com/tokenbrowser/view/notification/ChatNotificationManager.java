@@ -10,14 +10,13 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 
-import com.tokenbrowser.token.R;
 import com.tokenbrowser.crypto.signal.model.DecryptedSignalMessage;
 import com.tokenbrowser.model.local.SofaMessage;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.model.sofa.SofaType;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.LogUtil;
-import com.tokenbrowser.util.OnNextSubscriber;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ChatActivity;
 import com.tokenbrowser.view.activity.MainActivity;
@@ -46,16 +45,7 @@ public class ChatNotificationManager {
             .getTokenManager()
             .getUserManager()
             .getUserFromAddress(signalMessage.getSource())
-            .subscribe(new OnNextSubscriber<User>() {
-                @Override
-                public void onNext(final User user) {
-                    if (user == null) {
-                        return;
-                    }
-                    unsubscribe();
-                    handleUserLookup(user, signalMessage);
-                }
-            });
+            .subscribe((user) -> handleUserLookup(user, signalMessage));
     }
 
     private static void handleUserLookup(final User user, final DecryptedSignalMessage signalMessage) {

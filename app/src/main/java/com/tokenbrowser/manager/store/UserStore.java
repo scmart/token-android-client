@@ -23,6 +23,10 @@ public class UserStore {
         return Observable.fromCallable(() -> loadWhere("owner_address", address));
     }
 
+    public User loadForPaymentAddress(final String address) {
+        return loadWhere("payment_address", address);
+    }
+
     public Single<List<User>> queryUsername(final String query) {
         return Single.fromCallable(() -> filter("username", query));
     }

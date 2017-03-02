@@ -91,11 +91,6 @@ public class TransactionManager {
         });
     }
 
-    /* package */ final void processIncomingPayment(final User sender, final Payment payment) {
-        final PaymentTask task = new PaymentTask(sender, payment, PaymentTask.INCOMING);
-        this.newPaymentQueue.onNext(task);
-    }
-
     private void initEverything() {
         initAdapters();
         initDatabase();
@@ -127,9 +122,19 @@ public class TransactionManager {
             .subscribe(this::processNewPayment);
     }
 
+    private void createNewPayment(final User sender, final Payment payment) {
+        final PaymentTask task = new PaymentTask(
+                sender,
+                payment,
+                payment.getFromAddress().equals(wallet.getPaymentAddress()) ? OUTGOING : INCOMING);
+        this.newPaymentQueue.onNext(task);
+    }
+
     private void processNewPayment(final PaymentTask task) {
         final Payment payment = task.getPayment();
         final User user = task.getUser();
+
+        payment.generateLocalPrice();
 
         switch (task.getAction()) {
             case INCOMING: {
@@ -272,6 +277,17 @@ public class TransactionManager {
     }
 
     private void updatePendingTransaction(final PendingTransaction pendingTransaction, final Payment updatedPayment) {
+
+        if (pendingTransaction == null) {
+            // Never seen this transaction before so process it as a new transaction
+            BaseApplication
+            .get()
+            .getTokenManager()
+            .getUserManager()
+            .getUserFromPaymentAddress(updatedPayment.getFromAddress())
+            .subscribe((sender) -> createNewPayment(sender, updatedPayment));
+            return;
+        }
 
         final SofaMessage updatedMessage;
         try {

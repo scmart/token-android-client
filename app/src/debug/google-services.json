@@ -1,20 +1,27 @@
 {
   "project_info": {
-    "project_number": "405418956142",
-    "project_id": "token-abfd6"
+    "project_number": "687802783603",
+    "firebase_url": "https://token-staging.firebaseio.com",
+    "project_id": "token-staging",
+    "storage_bucket": "token-staging.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:405418956142:android:2e3b5d52175eef1d",
+        "mobilesdk_app_id": "1:687802783603:android:2e3b5d52175eef1d",
         "android_client_info": {
           "package_name": "com.tokenbrowser.debug"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "687802783603-5lhsek0l7tvg0q5kti4db2k68qipfhl6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyAAuce4ljwL_75LpU_QLT1VL3rSXTUI1Hk"
+          "current_key": "AIzaSyASiPPlgfsigCr639UgkeUa2upu5Za3w-4"
         }
       ],
       "services": {
@@ -26,7 +33,7 @@
           "other_platform_oauth_client": []
         },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     }

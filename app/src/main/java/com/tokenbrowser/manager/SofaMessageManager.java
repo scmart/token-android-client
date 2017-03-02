@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Pair;
 
-import com.tokenbrowser.token.BuildConfig;
-import com.tokenbrowser.token.R;
 import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.crypto.signal.SignalPreferences;
 import com.tokenbrowser.crypto.signal.SignalService;
@@ -22,11 +20,12 @@ import com.tokenbrowser.model.local.SofaMessage;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.network.UserSearchResults;
 import com.tokenbrowser.model.sofa.Message;
-import com.tokenbrowser.model.sofa.Payment;
 import com.tokenbrowser.model.sofa.PaymentRequest;
 import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.model.sofa.SofaType;
 import com.tokenbrowser.service.RegistrationIntentService;
+import com.tokenbrowser.token.BuildConfig;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.FileNames;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnNextSubscriber;
@@ -407,7 +406,9 @@ public final class SofaMessageManager {
 
                 final SofaMessage remoteMessage = new SofaMessage().makeNew(false, signalMessage.getBody());
                 if (remoteMessage.getType() == SofaType.PAYMENT) {
-                    sendIncomingPaymentToTransactionManager(user, remoteMessage);
+                    // Don't render incoming SOFA::Payments,
+                    // but ensure we have the sender cached.
+                    fetchAndCacheIncomingPaymentSender(user);
                     return;
                 } else if(remoteMessage.getType() == SofaType.PAYMENT_REQUEST) {
                     embedLocalAmountIntoPaymentRequest(remoteMessage);
@@ -418,19 +419,12 @@ public final class SofaMessageManager {
         });
     }
 
-    private void sendIncomingPaymentToTransactionManager(final User sender, final SofaMessage remoteMessage) {
-        try {
-            final Payment payment = adapters.paymentFrom(remoteMessage.getPayload());
-            payment.generateLocalPrice();
-
-            BaseApplication
-                    .get()
-                    .getTokenManager()
-                    .getTransactionManager()
-                    .processIncomingPayment(sender, payment);
-        } catch (final IOException e) {
-            LogUtil.error(getClass(), "Error parsing payment: " + e);
-        }
+    private void fetchAndCacheIncomingPaymentSender(final User sender) {
+        BaseApplication
+        .get()
+        .getTokenManager()
+        .getUserManager()
+        .getUserFromAddress(sender.getOwnerAddress());
     }
 
     private void embedLocalAmountIntoPaymentRequest(final SofaMessage remoteMessage) {
