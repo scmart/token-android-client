@@ -631,7 +631,7 @@ public final class ChatPresenter implements
         this.messageAdapter = null;
         this.subscriptions.clear();
         stopListeningForConversationChanges();
-        ChatNotificationManager.stopNotificationSuppresion();
+        ChatNotificationManager.stopNotificationSuppression();
         this.activity = null;
         this.chatObservables = null;
     }

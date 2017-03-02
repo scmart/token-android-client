@@ -125,4 +125,6 @@
     <string name="latest_message__payment_incoming">Received %1$s</string>
     <string name="latest_message__request_incoming">Request for %1$s</string>
     <string name="latest_message__request_outgoing">You requested %1$s</string>
+    <string name="payment_failed">Payment failed</string>
+    <string name="payment_failed_message">Unable to send money to %1$s</string>
 </resources>
