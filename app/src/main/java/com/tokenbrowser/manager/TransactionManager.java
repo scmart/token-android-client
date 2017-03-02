@@ -17,9 +17,12 @@ import com.tokenbrowser.model.network.UnsignedTransaction;
 import com.tokenbrowser.model.sofa.Payment;
 import com.tokenbrowser.model.sofa.PaymentRequest;
 import com.tokenbrowser.model.sofa.SofaAdapters;
+import com.tokenbrowser.token.R;
+import com.tokenbrowser.util.LocaleUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnNextSubscriber;
 import com.tokenbrowser.view.BaseApplication;
+import com.tokenbrowser.view.notification.ChatNotificationManager;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -174,7 +177,17 @@ public class TransactionManager {
                     public void onError(final Throwable error) {
                         LogUtil.e(getClass(), "Error creating transaction: " + error);
                         updateMessageState(receiver, storedSofaMessage, SendState.STATE_FAILED);
+                        showPaymentFailedNotification(receiver);
                         unsubscribe();
+                    }
+
+                    private void showPaymentFailedNotification(final User receiver) {
+                        final String title = BaseApplication.get().getString(R.string.payment_failed);
+                        final String content = String.format(
+                                LocaleUtil.getLocale(),
+                                BaseApplication.get().getString(R.string.payment_failed_message),
+                                receiver.getDisplayName());
+                        ChatNotificationManager.showNotification(title, content, receiver.getOwnerAddress());
                     }
 
                     @Override

@@ -31,7 +31,7 @@ public class ChatNotificationManager {
         currentlyOpenConversation = conversationId;
     }
 
-    public static void stopNotificationSuppresion() {
+    public static void stopNotificationSuppression() {
         currentlyOpenConversation = null;
     }
 

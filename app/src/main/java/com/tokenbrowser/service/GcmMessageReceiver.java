@@ -37,6 +37,8 @@ import java.math.BigInteger;
 import java.util.Locale;
 import java.util.concurrent.TimeoutException;
 
+import static com.tokenbrowser.token.R.string.latest_message__payment_incoming;
+
 public class GcmMessageReceiver extends GcmListenerService {
 
     private final SofaAdapters adapters;
@@ -130,7 +132,7 @@ public class GcmMessageReceiver extends GcmListenerService {
         final BigInteger weiAmount = TypeConverter.StringHexToBigInteger(payment.getValue());
         final BigDecimal ethAmount = EthUtil.weiToEth(weiAmount);
         final String localCurrency = BaseApplication.get().getTokenManager().getBalanceManager().convertEthToLocalCurrencyString(ethAmount);
-        final String content = String.format(Locale.getDefault(), "Received: %s", localCurrency);
+        final String content = String.format(Locale.getDefault(), this.getString(R.string.latest_message__payment_incoming), localCurrency);
         BaseApplication
                 .get()
                 .getTokenManager()
