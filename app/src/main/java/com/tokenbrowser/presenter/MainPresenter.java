@@ -7,10 +7,16 @@ import android.support.v4.content.ContextCompat;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
+import com.tokenbrowser.manager.SofaMessageManager;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.SoundManager;
+import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.MainActivity;
 import com.tokenbrowser.view.adapter.NavigationAdapter;
+
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.subscriptions.CompositeSubscription;
 
 public class MainPresenter implements Presenter<MainActivity> {
     private static final int DEFAULT_TAB = 0;
@@ -18,6 +24,7 @@ public class MainPresenter implements Presenter<MainActivity> {
     private MainActivity activity;
     private boolean firstTimeAttached = true;
     private NavigationAdapter adapter;
+    private CompositeSubscription subscriptions;
 
     private final AHBottomNavigation.OnTabSelectedListener tabListener = new AHBottomNavigation.OnTabSelectedListener() {
         @Override
@@ -40,10 +47,12 @@ public class MainPresenter implements Presenter<MainActivity> {
         if (this.firstTimeAttached) {
             this.firstTimeAttached = false;
             this.adapter = new NavigationAdapter(this.activity, R.menu.navigation);
+            this.subscriptions = new CompositeSubscription();
             manuallySelectFirstTab();
         }
         initNavBar();
         selectTabFromIntent();
+        attachUnreadMessagesSubscription();
     }
 
     private void manuallySelectFirstTab() {
@@ -68,13 +77,57 @@ public class MainPresenter implements Presenter<MainActivity> {
         navBar.setBehaviorTranslationEnabled(false);
     }
 
+    private void attachUnreadMessagesSubscription() {
+        final SofaMessageManager messageManager =
+                BaseApplication
+                .get()
+                .getTokenManager()
+                .getSofaMessageManager();
+
+        final Subscription allChangesSubscription =
+                messageManager
+                    .isReady().toObservable()
+                    .flatMap((unused) -> messageManager.registerForAllConversationChanges())
+                    .flatMap((unused) -> messageManager.areUnreadMessages().toObservable())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(this::handleUnreadMessages);
+
+        final Subscription firstTimeSubscription =
+                messageManager
+                .isReady().toObservable()
+                .flatMap((unused) -> messageManager.areUnreadMessages().toObservable())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleUnreadMessages);
+
+        this.subscriptions.add(allChangesSubscription);
+        this.subscriptions.add(firstTimeSubscription);
+    }
+
+    private void handleUnreadMessages(final boolean areUnreadMessages) {
+        if (areUnreadMessages) {
+            showUnreadBadge();
+        } else {
+            hideUnreadBadge();
+        }
+    }
+
+    private void showUnreadBadge() {
+        this.activity.getBinding().navBar.setNotification(" ", 1);
+    }
+
+    private void hideUnreadBadge() {
+        this.activity.getBinding().navBar.setNotification("", 1);
+    }
+
     @Override
     public void onViewDetached() {
         this.activity = null;
+        this.subscriptions.clear();
     }
 
     @Override
     public void onViewDestroyed() {
+        this.subscriptions.clear();
         this.activity = null;
     }
 }

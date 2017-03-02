@@ -71,7 +71,10 @@ public final class ContactsListPresenter implements
                 .getUserManager()
                 .loadAllContacts()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(contacts -> this.adapter.mapContactsToUsers(contacts));
+                .subscribe(contacts -> {
+                    this.adapter.mapContactsToUsers(contacts);
+                    updateEmptyState();
+                });
 
         this.subscriptions.add(sub);
     }
@@ -79,8 +82,7 @@ public final class ContactsListPresenter implements
     private void initLongLivingObjects() {
         this.subscriptions = new CompositeSubscription();
         this.adapter = new ContactsAdapter()
-                .setOnItemClickListener(this)
-                .setOnUpdateListener(this::updateEmptyState);
+                .setOnItemClickListener(this);
     }
 
     @Override

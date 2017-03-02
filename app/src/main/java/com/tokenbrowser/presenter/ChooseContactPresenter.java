@@ -65,8 +65,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
     private void initLongLivingObjects() {
         this.subscriptions = new CompositeSubscription();
         this.adapter = new ContactsAdapter()
-                .setOnItemClickListener(this::handleItemClicked)
-                .setOnUpdateListener(this::updateEmptyState);
+                .setOnItemClickListener(this::handleItemClicked);
     }
 
     @SuppressWarnings("WrongConstant")
@@ -100,7 +99,10 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
                 .getUserManager()
                 .loadAllContacts()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(contacts -> this.adapter.mapContactsToUsers(contacts));
+                .subscribe(contacts -> {
+                    this.adapter.mapContactsToUsers(contacts);
+                    updateEmptyState();
+                });
 
         this.subscriptions.add(sub);
     }
@@ -161,7 +163,10 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
                 .map(CharSequence::toString)
                 .flatMap(this::searchOfflineUsers)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(users -> this.adapter.setUsers(users));
+                .subscribe(users -> {
+                    this.adapter.setUsers(users);
+                    updateEmptyState();
+                });
 
         this.subscriptions.add(sub);
     }

@@ -111,6 +111,17 @@ public class ConversationStore {
         broadcastUpdatedChatMessage(user.getOwnerAddress(), message);
     }
 
+    public boolean areUnreadMessages() {
+        final Realm localRealmInstance = Realm.getDefaultInstance();
+        final Conversation result = localRealmInstance
+                .where(Conversation.class)
+                .greaterThan("numberOfUnread", 0)
+                .findFirst();
+        final boolean areUnreadMessages = result != null;
+        localRealmInstance.close();
+        return areUnreadMessages;
+    }
+
     private void broadcastNewChatMessage(final String conversationId, final SofaMessage newMessage) {
         if (watchedConversationId == null || !watchedConversationId.equals(conversationId)) {
             return;

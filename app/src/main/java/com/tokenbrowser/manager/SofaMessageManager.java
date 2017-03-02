@@ -157,10 +157,20 @@ public final class SofaMessageManager {
         }
     }
 
+    public final Single<List<Conversation>> loadAllConversations() {
+        return Single
+                .fromCallable(() -> conversationStore.loadAll())
+                .subscribeOn(Schedulers.from(this.dbThreadExecutor));
+    }
+
     public final Single<Conversation> loadConversation(final String conversationId) {
         return Single
                 .fromCallable(() -> conversationStore.loadByAddress(conversationId))
                 .subscribeOn(Schedulers.from(this.dbThreadExecutor));
+    }
+
+    public final PublishSubject<Conversation> registerForAllConversationChanges() {
+        return this.conversationStore.getConversationChangedObservable();
     }
 
     // Returns a pair of RxSubjects, the first being the observable for new messages
@@ -171,6 +181,23 @@ public final class SofaMessageManager {
 
     public final void stopListeningForConversationChanges() {
         this.conversationStore.stopListeningForChanges();
+    }
+
+    public final Single<Boolean> isReady() {
+        return Single
+                .fromCallable(() -> {
+                    while (this.conversationStore == null) {
+                        Thread.sleep(50);
+                    }
+                    return true;
+                })
+                .subscribeOn(Schedulers.io());
+    }
+
+    public final Single<Boolean> areUnreadMessages() {
+        return Single
+                .fromCallable(() -> conversationStore.areUnreadMessages())
+                .subscribeOn(Schedulers.from(this.dbThreadExecutor));
     }
 
     private void initEverything() {
