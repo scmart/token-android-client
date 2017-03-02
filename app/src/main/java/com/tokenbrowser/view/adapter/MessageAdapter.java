@@ -29,6 +29,7 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
     private final SofaAdapters adapters;
     private OnItemClickListener<SofaMessage> onPaymentRequestApproveListener;
     private OnItemClickListener<SofaMessage> onPaymentRequestRejectListener;
+    private OnItemClickListener<String> onUsernameClickListener;
 
     public MessageAdapter() {
         this.sofaMessages = new ArrayList<>();
@@ -42,6 +43,11 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public final MessageAdapter addOnPaymentRequestRejectListener(final OnItemClickListener<SofaMessage> listener) {
         this.onPaymentRequestRejectListener = listener;
+        return this;
+    }
+
+    public final MessageAdapter addOnUsernameClickListener(final OnItemClickListener<String> listener) {
+        this.onUsernameClickListener = listener;
         return this;
     }
 
@@ -142,9 +148,10 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
                 final TextViewHolder vh = (TextViewHolder) holder;
                 final Message message = this.adapters.messageFrom(payload);
                 vh.setText(message.getBody())
-                  .setSentByLocal(sofaMessage.isSentByLocal())
-                  .setSendState(sofaMessage.getSendState())
-                  .draw();
+                        .setSentByLocal(sofaMessage.isSentByLocal())
+                        .setSendState(sofaMessage.getSendState())
+                        .draw()
+                        .setClickableItems(this.onUsernameClickListener);
                 break;
             }
 

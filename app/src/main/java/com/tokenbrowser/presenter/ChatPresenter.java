@@ -96,7 +96,21 @@ public final class ChatPresenter implements
         this.adapters = new SofaAdapters();
         this.messageAdapter = new MessageAdapter()
                 .addOnPaymentRequestApproveListener(message -> updatePaymentRequestState(message, PaymentRequest.ACCEPTED))
-                .addOnPaymentRequestRejectListener(message -> updatePaymentRequestState(message, PaymentRequest.REJECTED));
+                .addOnPaymentRequestRejectListener(message -> updatePaymentRequestState(message, PaymentRequest.REJECTED))
+                .addOnUsernameClickListener(this::searchForUsername);
+    }
+
+    private void searchForUsername(final String username) {
+        final Subscription sub =
+                BaseApplication
+                        .get()
+                        .getTokenManager()
+                        .getUserManager()
+                        .searchOnlineUsers(username)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(users -> handleSearchResult(username, users));
+
+        this.subscriptions.add(sub);
     }
 
     private void updatePaymentRequestState(
@@ -107,6 +121,28 @@ public final class ChatPresenter implements
                 .getTokenManager()
                 .getTransactionManager()
                 .updatePaymentRequestState(this.remoteUser, existingMessage, newState);
+    }
+
+    private void handleSearchResult(final String searchedForUsername, final List<User> userResult) {
+        if (this.activity == null) {
+            return;
+        }
+
+        final boolean usersFound = userResult.size() > 0;
+        if (!usersFound) {
+            Toast.makeText(this.activity, this.activity.getString(R.string.username_search_response_no_match), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        final User user = userResult.get(0);
+        final boolean isSameUser = user.getUsernameForEditing().equals(searchedForUsername);
+
+        if (!isSameUser) {
+            Toast.makeText(this.activity, this.activity.getString(R.string.username_search_response_no_match), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        viewProfile(user.getOwnerAddress());
     }
 
     private void initPendingTransactionStore() {
@@ -598,7 +634,7 @@ public final class ChatPresenter implements
                 break;
             }
             case R.id.view_profile: {
-                viewProfile();
+                viewProfile(this.remoteUser.getOwnerAddress());
                 break;
             }
             default: {
@@ -607,13 +643,13 @@ public final class ChatPresenter implements
         }
     }
 
-    private void viewProfile() {
+    private void viewProfile(final String ownerAddress) {
         if (this.remoteUser == null) {
             return;
         }
 
         final Intent intent = new Intent(this.activity, ViewUserActivity.class)
-                .putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, this.remoteUser.getOwnerAddress());
+                .putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, ownerAddress);
         this.activity.startActivity(intent);
     }
 
