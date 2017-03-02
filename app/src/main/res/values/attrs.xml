@@ -6,4 +6,11 @@
         <attr name="progressPercentage" format="integer" />
         <attr name="radius" format="dimension" />
     </declare-styleable>
+
+    <declare-styleable name="ShadowTextView">
+        <attr name="shadow" format="boolean" />
+        <attr name="text" format="string" />
+        <attr name="cornerRadius" format="dimension" />
+        <attr name="visibleBackground" format="boolean" />
+    </declare-styleable>
 </resources>

@@ -9,6 +9,7 @@ import com.tokenbrowser.token.R;
 import com.tokenbrowser.manager.network.DirectoryService;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.network.App;
+import com.tokenbrowser.token.databinding.ActivityViewAppBinding;
 import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.BaseApplication;
@@ -70,11 +71,11 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
     }
 
     private void initView() {
-        this.activity.getBinding().title.setText(app.getDisplayName());
-        this.activity.getBinding().name.setText(app.getDisplayName());
-        this.activity.getBinding().about.setText(app.getLanguages().toString());
-        this.activity.getBinding().location.setText(app.getDisplayName());
-        this.activity.getBinding().ratingView.setStars(3.6);
+        final ActivityViewAppBinding binding = this.activity.getBinding();
+        binding.title.setText(app.getDisplayName());
+        binding.name.setText(app.getDisplayName());
+        binding.username.setText(app.getDisplayName());
+        binding.ratingView.setStars(3.6);
         generateQrCode(this.app.getOwnerAddress());
     }
 

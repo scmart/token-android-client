@@ -8,7 +8,6 @@
     <string name="tab_2">Apps</string>
     <string name="tab_3">Scan</string>
     <string name="tab_4">Contacts</string>
-    <string name="contacts_title">Search for people</string>
     <string name="tab_5">Settings</string>
     <string name="message">Message…</string>
     <string name="chat__empty_state">There are no messages, yet!</string>
@@ -22,7 +21,7 @@
     <string name="profile_about">About</string>
     <string name="profile_location">Location</string>
     <string name="profile_name">Display Name</string>
-    <string name="contacts__user_search_hint">Find a user</string>
+    <string name="contacts__user_search_hint">Search for people</string>
     <string name="contact_list__empty_state">You have no contacts, yet!</string>
     <string name="error__required">This is required</string>
     <string name="error__invalid_characters">Invalid characters. No spaces allowed.</string>
@@ -88,22 +87,22 @@
     <string name="backup_phrase">Backup phrase</string>
     <string name="this_is_your_backup_phrase">This is your backup phrase</string>
     <string name="backup_phrase_warning_message">Carefully write down the words. Don’t email it or screenshot it. </string>
-    <string name="copy_phrase_to_clipboard">Copy phrase to clipboard</string>
+    <string name="copy_phrase_to_clipboard">Copy phrase to Clipboard</string>
     <string name="verify_phrase">Verify phrase</string>
     <string name="verify">Verify</string>
     <string name="verify_backup_phrase_message">Tap or drag the words to put them next to each other in the correct order.</string>
-    <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="copied_to_clipboard">Copied to Clipboard</string>
     <string name="screenshot_warning_title">Screenshots are not secure</string>
     <string name="screenshot_warning_message">If you take a screenshot, your backup may be viewed by other apps</string>
     <string name="got_it">Got it</string>
     <string name="error__web_signin">It was not possible to complete sign in.</string>
     <string name="web_signin">Sign in successful</string>
     <string name="deposit_money">Deposit money</string>
+    <string name="add_money_to_wallet">Add Money To My Wallet</string>
     <string name="deposit_info_message">You can add money to your account in a variety of ways</string>
-    <string name="add_money_to_wallet">Add money to my Wallet</string>
     <string name="eth_deposit_method_1">1. Send ethereum from another wallet</string>
-    <string name="eth_deposit_method_1_message">Send this address to top up your wallet</string>
-    <string name="copy_to_clipboard">Copy to clipboard</string>
+    <string name="eth_deposit_method_1_message">Send to this address to top up your wallet</string>
+    <string name="copy_to_clipboard">Copy to Clipboard</string>
     <string name="eth_deposit_method_2">2. Find a local exchanger</string>
     <string name="eth_deposit_method_2_message">Find a local exchanger of ethereum in your country. You can give them cash and they will send you ethereum</string>
     <string name="eth_deposit_method_3">3. Earn money</string>
@@ -127,4 +126,5 @@
     <string name="latest_message__request_outgoing">You requested %1$s</string>
     <string name="payment_failed">Payment failed</string>
     <string name="payment_failed_message">Unable to send money to %1$s</string>
+    <string name="username_search_response_no_match">No user found with this username</string>
 </resources>

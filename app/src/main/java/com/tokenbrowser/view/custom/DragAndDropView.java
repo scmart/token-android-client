@@ -7,8 +7,8 @@ import android.util.AttributeSet;
 import android.view.DragEvent;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
+import com.bakkenbaeck.token.view.custom.ShadowTextView;
 import com.tokenbrowser.token.R;
 
 import org.apmem.tools.layouts.FlowLayout;
@@ -19,7 +19,7 @@ import java.util.List;
 
 public class DragAndDropView extends LinearLayout {
 
-    private TextView selectedBackupPhrase;
+    private ShadowTextView selectedBackupPhrase;
     private List<String> backupPhrase;
     private OnFinishedListener listener;
 
@@ -54,7 +54,7 @@ public class DragAndDropView extends LinearLayout {
     private void initListeners() {
         final FlowLayout sourceLayout = (FlowLayout) findViewById(R.id.backup_phrase_source);
         for (int i = 0; i < sourceLayout.getChildCount(); i++) {
-            final TextView backupPhraseSource = (TextView) sourceLayout.getChildAt(i);
+            final ShadowTextView backupPhraseSource = (ShadowTextView) sourceLayout.getChildAt(i);
             backupPhraseSource.setOnClickListener(this::handleClickEventSource);
             backupPhraseSource.setOnLongClickListener(this::handleLongClickEvent);
             backupPhraseSource.setOnDragListener(this::handleDragEvent);
@@ -62,7 +62,7 @@ public class DragAndDropView extends LinearLayout {
 
         final FlowLayout targetLayout = (FlowLayout) findViewById(R.id.backup_phrase_target);
         for (int i = 0; i < targetLayout.getChildCount(); i++) {
-            final TextView backupPhraseTarget = (TextView) targetLayout.getChildAt(i);
+            final ShadowTextView backupPhraseTarget = (ShadowTextView) targetLayout.getChildAt(i);
             backupPhraseTarget.setOnClickListener(this::handleClickEventTarget);
             backupPhraseTarget.setOnLongClickListener(this::handleLongClickEvent);
             backupPhraseTarget.setOnDragListener(this::handleDragEvent);
@@ -70,22 +70,26 @@ public class DragAndDropView extends LinearLayout {
     }
 
     private void handleClickEventSource(final View v) {
-        final TextView selectedBackupPhrase = (TextView) v;
+        final ShadowTextView selectedBackupPhrase = (ShadowTextView) v;
 
-        if (selectedBackupPhrase.getText().toString().length() == 0) {
+        if (selectedBackupPhrase.getText().length() == 0) {
             return;
         }
 
         final FlowLayout backupPhraseTargetLayout = (FlowLayout) findViewById(R.id.backup_phrase_target);
         for (int i = 0; i < backupPhraseTargetLayout.getChildCount(); i++) {
-            final TextView backupPhraseTarget = (TextView) backupPhraseTargetLayout.getChildAt(i);
-            if (backupPhraseTarget.getText().toString().length() == 0) {
-                final String clickedText = selectedBackupPhrase.getText().toString();
-                final String targetText = backupPhraseTarget.getText().toString();
+            final ShadowTextView backupPhraseTarget = (ShadowTextView) backupPhraseTargetLayout.getChildAt(i);
+            if (backupPhraseTarget.getText().length() == 0) {
+                final String selectedValue = selectedBackupPhrase.getText();
+                final String targetValue = backupPhraseTarget.getText();
 
-                backupPhraseTarget.setText(clickedText);
+                backupPhraseTarget.setText(selectedValue);
                 backupPhraseTarget.setBackgroundResource(R.drawable.background_with_radius);
-                selectedBackupPhrase.setText(targetText);
+                backupPhraseTarget.enableShadow();
+                selectedBackupPhrase.setText(targetValue);
+                selectedBackupPhrase.setBackground(null);
+                selectedBackupPhrase.disableShadow();
+
                 checkBackupPhrase();
                 return;
             }
@@ -93,17 +97,27 @@ public class DragAndDropView extends LinearLayout {
     }
 
     private void handleClickEventTarget(final View v) {
-        final TextView clickedTextView = (TextView) v;
+        final ShadowTextView clickedTextView = (ShadowTextView) v;
+
+        if (clickedTextView.getText().length() == 0) {
+            return;
+        }
+
         final FlowLayout backupPhraseSourceLayout = (FlowLayout) findViewById(R.id.backup_phrase_source);
         for (int i = 0; i < backupPhraseSourceLayout.getChildCount(); i++) {
-            final TextView backupPhraseSource = (TextView) backupPhraseSourceLayout.getChildAt(i);
-            if (backupPhraseSource.getText().toString().length() == 0) {
-                final String selectedValue = clickedTextView.getText().toString();
-                final String targetValue = backupPhraseSource.getText().toString();
+            final ShadowTextView backupPhraseSource = (ShadowTextView) backupPhraseSourceLayout.getChildAt(i);
+            if (backupPhraseSource.getText().length() == 0) {
+                final String selectedValue = clickedTextView.getText();
+                final String targetValue = backupPhraseSource.getText();
+
+                clickedTextView.setBackground(null);
+                clickedTextView.disableShadow();
+                clickedTextView.setText(targetValue);
 
                 backupPhraseSource.setText(selectedValue);
-                clickedTextView.setBackground(null);
-                clickedTextView.setText(targetValue);
+                backupPhraseSource.setBackgroundResource(R.drawable.background_with_radius);
+                backupPhraseSource.enableShadow();
+
                 checkBackupPhrase();
                 return;
             }
@@ -111,8 +125,8 @@ public class DragAndDropView extends LinearLayout {
     }
 
     private boolean handleLongClickEvent(final View v) {
-        this.selectedBackupPhrase = (TextView) v;
-        if (this.selectedBackupPhrase.getText().toString().length() == 0) {
+        this.selectedBackupPhrase = (ShadowTextView) v;
+        if (this.selectedBackupPhrase.getText().length() == 0) {
             return false;
         }
 
@@ -127,7 +141,7 @@ public class DragAndDropView extends LinearLayout {
     }
 
     private boolean handleDragEvent(final View v, final DragEvent event) {
-        final TextView selectedBackupPhrase = (TextView) v;
+        final ShadowTextView targetBackupPhrase = (ShadowTextView) v;
 
         switch(event.getAction()) {
             case DragEvent.ACTION_DRAG_STARTED:
@@ -144,12 +158,13 @@ public class DragAndDropView extends LinearLayout {
 
             case DragEvent.ACTION_DROP:
                 final String selectedValue = event.getClipData().getItemAt(0).getText().toString();
-                final String targetValue = selectedBackupPhrase.getText().toString();
+                final String targetValue = targetBackupPhrase.getText();
 
-                selectedBackupPhrase.setText(selectedValue);
-                selectedBackupPhrase.setBackgroundResource(R.drawable.background_with_radius);
+                targetBackupPhrase.setText(selectedValue);
+                targetBackupPhrase.setBackgroundResource(R.drawable.background_with_radius);
+                targetBackupPhrase.enableShadow();
+
                 this.selectedBackupPhrase.setText(targetValue);
-
                 if (this.selectedBackupPhrase.getText().length() == 0) {
                     this.selectedBackupPhrase.setBackground(null);
                 }
@@ -174,7 +189,7 @@ public class DragAndDropView extends LinearLayout {
 
         final FlowLayout gridLayout = (FlowLayout) findViewById(R.id.backup_phrase_source);
         for (int i = 0; i < gridLayout.getChildCount(); i++) {
-            final TextView backupPhraseWord = (TextView) gridLayout.getChildAt(i);
+            final ShadowTextView backupPhraseWord = (ShadowTextView) gridLayout.getChildAt(i);
             backupPhraseWord.setText(shuffledBackupPhrase.get(i));
         }
     }
@@ -184,8 +199,8 @@ public class DragAndDropView extends LinearLayout {
 
         final FlowLayout backupPhraseTargetLayout = (FlowLayout) findViewById(R.id.backup_phrase_target);
         for (int i = 0; i < backupPhraseTargetLayout.getChildCount(); i++) {
-            final TextView backupPhraseTarget = (TextView) backupPhraseTargetLayout.getChildAt(i);
-            selectedBackupPhrase.add(i, backupPhraseTarget.getText().toString());
+            final ShadowTextView backupPhraseTarget = (ShadowTextView) backupPhraseTargetLayout.getChildAt(i);
+            selectedBackupPhrase.add(i, backupPhraseTarget.getText());
         }
 
         if (this.backupPhrase.equals(selectedBackupPhrase)) {

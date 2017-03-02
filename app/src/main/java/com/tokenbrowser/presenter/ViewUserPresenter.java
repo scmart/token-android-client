@@ -3,15 +3,15 @@ package com.tokenbrowser.presenter;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.content.res.AppCompatResources;
 import android.view.View;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.token.databinding.ActivityScanResultBinding;
-import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.util.SoundManager;
@@ -117,8 +117,8 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         addContactButton.setChecked(isAContact);
         addContactButton.setSoundEffectsEnabled(isAContact);
 
-        final Drawable checkMark = ContextCompat.getDrawable(this.activity, R.drawable.ic_done);
-        DrawableCompat.setTint(checkMark, ContextCompat.getColor(this.activity, R.color.colorPrimary));
+        final Drawable checkMark = AppCompatResources.getDrawable(this.activity, R.drawable.ic_done);
+        DrawableCompat.setTint(checkMark, this.activity.getResources().getColor(R.color.colorPrimary));
         addContactButton.setCompoundDrawablesWithIntrinsicBounds(isAContact ? checkMark : null, null, null, null);
     }
 
