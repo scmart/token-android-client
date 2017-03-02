@@ -288,7 +288,7 @@ public class TransactionManager {
                 .get()
                 .getTokenManager()
                 .getSofaMessageManager()
-                .saveMessage(user, message);
+                .saveTransaction(user, message);
     }
 
     private void storeUnconfirmedTransaction(final String txHash, final SofaMessage message) {

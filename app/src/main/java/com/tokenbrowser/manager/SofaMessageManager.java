@@ -143,6 +143,13 @@ public final class SofaMessageManager {
         this.chatMessageQueue.onNext(messageTask);
     }
 
+    // Will store a tranasaction in the local database
+    // but not send the message to a remote peer. It will also save the state as "SENDING".
+    /* package */ final void saveTransaction(final User receiver, final SofaMessage message) {
+        final SofaMessageTask messageTask = new SofaMessageTask(receiver, message, SofaMessageTask.SAVE_TRANSACTION);
+        this.chatMessageQueue.onNext(messageTask);
+    }
+
     // Updates a pre-existing message.
     /* package */ final void updateMessage(final User receiver, final SofaMessage message) {
         final SofaMessageTask messageTask = new SofaMessageTask(receiver, message, SofaMessageTask.UPDATE_MESSAGE);
@@ -275,7 +282,10 @@ public final class SofaMessageManager {
                             sendMessageToRemotePeer(messageTask.getReceiver(), messageTask.getSofaMessage(), true);
                             break;
                         case SofaMessageTask.SAVE_ONLY:
-                            storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage());
+                            storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage(), SendState.STATE_LOCAL_ONLY);
+                            break;
+                        case SofaMessageTask.SAVE_TRANSACTION:
+                            storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage(), SendState.STATE_SENDING);
                             break;
                         case SofaMessageTask.SEND_ONLY:
                             sendMessageToRemotePeer(messageTask.getReceiver(), messageTask.getSofaMessage(), false);
@@ -333,8 +343,8 @@ public final class SofaMessageManager {
                         .build());
     }
 
-    private void storeMessage(final User receiver, final SofaMessage message) {
-        message.setSendState(SendState.STATE_LOCAL_ONLY);
+    private void storeMessage(final User receiver, final SofaMessage message, final @SendState.State int sendState) {
+        message.setSendState(sendState);
         this.conversationStore.saveNewMessage(receiver, message);
     }
 
