@@ -10,7 +10,6 @@ import com.tokenbrowser.model.local.Contact;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
-import com.tokenbrowser.view.adapter.listeners.OnUpdateListener;
 import com.tokenbrowser.view.adapter.viewholder.ClickableViewHolder;
 import com.tokenbrowser.view.adapter.viewholder.ContactViewHolder;
 
@@ -21,7 +20,6 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> imp
 
     private List<User> users;
     private OnItemClickListener<User> onItemClickListener;
-    private OnUpdateListener onUpdateListener;
 
     public ContactsAdapter() {
         this.users = new ArrayList<>(0);
@@ -32,12 +30,12 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> imp
         for (final Contact contact : contacts) {
             this.users.add(contact.getUser());
         }
-        notifyAdapterChanged();
+        notifyDataSetChanged();
     }
 
     public ContactsAdapter setUsers(final List<User> users) {
         this.users = users;
-        notifyAdapterChanged();
+        notifyDataSetChanged();
         return this;
     }
 
@@ -74,24 +72,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactViewHolder> imp
         return this;
     }
 
-    public ContactsAdapter setOnUpdateListener(final OnUpdateListener onUpdateListener) {
-        this.onUpdateListener = onUpdateListener;
-        return this;
-    }
-
     public void clear() {
         this.users.clear();
-        notifyAdapterChanged();
-    }
-
-    private void notifyAdapterChanged() {
         notifyDataSetChanged();
-        notifyListeners();
-    }
-
-    private void notifyListeners() {
-        if (this.onUpdateListener != null) {
-            this.onUpdateListener.onUpdate();
-        }
     }
 }

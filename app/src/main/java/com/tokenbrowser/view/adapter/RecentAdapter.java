@@ -6,18 +6,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.model.local.SofaMessage;
 import com.tokenbrowser.model.local.Conversation;
+import com.tokenbrowser.model.local.SofaMessage;
 import com.tokenbrowser.model.sofa.Message;
 import com.tokenbrowser.model.sofa.Payment;
 import com.tokenbrowser.model.sofa.PaymentRequest;
 import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.model.sofa.SofaType;
-import com.tokenbrowser.manager.store.ConversationStore;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
-import com.tokenbrowser.view.adapter.listeners.OnUpdateListener;
 import com.tokenbrowser.view.adapter.viewholder.ClickableViewHolder;
 import com.tokenbrowser.view.adapter.viewholder.ConversationViewHolder;
 
@@ -25,40 +23,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.android.schedulers.AndroidSchedulers;
-
 public class RecentAdapter extends RecyclerView.Adapter<ConversationViewHolder> implements ClickableViewHolder.OnClickListener {
 
     private final SofaAdapters adapters;
-    private final ConversationStore conversationStore;
     private List<Conversation> conversations;
     private OnItemClickListener<Conversation> onItemClickListener;
-    private OnUpdateListener onUpdateListener;
 
     public RecentAdapter() {
         this.adapters = new SofaAdapters();
-        this.conversationStore = new ConversationStore();
         this.conversations = new ArrayList<>(0);
-        loadAllStoredContacts();
-    }
-
-    private RecentAdapter loadAllStoredContacts() {
-        fetchAndRenderConversations();
-        attachSubscribers();
-        return this;
-    }
-
-    private void fetchAndRenderConversations() {
-        this.conversations = this.conversationStore.loadAll();
-        notifyDataSetChanged();
-        notifyListeners();
-    }
-
-    private void attachSubscribers() {
-        this.conversationStore
-                .getConversationChangedObservable()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::handleConversationChanged);
     }
 
     @Override
@@ -92,17 +65,17 @@ public class RecentAdapter extends RecyclerView.Adapter<ConversationViewHolder> 
         this.onItemClickListener.onItemClick(clickedConversation);
     }
 
+    public void setConversations(final List<Conversation> conversations) {
+        this.conversations = conversations;
+        notifyDataSetChanged();
+    }
+
     public RecentAdapter setOnItemClickListener(final OnItemClickListener<Conversation> onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
         return this;
     }
 
-    public RecentAdapter setOnUpdateListener(final OnUpdateListener onUpdateListener) {
-        this.onUpdateListener = onUpdateListener;
-        return this;
-    }
-
-    private void handleConversationChanged(final Conversation conversation) {
+    public void updateConversation(final Conversation conversation) {
         final int position = this.conversations.indexOf(conversation);
         if (position == -1) {
             this.conversations.add(0, conversation);
@@ -112,13 +85,6 @@ public class RecentAdapter extends RecyclerView.Adapter<ConversationViewHolder> 
 
         this.conversations.set(position, conversation);
         notifyItemChanged(position);
-        notifyListeners();
-    }
-
-    private void notifyListeners() {
-        if (this.onUpdateListener != null) {
-            this.onUpdateListener.onUpdate();
-        }
     }
 
     private String formatLastMessage(final SofaMessage sofaMessage) {

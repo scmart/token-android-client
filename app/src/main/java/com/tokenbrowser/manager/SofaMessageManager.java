@@ -158,10 +158,20 @@ public final class SofaMessageManager {
         }
     }
 
+    public final Single<List<Conversation>> loadAllConversations() {
+        return Single
+                .fromCallable(() -> conversationStore.loadAll())
+                .subscribeOn(Schedulers.from(this.dbThreadExecutor));
+    }
+
     public final Single<Conversation> loadConversation(final String conversationId) {
         return Single
                 .fromCallable(() -> conversationStore.loadByAddress(conversationId))
                 .subscribeOn(Schedulers.from(this.dbThreadExecutor));
+    }
+
+    public final PublishSubject<Conversation> registerForAllConversationChanges() {
+        return this.conversationStore.getConversationChangedObservable();
     }
 
     // Returns a pair of RxSubjects, the first being the observable for new messages
