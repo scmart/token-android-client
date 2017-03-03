@@ -92,7 +92,7 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
         this.activity.getBinding().reviewCount.setText(reviewCount);
         this.activity.getBinding().ratingView.setStars(score);
         this.activity.getBinding().reputationScore.setText(stringScore);
-        this.activity.getBinding().ratingInfo.setRatingInfo(reputationScore.getStars());
+        this.activity.getBinding().ratingInfo.setRatingInfo(reputationScore);
     }
 
     private void handleReputationError(final Throwable throwable) {

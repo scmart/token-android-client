@@ -52,6 +52,8 @@ public class RatingBar extends View {
         final int minPercentage = 5;
         this.percentage = Math.min(percentage, 100);
         this.percentage = Math.max(this.percentage, minPercentage);
+        generateDrawRects();
+        this.invalidate();
     }
 
     @Override
