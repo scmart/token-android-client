@@ -84,7 +84,7 @@ public class BalanceManager {
                         fetchAndCacheLatestRates())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .first(rates -> rates != null)
+                .first(rates -> rates != null && !rates.needsRefresh())
                 .toSingle();
     }
 
