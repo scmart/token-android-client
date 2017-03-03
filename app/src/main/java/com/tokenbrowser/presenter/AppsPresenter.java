@@ -86,6 +86,7 @@ public class AppsPresenter implements Presenter<AppsFragment>{
                 .skip(1)
                 .debounce(400, TimeUnit.MILLISECONDS)
                 .map(CharSequence::toString)
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(searchString -> updateViewState())
                 .flatMap(this::runSearchQuery)
                 .observeOn(AndroidSchedulers.mainThread())
