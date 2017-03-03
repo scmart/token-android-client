@@ -19,6 +19,8 @@ public class User extends RealmObject {
     private CustomUserInformation customUserInfo;
     private CustomAppInformation customAppInfo;
     private long cacheTimestamp;
+    private Double reputation_score;
+    private int review_count;
 
     // ctors
     public User() {
@@ -81,5 +83,13 @@ public class User extends RealmObject {
 
     public boolean needsRefresh() {
         return System.currentTimeMillis() - cacheTimestamp > TokenManager.CACHE_TIMEOUT;
+    }
+
+    public Double getReputationScore() {
+        return reputation_score;
+    }
+
+    public int getReviewCount() {
+        return review_count;
     }
 }
