@@ -31,7 +31,7 @@ public class AppCacheInterceptor implements Interceptor {
     }
 
     @Override
-    public Response intercept(final Chain chain) throws IOException {
+    public Response intercept(final Chain chain) throws IOException, IllegalStateException {
         final Response response = chain.proceed(chain.request());
         final ResponseBody responseBody = response.body();
         final String appsJson = responseBody.string();
@@ -39,7 +39,7 @@ public class AppCacheInterceptor implements Interceptor {
         try {
             final Apps apps = this.adapter.fromJson(appsJson);
             addToCache(apps.getApps());
-        } catch (final IOException ex) {
+        } catch (final IOException | IllegalStateException ex) {
             LogUtil.i(getClass(), "Error deserialising reponse. Not caching result.");
         }
 
@@ -47,6 +47,10 @@ public class AppCacheInterceptor implements Interceptor {
     }
 
     private void addToCache(final List<App> apps) {
+        if (apps == null) {
+            return;
+        }
+
         for (final App app : apps) {
             this.cache.put(app.getTokenId(), app);
         }

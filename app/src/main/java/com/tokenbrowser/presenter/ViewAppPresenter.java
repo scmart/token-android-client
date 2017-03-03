@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.tokenbrowser.manager.network.DirectoryService;
-import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.network.App;
 import com.tokenbrowser.model.network.ReputationScore;
 import com.tokenbrowser.token.R;
@@ -27,7 +26,6 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
     private ViewAppActivity activity;
     private App app;
     private String appOwnerAddress;
-    private User user;
     private CompositeSubscription subscriptions;
     private boolean firstTimeAttaching = true;
 
@@ -41,7 +39,7 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
         }
 
         getIntentData();
-        fetchUserFromApp();
+        fetchApp();
         fetchUserReputation();
         initView();
         initClickListeners();
@@ -60,17 +58,33 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
         }
     }
 
-    private void fetchUserFromApp() {
+    private void fetchApp() {
         final Subscription sub = BaseApplication
                 .get()
                 .getTokenManager()
-                .getUserManager()
-                .getUserFromAddress(this.appOwnerAddress)
+                .getAppsManager()
+                .getApp(this.app.getTokenId())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleAppLoaded, this::handleAppLoadingFailed);
 
         this.subscriptions.add(sub);
+    }
+
+    private void handleAppLoaded(final App app) {
+        this.app = app;
+        if (this.app == null || this.activity == null) {
+            return;
+        }
+        this.activity.getBinding().username.setText(this.app.getName());
+    }
+
+    private void handleAppLoadingFailed(final Throwable throwable) {
+        LogUtil.e(getClass(), "Error during fetching of app " + throwable.getMessage());
+        if (this.activity != null) {
+            this.activity.finish();
+            Toast.makeText(this.activity, R.string.error__app_loading, Toast.LENGTH_LONG).show();
+        }
     }
 
     private void fetchUserReputation() {
@@ -136,29 +150,12 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
     }
 
     private void handleOnMessageClicked(final View v) {
-        if (this.user == null) {
+        if (this.app == null) {
             return;
         }
         final Intent intent = new Intent(this.activity, ChatActivity.class);
-        intent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, this.user.getTokenId());
+        intent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, this.app.getTokenId());
         this.activity.startActivity(intent);
-    }
-
-    private void handleAppLoaded(final User user) {
-        this.user = user;
-        if (this.user == null || this.activity == null) {
-            return;
-        }
-        this.activity.getBinding().username.setText(user.getDisplayName());
-        this.activity.getBinding().username.setText(user.getUsername());
-    }
-
-    private void handleAppLoadingFailed(final Throwable throwable) {
-        LogUtil.print(getClass(), throwable.toString());
-        if (this.activity != null) {
-            this.activity.finish();
-            Toast.makeText(this.activity, R.string.error__app_loading, Toast.LENGTH_LONG).show();
-        }
     }
 
     @Override
