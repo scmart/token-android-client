@@ -101,10 +101,10 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
 
     private void initView() {
         final ActivityViewAppBinding binding = this.activity.getBinding();
-        binding.title.setText(app.getDisplayName());
-        binding.name.setText(app.getDisplayName());
-        binding.username.setText(app.getDisplayName());
-        generateQrCode(this.app.getOwnerAddress());
+        binding.title.setText(app.getName());
+        binding.name.setText(app.getName());
+        binding.username.setText(app.getName());
+        generateQrCode(this.app.getTokenId());
     }
 
     private void generateQrCode(final String address) {

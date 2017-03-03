@@ -27,19 +27,20 @@ public class RecommendedAppsViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void setLabel(final App app) {
-        this.appLabel.setText(app.getDisplayName());
+        this.appLabel.setText(app.getName());
     }
 
     public void setCategory(final App app) {
-        if (app == null || app.getInterfaces() == null || app.getInterfaces().size() == 0) {
+        if (app == null || app.getManifest().getInterfaces() == null
+                || app.getManifest().getInterfaces().size() == 0) {
             return;
         }
-        this.appCategory.setText(app.getInterfaces().get(0));
+        this.appCategory.setText(app.getManifest().getInterfaces().get(0));
     }
 
     public void setImage(final App app) {
         Glide.with(this.appImage.getContext())
-                .load(app.getAvatarUrl())
+                .load(app.getManifest().getAvatarUrl())
                 .into(this.appImage);
     }
 

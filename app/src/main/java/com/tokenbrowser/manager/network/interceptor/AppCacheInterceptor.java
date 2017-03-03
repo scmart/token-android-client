@@ -48,7 +48,7 @@ public class AppCacheInterceptor implements Interceptor {
 
     private void addToCache(final List<App> apps) {
         for (final App app : apps) {
-            this.cache.put(app.getOwnerAddress(), app);
+            this.cache.put(app.getTokenId(), app);
         }
     }
 }
