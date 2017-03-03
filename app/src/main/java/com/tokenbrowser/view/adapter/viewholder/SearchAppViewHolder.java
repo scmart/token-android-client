@@ -5,17 +5,19 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.tokenbrowser.token.R;
+import com.bumptech.glide.Glide;
 import com.tokenbrowser.model.network.App;
+import com.tokenbrowser.token.R;
+import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
 import com.tokenbrowser.view.custom.StarRatingView;
-import com.bumptech.glide.Glide;
 
 public class SearchAppViewHolder extends RecyclerView.ViewHolder {
     private TextView appLabel;
     private TextView appCategory;
     private StarRatingView ratingView;
     private ImageView appImage;
+    private TextView reviewCount;
 
     public SearchAppViewHolder(View itemView) {
         super(itemView);
@@ -24,24 +26,22 @@ public class SearchAppViewHolder extends RecyclerView.ViewHolder {
         this.appCategory = (TextView) itemView.findViewById(R.id.app_category);
         this.ratingView = (StarRatingView) itemView.findViewById(R.id.rating_view);
         this.appImage = (ImageView) itemView.findViewById(R.id.app_image);
+        this.reviewCount = (TextView) itemView.findViewById(R.id.review_count);
     }
 
-    public void setLabel(final App app) {
+    public void setApp(final App app) {
         this.appLabel.setText(app.getName());
-    }
-
-    public void setCategory(final App app) {
         this.appCategory.setText(app.getManifest().getInterfaces().get(0));
-    }
+        final double reputationScore = app.getReputationScore() != null
+                ? app.getReputationScore()
+                : 0;
+        this.ratingView.setStars(reputationScore);
+        final String reviewCount = BaseApplication.get().getString(R.string.parentheses, app.getReviewCount());
+        this.reviewCount.setText(reviewCount);
 
-    public void setImage(final App app) {
         Glide.with(this.appImage.getContext())
                 .load(app.getManifest().getAvatarUrl())
                 .into(this.appImage);
-    }
-
-    public void setRating(final double rating) {
-        this.ratingView.setStars(rating);
     }
 
     public void bind(final App app, final OnItemClickListener<App> listener) {
