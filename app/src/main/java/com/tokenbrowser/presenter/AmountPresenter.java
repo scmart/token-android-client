@@ -18,6 +18,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormatSymbols;
 
+import rx.subscriptions.CompositeSubscription;
+
 public class AmountPresenter implements Presenter<AmountActivity> {
 
     public static final String INTENT_EXTRA__ETH_AMOUNT = "eth_amount";
@@ -26,13 +28,14 @@ public class AmountPresenter implements Presenter<AmountActivity> {
     private char separator;
     private char zero;
     private String encodedEthAmount;
-    private @PaymentType.Type
-    int viewType;
+    private @PaymentType.Type  int viewType;
+    private CompositeSubscription subscriptions;
 
     @Override
     public void onViewAttached(AmountActivity view) {
         this.activity = view;
 
+        this.subscriptions = new CompositeSubscription();
         getIntentData();
         initView();
         initSeparator();
@@ -159,17 +162,20 @@ public class AmountPresenter implements Presenter<AmountActivity> {
     private void updateEthAmount() {
         final BigDecimal localValue = getLocalValueAsBigDecimal();
 
-        final BigDecimal ethAmount = BaseApplication
+        this.subscriptions.add(
+                BaseApplication
                 .get()
                 .getTokenManager()
                 .getBalanceManager()
-                .convertLocalCurrencyToEth(localValue);
+                .convertLocalCurrencyToEth(localValue)
+                .subscribe((ethAmount) -> {
+                    this.activity.getBinding().ethValue.setText(ethAmount.toPlainString());
+                    this.activity.getBinding().btnContinue.setEnabled(ethAmount.compareTo(BigDecimal.ZERO) != 0);
 
-        this.activity.getBinding().ethValue.setText(ethAmount.toPlainString());
-        this.activity.getBinding().btnContinue.setEnabled(ethAmount.compareTo(BigDecimal.ZERO) != 0);
-
-        final BigInteger weiAmount = EthUtil.ethToWei(ethAmount);
-        this.encodedEthAmount = TypeConverter.toJsonHex(weiAmount);
+                    final BigInteger weiAmount = EthUtil.ethToWei(ethAmount);
+                    this.encodedEthAmount = TypeConverter.toJsonHex(weiAmount);
+                })
+        );
     }
 
     @NonNull
@@ -193,6 +199,7 @@ public class AmountPresenter implements Presenter<AmountActivity> {
 
     @Override
     public void onViewDetached() {
+        this.subscriptions.clear();
         this.activity = null;
     }
 

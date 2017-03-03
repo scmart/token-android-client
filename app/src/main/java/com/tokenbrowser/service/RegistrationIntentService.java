@@ -110,8 +110,6 @@ public class RegistrationIntentService extends IntentService {
                 .getTokenManager()
                 .getBalanceManager()
                 .watchForWalletTransactions()
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
                 .subscribe(this::handleWatchWalletSuccess, this::handleWatchWalletFailure);
     }
 

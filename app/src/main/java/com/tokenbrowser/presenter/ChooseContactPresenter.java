@@ -57,7 +57,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
         }
 
         getIntentData();
-        getLocalCurrency();
+        generateLocalAmount();
         initView();
         loadContacts();
     }
@@ -74,10 +74,23 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
         this.paymentType = this.activity.getIntent().getIntExtra(ChooseContactsActivity.VIEW_TYPE, PaymentType.TYPE_SEND);
     }
 
-    private void getLocalCurrency() {
+    private void generateLocalAmount() {
         final BigInteger weiAmount = TypeConverter.StringHexToBigInteger(this.encodedEthAmount);
         final BigDecimal ethAmount = EthUtil.weiToEth(weiAmount);
-        this.localCurrency = BaseApplication.get().getTokenManager().getBalanceManager().convertEthToLocalCurrencyString(ethAmount);
+        this.subscriptions.add(
+                BaseApplication
+                .get()
+                .getTokenManager()
+                .getBalanceManager()
+                .convertEthToLocalCurrencyString(ethAmount)
+                .subscribe(this::setLocalCurrency)
+        );
+    }
+
+    private void setLocalCurrency(final String localCurrency) {
+        this.localCurrency = localCurrency;
+        initToolbar();
+        setSendButtonText();
     }
 
     private void initView() {

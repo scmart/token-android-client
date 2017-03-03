@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import rx.Single;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 
@@ -33,14 +34,22 @@ public class BalanceManager {
 
     /* package */ BalanceManager() {
         this.balance = new Balance();
-        this.rates = new MarketRates();
+    }
+
+    public BehaviorSubject<Balance> getBalanceObservable() {
+        return balanceObservable;
     }
 
     public BalanceManager init(final HDWallet wallet) {
         this.wallet = wallet;
         refreshBalance();
-        getMarketRates();
         return this;
+    }
+
+    private void handleLatestMarketRates(final MarketRates rates) {
+        this.rates = rates;
+        // Rebroadcast the balance now that we have new rates.
+        handleNewBalance(this.balance);
     }
 
     public void refreshBalance() {
@@ -52,74 +61,79 @@ public class BalanceManager {
                 .subscribe(this::handleNewBalance, this::handleError);
     }
 
+    private void handleNewBalance(final Balance balance) {
+        this.balance = balance;
+        final BigDecimal ethAmount = EthUtil.weiToEth(this.balance.getUnconfirmedBalance());
+
+        convertEthToLocalCurrencyString(ethAmount)
+        .subscribe((newBalance) -> {
+            this.balance.setFormattedLocalBalance(newBalance);
+            balanceObservable.onNext(balance);
+        });
+    }
+
     private void handleError(final Throwable throwable) {
         LogUtil.e(getClass(), throwable.toString());
     }
 
-    private void handleNewBalance(final Balance balance) {
-        this.balance = balance;
-        final BigDecimal ethAmount = EthUtil.weiToEth(this.balance.getUnconfirmedBalance());
-        this.balance.setFormattedLocalBalance(convertEthToLocalCurrencyString(ethAmount));
 
-        balanceObservable.onNext(balance);
+    private Single<MarketRates> getRates() {
+        return Single
+                .concat(
+                    Single.just(this.rates),
+                        fetchAndCacheLatestRates())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .first(rates -> rates != null)
+                .toSingle();
     }
 
-    public BehaviorSubject<Balance> getBalanceObservable() {
-        return balanceObservable;
-    }
-
-    private void getMarketRates() {
-        CurrencyService
+    private Single<MarketRates> fetchAndCacheLatestRates() {
+        return CurrencyService
                 .getApi()
                 .getRates("ETH")
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe(this::handleMarketRates, this::handleError);
-    }
-
-    private void handleMarketRates(final MarketRates rates) {
-        this.rates = rates;
-        // Rebroadcast the balance now that we have new rates.
-        handleNewBalance(this.balance);
+                .doOnSuccess((rates) -> this.rates = rates);
     }
 
     // Currently hard-coded to USD
-    public String convertEthToLocalCurrencyString(final BigDecimal ethAmount) {
-        final BigDecimal marketRate = getEthMarketRate("USD");
-        final BigDecimal localAmount = marketRate.multiply(ethAmount);
+    public Single<String> convertEthToLocalCurrencyString(final BigDecimal ethAmount) {
+         return getRates().map((marketRates) -> {
+             final BigDecimal marketRate = marketRates.getRate("USD");
+             final BigDecimal localAmount = marketRate.multiply(ethAmount);
 
-        final NumberFormat numberFormat = NumberFormat.getNumberInstance(LocaleUtil.getLocale());
-        numberFormat.setGroupingUsed(true);
-        numberFormat.setMaximumFractionDigits(2);
-        numberFormat.setMinimumFractionDigits(2);
+             final NumberFormat numberFormat = NumberFormat.getNumberInstance(LocaleUtil.getLocale());
+             numberFormat.setGroupingUsed(true);
+             numberFormat.setMaximumFractionDigits(2);
+             numberFormat.setMinimumFractionDigits(2);
 
-        final String localAmountAsString = numberFormat.format(localAmount);
-        return "$" + localAmountAsString + " USD";
+             final String localAmountAsString = numberFormat.format(localAmount);
+             return "$" + localAmountAsString + " USD";
+         });
     }
 
     // Currently hard-coded to USD
-    public BigDecimal convertEthToLocalCurrency(final BigDecimal ethAmount) {
-        final BigDecimal marketRate = getEthMarketRate("USD");
-        return marketRate.multiply(ethAmount);
+    public Single<BigDecimal> convertEthToLocalCurrency(final BigDecimal ethAmount) {
+        return getRates().map((marketRates) -> {
+            final BigDecimal marketRate = marketRates.getRate("USD");
+            return marketRate.multiply(ethAmount);
+        });
     }
 
     // Currently hard-coded to USD
-    public BigDecimal convertLocalCurrencyToEth(final BigDecimal localAmount) {
-        if (localAmount.compareTo(BigDecimal.ZERO) == 0) {
-            return BigDecimal.ZERO;
-        }
+    public Single<BigDecimal> convertLocalCurrencyToEth(final BigDecimal localAmount) {
+        return getRates().map((marketRates) -> {
+            if (localAmount.compareTo(BigDecimal.ZERO) == 0) {
+                return BigDecimal.ZERO;
+            }
 
-        final BigDecimal marketRate = getEthMarketRate("USD");
-        if (marketRate.compareTo(BigDecimal.ZERO) == 0) {
-            return BigDecimal.ZERO;
-        }
-        return localAmount.divide(marketRate, 8, RoundingMode.HALF_DOWN);
+            final BigDecimal marketRate = marketRates.getRate("USD");
+            if (marketRate.compareTo(BigDecimal.ZERO) == 0) {
+                return BigDecimal.ZERO;
+            }
+            return localAmount.divide(marketRate, 8, RoundingMode.HALF_DOWN);
+        });
     }
 
-    // Get the value of ethereum in another currency
-    private BigDecimal getEthMarketRate(final String currency) {
-        return this.rates.getRate(currency);
-    }
 
     public Single<Void> registerForGcm(final String token) {
         return BalanceService
