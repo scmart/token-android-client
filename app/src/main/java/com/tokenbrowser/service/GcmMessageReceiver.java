@@ -18,7 +18,7 @@ package com.tokenbrowser.service;
 
 import android.os.Bundle;
 
-import com.tokenbrowser.token.R;
+import com.google.android.gms.gcm.GcmListenerService;
 import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.crypto.signal.model.DecryptedSignalMessage;
 import com.tokenbrowser.crypto.util.TypeConverter;
@@ -26,18 +26,16 @@ import com.tokenbrowser.model.local.SofaMessage;
 import com.tokenbrowser.model.sofa.Payment;
 import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.model.sofa.SofaType;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.EthUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.notification.ChatNotificationManager;
-import com.google.android.gms.gcm.GcmListenerService;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Locale;
 import java.util.concurrent.TimeoutException;
-
-import static com.tokenbrowser.token.R.string.latest_message__payment_incoming;
 
 public class GcmMessageReceiver extends GcmListenerService {
 
@@ -131,13 +129,19 @@ public class GcmMessageReceiver extends GcmListenerService {
         final String title = this.getString(R.string.payment_received);
         final BigInteger weiAmount = TypeConverter.StringHexToBigInteger(payment.getValue());
         final BigDecimal ethAmount = EthUtil.weiToEth(weiAmount);
-        final String localCurrency = BaseApplication.get().getTokenManager().getBalanceManager().convertEthToLocalCurrencyString(ethAmount);
-        final String content = String.format(Locale.getDefault(), this.getString(R.string.latest_message__payment_incoming), localCurrency);
         BaseApplication
                 .get()
                 .getTokenManager()
-                .getUserManager()
-                .getUserFromPaymentAddress(payment.getFromAddress())
-                .subscribe((sender) -> ChatNotificationManager.showNotification(title, content, sender.getOwnerAddress()));
+                .getBalanceManager()
+                .convertEthToLocalCurrencyString(ethAmount)
+                .subscribe((localCurrency) -> {
+                    final String content = String.format(Locale.getDefault(), this.getString(R.string.latest_message__payment_incoming), localCurrency);
+                    BaseApplication
+                            .get()
+                            .getTokenManager()
+                            .getUserManager()
+                            .getUserFromPaymentAddress(payment.getFromAddress())
+                            .subscribe((sender) -> ChatNotificationManager.showNotification(title, content, sender.getOwnerAddress()));
+                });
     }
 }

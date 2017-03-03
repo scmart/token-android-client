@@ -56,13 +56,15 @@ public class TransactionManager {
     }
 
     public final void sendPayment(final User receiver, final String amount) {
-        final Payment payment = new Payment()
-                .setValue(amount)
-                .setFromAddress(this.wallet.getPaymentAddress())
-                .setToAddress(receiver.getPaymentAddress());
-
-        final PaymentTask task = new PaymentTask(receiver, payment, OUTGOING);
-        this.newPaymentQueue.onNext(task);
+        new Payment()
+            .setValue(amount)
+            .setFromAddress(this.wallet.getPaymentAddress())
+            .setToAddress(receiver.getPaymentAddress())
+            .generateLocalPrice()
+            .subscribe((payment -> {
+                final PaymentTask task = new PaymentTask(receiver, payment, OUTGOING);
+                this.newPaymentQueue.onNext(task);
+            }));
     }
 
     public final void updatePayment(final Payment payment) {
@@ -138,20 +140,23 @@ public class TransactionManager {
         final Payment payment = task.getPayment();
         final User user = task.getUser();
 
-        payment.generateLocalPrice();
-
-        switch (task.getAction()) {
-            case INCOMING: {
-                final SofaMessage storedSofaMessage = storePayment(task.getUser(), payment, false);
-                handleIncomingPayment(payment, storedSofaMessage);
-                break;
+        payment
+        .generateLocalPrice()
+        .observeOn(Schedulers.from(this.dbThreadExecutor))
+        .subscribe((updatedPayment) -> {
+            switch (task.getAction()) {
+                case INCOMING: {
+                    final SofaMessage storedSofaMessage = storePayment(task.getUser(), updatedPayment, false);
+                    handleIncomingPayment(updatedPayment, storedSofaMessage);
+                    break;
+                }
+                case OUTGOING: {
+                    final SofaMessage storedSofaMessage = storePayment(task.getUser(), updatedPayment, true);
+                    handleOutgoingPayment(user, updatedPayment, storedSofaMessage);
+                    break;
+                }
             }
-            case OUTGOING: {
-                final SofaMessage storedSofaMessage = storePayment(task.getUser(), payment, true);
-                handleOutgoingPayment(user, payment, storedSofaMessage);
-                break;
-            }
-        }
+        });
     }
 
     private SofaMessage storePayment(final User user, final Payment payment, final boolean sentByLocal) {

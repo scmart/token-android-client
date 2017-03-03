@@ -10,21 +10,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
-import com.tokenbrowser.token.R;
+import com.bumptech.glide.Glide;
 import com.tokenbrowser.crypto.util.TypeConverter;
-import com.tokenbrowser.token.databinding.FragmentPaymentRequestConfirmationBinding;
 import com.tokenbrowser.model.local.User;
+import com.tokenbrowser.token.R;
+import com.tokenbrowser.token.databinding.FragmentPaymentRequestConfirmationBinding;
 import com.tokenbrowser.util.EthUtil;
 import com.tokenbrowser.util.PaymentType;
 import com.tokenbrowser.view.BaseApplication;
-import com.bumptech.glide.Glide;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 public class PaymentRequestConfirmationDialog extends DialogFragment {
 
@@ -35,7 +35,7 @@ public class PaymentRequestConfirmationDialog extends DialogFragment {
 
     private FragmentPaymentRequestConfirmationBinding binding;
     private OnActionClickListener listener;
-    private Subscription userSubscription;
+    private CompositeSubscription subscriptions;
 
     private String encodedEthAmount;
     private String userAddress;
@@ -74,6 +74,7 @@ public class PaymentRequestConfirmationDialog extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment__payment_request_confirmation, container, false);
+        this.subscriptions = new CompositeSubscription();
         getBundleData();
         fetchUser();
         initClickListeners();
@@ -88,14 +89,16 @@ public class PaymentRequestConfirmationDialog extends DialogFragment {
     }
 
     private void fetchUser() {
-        this.userSubscription = BaseApplication
+        this.subscriptions.add(
+                BaseApplication
                 .get()
                 .getTokenManager()
                 .getUserManager()
                 .getUserFromAddress(this.userAddress)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::updateView);
+                .subscribe(this::updateView)
+        );
     }
 
     private void updateView(final User user) {
@@ -109,17 +112,22 @@ public class PaymentRequestConfirmationDialog extends DialogFragment {
         this.binding.title.setText(title);
         this.binding.displayName.setText(user.getDisplayName());
         this.binding.username.setText(user.getDisplayName());
-        final String usdEth = this.getString(R.string.eth_usd, getLocalCurrency(), getEthValue());
-        this.binding.ethUsd.setText(usdEth);
+        renderLocalCurrency();
     }
 
-    private String getLocalCurrency() {
+    private void renderLocalCurrency() {
         final BigInteger weiAmount = TypeConverter.StringHexToBigInteger(this.encodedEthAmount);
         final BigDecimal ethAmount = EthUtil.weiToEth(weiAmount);
-        return BaseApplication.get()
+        this.subscriptions.add(
+                BaseApplication.get()
                 .getTokenManager()
                 .getBalanceManager()
-                .convertEthToLocalCurrencyString(ethAmount);
+                .convertEthToLocalCurrencyString(ethAmount)
+                .subscribe((localCurrency) -> {
+                    final String usdEth = this.getString(R.string.eth_usd, localCurrency, getEthValue());
+                    this.binding.ethUsd.setText(usdEth);
+                })
+        );
     }
 
     private String getEthValue() {
@@ -145,9 +153,6 @@ public class PaymentRequestConfirmationDialog extends DialogFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
-        if (this.userSubscription != null) {
-            this.userSubscription.unsubscribe();
-        }
+        this.subscriptions.clear();
     }
 }

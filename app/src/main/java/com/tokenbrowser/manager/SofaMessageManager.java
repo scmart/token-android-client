@@ -450,27 +450,26 @@ public final class SofaMessageManager {
         .getTokenManager()
         .getUserManager()
         .getUserFromAddress(signalMessage.getSource())
-        .subscribe(new OnNextSubscriber<User>() {
-            @Override
-            public void onNext(final User user) {
-                if (user == null) {
-                    return;
-                }
-                unsubscribe();
+        .subscribe((user) -> this.saveIncomingMessageFromUserToDatabase(user, signalMessage));
+    }
 
-                final SofaMessage remoteMessage = new SofaMessage().makeNew(false, signalMessage.getBody());
-                if (remoteMessage.getType() == SofaType.PAYMENT) {
-                    // Don't render incoming SOFA::Payments,
-                    // but ensure we have the sender cached.
-                    fetchAndCacheIncomingPaymentSender(user);
-                    return;
-                } else if(remoteMessage.getType() == SofaType.PAYMENT_REQUEST) {
-                    embedLocalAmountIntoPaymentRequest(remoteMessage);
-                }
+    private void saveIncomingMessageFromUserToDatabase(final User user, final DecryptedSignalMessage signalMessage) {
+        final SofaMessage remoteMessage = new SofaMessage().makeNew(false, signalMessage.getBody());
+        if (remoteMessage.getType() == SofaType.PAYMENT) {
+            // Don't render incoming SOFA::Payments,
+            // but ensure we have the sender cached.
+            fetchAndCacheIncomingPaymentSender(user);
+            return;
+        } else if(remoteMessage.getType() == SofaType.PAYMENT_REQUEST) {
+            generatePayloadWithLocalAmountEmbedded(remoteMessage)
+                    .subscribe((updatedPayload) -> {
+                        remoteMessage.setPayload(updatedPayload);
+                        dbThreadExecutor.execute(() -> SofaMessageManager.this.conversationStore.saveNewMessage(user, remoteMessage));
+                    });
+            return;
+        }
 
-                dbThreadExecutor.execute(() -> SofaMessageManager.this.conversationStore.saveNewMessage(user, remoteMessage));
-            }
-        });
+        dbThreadExecutor.execute(() -> SofaMessageManager.this.conversationStore.saveNewMessage(user, remoteMessage));
     }
 
     private void fetchAndCacheIncomingPaymentSender(final User sender) {
@@ -481,14 +480,17 @@ public final class SofaMessageManager {
         .getUserFromAddress(sender.getOwnerAddress());
     }
 
-    private void embedLocalAmountIntoPaymentRequest(final SofaMessage remoteMessage) {
+    private Single<String> generatePayloadWithLocalAmountEmbedded(final SofaMessage remoteMessage) {
         try {
             final PaymentRequest request = adapters.txRequestFrom(remoteMessage.getPayload());
-            request.generateLocalPrice();
-            remoteMessage.setPayload(adapters.toJson(request));
-        } catch (final IOException e) {
-            LogUtil.error(getClass(), "Error parsing request: " + e);
+            return request
+                    .generateLocalPrice()
+                    .map((updatedPaymentRequest) -> adapters.toJson(updatedPaymentRequest));
+        } catch (final IOException ex) {
+            LogUtil.e(getClass(), "Unable to embed local price");
         }
+
+        return Single.just(remoteMessage.getPayloadWithHeaders());
     }
 
 
