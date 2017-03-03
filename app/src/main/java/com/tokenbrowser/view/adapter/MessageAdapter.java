@@ -151,7 +151,7 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
                         .setSentByLocal(sofaMessage.isSentByLocal())
                         .setSendState(sofaMessage.getSendState())
                         .draw()
-                        .setClickableItems(this.onUsernameClickListener);
+                        .setClickableUsernames(this.onUsernameClickListener);
                 break;
             }
 
