@@ -15,6 +15,7 @@ public class TokenManager {
     private SofaMessageManager sofaMessageManager;
     private TransactionManager transactionManager;
     private UserManager userManager;
+    private ReputationManager reputationManager;
 
     public TokenManager() {
         this.appsManager = new AppsManager();
@@ -32,6 +33,7 @@ public class TokenManager {
             TokenManager.this.sofaMessageManager.init(TokenManager.this.wallet);
             TokenManager.this.transactionManager.init(TokenManager.this.wallet);
             TokenManager.this.userManager.init(TokenManager.this.wallet);
+            TokenManager.this.reputationManager = new ReputationManager();
             return TokenManager.this;
         });
     }
@@ -54,6 +56,10 @@ public class TokenManager {
 
     public final AppsManager getAppsManager() {
         return this.appsManager;
+    }
+
+    public final ReputationManager getReputationManager() {
+        return this.reputationManager;
     }
 
     public Single<HDWallet> getWallet() {
