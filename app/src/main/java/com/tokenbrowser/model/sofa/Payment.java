@@ -10,6 +10,8 @@ import com.tokenbrowser.view.BaseApplication;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import rx.Single;
+
 public class Payment {
 
     private String value;
@@ -25,7 +27,6 @@ public class Payment {
 
     public Payment setValue(final String value) {
         this.value = value;
-        generateLocalPrice();
         return this;
     }
 
@@ -70,7 +71,7 @@ public class Payment {
     }
 
 
-    private Payment setLocalPrice(final String localPrice) {
+    public Payment setLocalPrice(final String localPrice) {
         if (this.androidClientSideCustomData == null) {
             this.androidClientSideCustomData = new ClientSideCustomData();
         }
@@ -87,15 +88,15 @@ public class Payment {
         return this.androidClientSideCustomData.localPrice;
     }
 
-    public void generateLocalPrice() {
+    public Single<Payment> generateLocalPrice() {
         final BigInteger weiAmount = TypeConverter.StringHexToBigInteger(this.value);
         final BigDecimal ethAmount = EthUtil.weiToEth(weiAmount);
-        BaseApplication
+        return BaseApplication
                 .get()
                 .getTokenManager()
                 .getBalanceManager()
                 .convertEthToLocalCurrencyString(ethAmount)
-                .subscribe(this::setLocalPrice);
+                .map(this::setLocalPrice);
     }
 
     public String toUserVisibleString(final boolean sentByLocal) {

@@ -3,15 +3,17 @@ package com.tokenbrowser.model.sofa;
 
 import android.support.annotation.IntDef;
 
+import com.squareup.moshi.Json;
 import com.tokenbrowser.crypto.util.TypeConverter;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.EthUtil;
 import com.tokenbrowser.util.LocaleUtil;
 import com.tokenbrowser.view.BaseApplication;
-import com.squareup.moshi.Json;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import rx.Single;
 
 /**
  * PaymentRequest
@@ -53,19 +55,18 @@ public class PaymentRequest {
 
     public PaymentRequest setValue(final String value) {
         this.value = value;
-        generateLocalPrice();
         return this;
     }
 
-    public void generateLocalPrice() {
+    public Single<PaymentRequest> generateLocalPrice() {
         final BigInteger weiAmount = TypeConverter.StringHexToBigInteger(this.value);
         final BigDecimal ethAmount = EthUtil.weiToEth(weiAmount);
-        BaseApplication
+        return BaseApplication
                 .get()
                 .getTokenManager()
                 .getBalanceManager()
                 .convertEthToLocalCurrencyString(ethAmount)
-                .subscribe(this::setLocalPrice);
+                .map(this::setLocalPrice);
     }
 
     public PaymentRequest setDestinationAddress(final String destinationAddress) {

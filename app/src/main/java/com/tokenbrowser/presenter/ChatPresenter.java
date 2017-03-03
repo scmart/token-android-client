@@ -398,17 +398,21 @@ public final class ChatPresenter implements
     }
 
     private void sendPaymentRequestWithValue(final String value) {
-        final PaymentRequest request = new PaymentRequest()
+        new PaymentRequest()
                 .setDestinationAddress(userWallet.getPaymentAddress())
-                .setValue(value);
-        final String messageBody = this.adapters.toJson(request);
-        final SofaMessage message = new SofaMessage().makeNew(true, messageBody);
+                .setValue(value)
+                .generateLocalPrice()
+                .subscribe((request) -> {
+                    final String messageBody = this.adapters.toJson(request);
+                    final SofaMessage message = new SofaMessage().makeNew(true, messageBody);
 
-        BaseApplication
-                .get()
-                .getTokenManager()
-                .getSofaMessageManager()
-                .sendAndSaveMessage(remoteUser, message);
+                    BaseApplication
+                            .get()
+                            .getTokenManager()
+                            .getSofaMessageManager()
+                            .sendAndSaveMessage(remoteUser, message);
+                });
+
     }
 
     private void initLoadingSpinner(final User remoteUser) {
