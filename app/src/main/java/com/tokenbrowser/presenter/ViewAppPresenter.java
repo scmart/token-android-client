@@ -5,10 +5,11 @@ import android.graphics.Bitmap;
 import android.view.View;
 import android.widget.Toast;
 
-import com.tokenbrowser.token.R;
 import com.tokenbrowser.manager.network.DirectoryService;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.network.App;
+import com.tokenbrowser.model.network.ReputationScore;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.token.databinding.ActivityViewAppBinding;
 import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.util.LogUtil;
@@ -25,6 +26,7 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
 
     private ViewAppActivity activity;
     private App app;
+    private String appOwnerAddress;
     private User user;
     private CompositeSubscription subscriptions;
     private boolean firstTimeAttaching = true;
@@ -40,6 +42,7 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
 
         getIntentData();
         fetchUserFromApp();
+        fetchUserReputation();
         initView();
         initClickListeners();
     }
@@ -49,7 +52,7 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
     }
 
     private void getIntentData() {
-        final String appOwnerAddress = this.activity.getIntent().getStringExtra(ViewAppActivity.APP_OWNER_ADDRESS);
+        this.appOwnerAddress = this.activity.getIntent().getStringExtra(ViewAppActivity.APP_OWNER_ADDRESS);
         this.app = DirectoryService.getCachedApp(appOwnerAddress);
         if (this.app == null) {
             Toast.makeText(this.activity, R.string.error__app_loading, Toast.LENGTH_LONG).show();
@@ -62,7 +65,7 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
                 .get()
                 .getTokenManager()
                 .getUserManager()
-                .getUserFromAddress(this.app.getOwnerAddress())
+                .getUserFromAddress(this.appOwnerAddress)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleAppLoaded, this::handleAppLoadingFailed);
@@ -70,12 +73,37 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
         this.subscriptions.add(sub);
     }
 
+    private void fetchUserReputation() {
+        final Subscription reputationSub = BaseApplication
+                .get()
+                .getTokenManager()
+                .getReputationManager()
+                .getReputationScore(this.appOwnerAddress)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleReputationResponse, this::handleReputationError);
+
+        this.subscriptions.add(reputationSub);
+    }
+
+    private void handleReputationResponse(final ReputationScore reputationScore) {
+        final String reviewCount = String.valueOf(reputationScore.getCount());
+        final double score = reputationScore.getScore() != null ? reputationScore.getScore() : 0;
+        final String stringScore = String.valueOf(score);
+        this.activity.getBinding().reviewCount.setText(reviewCount);
+        this.activity.getBinding().ratingView.setStars(score);
+        this.activity.getBinding().reputationScore.setText(stringScore);
+        this.activity.getBinding().ratingInfo.setRatingInfo(reputationScore.getStars());
+    }
+
+    private void handleReputationError(final Throwable throwable) {
+        LogUtil.e(getClass(), "Error during reputation fetching " + throwable.getMessage());
+    }
+
     private void initView() {
         final ActivityViewAppBinding binding = this.activity.getBinding();
         binding.title.setText(app.getDisplayName());
         binding.name.setText(app.getDisplayName());
         binding.username.setText(app.getDisplayName());
-        binding.ratingView.setStars(3.6);
         generateQrCode(this.app.getOwnerAddress());
     }
 
