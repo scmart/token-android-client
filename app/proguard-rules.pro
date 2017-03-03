@@ -13,15 +13,15 @@
 -keepattributes Annotation
 -dontwarn retrofit2.adapter.rxjava.CompletableHelper$**
 
--keep enum com.bakkenbaeck.token.network.ws.model.** { *; }
+-keep enum com.tokenbrowser.network.ws.model.** { *; }
 
 -keepclassmembers class * implements android.os.Parcelable {
     public static final android.os.Parcelable$Creator *;
 }
 
--keep class com.bakkenbaeck.token.model.** { *; }
--keep class com.bakkenbaeck.token.network.** { *; }
--keep class com.bakkenbaeck.token.crypto.signal.model.** { *; }
+-keep class com.tokenbrowser.model.** { *; }
+-keep class com.tokenbrowser.network.** { *; }
+-keep class com.tokenbrowser.crypto.signal.model.** { *; }
 
 -keep class org.spongycastle.** {*;}
 
