@@ -22,6 +22,7 @@ import com.bumptech.glide.Glide;
 import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.model.local.Conversation;
+import com.tokenbrowser.model.local.Review;
 import com.tokenbrowser.model.local.SofaMessage;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.sofa.Command;
@@ -671,8 +672,27 @@ public final class ChatPresenter implements
     }
 
     @Override
-    public void onRateClicked(final int rating, final String review) {
-        LogUtil.d(getClass(), "onRateClicked ");
+    public void onRateClicked(final int rating, final String reviewText) {
+        final Review review = new Review()
+                .setRating(rating)
+                .setReview(reviewText)
+                .setReviewee(this.remoteUser.getTokenId());
+
+        final Subscription sub = BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .getTimestamp()
+                .flatMap(serverTime -> BaseApplication.get()
+                        .getTokenManager()
+                        .getReputationManager()
+                        .submitReview(review, serverTime.get()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response ->
+                        Toast.makeText(this.activity, "Review submitted", Toast.LENGTH_SHORT).show(),
+                        t -> LogUtil.e(getClass(), "Error when sending review " + t.getMessage()));
+
+        this.subscriptions.add(sub);
     }
 
     @Override

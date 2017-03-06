@@ -2,6 +2,7 @@ package com.tokenbrowser.manager.network;
 
 import com.squareup.moshi.Moshi;
 import com.tokenbrowser.manager.network.interceptor.LoggingInterceptor;
+import com.tokenbrowser.manager.network.interceptor.SigningInterceptor;
 import com.tokenbrowser.manager.network.interceptor.UserAgentInterceptor;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.view.BaseApplication;
@@ -42,6 +43,7 @@ public class ReputationService {
                 .createWithScheduler(Schedulers.io());
         this.client = new OkHttpClient.Builder();
 
+        addSigningInterceptor();
         addUserAgentHeader();
         addLogging();
 
@@ -60,6 +62,10 @@ public class ReputationService {
 
     private void addUserAgentHeader() {
         this.client.addInterceptor(new UserAgentInterceptor());
+    }
+
+    private void addSigningInterceptor() {
+        this.client.addInterceptor(new SigningInterceptor());
     }
 
     private void addLogging() {
