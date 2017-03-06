@@ -31,6 +31,9 @@ public class RecommendedAppsViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void setCategory(final App app) {
+        if (app == null || app.getInterfaces() == null || app.getInterfaces().size() == 0) {
+            return;
+        }
         this.appCategory.setText(app.getInterfaces().get(0));
     }
 
