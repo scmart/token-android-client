@@ -28,16 +28,16 @@ public class RatingInfoAdapter extends RecyclerView.Adapter<RatingInfoViewHolder
 
     @Override
     public void onBindViewHolder(RatingInfoViewHolder holder, int position) {
-        final String stars = String.valueOf(MAX_ITEMS - position);
-        holder.setStars(stars);
+        final int stars = MAX_ITEMS - position;
+        holder.setStars(String.valueOf(stars));
 
         if (this.reputationScore == null) {
             holder.setPercentageRating(0);
             return;
         }
 
-        final double rating = this.reputationScore.getStars().getAmountOfOneStarRatings(position + 1);
-        final int ratingPercentage = (int)((rating / 80) * 100);
+        final double rating = this.reputationScore.getStars().getAmountOfOneStarRatings(stars);
+        final int ratingPercentage = (int)((rating / this.reputationScore.getCount()) * 100);
         holder.setPercentageRating(ratingPercentage);
     }
 
