@@ -50,14 +50,13 @@
             android:layout_marginTop="5dp"/>
 
         <TextView
-            android:id="@+id/number_of_ratings"
+            android:id="@+id/review_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
             android:layout_marginTop="3dp"
             android:textSize="14sp"
-            android:textColor="@color/textColorSecondary"
-            android:text="(44)"/>
+            android:textColor="@color/textColorSecondary" />
 
     </LinearLayout>
 

@@ -178,7 +178,7 @@ public class HomePresenter implements Presenter<HomeFragment> {
 
     private void handleClickEvent(final App app) {
         final Intent intent = new Intent(this.fragment.getContext(), ChatActivity.class)
-                .putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, app.getOwnerAddress());
+                .putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, app.getTokenId());
         this.fragment.getContext().startActivity(intent);
     }
 

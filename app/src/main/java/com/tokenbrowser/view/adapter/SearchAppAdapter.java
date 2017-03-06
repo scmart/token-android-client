@@ -69,10 +69,7 @@ public class SearchAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 final SearchAppViewHolder vh = (SearchAppViewHolder) holder;
                 final App app = this.apps.get(position - 1);
 
-                vh.setLabel(app);
-                vh.setImage(app);
-                vh.setCategory(app);
-                vh.setRating(3.6);
+                vh.setApp(app);
                 vh.bind(app, this.listener);
                 break;
             }

@@ -77,7 +77,7 @@ public class AppsPresenter implements Presenter<AppsFragment>{
 
     private void handleAppClicked(final App app) {
         final Intent intent = new Intent(this.fragment.getContext(), ViewAppActivity.class)
-                .putExtra(ViewAppActivity.APP_OWNER_ADDRESS, app.getOwnerAddress());
+                .putExtra(ViewAppActivity.APP_OWNER_ADDRESS, app.getTokenId());
         this.fragment.getContext().startActivity(intent);
     }
 
@@ -86,6 +86,7 @@ public class AppsPresenter implements Presenter<AppsFragment>{
                 .skip(1)
                 .debounce(400, TimeUnit.MILLISECONDS)
                 .map(CharSequence::toString)
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(searchString -> updateViewState())
                 .flatMap(this::runSearchQuery)
                 .observeOn(AndroidSchedulers.mainThread())

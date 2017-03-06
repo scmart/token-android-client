@@ -8,6 +8,7 @@ import com.tokenbrowser.model.network.App;
 import java.util.List;
 
 import rx.Observable;
+import rx.Single;
 import rx.schedulers.Schedulers;
 
 public class AppsManager {
@@ -43,5 +44,16 @@ public class AppsManager {
                 .subscribeOn(Schedulers.io())
                 .first((response) -> response.code() == 200)
                 .flatMap((response) -> Observable.just(response.body().getApps()));
+    }
+
+    public Single<App> getApp(final String tokenId) {
+        return DirectoryService
+                .getApi()
+                .getApp(tokenId)
+                .subscribeOn(Schedulers.io())
+                .toObservable()
+                .first((response) -> response.code() == 200)
+                .flatMap((response) -> Observable.just(response.body()))
+                .toSingle();
     }
 }

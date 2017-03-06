@@ -41,10 +41,8 @@ public class RecommendedAppsAdapter extends RecyclerView.Adapter<RecommendedApps
     public void onBindViewHolder(RecommendedAppsViewHolder holder, int position) {
         final App app = this.apps.get(position);
 
-        holder.setLabel(app);
-        holder.setImage(app);
+        holder.setApp(app);
         holder.setCategory(app);
-        holder.setRating(3.6);
         holder.bind(app, this.listener);
     }
 

@@ -1,53 +1,35 @@
 package com.tokenbrowser.model.network;
 
-import com.tokenbrowser.model.sofa.InitRequest;
-
-import java.util.List;
-
 public class App {
-    private List<String> languages;
-    private String paymentAddress;
-    private String webApp;
-    private String displayName;
-    private List<String> interfaces;
-    private String protocol;
-    private String avatarUrl;
-    private String ownerAddress;
-    private InitRequest initRequest;
+    private int review_count;
+    private Double reputation_score;
+    private String token_id;
+    private Custom custom;
+    private String payment_address;
+    private boolean is_app;
 
-    public List<String> getLanguages() {
-        return languages;
+    public int getReviewCount() {
+        return review_count;
+    }
+
+    public Double getReputationScore() {
+        return reputation_score;
+    }
+
+
+    public String getTokenId() {
+        return token_id;
+    }
+
+    public Custom getCustom() {
+        return custom;
     }
 
     public String getPaymentAddress() {
-        return paymentAddress;
+        return payment_address;
     }
 
-    public String getWebApp() {
-        return webApp;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public List<String> getInterfaces() {
-        return interfaces;
-    }
-
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public String getAvatarUrl() {
-        return avatarUrl;
-    }
-
-    public String getOwnerAddress() {
-        return ownerAddress;
-    }
-
-    public InitRequest getInitRequest() {
-        return initRequest;
+    public boolean isApp() {
+        return is_app;
     }
 }

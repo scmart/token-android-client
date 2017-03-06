@@ -5,11 +5,11 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.tokenbrowser.token.R;
+import com.bumptech.glide.Glide;
 import com.tokenbrowser.model.network.App;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
 import com.tokenbrowser.view.custom.StarRatingView;
-import com.bumptech.glide.Glide;
 
 public class RecommendedAppsViewHolder extends RecyclerView.ViewHolder {
     private TextView appLabel;
@@ -26,25 +26,24 @@ public class RecommendedAppsViewHolder extends RecyclerView.ViewHolder {
         this.appImage = (ImageView) itemView.findViewById(R.id.app_image);
     }
 
-    public void setLabel(final App app) {
-        this.appLabel.setText(app.getDisplayName());
+    public void setApp(final App app) {
+        this.appLabel.setText(app.getCustom().getName());
     }
 
     public void setCategory(final App app) {
-        if (app == null || app.getInterfaces() == null || app.getInterfaces().size() == 0) {
+        if (app == null) {
             return;
         }
-        this.appCategory.setText(app.getInterfaces().get(0));
-    }
 
-    public void setImage(final App app) {
+        this.appCategory.setText("Category");
+        final double reputationScore = app.getReputationScore() != null
+                ? app.getReputationScore()
+                : 0;
+        this.ratingView.setStars(reputationScore);
+
         Glide.with(this.appImage.getContext())
-                .load(app.getAvatarUrl())
+                .load(app.getCustom().getAvatar())
                 .into(this.appImage);
-    }
-
-    public void setRating(final double rating) {
-        this.ratingView.setStars(rating);
     }
 
     public void bind(final App app, OnItemClickListener<App> listener) {
