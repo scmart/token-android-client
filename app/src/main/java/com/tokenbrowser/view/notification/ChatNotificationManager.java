@@ -29,6 +29,8 @@ public class ChatNotificationManager {
 
     public static void suppressNotificationsForConversation(final String conversationId) {
         currentlyOpenConversation = conversationId;
+        final NotificationManager manager = (NotificationManager) BaseApplication.get().getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancel(conversationId, 1);
     }
 
     public static void stopNotificationSuppression() {
