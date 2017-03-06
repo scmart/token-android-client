@@ -73,6 +73,7 @@ public class DirectoryService {
 
     private void addLogging() {
         final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor(new LoggingInterceptor());
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         this.client.addInterceptor(interceptor);
     }
 

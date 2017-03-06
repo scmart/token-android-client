@@ -9,12 +9,12 @@ import rx.Observable;
 
 public interface DirectoryInterface {
 
-    @GET("v1/apps/")
+    @GET("/v1/apps/")
     Observable<Response<Apps>> getApps();
 
-    @GET("v1/apps/featured")
+    @GET("/v1/apps/featured")
     Observable<Response<Apps>> getFeaturedApps();
 
-    @GET("v1/search/apps/")
+    @GET("/v1/search/apps/")
     Observable<Response<Apps>> searchApps(@Query("query") String searchString);
 }

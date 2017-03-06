@@ -28,7 +28,6 @@ import java.util.List;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 
@@ -120,7 +119,6 @@ public class HomePresenter implements Presenter<HomeFragment> {
                 .getTokenManager()
                 .getAppsManager()
                 .getFeaturedApps()
-                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleFeaturedApps, this::handleErrorResponse);
 
