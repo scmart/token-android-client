@@ -110,7 +110,7 @@ public class UserManager {
     private void updateCurrentUser(final User user) {
         prefs
             .edit()
-            .putString(USER_ID, user.getOwnerAddress())
+            .putString(USER_ID, user.getTokenId())
             .apply();
         this.userSubject.onNext(user);
     }

@@ -140,7 +140,7 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
             return;
         }
         final Intent intent = new Intent(this.activity, ChatActivity.class);
-        intent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, this.user.getOwnerAddress());
+        intent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, this.user.getTokenId());
         this.activity.startActivity(intent);
     }
 

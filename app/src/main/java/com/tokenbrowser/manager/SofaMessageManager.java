@@ -314,7 +314,7 @@ public final class SofaMessageManager {
         } catch (final UntrustedIdentityException ue) {
             LogUtil.error(getClass(), "Keys have changed. " + ue);
             protocolStore.saveIdentity(
-                    new SignalProtocolAddress(receiver.getOwnerAddress(), SignalServiceAddress.DEFAULT_DEVICE_ID),
+                    new SignalProtocolAddress(receiver.getTokenId(), SignalServiceAddress.DEFAULT_DEVICE_ID),
                     ue.getIdentityKey());
         } catch (final IOException ex) {
             LogUtil.error(getClass(), ex.toString());
@@ -337,7 +337,7 @@ public final class SofaMessageManager {
         );
 
         messageSender.sendMessage(
-                new SignalServiceAddress(receiver.getOwnerAddress()),
+                new SignalServiceAddress(receiver.getTokenId()),
                 SignalServiceDataMessage.newBuilder()
                         .withBody(message.getAsSofaMessage())
                         .build());
@@ -477,7 +477,7 @@ public final class SofaMessageManager {
         .get()
         .getTokenManager()
         .getUserManager()
-        .getUserFromAddress(sender.getOwnerAddress());
+        .getUserFromAddress(sender.getTokenId());
     }
 
     private Single<String> generatePayloadWithLocalAmountEmbedded(final SofaMessage remoteMessage) {

@@ -21,7 +21,7 @@ public class ContactStore {
     public boolean userIsAContact(final User user) {
         return realm
                 .where(Contact.class)
-                .equalTo("owner_address", user.getOwnerAddress())
+                .equalTo("owner_address", user.getTokenId())
                 .findFirst() != null;
     }
 
@@ -37,7 +37,7 @@ public class ContactStore {
         realm.beginTransaction();
         realm
                 .where(Contact.class)
-                .equalTo("owner_address", user.getOwnerAddress())
+                .equalTo("owner_address", user.getTokenId())
                 .findFirst()
                 .deleteFromRealm();
         realm.commitTransaction();

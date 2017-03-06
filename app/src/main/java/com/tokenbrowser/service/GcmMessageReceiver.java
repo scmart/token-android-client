@@ -141,7 +141,7 @@ public class GcmMessageReceiver extends GcmListenerService {
                             .getTokenManager()
                             .getUserManager()
                             .getUserFromPaymentAddress(payment.getFromAddress())
-                            .subscribe((sender) -> ChatNotificationManager.showNotification(title, content, sender.getOwnerAddress()));
+                            .subscribe((sender) -> ChatNotificationManager.showNotification(title, content, sender.getTokenId()));
                 });
     }
 }

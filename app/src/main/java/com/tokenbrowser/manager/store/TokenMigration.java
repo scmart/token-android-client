@@ -18,5 +18,12 @@ public class TokenMigration implements RealmMigration {
                     .addField("cacheTimestamp", long.class);
             currentVersion++;
         }
+
+        // Migrate to version 2: Change owner_address to token_id
+        if (currentVersion == 1) {
+            schema.get("User")
+                    .renameField("owner_address", "token_id");
+            currentVersion++;
+        }
     }
 }

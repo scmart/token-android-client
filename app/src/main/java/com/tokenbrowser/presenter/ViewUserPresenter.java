@@ -196,7 +196,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
 
     private void handleMessageContactButton(final View view) {
         final Intent intent = new Intent(this.activity, ChatActivity.class);
-        intent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, this.scannedUser.getOwnerAddress());
+        intent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, this.scannedUser.getTokenId());
         this.activity.startActivity(intent);
         this.activity.finish();
     }

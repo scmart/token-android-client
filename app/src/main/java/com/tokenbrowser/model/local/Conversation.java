@@ -21,7 +21,7 @@ public class Conversation extends RealmObject {
 
     public Conversation(final User user) {
         this.member = user;
-        this.conversationId = user.getOwnerAddress();
+        this.conversationId = user.getTokenId();
     }
 
     public User getMember() {

@@ -55,7 +55,7 @@ public class ChatNotificationManager {
             LogUtil.i(ChatNotificationManager.class, "Not rendering PN");
             return;
         }
-        showNotification(user.getDisplayName(), body, user.getOwnerAddress());
+        showNotification(user.getDisplayName(), body, user.getTokenId());
     }
 
     private static String getBodyFromMessage(final DecryptedSignalMessage dsm) {
