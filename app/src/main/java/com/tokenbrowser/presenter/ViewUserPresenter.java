@@ -115,6 +115,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     }
 
     private void handleUserLoadingFailed(final Throwable throwable) {
+        LogUtil.e(getClass(), "Error during fetching user " + throwable.getMessage());
         if (this.activity != null) {
             this.activity.finish();
             Toast.makeText(this.activity, R.string.error_unknown_user, Toast.LENGTH_LONG).show();
