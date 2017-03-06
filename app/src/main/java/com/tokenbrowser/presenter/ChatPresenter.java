@@ -44,6 +44,7 @@ import com.tokenbrowser.view.activity.ChatActivity;
 import com.tokenbrowser.view.activity.ViewUserActivity;
 import com.tokenbrowser.view.adapter.MessageAdapter;
 import com.tokenbrowser.view.custom.SpeedyLinearLayoutManager;
+import com.tokenbrowser.view.fragment.DialogFragment.RateDialog;
 import com.tokenbrowser.view.notification.ChatNotificationManager;
 
 import java.io.IOException;
@@ -57,7 +58,8 @@ import rx.subscriptions.CompositeSubscription;
 
 
 public final class ChatPresenter implements
-        Presenter<ChatActivity> {
+        Presenter<ChatActivity>,
+        RateDialog.OnRateDialogClickListener {
 
     private static final int REQUEST_RESULT_CODE = 1;
     private static final int PAY_RESULT_CODE = 2;
@@ -634,7 +636,7 @@ public final class ChatPresenter implements
     public void handleActionMenuClicked(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.rate: {
-                Toast.makeText(this.activity, "Not implemented yet", Toast.LENGTH_SHORT).show();
+                rateUser();
                 break;
             }
             case R.id.view_profile: {
@@ -655,6 +657,22 @@ public final class ChatPresenter implements
         final Intent intent = new Intent(this.activity, ViewUserActivity.class)
                 .putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, ownerAddress);
         this.activity.startActivity(intent);
+    }
+
+    private void rateUser() {
+        if (this.remoteUser == null) {
+            return;
+        }
+
+        final RateDialog dialog = RateDialog
+                .newInstance(this.remoteUser.getUsername());
+        dialog.setOnRateDialogClickListener(this);
+        dialog.show(this.activity.getSupportFragmentManager(), RateDialog.TAG);
+    }
+
+    @Override
+    public void onRateClicked() {
+        LogUtil.d(getClass(), "onRateClicked");
     }
 
     @Override
