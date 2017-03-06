@@ -110,7 +110,7 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
     }
 
     private void generateQrCode() {
-        final Subscription sub = ImageUtil.generateQrCodeForWalletAddress(this.localUser.getOwnerAddress())
+        final Subscription sub = ImageUtil.generateQrCodeForWalletAddress(this.localUser.getTokenId())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleQrCodeGenerated);

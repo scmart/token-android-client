@@ -192,7 +192,7 @@ public class TransactionManager {
                                 LocaleUtil.getLocale(),
                                 BaseApplication.get().getString(R.string.payment_failed_message),
                                 receiver.getDisplayName());
-                        ChatNotificationManager.showNotification(title, content, receiver.getOwnerAddress());
+                        ChatNotificationManager.showNotification(title, content, receiver.getTokenId());
                     }
 
                     @Override

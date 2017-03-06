@@ -12,7 +12,7 @@ import io.realm.annotations.PrimaryKey;
 public class User extends RealmObject {
 
     @PrimaryKey
-    private String owner_address;
+    private String token_id;
     private String payment_address;
     private String username;
     @Json(name = "custom")
@@ -47,8 +47,8 @@ public class User extends RealmObject {
         return customUserInfo.getName();
     }
 
-    public String getOwnerAddress() {
-        return owner_address;
+    public String getTokenId() {
+        return token_id;
     }
 
     public String getPaymentAddress() {

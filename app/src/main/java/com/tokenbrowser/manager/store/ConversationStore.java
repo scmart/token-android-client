@@ -43,7 +43,7 @@ public class ConversationStore {
 
     public void saveNewMessage(final User user, final SofaMessage message) {
         realm.beginTransaction();
-        final Conversation existingConversation = loadWhere("conversationId", user.getOwnerAddress());
+        final Conversation existingConversation = loadWhere("conversationId", user.getTokenId());
         final Conversation conversationToStore = existingConversation == null
                 ? new Conversation(user)
                 : existingConversation;
@@ -52,13 +52,13 @@ public class ConversationStore {
         conversationToStore.setNumberOfUnread(calculateNumberOfUnread(conversationToStore));
         final Conversation storedConversation = realm.copyToRealmOrUpdate(conversationToStore);
         realm.commitTransaction();
-        broadcastNewChatMessage(user.getOwnerAddress(), message);
+        broadcastNewChatMessage(user.getTokenId(), message);
         broadcastConversationChanged(realm.copyFromRealm(storedConversation));
     }
 
     private int calculateNumberOfUnread(final Conversation conversationToStore) {
         // If we are watching the current conversation the message is automatically read.
-        if (conversationToStore.getMember().getOwnerAddress().equals(watchedConversationId)) {
+        if (conversationToStore.getMember().getTokenId().equals(watchedConversationId)) {
             return 0;
         }
         final int currentNumberOfUnread = conversationToStore.getNumberOfUnread();
@@ -108,7 +108,7 @@ public class ConversationStore {
         realm.beginTransaction();
         realm.insertOrUpdate(message);
         realm.commitTransaction();
-        broadcastUpdatedChatMessage(user.getOwnerAddress(), message);
+        broadcastUpdatedChatMessage(user.getTokenId(), message);
     }
 
     public boolean areUnreadMessages() {

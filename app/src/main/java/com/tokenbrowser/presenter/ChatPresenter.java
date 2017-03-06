@@ -142,7 +142,7 @@ public final class ChatPresenter implements
             return;
         }
 
-        viewProfile(user.getOwnerAddress());
+        viewProfile(user.getTokenId());
     }
 
     private void initPendingTransactionStore() {
@@ -442,7 +442,7 @@ public final class ChatPresenter implements
     }
 
     private void initChatMessageStore(final User remoteUser) {
-        ChatNotificationManager.suppressNotificationsForConversation(remoteUser.getOwnerAddress());
+        ChatNotificationManager.suppressNotificationsForConversation(remoteUser.getTokenId());
 
         if (this.chatObservables != null) {
             // Don't double subscribe
@@ -454,13 +454,13 @@ public final class ChatPresenter implements
                 .get()
                 .getTokenManager()
                 .getSofaMessageManager()
-                .registerForConversationChanges(remoteUser.getOwnerAddress());
+                .registerForConversationChanges(remoteUser.getTokenId());
 
         final Subscription subConversationLoaded = BaseApplication
                 .get()
                 .getTokenManager()
                 .getSofaMessageManager()
-                .loadConversation(remoteUser.getOwnerAddress())
+                .loadConversation(remoteUser.getTokenId())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleConversationLoaded);
 
@@ -638,7 +638,7 @@ public final class ChatPresenter implements
                 break;
             }
             case R.id.view_profile: {
-                viewProfile(this.remoteUser.getOwnerAddress());
+                viewProfile(this.remoteUser.getTokenId());
                 break;
             }
             default: {
