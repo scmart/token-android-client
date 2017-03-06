@@ -127,12 +127,12 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/reputation_score"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:includeFontPadding="false"
                             android:textColor="@color/ratingPrimary"
-                            android:textSize="49sp"
-                            android:text="3.6"/>
+                            android:textSize="49sp" />
 
                         <com.tokenbrowser.view.custom.StarRatingView
                             android:id="@+id/rating_view"
@@ -144,15 +144,16 @@
                             android:layout_height="8dp" />
 
                         <TextView
+                            android:id="@+id/review_count"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="@color/textColorSecondary"
-                            android:textSize="13sp"
-                            android:text="500 ratings"/>
+                            android:textSize="13sp" />
 
                     </LinearLayout>
 
                     <com.tokenbrowser.view.custom.RatingInfo
+                        android:id="@+id/rating_info"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"

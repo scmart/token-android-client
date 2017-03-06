@@ -5,12 +5,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.tokenbrowser.model.network.ReputationScore;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.view.adapter.viewholder.RatingInfoViewHolder;
 
 public class RatingInfoAdapter extends RecyclerView.Adapter<RatingInfoViewHolder> {
 
     private static final int MAX_ITEMS = 5;
+
+    private ReputationScore reputationScore;
+
+    public void setReputationScore(final ReputationScore reputationScore) {
+        this.reputationScore = reputationScore;
+        this.notifyDataSetChanged();
+    }
 
     @Override
     public RatingInfoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -22,7 +30,15 @@ public class RatingInfoAdapter extends RecyclerView.Adapter<RatingInfoViewHolder
     public void onBindViewHolder(RatingInfoViewHolder holder, int position) {
         final String stars = String.valueOf(MAX_ITEMS - position);
         holder.setStars(stars);
-        holder.setPercentageRating(99);
+
+        if (this.reputationScore == null) {
+            holder.setPercentageRating(0);
+            return;
+        }
+
+        final double rating = this.reputationScore.getStars().getAmountOfOneStarRatings(position + 1);
+        final int ratingPercentage = (int)((rating / 80) * 100);
+        holder.setPercentageRating(ratingPercentage);
     }
 
     @Override

@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
+import com.tokenbrowser.model.network.ReputationScore;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.view.adapter.RatingInfoAdapter;
 
@@ -34,5 +35,10 @@ public class RatingInfo extends RecyclerView {
     private void initRecyclerView() {
         this.setLayoutManager(new LinearLayoutManager(getContext()));
         this.setAdapter(new RatingInfoAdapter());
+    }
+
+    public void setRatingInfo(final ReputationScore reputationScore) {
+        final RatingInfoAdapter adapter = (RatingInfoAdapter) this.getAdapter();
+        adapter.setReputationScore(reputationScore);
     }
 }

@@ -3,9 +3,11 @@ package com.tokenbrowser.presenter;
 import android.graphics.Bitmap;
 import android.view.View;
 
+import com.tokenbrowser.model.network.ReputationScore;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.util.ImageUtil;
+import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
@@ -45,7 +47,7 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
         attachButtonListeners();
         initToolbar();
         updateView();
-        attachListeners();
+        fetchUser();
     }
 
     private void initToolbar() {
@@ -78,7 +80,7 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
         }
     }
 
-    private void attachListeners() {
+    private void fetchUser() {
         final Subscription sub = BaseApplication.get()
                 .getTokenManager()
                 .getUserManager()
@@ -93,6 +95,33 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
     private void handleUserLoaded(final User user) {
         this.localUser = user;
         updateView();
+        fetchUserReputation(user.getOwnerAddress());
+    }
+
+    private void fetchUserReputation(final String userAddress) {
+        final Subscription reputationSub = BaseApplication
+                .get()
+                .getTokenManager()
+                .getReputationManager()
+                .getReputationScore(userAddress)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleReputationResponse, this::handleReputationError);
+
+        this.subscriptions.add(reputationSub);
+    }
+
+    private void handleReputationResponse(final ReputationScore reputationScore) {
+        final String reviewCount = String.valueOf(reputationScore.getCount());
+        final double score = reputationScore.getScore() != null ? reputationScore.getScore() : 0;
+        final String stringScore = String.valueOf(score);
+        this.fragment.getBinding().reviewCount.setText(reviewCount);
+        this.fragment.getBinding().ratingView.setStars(score);
+        this.fragment.getBinding().reputationScore.setText(stringScore);
+        this.fragment.getBinding().ratingInfo.setRatingInfo(reputationScore);
+    }
+
+    private void handleReputationError(final Throwable throwable) {
+        LogUtil.e(getClass(), "Error during reputation fetching " + throwable.getMessage());
     }
 
     private void renderQrCode(final byte[] qrCodeImageBytes) {

@@ -127,4 +127,5 @@
     <string name="payment_failed">Payment failed</string>
     <string name="payment_failed_message">Unable to send money to %1$s</string>
     <string name="username_search_response_no_match">No user found with this username</string>
+    <string name="parentheses">(%1$d)</string>
 </resources>
