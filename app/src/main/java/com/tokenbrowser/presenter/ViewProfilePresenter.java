@@ -95,7 +95,7 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
     private void handleUserLoaded(final User user) {
         this.localUser = user;
         updateView();
-        fetchUserReputation(user.getOwnerAddress());
+        fetchUserReputation(user.getTokenId());
     }
 
     private void fetchUserReputation(final String userAddress) {
