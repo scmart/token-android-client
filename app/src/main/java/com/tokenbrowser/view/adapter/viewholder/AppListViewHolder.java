@@ -22,9 +22,9 @@ public class AppListViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void setApp(final App app) {
-        this.appName.setText(app.getName());
+        this.appName.setText(app.getCustom().getName());
         Glide.with(this.appImage.getContext())
-                .load(app.getManifest().getAvatarUrl())
+                .load(app.getCustom().getAvatar())
                 .into(this.appImage);
     }
 

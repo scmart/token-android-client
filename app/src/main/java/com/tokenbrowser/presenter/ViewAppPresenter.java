@@ -76,7 +76,7 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
         if (this.app == null || this.activity == null) {
             return;
         }
-        this.activity.getBinding().username.setText(this.app.getName());
+        this.activity.getBinding().username.setText(this.app.getCustom().getName());
     }
 
     private void handleAppLoadingFailed(final Throwable throwable) {
@@ -115,9 +115,9 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
 
     private void initView() {
         final ActivityViewAppBinding binding = this.activity.getBinding();
-        binding.title.setText(app.getName());
-        binding.name.setText(app.getName());
-        binding.username.setText(app.getName());
+        binding.title.setText(app.getCustom().getName());
+        binding.name.setText(app.getCustom().getName());
+        binding.username.setText(app.getCustom().getName());
         generateQrCode(this.app.getTokenId());
     }
 

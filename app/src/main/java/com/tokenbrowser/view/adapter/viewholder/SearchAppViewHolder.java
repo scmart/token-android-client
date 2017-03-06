@@ -30,8 +30,8 @@ public class SearchAppViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void setApp(final App app) {
-        this.appLabel.setText(app.getName());
-        this.appCategory.setText(app.getManifest().getInterfaces().get(0));
+        this.appLabel.setText(app.getCustom().getName());
+        this.appCategory.setText("Category");
         final double reputationScore = app.getReputationScore() != null
                 ? app.getReputationScore()
                 : 0;
@@ -40,7 +40,7 @@ public class SearchAppViewHolder extends RecyclerView.ViewHolder {
         this.reviewCount.setText(reviewCount);
 
         Glide.with(this.appImage.getContext())
-                .load(app.getManifest().getAvatarUrl())
+                .load(app.getCustom().getAvatar())
                 .into(this.appImage);
     }
 
