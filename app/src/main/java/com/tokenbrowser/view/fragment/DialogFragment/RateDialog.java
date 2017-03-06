@@ -21,10 +21,12 @@ public class RateDialog extends DialogFragment {
 
     private FragmentRateBinding binding;
     private String username;
+    private int rating;
+    private String review;
     public OnRateDialogClickListener listener;
 
     public interface OnRateDialogClickListener {
-        void onRateClicked();
+        void onRateClicked(final int rating, final String review);
     }
 
     public void setOnRateDialogClickListener(final OnRateDialogClickListener listener) {
@@ -69,8 +71,10 @@ public class RateDialog extends DialogFragment {
     }
 
     private void initClickListeners() {
+        this.binding.ratingView.setOnItemClickListener(rating -> this.rating = rating);
         this.binding.review.setOnClickListener(v -> {
-            listener.onRateClicked();
+            final String review = this.binding.reviewInput.getText().toString();
+            this.listener.onRateClicked(this.rating, review);
             dismiss();
         });
         this.binding.noThanks.setOnClickListener(v -> dismiss());

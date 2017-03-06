@@ -6,12 +6,23 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.tokenbrowser.token.R;
+import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
 import com.tokenbrowser.view.adapter.viewholder.StarViewHolder;
 
 public class StarAdapter extends RecyclerView.Adapter<StarViewHolder> {
 
     private static final int MAX_STARS = 5;
     private double rating;
+    private boolean bigMode;
+    private OnItemClickListener<Integer> listener;
+
+    public void setOnItemClickListener(final OnItemClickListener<Integer> listener) {
+        this.listener = listener;
+    }
+
+    public StarAdapter(final boolean size) {
+        this.bigMode = size;
+    }
 
     public void setStars(final double rating) {
         this.rating = rating;
@@ -20,7 +31,9 @@ public class StarAdapter extends RecyclerView.Adapter<StarViewHolder> {
 
     @Override
     public StarViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__star, parent, false);
+        final View v = bigMode
+                ? LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__star_big, parent, false)
+                : LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__star_small, parent, false);
         return new StarViewHolder(v);
     }
 
@@ -35,6 +48,16 @@ public class StarAdapter extends RecyclerView.Adapter<StarViewHolder> {
         } else {
             holder.setWholeGreyStar();
         }
+
+        if (this.bigMode && this.listener != null) {
+            holder.bind(position, this);
+        }
+    }
+
+    public void updateSelectedStars(final int starsSelected) {
+        this.rating = starsSelected;
+        this.notifyDataSetChanged();
+        this.listener.onItemClick(starsSelected);
     }
 
     @Override

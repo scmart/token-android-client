@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.tokenbrowser.token.R;
+import com.tokenbrowser.view.adapter.StarAdapter;
 
 public class StarViewHolder extends RecyclerView.ViewHolder {
     private ImageView imageView;
@@ -25,5 +26,9 @@ public class StarViewHolder extends RecyclerView.ViewHolder {
 
     public void setWholeGreyStar() {
         imageView.setImageResource(R.drawable.star_grey);
+    }
+
+    public void bind(final int position, final StarAdapter adapter) {
+        this.itemView.setOnClickListener(v -> adapter.updateSelectedStars(position + 1));
     }
 }

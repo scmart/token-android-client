@@ -671,8 +671,8 @@ public final class ChatPresenter implements
     }
 
     @Override
-    public void onRateClicked() {
-        LogUtil.d(getClass(), "onRateClicked");
+    public void onRateClicked(final int rating, final String review) {
+        LogUtil.d(getClass(), "onRateClicked ");
     }
 
     @Override
