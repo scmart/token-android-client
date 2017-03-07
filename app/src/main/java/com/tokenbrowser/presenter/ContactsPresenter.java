@@ -125,6 +125,18 @@ public final class ContactsPresenter implements
     }
 
     public void handleActionMenuClicked(final MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.invite_friends:
+                handleInviteFriends();
+                break;
+        }
+    }
 
+    private void handleInviteFriends() {
+        final Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, this.fragment.getActivity().getString(R.string.invite_friends_intent_message));
+        sendIntent.setType("text/plain");
+        this.fragment.getActivity().startActivity(sendIntent);
     }
 }
