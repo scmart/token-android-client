@@ -20,7 +20,7 @@ public class UserStore {
     }
 
     public Observable<User> loadForAddress(final String address) {
-        return Observable.fromCallable(() -> loadWhere("token_id", address));
+        return Observable.fromCallable(() -> loadWhere("owner_address", address));
     }
 
     public User loadForPaymentAddress(final String address) {
