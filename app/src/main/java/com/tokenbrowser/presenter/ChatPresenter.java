@@ -2,7 +2,6 @@ package com.tokenbrowser.presenter;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.support.v7.app.AlertDialog;
@@ -15,7 +14,6 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.PathInterpolator;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -34,6 +32,7 @@ import com.tokenbrowser.model.sofa.PaymentRequest;
 import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.model.sofa.SofaType;
 import com.tokenbrowser.token.R;
+import com.tokenbrowser.util.KeyboardUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.util.PaymentType;
@@ -578,8 +577,7 @@ public final class ChatPresenter implements
     }
 
     private void hideKeyboard() {
-        ((InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE))
-                .hideSoftInputFromWindow(activity.getBinding().userInput.getWindowToken(), 0);
+        KeyboardUtil.hideKeyboard(this.activity.getBinding().userInput);
     }
 
     private void setControlView(final SofaMessage sofaMessage) {

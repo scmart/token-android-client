@@ -7,14 +7,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.jakewharton.rxbinding.widget.RxTextView;
 import com.tokenbrowser.model.local.User;
+import com.tokenbrowser.util.KeyboardUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.UserSearchActivity;
 import com.tokenbrowser.view.activity.ViewUserActivity;
 import com.tokenbrowser.view.adapter.ContactsAdapter;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
-import com.jakewharton.rxbinding.widget.RxTextView;
 
 import java.util.concurrent.TimeUnit;
 
@@ -98,6 +99,7 @@ public final class UserSearchPresenter
     private final OnSingleClickListener handleCloseClicked = new OnSingleClickListener() {
         @Override
         public void onSingleClick(final View v) {
+            KeyboardUtil.hideKeyboard(v);
             activity.onBackPressed();
         }
     };
