@@ -12,6 +12,7 @@ import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.view.BaseApplication;
+import com.tokenbrowser.view.activity.ScannerActivity;
 import com.tokenbrowser.view.activity.UserSearchActivity;
 import com.tokenbrowser.view.activity.ViewUserActivity;
 import com.tokenbrowser.view.adapter.ContactsAdapter;
@@ -125,6 +126,9 @@ public final class ContactsPresenter implements
 
     public void handleActionMenuClicked(final MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.scan_qr:
+                startScanQrActivity();
+                break;
             case R.id.invite_friends:
                 handleInviteFriends();
                 break;
@@ -145,5 +149,11 @@ public final class ContactsPresenter implements
     private void startUserSearchActivity() {
         final Intent intent = new Intent(fragment.getActivity(), UserSearchActivity.class);
         fragment.startActivity(intent);
+    }
+
+    private void startScanQrActivity() {
+        final Intent intent = new Intent(fragment.getActivity(), ScannerActivity.class);
+        intent.putExtra(ScannerActivity.RESULT_TYPE, ScannerActivity.REDIRECT);
+        fragment.getActivity().startActivity(intent);
     }
 }

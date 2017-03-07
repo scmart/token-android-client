@@ -11,6 +11,7 @@ import com.tokenbrowser.model.local.Conversation;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ChatActivity;
+import com.tokenbrowser.view.activity.ScannerActivity;
 import com.tokenbrowser.view.activity.UserSearchActivity;
 import com.tokenbrowser.view.adapter.RecentAdapter;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
@@ -134,6 +135,9 @@ public final class RecentPresenter implements
 
     public void handleActionMenuClicked(final MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.scan_qr:
+                startScanQrActivity();
+                break;
             case R.id.invite_friends:
                 handleInviteFriends();
                 break;
@@ -154,5 +158,11 @@ public final class RecentPresenter implements
     private void startUserSearchActivity() {
         final Intent intent = new Intent(fragment.getActivity(), UserSearchActivity.class);
         fragment.startActivity(intent);
+    }
+
+    private void startScanQrActivity() {
+        final Intent intent = new Intent(fragment.getActivity(), ScannerActivity.class);
+        intent.putExtra(ScannerActivity.RESULT_TYPE, ScannerActivity.REDIRECT);
+        fragment.getActivity().startActivity(intent);
     }
 }
