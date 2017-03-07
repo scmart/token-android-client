@@ -5,6 +5,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.MenuItem;
 
 import com.tokenbrowser.model.local.Conversation;
 import com.tokenbrowser.token.R;
@@ -128,5 +129,9 @@ public final class RecentPresenter implements
     public void onViewDestroyed() {
         this.subscriptions.clear();
         this.fragment = null;
+    }
+
+    public void handleActionMenuClicked(final MenuItem item) {
+
     }
 }
