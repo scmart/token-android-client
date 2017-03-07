@@ -133,7 +133,6 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         binding.addContactButton.setOnClickListener(handleOnAddContact);
         binding.addContactButton.setEnabled(true);
         binding.messageContactButton.setOnClickListener(this::handleMessageContactButton);
-        binding.ratingView.setStars(3.6);
         updateAddContactState();
     }
 
