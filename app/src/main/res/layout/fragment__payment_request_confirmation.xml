@@ -120,6 +120,8 @@
                     android:layout_marginLeft="5dp"
                     android:textSize="14sp"
                     android:textColor="@color/colorPrimary"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"
                     android:text="@string/reject"/>
 
             </LinearLayout>
@@ -143,6 +145,8 @@
                     android:layout_marginLeft="5dp"
                     android:textSize="14sp"
                     android:textColor="@color/colorPrimary"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"
                     android:text="@string/approve"/>
 
             </LinearLayout>

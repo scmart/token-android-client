@@ -222,4 +222,10 @@ public class UserManager {
     public void saveContact(final User user) {
         this.dbThreadExecutor.submit(() -> this.contactStore.save(user));
     }
+
+    public Single<ServerTime> getTimestamp() {
+        return IdService
+                .getApi()
+                .getTimestamp();
+    }
 }

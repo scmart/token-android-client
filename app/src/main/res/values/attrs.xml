@@ -13,4 +13,8 @@
         <attr name="cornerRadius" format="dimension" />
         <attr name="visibleBackground" format="boolean" />
     </declare-styleable>
+    
+    <declare-styleable name="StarRating">
+        <attr name="bigMode" format="boolean"/>
+    </declare-styleable>
 </resources>

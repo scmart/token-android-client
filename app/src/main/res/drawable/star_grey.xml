@@ -1,26 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="12dp"
-    android:height="12dp"
+    android:width="31dp"
+    android:height="31dp"
     android:viewportWidth="12"
     android:viewportHeight="12">
 
     <group
-        android:name="workinprogress">
+        android:translateX="-319.000000"
+        android:translateY="-478.000000">
         <group
-            android:name="levels-contacts-copy-3"
-            android:translateX="-319.000000"
-            android:translateY="-478.000000">
-            <group
-                android:name="Group-7-Copy-4"
-                android:translateX="277.000000"
-                android:translateY="478.000000">
-                <path
-                    android:name="Shape-Copy-31"
-                    android:fillColor="#D1D1D1"
-                    android:strokeWidth="1"
-                    android:pathData="M 48 8.8 L 51.71 11.5 L 50.29 7.14 L 54 4.5 L 49.45 4.5 L 48 0 L 46.55 4.5 L 42 4.5 L 45.71 7.14 L 44.29 11.5 Z" />
-            </group>
+            android:translateX="277.000000"
+            android:translateY="478.000000">
+            <path
+                android:fillColor="#D1D1D1"
+                android:strokeWidth="1"
+                android:pathData="M 48 8.8 L 51.71 11.5 L 50.29 7.14 L 54 4.5 L 49.45 4.5 L 48 0 L 46.55 4.5 L 42 4.5 L 45.71 7.14 L 44.29 11.5 Z" />
         </group>
     </group>
 </vector>

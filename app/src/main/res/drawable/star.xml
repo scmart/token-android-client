@@ -1,20 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="11dp"
-    android:height="11dp"
+    android:width="31dp"
+    android:height="31dp"
     android:viewportWidth="11"
     android:viewportHeight="11">
 
     <group
-        android:name="main-pages">
-        <group
-            android:name="Apps-Copy-3"
-            android:translateX="-55.000000"
-            android:translateY="-354.000000">
-            <path
-                android:fillColor="@color/ratingPrimary"
-                android:strokeWidth="1"
-                android:pathData="M 60.5 362.066667 L 63.9008333 364.541667 L 62.5991667 360.545 L 66 358.125 L 61.8291667 358.125 L 60.5 354 L 59.1708333 358.125 L 55 358.125 L 58.4008333 360.545 L 57.0991667 364.541667 Z" />
-        </group>
+        android:translateX="-55.000000"
+        android:translateY="-354.000000">
+        <path
+            android:fillColor="@color/ratingPrimary"
+            android:strokeWidth="1"
+            android:pathData="M 60.5 362.066667 L 63.9008333 364.541667 L 62.5991667 360.545 L 66 358.125 L 61.8291667 358.125 L 60.5 354 L 59.1708333 358.125 L 55 358.125 L 58.4008333 360.545 L 57.0991667 364.541667 Z" />
     </group>
 </vector>
