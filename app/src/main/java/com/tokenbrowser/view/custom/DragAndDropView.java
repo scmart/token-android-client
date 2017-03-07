@@ -8,7 +8,6 @@ import android.view.DragEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import com.bakkenbaeck.token.view.custom.ShadowTextView;
 import com.tokenbrowser.token.R;
 
 import org.apmem.tools.layouts.FlowLayout;

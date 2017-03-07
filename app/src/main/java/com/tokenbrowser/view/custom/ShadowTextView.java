@@ -1,4 +1,4 @@
-package com.bakkenbaeck.token.view.custom;
+package com.tokenbrowser.view.custom;
 
 import android.content.Context;
 import android.content.res.TypedArray;
