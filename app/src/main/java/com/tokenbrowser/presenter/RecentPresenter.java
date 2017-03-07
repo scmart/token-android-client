@@ -11,6 +11,7 @@ import com.tokenbrowser.model.local.Conversation;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ChatActivity;
+import com.tokenbrowser.view.activity.UserSearchActivity;
 import com.tokenbrowser.view.adapter.RecentAdapter;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
 import com.tokenbrowser.view.custom.HorizontalLineDivider;
@@ -136,6 +137,9 @@ public final class RecentPresenter implements
             case R.id.invite_friends:
                 handleInviteFriends();
                 break;
+            case R.id.search_people:
+                startUserSearchActivity();
+                break;
         }
     }
 
@@ -145,5 +149,10 @@ public final class RecentPresenter implements
         sendIntent.putExtra(Intent.EXTRA_TEXT, this.fragment.getActivity().getString(R.string.invite_friends_intent_message));
         sendIntent.setType("text/plain");
         this.fragment.getActivity().startActivity(sendIntent);
+    }
+
+    private void startUserSearchActivity() {
+        final Intent intent = new Intent(fragment.getActivity(), UserSearchActivity.class);
+        fragment.startActivity(intent);
     }
 }

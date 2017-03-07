@@ -105,14 +105,6 @@ public final class ContactsPresenter implements
         }
     }
 
-    private final OnSingleClickListener handleUserSearchClicked = new OnSingleClickListener() {
-        @Override
-        public void onSingleClick(final View v) {
-            final Intent intent = new Intent(fragment.getActivity(), UserSearchActivity.class);
-            fragment.startActivity(intent);
-        }
-    };
-
     @Override
     public void onViewDetached() {
         this.fragment = null;
@@ -124,10 +116,20 @@ public final class ContactsPresenter implements
         this.fragment = null;
     }
 
+    private final OnSingleClickListener handleUserSearchClicked = new OnSingleClickListener() {
+        @Override
+        public void onSingleClick(final View v) {
+            startUserSearchActivity();
+        }
+    };
+
     public void handleActionMenuClicked(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.invite_friends:
                 handleInviteFriends();
+                break;
+            case R.id.search_people:
+                startUserSearchActivity();
                 break;
         }
     }
@@ -138,5 +140,10 @@ public final class ContactsPresenter implements
         sendIntent.putExtra(Intent.EXTRA_TEXT, this.fragment.getActivity().getString(R.string.invite_friends_intent_message));
         sendIntent.setType("text/plain");
         this.fragment.getActivity().startActivity(sendIntent);
+    }
+
+    private void startUserSearchActivity() {
+        final Intent intent = new Intent(fragment.getActivity(), UserSearchActivity.class);
+        fragment.startActivity(intent);
     }
 }
