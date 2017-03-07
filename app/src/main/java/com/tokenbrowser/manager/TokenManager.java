@@ -28,7 +28,7 @@ public class TokenManager {
     public Single<TokenManager> init() {
         return Single.fromCallable(() -> {
             TokenManager.this.wallet = new HDWallet().init();
-            TokenManager.this.appsManager.init(TokenManager.this.wallet);
+            TokenManager.this.appsManager.init();
             TokenManager.this.balanceManager.init(TokenManager.this.wallet);
             TokenManager.this.sofaMessageManager.init(TokenManager.this.wallet);
             TokenManager.this.transactionManager.init(TokenManager.this.wallet);
