@@ -81,8 +81,7 @@ public class UserManager {
     }
 
     private void handleError(final Throwable throwable) {
-        LogUtil.e(getClass(), "Unable to register user");
-        throw new RuntimeException(throwable);
+        LogUtil.e(getClass(), "Unable to register/fetch user: " + throwable.toString());
     }
 
     private void registerNewUserWithTimestamp(final ServerTime serverTime) {
@@ -104,7 +103,7 @@ public class UserManager {
     private void getExistingUser() {
         IdService.getApi()
                 .getUser(this.wallet.getOwnerAddress())
-                .subscribe(this::updateCurrentUser);
+                .subscribe(this::updateCurrentUser, this::handleError);
     }
 
     private void updateCurrentUser(final User user) {
