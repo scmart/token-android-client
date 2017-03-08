@@ -56,10 +56,10 @@ public class HomePresenter implements Presenter<HomeFragment> {
 
     private void initLongTermObjects() {
         this.subscriptions = new CompositeSubscription();
-        assignSubscribers();
+        attachSubscribers();
     }
 
-    private void assignSubscribers() {
+    private void attachSubscribers() {
         final Subscription sub = BaseApplication
                 .get()
                 .getTokenManager()

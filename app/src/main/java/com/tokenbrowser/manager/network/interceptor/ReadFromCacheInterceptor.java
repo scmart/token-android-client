@@ -22,7 +22,7 @@ public class ReadFromCacheInterceptor implements Interceptor {
                 .maxAge(60, TimeUnit.SECONDS)
                 .build();
 
-        if (!BaseApplication.get().isNetworkAvailable()) {
+        if (!BaseApplication.get().isConnected()) {
             cacheControl = new CacheControl.Builder()
                     .maxAge(14, TimeUnit.DAYS)
                     .build();
