@@ -503,7 +503,9 @@ public final class SofaMessageManager {
                 .searchByUsername(ONBOARDING_BOT_NAME)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .subscribe(this::handleOnboardingBotFound);
+                .subscribe(
+                        this::handleOnboardingBotFound,
+                        e -> LogUtil.e(getClass(), "Onboarding bot not found. " + e.toString()));
     }
 
     private void handleOnboardingBotFound(final UserSearchResults results) {
