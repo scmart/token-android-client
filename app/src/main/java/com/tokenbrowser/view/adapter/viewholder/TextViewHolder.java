@@ -84,11 +84,20 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
                         ? R.string.error__message_failed
                         : R.string.error__message_pending);
             }
+
+            if (this.text == null) {
+                this.localText.setVisibility(View.GONE);
+            }
+
         } else {
             this.localContainer.setVisibility(View.GONE);
             this.remoteWrapper.setVisibility(View.VISIBLE);
             this.remoteText.setText(text);
             loadImage(this.remoteImage);
+
+            if (this.text == null) {
+                this.remoteText.setVisibility(View.GONE);
+            }
         }
 
         return this;
@@ -96,7 +105,7 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
 
     private void loadImage(final ImageView imageView) {
         if (this.attachmentFilename != null) {
-            this.remoteImage.setVisibility(View.VISIBLE);
+            imageView.setVisibility(View.VISIBLE);
 
             final String path = BaseApplication.get().getFilesDir() + "/" + this.attachmentFilename;
             final File imageFile = new File(path);
@@ -112,6 +121,10 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void setClickableUsernames(final OnItemClickListener<String> listener) {
+        if (this.text == null) {
+            return;
+        }
+
         final SpannableString spannableString = new SpannableString(this.text);
         int lastEndPos = 0;
 

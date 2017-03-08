@@ -133,4 +133,7 @@
     <string name="no_thanks">No thanks</string>
     <string name="review">Review</string>
     <string name="search_people">Search people</string>
+    <string name="select_picture">Select Picture</string>
+    <string name="capture_image">Capture image</string>
+    <string name="gallery">Gallery</string>
 </resources>
