@@ -33,7 +33,7 @@
                 style="@style/ToolbarEditText"
                 android:paddingLeft="8dp"
                 android:layout_marginRight="16dp"
-                android:hint="@string/contacts__user_search_hint"
+                android:hint="@string/search_people"
                 android:singleLine="true"
                 android:maxLines="1"
                 android:imeOptions="actionNext" />

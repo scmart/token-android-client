@@ -38,7 +38,8 @@
         <activity android:name="com.tokenbrowser.view.activity.ProfileActivity" />
         <activity android:name="com.tokenbrowser.view.activity.UserSearchActivity" />
         <activity android:name="com.tokenbrowser.view.activity.AmountActivity" />
-        <activity android:name="com.tokenbrowser.view.activity.ScannerActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.ScannerActivity"
+                  android:theme="@style/FullScreenTheme"/>
         <activity android:name="com.tokenbrowser.view.activity.ChooseContactsActivity" />
         <activity android:name="com.tokenbrowser.view.activity.AboutActivity" />
         <activity android:name="com.tokenbrowser.view.activity.LicenseListActivity" />

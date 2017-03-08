@@ -9,6 +9,24 @@
     android:orientation="vertical"
     android:background="@color/windowBackgroundContrast">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:gravity="center_vertical"
+        style="@style/ToolbarTheme">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            style="@style/Toolbar.TitleText"
+            android:text="@string/tab_4"/>
+
+    </android.support.v7.widget.Toolbar>
+
     <TextView
         android:id="@+id/user_search"
         android:layout_width="match_parent"
@@ -17,7 +35,7 @@
         android:gravity="center_vertical"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:text="@string/contacts__user_search_hint"
+        android:text="@string/search_people"
         android:textColor="@color/textColorHint"
         android:textSize="16sp" />
 

@@ -5,11 +5,14 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.MenuItem;
 
 import com.tokenbrowser.model.local.Conversation;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ChatActivity;
+import com.tokenbrowser.view.activity.ScannerActivity;
+import com.tokenbrowser.view.activity.UserSearchActivity;
 import com.tokenbrowser.view.adapter.RecentAdapter;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
 import com.tokenbrowser.view.custom.HorizontalLineDivider;
@@ -128,5 +131,38 @@ public final class RecentPresenter implements
     public void onViewDestroyed() {
         this.subscriptions.clear();
         this.fragment = null;
+    }
+
+    public void handleActionMenuClicked(final MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.scan_qr:
+                startScanQrActivity();
+                break;
+            case R.id.invite_friends:
+                handleInviteFriends();
+                break;
+            case R.id.search_people:
+                startUserSearchActivity();
+                break;
+        }
+    }
+
+    private void handleInviteFriends() {
+        final Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, this.fragment.getActivity().getString(R.string.invite_friends_intent_message));
+        sendIntent.setType("text/plain");
+        this.fragment.getActivity().startActivity(sendIntent);
+    }
+
+    private void startUserSearchActivity() {
+        final Intent intent = new Intent(fragment.getActivity(), UserSearchActivity.class);
+        fragment.startActivity(intent);
+    }
+
+    private void startScanQrActivity() {
+        final Intent intent = new Intent(fragment.getActivity(), ScannerActivity.class);
+        intent.putExtra(ScannerActivity.RESULT_TYPE, ScannerActivity.REDIRECT);
+        fragment.getActivity().startActivity(intent);
     }
 }

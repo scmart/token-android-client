@@ -14,6 +14,9 @@
         <item name="colorControlNormal">@color/divider_amount</item>
     </style>
 
+    <style name="FullScreenTheme" parent="AppTheme">
+    </style>
+
     <style name="ToolbarTheme" parent="@style/ThemeOverlay.AppCompat.ActionBar">
         <item name="android:background">@color/colorPrimary</item>
         <item name="selectableItemBackground">?android:selectableItemBackground</item>
