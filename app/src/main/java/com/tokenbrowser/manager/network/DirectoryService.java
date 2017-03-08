@@ -1,13 +1,16 @@
 package com.tokenbrowser.manager.network;
 
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.model.network.App;
-import com.tokenbrowser.manager.network.interceptor.AppCacheInterceptor;
-import com.tokenbrowser.manager.network.interceptor.LoggingInterceptor;
-import com.tokenbrowser.manager.network.interceptor.UserAgentInterceptor;
-import com.tokenbrowser.view.BaseApplication;
 import com.squareup.moshi.Moshi;
+import com.tokenbrowser.manager.network.interceptor.LoggingInterceptor;
+import com.tokenbrowser.manager.network.interceptor.OfflineCacheInterceptor;
+import com.tokenbrowser.manager.network.interceptor.ReadFromCacheInterceptor;
+import com.tokenbrowser.manager.network.interceptor.UserAgentInterceptor;
+import com.tokenbrowser.token.R;
+import com.tokenbrowser.view.BaseApplication;
 
+import java.io.File;
+
+import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -21,14 +24,9 @@ public class DirectoryService {
 
     private final DirectoryInterface directoryInterface;
     private final OkHttpClient.Builder client;
-    private final AppCacheInterceptor cacheInterceptor;
 
     public static DirectoryInterface getApi() {
         return get().directoryInterface;
-    }
-
-    public static App getCachedApp(final String appOwnerAddress) {
-        return get().loadFromCache(appOwnerAddress);
     }
 
     private static DirectoryService get() {
@@ -46,11 +44,14 @@ public class DirectoryService {
     }
 
     private DirectoryService() {
-        final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory
-                .createWithScheduler(Schedulers.io());
-        this.cacheInterceptor = new AppCacheInterceptor();
-        this.client = new OkHttpClient.Builder();
-        this.client.interceptors().add(this.cacheInterceptor);
+        final RxJavaCallAdapterFactory rxAdapter =
+                RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io());
+        final File cachePath = new File(BaseApplication.get().getCacheDir(), "dirCache");
+        this.client =
+                new OkHttpClient.Builder()
+                .cache(new Cache(cachePath, 1024 * 1024)) // 1 MB
+                .addNetworkInterceptor(new ReadFromCacheInterceptor())
+                .addInterceptor(new OfflineCacheInterceptor());
 
         addUserAgentHeader();
         addLogging();
@@ -75,9 +76,5 @@ public class DirectoryService {
         final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor(new LoggingInterceptor());
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         this.client.addInterceptor(interceptor);
-    }
-
-    private App loadFromCache(final String appOwnerAddress) {
-        return this.cacheInterceptor.loadFromCache(appOwnerAddress);
     }
 }

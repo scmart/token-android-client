@@ -1,7 +1,6 @@
 package com.tokenbrowser.manager;
 
 
-import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.manager.network.DirectoryService;
 import com.tokenbrowser.model.network.App;
 
@@ -13,11 +12,7 @@ import rx.schedulers.Schedulers;
 
 public class AppsManager {
 
-    private HDWallet wallet;
-
-
-    public AppsManager init(final HDWallet wallet) {
-        this.wallet = wallet;
+    public AppsManager init() {
         return this;
     }
 
@@ -37,6 +32,7 @@ public class AppsManager {
                 .first((response) -> response.code() == 200)
                 .flatMap((response) -> Observable.just(response.body().getApps()));
     }
+
     public Observable<List<App>> searchApps(final String query) {
         return DirectoryService
                 .getApi()
@@ -50,10 +46,10 @@ public class AppsManager {
         return DirectoryService
                 .getApi()
                 .getApp(tokenId)
-                .subscribeOn(Schedulers.io())
                 .toObservable()
                 .first((response) -> response.code() == 200)
                 .flatMap((response) -> Observable.just(response.body()))
+                .subscribeOn(Schedulers.io())
                 .toSingle();
     }
 }

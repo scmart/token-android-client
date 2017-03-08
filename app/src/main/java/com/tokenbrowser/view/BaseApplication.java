@@ -2,6 +2,11 @@ package com.tokenbrowser.view;
 
 
 import android.content.ComponentCallbacks2;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.support.multidex.MultiDexApplication;
 
 import com.tokenbrowser.manager.TokenManager;
@@ -85,5 +90,34 @@ public final class BaseApplication extends MultiDexApplication {
             this.tokenManager.getSofaMessageManager().disconnect();
         }
         super.onTrimMemory(level);
+    }
+
+    public boolean isNetworkAvailable() {
+        final ConnectivityManager connectivityManager =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            final Network[] networks = connectivityManager.getAllNetworks();
+            for (final Network mNetwork : networks) {
+                final NetworkInfo networkInfo = connectivityManager.getNetworkInfo(mNetwork);
+                return networkInfo.isConnected();
+            }
+        } else {
+            if (connectivityManager == null) {
+                return false;
+            }
+
+            //noinspection deprecation
+            final NetworkInfo[] networkInfos = connectivityManager.getAllNetworkInfo();
+            if (networkInfos == null) {
+                return false;
+            }
+
+            for (final NetworkInfo networkInfo : networkInfos) {
+                if (networkInfo.isConnected()) return true;
+            }
+        }
+
+        return false;
     }
 }
