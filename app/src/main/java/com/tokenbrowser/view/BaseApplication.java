@@ -38,6 +38,7 @@ public final class BaseApplication extends MultiDexApplication {
     private void init() {
         initTokenManager();
         initRealm();
+        isConnectedSubject().onNext(NetworkChangeReceiver.getCurrentConnectivityStatus(this));
     }
 
     private void initTokenManager() {
@@ -95,6 +96,6 @@ public final class BaseApplication extends MultiDexApplication {
     }
 
     public boolean isConnected() {
-        return isConnectedSubject.hasValue() ? isConnectedSubject.getValue() : NetworkChangeReceiver.getCurrentConnectivityStatus(this);
+        return isConnectedSubject.getValue();
     }
 }
