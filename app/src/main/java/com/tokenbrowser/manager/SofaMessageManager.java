@@ -29,6 +29,7 @@ import com.tokenbrowser.service.RegistrationIntentService;
 import com.tokenbrowser.token.BuildConfig;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.FileNames;
+import com.tokenbrowser.util.FileUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnNextSubscriber;
 import com.tokenbrowser.util.SharedPrefsUtil;
@@ -49,12 +50,15 @@ import org.whispersystems.signalservice.api.SignalServiceMessageReceiver;
 import org.whispersystems.signalservice.api.SignalServiceMessageSender;
 import org.whispersystems.signalservice.api.crypto.SignalServiceCipher;
 import org.whispersystems.signalservice.api.crypto.UntrustedIdentityException;
+import org.whispersystems.signalservice.api.messages.SignalServiceAttachment;
+import org.whispersystems.signalservice.api.messages.SignalServiceAttachmentPointer;
 import org.whispersystems.signalservice.api.messages.SignalServiceContent;
 import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage;
 import org.whispersystems.signalservice.api.messages.SignalServiceEnvelope;
 import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 import org.whispersystems.signalservice.internal.push.SignalServiceUrl;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -83,6 +87,7 @@ public final class SofaMessageManager {
     private boolean receiveMessages;
     private SignalServiceUrl[] signalServiceUrls;
     private String gcmToken;
+    private SignalServiceMessageReceiver messageReceiver;
 
     public final SofaMessageManager init(final HDWallet wallet) {
         this.wallet = wallet;
@@ -209,6 +214,7 @@ public final class SofaMessageManager {
 
     private void initEverything() {
         generateStores();
+        initSignalMessageReceiver();
         registerIfNeeded();
         attachSubscribers();
     }
@@ -232,6 +238,15 @@ public final class SofaMessageManager {
                 this.trustStore);
         this.signalServiceUrls[0] = signalServiceUrl;
         this.signalService = new SignalService(this.signalServiceUrls, this.wallet, this.protocolStore, this.userAgent);
+    }
+
+    private void initSignalMessageReceiver() {
+        this.messageReceiver = new SignalServiceMessageReceiver(
+                this.signalServiceUrls,
+                this.wallet.getOwnerAddress(),
+                this.protocolStore.getPassword(),
+                this.protocolStore.getSignalingKey(),
+                this.userAgent);
     }
 
     private void registerIfNeeded() {
@@ -400,20 +415,6 @@ public final class SofaMessageManager {
     public DecryptedSignalMessage fetchLatestMessage() throws TimeoutException {
         if (!waitForWallet()) return null;
 
-        final SignalServiceUrl[] urls = {
-                new SignalServiceUrl(
-                        BaseApplication.get().getResources().getString(R.string.chat_url),
-                        this.trustStore
-                )
-        };
-
-        final SignalServiceMessageReceiver messageReceiver = new SignalServiceMessageReceiver(
-                urls,
-                this.wallet.getOwnerAddress(),
-                this.protocolStore.getPassword(),
-                this.protocolStore.getSignalingKey(),
-                this.userAgent);
-
         if (this.messagePipe == null) {
             this.messagePipe = messageReceiver.createMessagePipe();
         }
@@ -458,7 +459,8 @@ public final class SofaMessageManager {
         if (dataMessage.isPresent()) {
             final String messageSource = envelope.getSource();
             final Optional<String> messageBody = dataMessage.get().getBody();
-            final DecryptedSignalMessage decryptedMessage = new DecryptedSignalMessage(messageSource, messageBody.get());
+            final Optional<List<SignalServiceAttachment>> attachments = dataMessage.get().getAttachments();
+            final DecryptedSignalMessage decryptedMessage = new DecryptedSignalMessage(messageSource, messageBody.get(), attachments);
             saveIncomingMessageToDatabase(decryptedMessage);
             return decryptedMessage;
         }
@@ -471,6 +473,8 @@ public final class SofaMessageManager {
             return;
         }
 
+        processAttachments(signalMessage);
+
         BaseApplication
         .get()
         .getTokenManager()
@@ -479,8 +483,28 @@ public final class SofaMessageManager {
         .subscribe((user) -> this.saveIncomingMessageFromUserToDatabase(user, signalMessage));
     }
 
+    private void processAttachments(final DecryptedSignalMessage signalMessage) {
+        if (!signalMessage.getAttachments().isPresent()) {
+            return;
+        }
+
+        final List<SignalServiceAttachment> attachments = signalMessage.getAttachments().get();
+        if (attachments.size() > 0) {
+            final SignalServiceAttachment attachment = attachments.get(0);
+            final String filename = saveAttachmentToFile(attachment.asPointer());
+            signalMessage.setAttachmentFilename(filename);
+        }
+    }
+
+    private String saveAttachmentToFile(final SignalServiceAttachmentPointer attachment) {
+        final FileUtil fileUtil = new FileUtil();
+        final File attachmentFile = fileUtil.writeAttachmentToFileFromMessageReceiver(attachment, this.messageReceiver);
+        return attachmentFile.getName();
+    }
+
     private void saveIncomingMessageFromUserToDatabase(final User user, final DecryptedSignalMessage signalMessage) {
-        final SofaMessage remoteMessage = new SofaMessage().makeNew(false, signalMessage.getBody());
+        final SofaMessage remoteMessage = new SofaMessage().makeNew(false, signalMessage.getBody())
+                .setAttachmentFilename(signalMessage.getAttachmentFilename());
         if (remoteMessage.getType() == SofaType.PAYMENT) {
             // Don't render incoming SOFA::Payments,
             // but ensure we have the sender cached.
