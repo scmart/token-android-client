@@ -304,6 +304,12 @@ public final class SofaMessageManager {
             this.conversationStore.saveNewMessage(receiver, message);
         }
 
+        if (!BaseApplication.get().isNetworkAvailable() && saveMessageToDatabase) {
+            message.setSendState(SendState.STATE_PENDING);
+            updateExistingMessage(receiver, message);
+            return;
+        }
+
         try {
             sendToSignal(receiver, message);
 

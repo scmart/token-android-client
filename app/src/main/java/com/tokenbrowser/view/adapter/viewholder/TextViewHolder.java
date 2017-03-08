@@ -22,7 +22,7 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
     private View localContainer;
     private TextView localText;
     private TextView remoteText;
-    private TextView sentFailedMessage;
+    private TextView sentStatusMessage;
 
     private String text;
     private boolean sentByLocal;
@@ -33,7 +33,7 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
         this.localContainer = v.findViewById(R.id.local_container);
         this.localText = (TextView) v.findViewById(R.id.local_message);
         this.remoteText = (TextView) v.findViewById(R.id.remote_message);
-        this.sentFailedMessage = (TextView) v.findViewById(R.id.sent_status_message);
+        this.sentStatusMessage = (TextView) v.findViewById(R.id.sent_status_message);
     }
 
     public TextViewHolder setText(final String text) {
@@ -56,11 +56,14 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
         if (this.sentByLocal) {
             this.remoteText.setVisibility(View.GONE);
             this.localContainer.setVisibility(View.VISIBLE);
-            this.sentFailedMessage.setVisibility(View.GONE);
+            this.sentStatusMessage.setVisibility(View.GONE);
             this.localText.setText(text);
 
-            if (this.sendState == SendState.STATE_FAILED) {
-                this.sentFailedMessage.setVisibility(View.VISIBLE);
+            if (this.sendState == SendState.STATE_FAILED || this.sendState == SendState.STATE_PENDING) {
+                this.sentStatusMessage.setVisibility(View.VISIBLE);
+                this.sentStatusMessage.setText(this.sendState == SendState.STATE_FAILED
+                        ? R.string.error__message_failed
+                        : R.string.error__message_pending);
             }
         } else {
             this.localContainer.setVisibility(View.GONE);
