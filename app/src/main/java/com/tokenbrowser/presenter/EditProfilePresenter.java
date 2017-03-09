@@ -1,29 +1,29 @@
 package com.tokenbrowser.presenter;
 
 
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 import android.widget.Toast;
 
-import com.tokenbrowser.token.R;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.network.UserDetails;
+import com.tokenbrowser.token.R;
+import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnNextSubscriber;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ProfileActivity;
 import com.tokenbrowser.view.fragment.children.EditProfileFragment;
 
-import rx.SingleSubscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 public class EditProfilePresenter implements Presenter<EditProfileFragment> {
 
     private OnNextSubscriber<User> handleUserLoaded;
     private EditProfileFragment fragment;
-
+    private CompositeSubscription subscriptions;
+    private boolean firstTimeAttaching = true;
     private String displayNameFieldContents;
     private String userNameFieldContents;
     private String aboutFieldContents;
@@ -32,6 +32,10 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     @Override
     public void onViewAttached(final EditProfileFragment fragment) {
         this.fragment = fragment;
+        if (this.firstTimeAttaching) {
+            this.firstTimeAttaching = false;
+            this.subscriptions = new CompositeSubscription();
+        }
         initShortLivingObjects();
     }
 
@@ -51,13 +55,13 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
 
     private void attachListeners() {
         generateUserLoadedHandler();
-        BaseApplication.get()
+        this.subscriptions.add(BaseApplication.get()
                 .getTokenManager()
                 .getUserManager()
                 .getUserObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleUserLoaded);
+                .subscribe(this.handleUserLoaded));
     }
 
     private void generateUserLoadedHandler() {
@@ -97,10 +101,14 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
                     .setAbout(fragment.getBinding().inputAbout.getText().toString().trim())
                     .setLocation(fragment.getBinding().inputLocation.getText().toString().trim());
 
-            BaseApplication.get()
+            subscriptions.add(BaseApplication.get()
                     .getTokenManager()
                     .getUserManager()
-                    .updateUser(userDetails, handleUserUpdated);
+                    .updateUser(userDetails)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            user -> handleUserUpdated(user),
+                            error -> handleUserUpdateFailed(error)));
         }
 
         private boolean validate() {
@@ -128,22 +136,18 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
         }
     };
 
-    private final SingleSubscriber<User> handleUserUpdated = new SingleSubscriber<User>() {
-        @Override
-        public void onSuccess(final User unused) {
-            showToast("Saved successfully!");
-            new Handler(Looper.getMainLooper()).post(() -> fragment.getActivity().onBackPressed());
-        }
+    private void handleUserUpdated(final User updatedUser) {
+        showToast("Saved successfully!");
+        fragment.getActivity().onBackPressed();
+    }
 
-        @Override
-        public void onError(final Throwable error) {
-            showToast("Error updating profile. Try a different username");
-        }
-    };
+    private void handleUserUpdateFailed(final Throwable error) {
+        LogUtil.e(getClass(), error.toString());
+        showToast("Error updating profile. Try a different username");
+    }
 
     private void showToast(final String message) {
-        new Handler(Looper.getMainLooper())
-                .post(() -> Toast.makeText(fragment.getContext(), message, Toast.LENGTH_LONG).show());
+        Toast.makeText(fragment.getContext(), message, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -162,6 +166,7 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
 
     @Override
     public void onViewDestroyed() {
+        this.subscriptions.clear();
         this.fragment = null;
     }
 }

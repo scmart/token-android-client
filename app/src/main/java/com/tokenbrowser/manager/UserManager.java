@@ -22,7 +22,6 @@ import java.util.List;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
 import rx.Single;
-import rx.SingleSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 
@@ -118,25 +117,22 @@ public class UserManager {
         this.userSubject.onNext(user);
     }
 
-    public void updateUser(final UserDetails userDetails, final SingleSubscriber<User> completionCallback) {
-        IdService
+    public Single<User> updateUser(final UserDetails userDetails) {
+        return IdService
                 .getApi()
                 .getTimestamp()
-                .subscribe((st) -> updateUserWithTimestamp(userDetails, st, completionCallback), completionCallback::onError);
+                .subscribeOn(Schedulers.io())
+                .flatMap(serverTime -> updateUserWithTimestamp(userDetails, serverTime));
     }
 
-    private void updateUserWithTimestamp(
+    private Single<User> updateUserWithTimestamp(
             final UserDetails userDetails,
-            final ServerTime serverTime,
-            final SingleSubscriber<User> completionCallback) {
+            final ServerTime serverTime) {
 
-        IdService.getApi()
+        return IdService.getApi()
                 .updateUser(this.wallet.getOwnerAddress(), userDetails, serverTime.get())
-                .subscribe(updatedUser -> {
-                        updateCurrentUser(updatedUser);
-                        completionCallback.onSuccess(updatedUser);
-                    },
-                    completionCallback::onError);
+                .subscribeOn(Schedulers.io())
+                .doOnSuccess(this::updateCurrentUser);
     }
 
     public Observable<User> getUserFromAddress(final String userAddress) {
