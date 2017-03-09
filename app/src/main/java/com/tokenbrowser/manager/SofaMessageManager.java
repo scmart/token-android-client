@@ -14,7 +14,9 @@ import com.tokenbrowser.crypto.signal.store.SignalTrustStore;
 import com.tokenbrowser.manager.model.SofaMessageTask;
 import com.tokenbrowser.manager.network.IdService;
 import com.tokenbrowser.manager.store.ConversationStore;
+import com.tokenbrowser.manager.store.PendingMessageStore;
 import com.tokenbrowser.model.local.Conversation;
+import com.tokenbrowser.model.local.PendingMessage;
 import com.tokenbrowser.model.local.SendState;
 import com.tokenbrowser.model.local.SofaMessage;
 import com.tokenbrowser.model.local.User;
@@ -77,6 +79,7 @@ public final class SofaMessageManager {
     private ProtocolStore protocolStore;
     private SignalServiceMessagePipe messagePipe;
     private ConversationStore conversationStore;
+    private PendingMessageStore pendingMessageStore;
     private ExecutorService dbThreadExecutor;
     private String userAgent;
     private SofaAdapters adapters;
@@ -222,7 +225,15 @@ public final class SofaMessageManager {
 
     private void initDatabase() {
         this.dbThreadExecutor = Executors.newSingleThreadExecutor();
-        this.dbThreadExecutor.submit((Runnable) () -> SofaMessageManager.this.conversationStore = new ConversationStore());
+        this.dbThreadExecutor.submit(() -> {
+            SofaMessageManager.this.conversationStore = new ConversationStore();
+            SofaMessageManager.this.pendingMessageStore = new PendingMessageStore();
+            BaseApplication
+                    .get()
+                    .isConnectedSubject()
+                    .filter(isConnected -> isConnected)
+                    .subscribe(isConnected -> sendPendingMessages());
+        });
     }
 
     private void generateStores() {
@@ -299,6 +310,13 @@ public final class SofaMessageManager {
         });
     }
 
+    private void sendPendingMessages() {
+        final List<PendingMessage> pendingMessages = this.pendingMessageStore.getAllPendingMessages();
+        for (final PendingMessage pendingMessage : pendingMessages) {
+            sendAndSaveMessage(pendingMessage.getReceiver(), pendingMessage.getSofaMessage());
+        }
+    }
+
     private void sendMessageToRemotePeer(final User receiver, final SofaMessage message, final boolean saveMessageToDatabase) {
         if (saveMessageToDatabase) {
             this.conversationStore.saveNewMessage(receiver, message);
@@ -307,6 +325,7 @@ public final class SofaMessageManager {
         if (!BaseApplication.get().isConnected() && saveMessageToDatabase) {
             message.setSendState(SendState.STATE_PENDING);
             updateExistingMessage(receiver, message);
+            savePendingMessage(receiver, message);
             return;
         }
 
@@ -314,6 +333,7 @@ public final class SofaMessageManager {
             sendToSignal(receiver, message);
 
             if (saveMessageToDatabase) {
+                tryDeletePendingMessage(message);
                 message.setSendState(SendState.STATE_SENT);
                 updateExistingMessage(receiver, message);
             }
@@ -356,6 +376,14 @@ public final class SofaMessageManager {
 
     private void updateExistingMessage(final User receiver, final SofaMessage message) {
         this.conversationStore.updateMessage(receiver, message);
+    }
+
+    private void savePendingMessage(final User receiver, final SofaMessage message) {
+        this.pendingMessageStore.save(receiver, message);
+    }
+
+    private void tryDeletePendingMessage(final SofaMessage message) {
+        this.pendingMessageStore.delete(message);
     }
 
     private void receiveMessagesAsync() {

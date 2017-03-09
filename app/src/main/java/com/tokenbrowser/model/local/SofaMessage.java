@@ -48,7 +48,7 @@ public class SofaMessage extends RealmObject {
 
     // Getters
 
-    private String getPrivateKey() {
+    public String getPrivateKey() {
         return this.privateKey;
     }
 

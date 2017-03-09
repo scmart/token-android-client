@@ -2,6 +2,8 @@ package com.tokenbrowser.view;
 
 
 import android.content.ComponentCallbacks2;
+import android.content.IntentFilter;
+import android.os.Build;
 import android.support.multidex.MultiDexApplication;
 
 import com.tokenbrowser.manager.TokenManager;
@@ -38,6 +40,15 @@ public final class BaseApplication extends MultiDexApplication {
     private void init() {
         initTokenManager();
         initRealm();
+        initConnectivityMonitor();
+    }
+
+    private void initConnectivityMonitor() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            final IntentFilter connectivityIntent = new IntentFilter();
+            connectivityIntent.addAction(android.net.ConnectivityManager.CONNECTIVITY_ACTION);
+            this.registerReceiver(new NetworkChangeReceiver(), connectivityIntent);
+        }
         isConnectedSubject().onNext(NetworkChangeReceiver.getCurrentConnectivityStatus(this));
     }
 
