@@ -19,8 +19,13 @@ public class OfflineCacheInterceptor implements Interceptor {
     public Response intercept(final Chain chain) throws IOException, IllegalStateException {
         Request request = chain.request();
 
+        if (request.header(CACHE_CONTROL) != null) {
+            // Don't override explicitly set cache-control headers
+            return chain.proceed(request);
+        }
+
         CacheControl cacheControl = new CacheControl.Builder()
-                .maxAge(6, TimeUnit.SECONDS)
+                .maxAge(60, TimeUnit.SECONDS)
                 .maxStale(14, TimeUnit.DAYS)
                 .build();
 
