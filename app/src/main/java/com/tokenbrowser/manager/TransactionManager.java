@@ -25,8 +25,6 @@ import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.notification.ChatNotificationManager;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import rx.Observable;
 import rx.schedulers.Schedulers;
@@ -42,11 +40,11 @@ public class TransactionManager {
 
     private HDWallet wallet;
     private PendingTransactionStore pendingTransactionStore;
-    private ExecutorService dbThreadExecutor;
     private SofaAdapters adapters;
 
     public TransactionManager init(final HDWallet wallet) {
         this.wallet = wallet;
+        initDatabase();
         new Thread(this::initEverything).start();
         return this;
     }
@@ -74,33 +72,30 @@ public class TransactionManager {
     public final void updatePaymentRequestState(final User remoteUser,
                                                 final SofaMessage sofaMessage,
                                                 final @PaymentRequest.State int newState) {
-        this.dbThreadExecutor.submit(() -> {
-            try {
-                final PaymentRequest paymentRequest = adapters
-                        .txRequestFrom(sofaMessage.getPayload())
-                        .setState(newState);
+        try {
+            final PaymentRequest paymentRequest = adapters
+                    .txRequestFrom(sofaMessage.getPayload())
+                    .setState(newState);
 
-                final String updatedPayload = adapters.toJson(paymentRequest);
-                sofaMessage.setPayload(updatedPayload);
-                BaseApplication
-                        .get()
-                        .getTokenManager()
-                        .getSofaMessageManager()
-                        .updateMessage(remoteUser, sofaMessage);
+            final String updatedPayload = adapters.toJson(paymentRequest);
+            sofaMessage.setPayload(updatedPayload);
+            BaseApplication
+                    .get()
+                    .getTokenManager()
+                    .getSofaMessageManager()
+                    .updateMessage(remoteUser, sofaMessage);
 
-                if (newState == PaymentRequest.ACCEPTED) {
-                    sendPayment(remoteUser, paymentRequest.getValue());
-                }
-
-            } catch (final IOException ex) {
-                LogUtil.e(getClass(), "Error changing Payment Request state. " + ex);
+            if (newState == PaymentRequest.ACCEPTED) {
+                sendPayment(remoteUser, paymentRequest.getValue());
             }
-        });
+
+        } catch (final IOException ex) {
+            LogUtil.e(getClass(), "Error changing Payment Request state. " + ex);
+        }
     }
 
     private void initEverything() {
         initAdapters();
-        initDatabase();
         attachSubscribers();
     }
 
@@ -109,10 +104,7 @@ public class TransactionManager {
     }
 
     private void initDatabase() {
-        this.dbThreadExecutor = Executors.newSingleThreadExecutor();
-        this.dbThreadExecutor.submit(() -> {
-            TransactionManager.this.pendingTransactionStore = new PendingTransactionStore();
-        });
+        this.pendingTransactionStore = new PendingTransactionStore();
     }
 
     private void attachSubscribers() {
@@ -123,8 +115,8 @@ public class TransactionManager {
 
     private void attachNewPaymentSubscriber() {
         this.newPaymentQueue
-            .observeOn(Schedulers.from(dbThreadExecutor))
-            .subscribeOn(Schedulers.from(dbThreadExecutor))
+            .observeOn(Schedulers.io())
+            .subscribeOn(Schedulers.io())
             .subscribe(this::processNewPayment);
     }
 
@@ -142,7 +134,7 @@ public class TransactionManager {
 
         payment
         .generateLocalPrice()
-        .observeOn(Schedulers.from(this.dbThreadExecutor))
+        .observeOn(Schedulers.io())
         .subscribe((updatedPayment) -> {
             switch (task.getAction()) {
                 case INCOMING: {
@@ -175,8 +167,8 @@ public class TransactionManager {
 
     private void handleOutgoingPayment(final User receiver, final Payment payment, final SofaMessage storedSofaMessage) {
         sendNewTransaction(payment)
-                .observeOn(Schedulers.from(dbThreadExecutor))
-                .subscribeOn(Schedulers.from(dbThreadExecutor))
+                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
                 .subscribe(new OnNextSubscriber<SentTransaction>() {
                     @Override
                     public void onError(final Throwable error) {
@@ -281,8 +273,8 @@ public class TransactionManager {
     private void processUpdatedPayment(final Payment payment) {
         pendingTransactionStore
                 .load(payment.getTxHash())
-                .subscribeOn(Schedulers.from(dbThreadExecutor))
-                .observeOn(Schedulers.from(dbThreadExecutor))
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
                 .toObservable()
                 .subscribe(pendingTransaction -> updatePendingTransaction(pendingTransaction, payment));
     }

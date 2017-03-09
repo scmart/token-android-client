@@ -16,15 +16,10 @@ import io.realm.Sort;
 import rx.subjects.PublishSubject;
 
 public class ConversationStore {
-    private final Realm realm;
     private static String watchedConversationId;
     private final static PublishSubject<SofaMessage> newMessageObservable = PublishSubject.create();
     private final static PublishSubject<SofaMessage> updatedMessageObservable = PublishSubject.create();
     private final static PublishSubject<Conversation> conversationChangedObservable = PublishSubject.create();
-
-    public ConversationStore() {
-        this.realm = Realm.getDefaultInstance();
-    }
 
     // Returns a pair of RxSubjects, the first being the observable for new messages
     // the second being the observable for updated messages.
@@ -42,6 +37,7 @@ public class ConversationStore {
     }
 
     public void saveNewMessage(final User user, final SofaMessage message) {
+        final Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         final Conversation existingConversation = loadWhere("conversationId", user.getTokenId());
         final Conversation conversationToStore = existingConversation == null
@@ -52,6 +48,7 @@ public class ConversationStore {
         conversationToStore.setNumberOfUnread(calculateNumberOfUnread(conversationToStore));
         final Conversation storedConversation = realm.copyToRealmOrUpdate(conversationToStore);
         realm.commitTransaction();
+        realm.close();
         broadcastNewChatMessage(user.getTokenId(), message);
         broadcastConversationChanged(realm.copyFromRealm(storedConversation));
     }
@@ -71,17 +68,22 @@ public class ConversationStore {
             return;
         }
 
+        final Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         storedConversation.setNumberOfUnread(0);
         realm.insertOrUpdate(storedConversation);
         realm.commitTransaction();
+        realm.close();
         broadcastConversationChanged(storedConversation);
     }
 
     public List<Conversation> loadAll() {
+        final Realm realm = Realm.getDefaultInstance();
         final RealmQuery<Conversation> query = realm.where(Conversation.class);
         final RealmResults<Conversation> results = query.findAllSorted("updatedTime", Sort.DESCENDING);
-        return realm.copyFromRealm(results);
+        final List<Conversation> retVal = realm.copyFromRealm(results);
+        realm.close();
+        return retVal;
     }
 
     private void broadcastConversationChanged(final Conversation conversation) {
@@ -94,20 +96,22 @@ public class ConversationStore {
     }
 
     private Conversation loadWhere(final String fieldName, final String value) {
+        final Realm realm = Realm.getDefaultInstance();
         final Conversation result = realm
                 .where(Conversation.class)
                 .equalTo(fieldName, value)
                 .findFirst();
-        if (result == null) {
-            return null;
-        }
-        return realm.copyFromRealm(result);
+        final Conversation retVal = result == null ? null : realm.copyFromRealm(result);
+        realm.close();
+        return retVal;
     }
 
     public void updateMessage(final User user, final SofaMessage message) {
+        final Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         realm.insertOrUpdate(message);
         realm.commitTransaction();
+        realm.close();
         broadcastUpdatedChatMessage(user.getTokenId(), message);
     }
 

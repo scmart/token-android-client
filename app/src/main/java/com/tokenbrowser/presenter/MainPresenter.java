@@ -85,17 +85,13 @@ public class MainPresenter implements Presenter<MainActivity> {
                 .getSofaMessageManager();
 
         final Subscription allChangesSubscription =
-                messageManager
-                    .isReady().toObservable()
-                    .flatMap((unused) -> messageManager.registerForAllConversationChanges())
-                    .flatMap((unused) -> messageManager.areUnreadMessages().toObservable())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(this::handleUnreadMessages);
+                messageManager.registerForAllConversationChanges()
+                .flatMap((unused) -> messageManager.areUnreadMessages().toObservable())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleUnreadMessages);
 
         final Subscription firstTimeSubscription =
-                messageManager
-                .isReady().toObservable()
-                .flatMap((unused) -> messageManager.areUnreadMessages().toObservable())
+                messageManager.areUnreadMessages().toObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleUnreadMessages);
 

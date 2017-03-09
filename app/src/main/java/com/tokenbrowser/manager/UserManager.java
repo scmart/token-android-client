@@ -18,8 +18,6 @@ import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.BaseApplication;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
@@ -35,7 +33,6 @@ public class UserManager {
     private final BehaviorSubject<User> userSubject = BehaviorSubject.create();
     private SharedPreferences prefs;
     private HDWallet wallet;
-    private ExecutorService dbThreadExecutor;
     private ContactStore contactStore;
     private UserStore userStore;
 
@@ -52,11 +49,8 @@ public class UserManager {
     }
 
     private void initDatabase() {
-        this.dbThreadExecutor = Executors.newSingleThreadExecutor();
-        this.dbThreadExecutor.submit(() -> {
-            UserManager.this.contactStore = new ContactStore();
-            UserManager.this.userStore = new UserStore();
-        });
+        this.contactStore = new ContactStore();
+        this.userStore = new UserStore();
     }
 
     private void attachConnectivityListener() {
@@ -146,16 +140,16 @@ public class UserManager {
                 .concat(
                         this.userStore.loadForAddress(userAddress),
                         this.fetchAndCacheFromNetwork(userAddress))
-                .subscribeOn(Schedulers.from(this.dbThreadExecutor))
-                .observeOn(Schedulers.from(this.dbThreadExecutor))
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
                 .first(user -> user != null && !user.needsRefresh());
     }
 
     public Single<User> getUserFromPaymentAddress(final String paymentAddress) {
         return Single
                 .fromCallable(() -> userStore.loadForPaymentAddress(paymentAddress))
-                .subscribeOn(Schedulers.from(this.dbThreadExecutor))
-                .observeOn(Schedulers.from(this.dbThreadExecutor));
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io());
 
     }
 
@@ -164,8 +158,8 @@ public class UserManager {
                 .getApi()
                 .getUser(userAddress)
                 .toObservable()
-                .subscribeOn(Schedulers.from(this.dbThreadExecutor))
-                .observeOn(Schedulers.from(this.dbThreadExecutor))
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
                 .doOnNext(this::cacheUser);
     }
 
@@ -180,15 +174,15 @@ public class UserManager {
     public Single<List<Contact>> loadAllContacts() {
         return this.contactStore
                 .loadAll()
-                .subscribeOn(Schedulers.from(this.dbThreadExecutor))
-                .observeOn(Schedulers.from(this.dbThreadExecutor));
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io());
     }
 
     public Single<List<User>> searchOfflineUsers(final String query) {
         return this.userStore
                 .queryUsername(query)
-                .subscribeOn(Schedulers.from(this.dbThreadExecutor))
-                .observeOn(Schedulers.from(this.dbThreadExecutor));
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io());
     }
 
     public Single<List<User>> searchOnlineUsers(final String query) {
@@ -221,15 +215,15 @@ public class UserManager {
     public Single<Boolean> isUserAContact(final User user) {
         return Single
                 .fromCallable(() -> contactStore.userIsAContact(user))
-                .subscribeOn(Schedulers.from(this.dbThreadExecutor));
+                .subscribeOn(Schedulers.io());
     }
 
     public void deleteContact(final User user) {
-        this.dbThreadExecutor.submit(() -> this.contactStore.delete(user));
+        this.contactStore.delete(user);
     }
 
     public void saveContact(final User user) {
-        this.dbThreadExecutor.submit(() -> this.contactStore.save(user));
+        this.contactStore.save(user);
     }
 
     public Single<ServerTime> getTimestamp() {

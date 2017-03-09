@@ -57,8 +57,6 @@ import org.whispersystems.signalservice.internal.push.SignalServiceUrl;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -80,7 +78,6 @@ public final class SofaMessageManager {
     private SignalServiceMessagePipe messagePipe;
     private ConversationStore conversationStore;
     private PendingMessageStore pendingMessageStore;
-    private ExecutorService dbThreadExecutor;
     private String userAgent;
     private SofaAdapters adapters;
     private boolean receiveMessages;
@@ -93,7 +90,8 @@ public final class SofaMessageManager {
         this.adapters = new SofaAdapters();
         this.signalServiceUrls = new SignalServiceUrl[1];
         this.sharedPreferences = BaseApplication.get().getSharedPreferences(FileNames.GCM_PREFS, Context.MODE_PRIVATE);
-        new Thread(() -> initEverything()).start();
+        initDatabases();
+        new Thread(this::initEverything).start();
 
         return this;
     }
@@ -176,13 +174,13 @@ public final class SofaMessageManager {
     public final Single<List<Conversation>> loadAllConversations() {
         return Single
                 .fromCallable(() -> conversationStore.loadAll())
-                .subscribeOn(Schedulers.from(this.dbThreadExecutor));
+                .subscribeOn(Schedulers.io());
     }
 
     public final Single<Conversation> loadConversation(final String conversationId) {
         return Single
                 .fromCallable(() -> conversationStore.loadByAddress(conversationId))
-                .subscribeOn(Schedulers.from(this.dbThreadExecutor));
+                .subscribeOn(Schedulers.io());
     }
 
     public final PublishSubject<Conversation> registerForAllConversationChanges() {
@@ -199,41 +197,26 @@ public final class SofaMessageManager {
         this.conversationStore.stopListeningForChanges();
     }
 
-    public final Single<Boolean> isReady() {
-        return Single
-                .fromCallable(() -> {
-                    while (this.conversationStore == null) {
-                        Thread.sleep(50);
-                    }
-                    return true;
-                })
-                .subscribeOn(Schedulers.io());
-    }
-
     public final Single<Boolean> areUnreadMessages() {
         return Single
                 .fromCallable(() -> conversationStore.areUnreadMessages())
-                .subscribeOn(Schedulers.from(this.dbThreadExecutor));
+                .subscribeOn(Schedulers.io());
     }
 
     private void initEverything() {
         generateStores();
-        initDatabase();
         registerIfNeeded();
         attachSubscribers();
     }
 
-    private void initDatabase() {
-        this.dbThreadExecutor = Executors.newSingleThreadExecutor();
-        this.dbThreadExecutor.submit(() -> {
-            SofaMessageManager.this.conversationStore = new ConversationStore();
-            SofaMessageManager.this.pendingMessageStore = new PendingMessageStore();
-            BaseApplication
-                    .get()
-                    .isConnectedSubject()
-                    .filter(isConnected -> isConnected)
-                    .subscribe(isConnected -> sendPendingMessages());
-        });
+    private void initDatabases() {
+        this.conversationStore = new ConversationStore();
+        this.pendingMessageStore = new PendingMessageStore();
+        BaseApplication
+                .get()
+                .isConnectedSubject()
+                .filter(isConnected -> isConnected)
+                .subscribe(isConnected -> sendPendingMessages());
     }
 
     private void generateStores() {
@@ -287,25 +270,23 @@ public final class SofaMessageManager {
                 .subscribe(new OnNextSubscriber<SofaMessageTask>() {
             @Override
             public void onNext(final SofaMessageTask messageTask) {
-                dbThreadExecutor.submit(() -> {
-                    switch (messageTask.getAction()) {
-                        case SofaMessageTask.SEND_AND_SAVE:
-                            sendMessageToRemotePeer(messageTask.getReceiver(), messageTask.getSofaMessage(), true);
-                            break;
-                        case SofaMessageTask.SAVE_ONLY:
-                            storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage(), SendState.STATE_LOCAL_ONLY);
-                            break;
-                        case SofaMessageTask.SAVE_TRANSACTION:
-                            storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage(), SendState.STATE_SENDING);
-                            break;
-                        case SofaMessageTask.SEND_ONLY:
-                            sendMessageToRemotePeer(messageTask.getReceiver(), messageTask.getSofaMessage(), false);
-                            break;
-                        case SofaMessageTask.UPDATE_MESSAGE:
-                            updateExistingMessage(messageTask.getReceiver(), messageTask.getSofaMessage());
-                            break;
-                    }
-                });
+                switch (messageTask.getAction()) {
+                    case SofaMessageTask.SEND_AND_SAVE:
+                        sendMessageToRemotePeer(messageTask.getReceiver(), messageTask.getSofaMessage(), true);
+                        break;
+                    case SofaMessageTask.SAVE_ONLY:
+                        storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage(), SendState.STATE_LOCAL_ONLY);
+                        break;
+                    case SofaMessageTask.SAVE_TRANSACTION:
+                        storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage(), SendState.STATE_SENDING);
+                        break;
+                    case SofaMessageTask.SEND_ONLY:
+                        sendMessageToRemotePeer(messageTask.getReceiver(), messageTask.getSofaMessage(), false);
+                        break;
+                    case SofaMessageTask.UPDATE_MESSAGE:
+                        updateExistingMessage(messageTask.getReceiver(), messageTask.getSofaMessage());
+                        break;
+                }
             }
         });
     }
@@ -498,12 +479,12 @@ public final class SofaMessageManager {
             generatePayloadWithLocalAmountEmbedded(remoteMessage)
                     .subscribe((updatedPayload) -> {
                         remoteMessage.setPayload(updatedPayload);
-                        dbThreadExecutor.execute(() -> SofaMessageManager.this.conversationStore.saveNewMessage(user, remoteMessage));
+                        this.conversationStore.saveNewMessage(user, remoteMessage);
                     });
             return;
         }
 
-        dbThreadExecutor.execute(() -> SofaMessageManager.this.conversationStore.saveNewMessage(user, remoteMessage));
+        this.conversationStore.saveNewMessage(user, remoteMessage);
     }
 
     private void fetchAndCacheIncomingPaymentSender(final User sender) {
