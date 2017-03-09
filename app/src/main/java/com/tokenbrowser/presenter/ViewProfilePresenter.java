@@ -62,7 +62,7 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
     }
 
     private void updateView() {
-        if (this.localUser == null) {
+        if (this.localUser == null || this.fragment == null) {
             return;
         }
 
@@ -110,6 +110,9 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
     }
 
     private void handleReputationResponse(final ReputationScore reputationScore) {
+        if (this.fragment == null) {
+            return;
+        }
         final String reviewCount = String.valueOf(reputationScore.getCount());
         final double score = reputationScore.getScore() != null ? reputationScore.getScore() : 0;
         final String stringScore = String.valueOf(score);

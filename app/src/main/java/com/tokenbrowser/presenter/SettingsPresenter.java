@@ -95,18 +95,20 @@ public final class SettingsPresenter implements
     }
 
     private void updateUi() {
-        if (this.localUser != null) {
-            this.fragment.getBinding().name.setText(this.localUser.getDisplayName());
-            this.fragment.getBinding().username.setText(this.localUser.getUsername());
-            final double reputationScore = this.localUser.getReputationScore() != null
-                    ? this.localUser.getReputationScore()
-                    : 0;
-            this.fragment.getBinding().ratingView.setStars(reputationScore);
-
-            Glide.with(this.fragment.getBinding().avatar.getContext())
-                    .load(this.localUser.getAvatar())
-                    .into(this.fragment.getBinding().avatar);
+        if (this.localUser == null || this.fragment == null) {
+            return;
         }
+
+        this.fragment.getBinding().name.setText(this.localUser.getDisplayName());
+        this.fragment.getBinding().username.setText(this.localUser.getUsername());
+        final double reputationScore = this.localUser.getReputationScore() != null
+                ? this.localUser.getReputationScore()
+                : 0;
+        this.fragment.getBinding().ratingView.setStars(reputationScore);
+
+        Glide.with(this.fragment.getBinding().avatar.getContext())
+                .load(this.localUser.getAvatar())
+                .into(this.fragment.getBinding().avatar);
     }
 
     private void setSecurityState() {

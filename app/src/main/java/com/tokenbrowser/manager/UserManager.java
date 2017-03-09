@@ -118,7 +118,7 @@ public class UserManager {
         this.userSubject.onNext(user);
     }
 
-    public void updateUser(final UserDetails userDetails, final SingleSubscriber<Void> completionCallback) {
+    public void updateUser(final UserDetails userDetails, final SingleSubscriber<User> completionCallback) {
         IdService
                 .getApi()
                 .getTimestamp()
@@ -128,11 +128,15 @@ public class UserManager {
     private void updateUserWithTimestamp(
             final UserDetails userDetails,
             final ServerTime serverTime,
-            final SingleSubscriber<Void> completionCallback) {
+            final SingleSubscriber<User> completionCallback) {
 
         IdService.getApi()
                 .updateUser(this.wallet.getOwnerAddress(), userDetails, serverTime.get())
-                .subscribe(this::updateCurrentUser, completionCallback::onError);
+                .subscribe(updatedUser -> {
+                        updateCurrentUser(updatedUser);
+                        completionCallback.onSuccess(updatedUser);
+                    },
+                    completionCallback::onError);
     }
 
     public Observable<User> getUserFromAddress(final String userAddress) {

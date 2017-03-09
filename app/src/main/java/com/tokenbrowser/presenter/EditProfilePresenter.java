@@ -128,9 +128,9 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
         }
     };
 
-    private final SingleSubscriber<Void> handleUserUpdated = new SingleSubscriber<Void>() {
+    private final SingleSubscriber<User> handleUserUpdated = new SingleSubscriber<User>() {
         @Override
-        public void onSuccess(final Void unused) {
+        public void onSuccess(final User unused) {
             showToast("Saved successfully!");
             new Handler(Looper.getMainLooper()).post(() -> fragment.getActivity().onBackPressed());
         }
