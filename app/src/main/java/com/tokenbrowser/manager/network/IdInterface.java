@@ -8,6 +8,7 @@ import com.tokenbrowser.model.network.UserSearchResults;
 
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
@@ -16,9 +17,11 @@ import rx.Single;
 
 public interface IdInterface {
 
+    @Headers("Cache-control: no-store")
     @GET("/v1/timestamp")
     Single<ServerTime> getTimestamp();
 
+    @Headers("Cache-control: no-store")
     @POST("/v1/user")
     Single<User> registerUser(@Body UserDetails details,
                               @Query("timestamp") long timestamp);
@@ -26,6 +29,7 @@ public interface IdInterface {
     @GET("/v1/user/{id}")
     Single<User> getUser(@Path("id") String userId);
 
+    @Headers("Cache-control: no-store")
     @PUT("/v1/user/{id}")
     Single<User> updateUser(@Path("id") String userId,
                             @Body UserDetails details,
@@ -34,6 +38,7 @@ public interface IdInterface {
     @GET("/v1/search/user")
     Single<UserSearchResults> searchByUsername(@Query("query") String username);
 
+    @Headers("Cache-control: no-store")
     @GET("/v1/login/{id}")
     Single<Void> webLogin(@Path("id") String loginToken,
                           @Query("timestamp") long timestamp);

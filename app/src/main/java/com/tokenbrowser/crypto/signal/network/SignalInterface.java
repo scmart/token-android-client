@@ -12,10 +12,11 @@ import rx.Single;
 
 public interface SignalInterface {
 
+    @Headers("Cache-control: no-store")
     @GET("/v1/accounts/bootstrap")
     Single<ServerTime> getTimestamp();
 
-    @Headers("Content-Type: application/json")
+    @Headers({"Content-Type: application/json", "Cache-control: no-store"})
     @PUT("/v1/accounts/bootstrap")
     Single<Void> register(@Body String body,
                           @Query("timestamp") long timestamp);
