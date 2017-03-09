@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.tokenbrowser.crypto.HDWallet;
+import com.tokenbrowser.manager.TransactionManager;
 import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.model.local.Conversation;
 import com.tokenbrowser.model.local.Review;

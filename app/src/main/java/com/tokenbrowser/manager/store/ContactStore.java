@@ -12,28 +12,28 @@ import rx.Single;
 
 public class ContactStore {
 
-    private final Realm realm;
-
-    public ContactStore() {
-        this.realm = Realm.getDefaultInstance();
-    }
-
     public boolean userIsAContact(final User user) {
-        return realm
+        final Realm realm = Realm.getDefaultInstance();
+        final boolean result = realm
                 .where(Contact.class)
                 .equalTo("owner_address", user.getTokenId())
                 .findFirst() != null;
+        realm.close();
+        return result;
     }
 
     public void save(final User user) {
+        final Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         final User storedUser = realm.copyToRealmOrUpdate(user);
         final Contact contact = new Contact(storedUser);
         realm.insert(contact);
         realm.commitTransaction();
+        realm.close();
     }
 
     public void delete(final User user) {
+        final Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         realm
                 .where(Contact.class)
@@ -41,12 +41,14 @@ public class ContactStore {
                 .findFirst()
                 .deleteFromRealm();
         realm.commitTransaction();
+        realm.close();
     }
 
     public Single<List<Contact>> loadAll() {
-        return Single.fromCallable(() -> {
-            final RealmQuery<Contact> query = realm.where(Contact.class);
-            return realm.copyFromRealm(query.findAll());
-        });
+        final Realm realm = Realm.getDefaultInstance();
+        final RealmQuery<Contact> query = realm.where(Contact.class);
+        final List<Contact> results = realm.copyFromRealm(query.findAll());
+        realm.close();
+        return Single.just(results);
     }
 }
