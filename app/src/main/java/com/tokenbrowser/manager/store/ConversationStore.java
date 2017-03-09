@@ -47,10 +47,13 @@ public class ConversationStore {
         conversationToStore.setLatestMessage(storedMessage);
         conversationToStore.setNumberOfUnread(calculateNumberOfUnread(conversationToStore));
         final Conversation storedConversation = realm.copyToRealmOrUpdate(conversationToStore);
+        final Conversation conversationForBroadcast = realm.copyFromRealm(storedConversation);
+
         realm.commitTransaction();
         realm.close();
+
         broadcastNewChatMessage(user.getTokenId(), message);
-        broadcastConversationChanged(realm.copyFromRealm(storedConversation));
+        broadcastConversationChanged(conversationForBroadcast);
     }
 
     private int calculateNumberOfUnread(final Conversation conversationToStore) {
