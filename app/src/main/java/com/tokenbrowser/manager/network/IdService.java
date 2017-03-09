@@ -1,14 +1,19 @@
 package com.tokenbrowser.manager.network;
 
 
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.model.adapter.RealmListAdapter;
+import com.squareup.moshi.Moshi;
 import com.tokenbrowser.manager.network.interceptor.LoggingInterceptor;
+import com.tokenbrowser.manager.network.interceptor.OfflineCacheInterceptor;
+import com.tokenbrowser.manager.network.interceptor.ReadFromCacheInterceptor;
 import com.tokenbrowser.manager.network.interceptor.SigningInterceptor;
 import com.tokenbrowser.manager.network.interceptor.UserAgentInterceptor;
+import com.tokenbrowser.model.adapter.RealmListAdapter;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.view.BaseApplication;
-import com.squareup.moshi.Moshi;
 
+import java.io.File;
+
+import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -43,7 +48,12 @@ public class IdService {
 
     private IdService() {
         final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io());
-        this.client = new OkHttpClient.Builder();
+        final File cachePath = new File(BaseApplication.get().getCacheDir(), "idCache");
+        this.client = new OkHttpClient
+                .Builder()
+                .cache(new Cache(cachePath, 1024 * 1024 * 2))
+                .addNetworkInterceptor(new ReadFromCacheInterceptor())
+                .addInterceptor(new OfflineCacheInterceptor());
 
         addUserAgentHeader();
         addSigningInterceptor();

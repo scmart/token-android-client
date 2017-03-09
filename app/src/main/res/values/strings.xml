@@ -51,6 +51,7 @@
     <string name="payment_received">Payment received</string>
     <string name="payment_amount">Amount: %1$s</string>
     <string name="error__transaction_pending">Pending</string>
+    <string name="error__message_pending">Pending</string>
     <string name="version">Version</string>
     <string name="search_or_type_the_url">Search or type the url</string>
     <string name="recommended">Recommended</string>

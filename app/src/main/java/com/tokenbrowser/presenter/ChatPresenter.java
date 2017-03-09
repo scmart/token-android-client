@@ -110,7 +110,9 @@ public final class ChatPresenter implements
                         .getUserManager()
                         .searchOnlineUsers(username)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(users -> handleSearchResult(username, users));
+                        .subscribe(
+                                users -> handleSearchResult(username, users),
+                                e -> LogUtil.e(getClass(), e.toString()));
 
         this.subscriptions.add(sub);
     }

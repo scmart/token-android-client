@@ -45,8 +45,9 @@ public class UserManager {
 
     public UserManager init(final HDWallet wallet) {
         this.wallet = wallet;
+        this.prefs = BaseApplication.get().getSharedPreferences(FileNames.USER_PREFS, Context.MODE_PRIVATE);
         initDatabase();
-        initUser();
+        attachConnectivityListener();
         return this;
     }
 
@@ -58,8 +59,17 @@ public class UserManager {
         });
     }
 
+    private void attachConnectivityListener() {
+        // Whenever the network changes init the user.
+        // This is dumb and potentially inefficient but it shouldn't have
+        // any adverse effects and it is easy to improve later.
+        BaseApplication
+                .get()
+                .isConnectedSubject()
+                .subscribe(isConnected -> initUser());
+    }
+
     private void initUser() {
-        this.prefs = BaseApplication.get().getSharedPreferences(FileNames.USER_PREFS, Context.MODE_PRIVATE);
         if (!userExistsInPrefs()) {
             registerNewUser();
         } else {
@@ -81,8 +91,7 @@ public class UserManager {
     }
 
     private void handleError(final Throwable throwable) {
-        LogUtil.e(getClass(), "Unable to register user");
-        throw new RuntimeException(throwable);
+        LogUtil.e(getClass(), "Unable to register/fetch user: " + throwable.toString());
     }
 
     private void registerNewUserWithTimestamp(final ServerTime serverTime) {
@@ -104,7 +113,7 @@ public class UserManager {
     private void getExistingUser() {
         IdService.getApi()
                 .getUser(this.wallet.getOwnerAddress())
-                .subscribe(this::updateCurrentUser);
+                .subscribe(this::updateCurrentUser, this::handleError);
     }
 
     private void updateCurrentUser(final User user) {

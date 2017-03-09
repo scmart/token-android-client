@@ -2,26 +2,24 @@ package com.tokenbrowser.view;
 
 
 import android.content.ComponentCallbacks2;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkInfo;
-import android.os.Build;
 import android.support.multidex.MultiDexApplication;
 
 import com.tokenbrowser.manager.TokenManager;
 import com.tokenbrowser.manager.store.TokenMigration;
+import com.tokenbrowser.service.NetworkChangeReceiver;
 import com.tokenbrowser.util.LogUtil;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import rx.SingleSubscriber;
 import rx.schedulers.Schedulers;
+import rx.subjects.BehaviorSubject;
 
 public final class BaseApplication extends MultiDexApplication {
 
     private static BaseApplication instance;
     public static BaseApplication get() { return instance; }
+    private final BehaviorSubject<Boolean> isConnectedSubject = BehaviorSubject.create();
 
     private TokenManager tokenManager;
     private boolean inBackground = false;
@@ -40,6 +38,7 @@ public final class BaseApplication extends MultiDexApplication {
     private void init() {
         initTokenManager();
         initRealm();
+        isConnectedSubject().onNext(NetworkChangeReceiver.getCurrentConnectivityStatus(this));
     }
 
     private void initTokenManager() {
@@ -92,32 +91,11 @@ public final class BaseApplication extends MultiDexApplication {
         super.onTrimMemory(level);
     }
 
-    public boolean isNetworkAvailable() {
-        final ConnectivityManager connectivityManager =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+    public BehaviorSubject<Boolean> isConnectedSubject() {
+        return isConnectedSubject;
+    }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            final Network[] networks = connectivityManager.getAllNetworks();
-            for (final Network mNetwork : networks) {
-                final NetworkInfo networkInfo = connectivityManager.getNetworkInfo(mNetwork);
-                return networkInfo.isConnected();
-            }
-        } else {
-            if (connectivityManager == null) {
-                return false;
-            }
-
-            //noinspection deprecation
-            final NetworkInfo[] networkInfos = connectivityManager.getAllNetworkInfo();
-            if (networkInfos == null) {
-                return false;
-            }
-
-            for (final NetworkInfo networkInfo : networkInfos) {
-                if (networkInfo.isConnected()) return true;
-            }
-        }
-
-        return false;
+    public boolean isConnected() {
+        return isConnectedSubject.getValue();
     }
 }

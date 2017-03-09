@@ -47,9 +47,9 @@ public class DirectoryService {
         final RxJavaCallAdapterFactory rxAdapter =
                 RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io());
         final File cachePath = new File(BaseApplication.get().getCacheDir(), "dirCache");
-        this.client =
-                new OkHttpClient.Builder()
-                .cache(new Cache(cachePath, 1024 * 1024)) // 1 MB
+        this.client = new OkHttpClient
+                .Builder()
+                .cache(new Cache(cachePath, 1024 * 1024 * 5))
                 .addNetworkInterceptor(new ReadFromCacheInterceptor())
                 .addInterceptor(new OfflineCacheInterceptor());
 

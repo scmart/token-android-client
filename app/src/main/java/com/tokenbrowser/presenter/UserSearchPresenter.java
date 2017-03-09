@@ -10,6 +10,7 @@ import android.view.View;
 import com.jakewharton.rxbinding.widget.RxTextView;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.util.KeyboardUtil;
+import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.UserSearchActivity;
@@ -91,7 +92,9 @@ public final class UserSearchPresenter
                 .getUserManager()
                 .searchOnlineUsers(query)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe((users -> this.adapter.setUsers(users)));
+                .subscribe(
+                        users -> this.adapter.setUsers(users),
+                        e -> LogUtil.e(getClass(), e.toString()));
 
         this.subscriptions.add(sub);
     }

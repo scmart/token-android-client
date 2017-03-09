@@ -12,6 +12,7 @@ import com.tokenbrowser.model.network.ServerTime;
 import com.tokenbrowser.util.EthUtil;
 import com.tokenbrowser.util.LocaleUtil;
 import com.tokenbrowser.util.LogUtil;
+import com.tokenbrowser.view.BaseApplication;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -42,14 +43,18 @@ public class BalanceManager {
 
     public BalanceManager init(final HDWallet wallet) {
         this.wallet = wallet;
-        refreshBalance();
+        attachConnectivityObserver();
         return this;
     }
 
-    private void handleLatestMarketRates(final MarketRates rates) {
-        this.rates = rates;
-        // Rebroadcast the balance now that we have new rates.
-        handleNewBalance(this.balance);
+    private void attachConnectivityObserver() {
+        BaseApplication
+                .get()
+                .isConnectedSubject()
+                .filter(isConnected -> isConnected)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(isConnected -> refreshBalance());
     }
 
     public void refreshBalance() {

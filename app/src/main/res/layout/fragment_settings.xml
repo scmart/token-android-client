@@ -54,7 +54,7 @@
                 android:id="@+id/avatar"
                 android:layout_width="@dimen/avatar_size_small"
                 android:layout_height="@dimen/avatar_size_small"
-                android:src="@mipmap/ic_launcher"
+                tools:src="@mipmap/ic_launcher"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
                 app:layout_rowSpan="2"/>
 
@@ -82,7 +82,7 @@
                 android:textColor="@color/textColorSecondary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="\@username"/>
+                tools:text="\@username"/>
 
             <android.support.v4.widget.Space
                 android:layout_width="0dp"

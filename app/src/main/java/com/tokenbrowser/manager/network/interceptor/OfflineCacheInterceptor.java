@@ -24,7 +24,7 @@ public class OfflineCacheInterceptor implements Interceptor {
                 .maxStale(14, TimeUnit.DAYS)
                 .build();
 
-        if (!BaseApplication.get().isNetworkAvailable()) {
+        if (!BaseApplication.get().isConnected()) {
             cacheControl = new CacheControl.Builder()
                     .maxAge(14, TimeUnit.DAYS)
                     .maxStale(14, TimeUnit.DAYS)
