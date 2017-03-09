@@ -13,9 +13,9 @@ import rx.Single;
 
 public interface ReputationInterface {
 
-    @GET("v1/user/{owner_address}")
+    @GET("/v1/user/{owner_address}")
     Single<Response<ReputationScore>> getReputationScore(@Path("owner_address") String user);
 
-    @POST("v1/review/submit")
+    @POST("/v1/review/submit")
     Single<Response<Void>> submitReview(@Body Review review, @Query("timestamp") long timestamp);
 }
