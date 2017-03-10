@@ -144,13 +144,13 @@ public class BackupPhrasePresenter implements Presenter<BackupPhraseActivity> {
             this.dialog.dismiss();
             this.dialog = null;
         }
+        this.subscriptions.clear();
         this.activity.getContentResolver().unregisterContentObserver(this.contentObserver);
         this.activity = null;
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.subscriptions.clear();
-        this.activity = null;
+    public void onDestroyed() {
+        this.subscriptions = null;
     }
 }

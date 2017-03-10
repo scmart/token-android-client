@@ -56,7 +56,6 @@ public class HomePresenter implements Presenter<HomeFragment> {
 
     private void initLongTermObjects() {
         this.subscriptions = new CompositeSubscription();
-        attachSubscribers();
     }
 
     private void attachSubscribers() {
@@ -77,6 +76,7 @@ public class HomePresenter implements Presenter<HomeFragment> {
     }
 
     private void initShortTermObjects() {
+        attachSubscribers();
         assignClickListeners();
         initRecyclerView();
         refreshBalance();
@@ -200,12 +200,12 @@ public class HomePresenter implements Presenter<HomeFragment> {
 
     @Override
     public void onViewDetached() {
+        this.subscriptions.clear();
         this.fragment = null;
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.subscriptions.clear();
+    public void onDestroyed() {
         this.fragment = null;
     }
 }

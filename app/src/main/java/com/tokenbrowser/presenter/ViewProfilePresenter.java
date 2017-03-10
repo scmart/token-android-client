@@ -171,12 +171,13 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
 
     @Override
     public void onViewDetached() {
+        this.subscriptions.clear();
         this.fragment = null;
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.subscriptions.clear();
+    public void onDestroyed() {
+        this.subscriptions = null;
         this.fragment = null;
     }
 }

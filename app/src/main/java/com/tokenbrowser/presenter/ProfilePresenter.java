@@ -69,7 +69,5 @@ public final class ProfilePresenter implements Presenter<ProfileActivity> {
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.activity = null;
-    }
+    public void onDestroyed() {}
 }

@@ -117,12 +117,13 @@ public final class UserSearchPresenter
 
     @Override
     public void onViewDetached() {
+        this.subscriptions.clear();
         this.activity = null;
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.subscriptions.clear();
-        this.activity = null;
+    public void onDestroyed() {
+        this.subscriptions = null;
+        this.adapter = null;
     }
 }

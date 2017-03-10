@@ -253,12 +253,13 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
 
     @Override
     public void onViewDetached() {
+        this.subscriptions.clear();
         this.activity = null;
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.subscriptions.clear();
-        this.activity = null;
+    public void onDestroyed() {
+        this.adapter = null;
+        this.subscriptions = null;
     }
 }

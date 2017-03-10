@@ -32,5 +32,5 @@ public final class SettingsContainerPresenter implements
     public void onViewDetached() {}
 
     @Override
-    public void onViewDestroyed() {}
+    public void onDestroyed() {}
 }

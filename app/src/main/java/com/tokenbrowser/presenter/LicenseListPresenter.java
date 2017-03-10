@@ -1,15 +1,15 @@
 package com.tokenbrowser.presenter;
 
-import com.tokenbrowser.view.activity.LicenseListActivity;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.tokenbrowser.token.R;
 import com.tokenbrowser.model.local.Library;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.view.activity.LicenseActivity;
+import com.tokenbrowser.view.activity.LicenseListActivity;
 import com.tokenbrowser.view.adapter.LibraryAdapter;
 import com.tokenbrowser.view.custom.HorizontalLineDivider;
 
@@ -169,7 +169,5 @@ public class LicenseListPresenter implements Presenter<LicenseListActivity> {
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.activity = null;
-    }
+    public void onDestroyed() {}
 }
