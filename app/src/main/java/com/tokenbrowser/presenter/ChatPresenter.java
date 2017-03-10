@@ -29,6 +29,7 @@ import com.tokenbrowser.model.sofa.Control;
 import com.tokenbrowser.model.sofa.Init;
 import com.tokenbrowser.model.sofa.InitRequest;
 import com.tokenbrowser.model.sofa.Message;
+import com.tokenbrowser.model.sofa.OutgoingAttachment;
 import com.tokenbrowser.model.sofa.PaymentRequest;
 import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.model.sofa.SofaType;
@@ -50,7 +51,6 @@ import com.tokenbrowser.view.fragment.DialogFragment.ChooserDialog;
 import com.tokenbrowser.view.fragment.DialogFragment.RateDialog;
 import com.tokenbrowser.view.notification.ChatNotificationManager;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -655,17 +655,18 @@ public final class ChatPresenter implements
     private void sendMediaMessage(final ActivityResultHolder resultHolder) throws IOException {
         final Uri uri = resultHolder.getIntent().getData();
         final FileUtil fileUtil = new FileUtil();
-        final File attachmentFile = fileUtil.saveFileFromUri(this.activity, uri);
+        final OutgoingAttachment attachment = fileUtil.saveFileFromUri(this.activity, uri);
 
         final Message message = new Message();
-        final String messageBody = adapters.toJson(message);
-        final SofaMessage sofaMessage = new SofaMessage().makeNew(true, messageBody)
-                .setAttachmentFilename(attachmentFile.getName());
+        final String messageBody = this.adapters.toJson(message);
+        final SofaMessage sofaMessage = new SofaMessage()
+                .makeNew(true, messageBody)
+                .setAttachmentFilename(attachment.getOutgoingAttachment().getName());
 
         BaseApplication.get()
                 .getTokenManager()
                 .getSofaMessageManager()
-                .saveMessage(remoteUser, sofaMessage);
+                .sendMediaMessage(this.remoteUser, sofaMessage, attachment);
     }
 
     private void showNotEnoughFundsDialog() {
