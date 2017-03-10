@@ -32,5 +32,12 @@ public class TokenMigration implements RealmMigration {
                     .addField("attachmentFilename", String.class);
             oldVersion++;
         }
+
+        if (oldVersion == 3) {
+            schema.get("User")
+                    .addField("reputation_score", Double.class)
+                    .addField("review_count", int.class);
+            oldVersion++;
+        }
     }
 }
