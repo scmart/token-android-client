@@ -9,7 +9,7 @@ public class Message {
     private List<Control> controls;
     // Default behaviour is to how the keyboard
     private boolean showKeyboard = true;
-    private List<Attachment> attachments;
+    private String attachmentFilename;
 
     public String getBody() {
         return this.body;
@@ -17,6 +17,11 @@ public class Message {
 
     public Message setBody(final String body) {
         this.body = body;
+        return this;
+    }
+
+    public Message setAttachmentFilename(final String filename) {
+        this.attachmentFilename = filename;
         return this;
     }
 
@@ -28,7 +33,7 @@ public class Message {
         return !this.showKeyboard;
     }
 
-    public List<Attachment> getAttachments() {
-        return this.attachments;
+    public String getAttachmentFilename() {
+        return attachmentFilename;
     }
 }

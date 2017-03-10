@@ -26,5 +26,11 @@ public class TokenMigration implements RealmMigration {
                     .addRealmObjectField("sofaMessage", schema.get("SofaMessage"));
             oldVersion++;
         }
+
+        if (oldVersion == 2) {
+            schema.get("SofaMessage")
+                    .addField("attachmentFilename", String.class);
+            oldVersion++;
+        }
     }
 }

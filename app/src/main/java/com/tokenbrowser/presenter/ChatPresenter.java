@@ -3,6 +3,7 @@ package com.tokenbrowser.presenter;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v7.app.AlertDialog;
 import android.util.Pair;
@@ -18,7 +19,6 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.tokenbrowser.crypto.HDWallet;
-import com.tokenbrowser.manager.TransactionManager;
 import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.model.local.Conversation;
 import com.tokenbrowser.model.local.Review;
@@ -33,6 +33,7 @@ import com.tokenbrowser.model.sofa.PaymentRequest;
 import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.model.sofa.SofaType;
 import com.tokenbrowser.token.R;
+import com.tokenbrowser.util.FileUtil;
 import com.tokenbrowser.util.KeyboardUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
@@ -45,9 +46,11 @@ import com.tokenbrowser.view.activity.ChatActivity;
 import com.tokenbrowser.view.activity.ViewUserActivity;
 import com.tokenbrowser.view.adapter.MessageAdapter;
 import com.tokenbrowser.view.custom.SpeedyLinearLayoutManager;
+import com.tokenbrowser.view.fragment.DialogFragment.ChooserDialog;
 import com.tokenbrowser.view.fragment.DialogFragment.RateDialog;
 import com.tokenbrowser.view.notification.ChatNotificationManager;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -64,6 +67,7 @@ public final class ChatPresenter implements
 
     private static final int REQUEST_RESULT_CODE = 1;
     private static final int PAY_RESULT_CODE = 2;
+    private static final int PICK_IMAGE = 3;
 
     private ChatActivity activity;
     private MessageAdapter messageAdapter;
@@ -247,6 +251,26 @@ public final class ChatPresenter implements
         this.activity.getBinding().balanceBar.setOnRequestClicked(this.requestButtonClicked);
         this.activity.getBinding().balanceBar.setOnPayClicked(this.payButtonClicked);
         this.activity.getBinding().controlView.setOnControlClickedListener(this::handleControlClicked);
+        this.activity.getBinding().addButton.setOnClickListener(this::handleAddButtonClicked);
+    }
+
+    private void handleAddButtonClicked(final View v) {
+        final ChooserDialog dialog = ChooserDialog.newInstance();
+        dialog.setOnChooserClickListener(new ChooserDialog.OnChooserClickListener() {
+            @Override
+            public void captureImageClicked() {
+                Toast.makeText(activity, "Not implemented yet", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void importImageFromGalleryClicked() {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                activity.startActivityForResult(Intent.createChooser(intent, BaseApplication.get().getString(R.string.select_picture)), PICK_IMAGE);
+            }
+        });
+        dialog.show(this.activity.getSupportFragmentManager(), ChooserDialog.TAG);
     }
 
     private final OnSingleClickListener sendButtonClicked = new OnSingleClickListener() {
@@ -584,7 +608,7 @@ public final class ChatPresenter implements
     }
 
     private void setControlView(final SofaMessage sofaMessage) {
-        if (sofaMessage == null) {
+        if (sofaMessage == null || this.activity == null) {
             return;
         }
 
@@ -608,7 +632,8 @@ public final class ChatPresenter implements
     }
 
     public void handleActivityResult(final ActivityResultHolder resultHolder) {
-        if (resultHolder.getResultCode() != Activity.RESULT_OK) {
+        if (resultHolder.getResultCode() != Activity.RESULT_OK
+                || this.activity == null) {
             return;
         }
 
@@ -618,7 +643,29 @@ public final class ChatPresenter implements
         } else if(resultHolder.getRequestCode() == PAY_RESULT_CODE) {
             final String value = resultHolder.getIntent().getStringExtra(AmountPresenter.INTENT_EXTRA__ETH_AMOUNT);
             sendPaymentWithValue(value);
+        } else if (resultHolder.getRequestCode() == PICK_IMAGE && resultHolder.getResultCode() == Activity.RESULT_OK) {
+            try {
+                sendMediaMessage(resultHolder);
+            } catch (IOException e) {
+                LogUtil.e(getClass(), "Error during image saving " + e.getMessage());
+            }
         }
+    }
+
+    private void sendMediaMessage(final ActivityResultHolder resultHolder) throws IOException {
+        final Uri uri = resultHolder.getIntent().getData();
+        final FileUtil fileUtil = new FileUtil();
+        final File attachmentFile = fileUtil.saveFileFromUri(this.activity, uri);
+
+        final Message message = new Message();
+        final String messageBody = adapters.toJson(message);
+        final SofaMessage sofaMessage = new SofaMessage().makeNew(true, messageBody)
+                .setAttachmentFilename(attachmentFile.getName());
+
+        BaseApplication.get()
+                .getTokenManager()
+                .getSofaMessageManager()
+                .saveMessage(remoteUser, sofaMessage);
     }
 
     private void showNotEnoughFundsDialog() {
@@ -702,7 +749,6 @@ public final class ChatPresenter implements
             this.notEnoughFundsDialog.dismiss();
         }
         this.lastVisibleMessagePosition = this.layoutManager.findLastVisibleItemPosition();
-        this.activity = null;
     }
 
     @Override

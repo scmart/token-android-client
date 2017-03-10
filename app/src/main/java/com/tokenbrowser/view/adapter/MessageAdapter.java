@@ -146,10 +146,12 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
             case SofaType.COMMAND_REQUEST:
             case SofaType.PLAIN_TEXT: {
                 final TextViewHolder vh = (TextViewHolder) holder;
-                final Message message = this.adapters.messageFrom(payload);
+                final Message message = this.adapters.messageFrom(payload)
+                        .setAttachmentFilename(sofaMessage.getAttachmentFilename());
                 vh.setText(message.getBody())
                         .setSentByLocal(sofaMessage.isSentByLocal())
                         .setSendState(sofaMessage.getSendState())
+                        .setAttachmentFilename(sofaMessage.getAttachmentFilename())
                         .draw()
                         .setClickableUsernames(this.onUsernameClickListener);
                 break;
