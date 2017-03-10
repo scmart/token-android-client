@@ -22,6 +22,7 @@ import com.tokenbrowser.model.local.SofaMessage;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.network.UserSearchResults;
 import com.tokenbrowser.model.sofa.Message;
+import com.tokenbrowser.model.sofa.OutgoingAttachment;
 import com.tokenbrowser.model.sofa.PaymentRequest;
 import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.model.sofa.SofaType;
@@ -59,6 +60,8 @@ import org.whispersystems.signalservice.api.push.SignalServiceAddress;
 import org.whispersystems.signalservice.internal.push.SignalServiceUrl;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -137,6 +140,12 @@ public final class SofaMessageManager {
         if (this.handleMessagesSubscriber.isUnsubscribed()) {
             LogUtil.e(getClass(), "Not attached!");
         }
+    }
+
+    public final void sendMediaMessage(final User receiver, final SofaMessage message, final OutgoingAttachment attachment) {
+        final SofaMessageTask messageTask = new SofaMessageTask(receiver, message, SofaMessageTask.SEND_AND_SAVE)
+                .setOutgoingAttachment(attachment);
+        this.chatMessageQueue.onNext(messageTask);
     }
 
     // Will send the message to a remote peer
@@ -294,7 +303,7 @@ public final class SofaMessageManager {
         public void onNext(final SofaMessageTask messageTask) {
             switch (messageTask.getAction()) {
                 case SofaMessageTask.SEND_AND_SAVE:
-                    sendMessageToRemotePeer(messageTask.getReceiver(), messageTask.getSofaMessage(), true);
+                    sendMessageToRemotePeer(messageTask, true);
                     break;
                 case SofaMessageTask.SAVE_ONLY:
                     storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage(), SendState.STATE_LOCAL_ONLY);
@@ -303,7 +312,7 @@ public final class SofaMessageManager {
                     storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage(), SendState.STATE_SENDING);
                     break;
                 case SofaMessageTask.SEND_ONLY:
-                    sendMessageToRemotePeer(messageTask.getReceiver(), messageTask.getSofaMessage(), false);
+                    sendMessageToRemotePeer(messageTask, false);
                     break;
                 case SofaMessageTask.UPDATE_MESSAGE:
                     updateExistingMessage(messageTask.getReceiver(), messageTask.getSofaMessage());
@@ -324,7 +333,10 @@ public final class SofaMessageManager {
         }
     }
 
-    private void sendMessageToRemotePeer(final User receiver, final SofaMessage message, final boolean saveMessageToDatabase) {
+    private void sendMessageToRemotePeer(final SofaMessageTask messageTask, final boolean saveMessageToDatabase) {
+        final User receiver = messageTask.getReceiver();
+        final SofaMessage message = messageTask.getSofaMessage();
+
         if (saveMessageToDatabase) {
             this.conversationStore.saveNewMessage(receiver, message);
         }
@@ -337,7 +349,7 @@ public final class SofaMessageManager {
         }
 
         try {
-            sendToSignal(receiver, message);
+            sendToSignal(messageTask);
 
             if (saveMessageToDatabase) {
                 tryDeletePendingMessage(message);
@@ -358,8 +370,14 @@ public final class SofaMessageManager {
         }
     }
 
-    private void sendToSignal(final User receiver, final SofaMessage message) throws UntrustedIdentityException, IOException {
-        final SignalServiceMessageSender messageSender = new SignalServiceMessageSender(
+    private void sendToSignal(final SofaMessageTask messageTask) throws UntrustedIdentityException, IOException {
+        final SignalServiceAddress receivingAddress = new SignalServiceAddress(messageTask.getReceiver().getTokenId());
+        final SignalServiceDataMessage message = buildMessage(messageTask);
+        generateMessageSender().sendMessage(receivingAddress, message);
+    }
+
+    private SignalServiceMessageSender generateMessageSender() {
+        return new SignalServiceMessageSender(
                 this.signalServiceUrls,
                 this.wallet.getOwnerAddress(),
                 this.protocolStore.getPassword(),
@@ -368,12 +386,25 @@ public final class SofaMessageManager {
                 Optional.absent(),
                 Optional.absent()
         );
+    }
 
-        messageSender.sendMessage(
-                new SignalServiceAddress(receiver.getTokenId()),
-                SignalServiceDataMessage.newBuilder()
-                        .withBody(message.getAsSofaMessage())
-                        .build());
+    private SignalServiceDataMessage buildMessage(final SofaMessageTask messageTask) throws FileNotFoundException {
+        final SignalServiceDataMessage.Builder messageBuilder = SignalServiceDataMessage.newBuilder();
+        messageBuilder.withBody(messageTask.getSofaMessage().getAsSofaMessage());
+        if (messageTask.getOutgoingAttachment() != null) {
+            messageBuilder.withAttachment(buildOutgoingAttachment(messageTask.getOutgoingAttachment()));
+        }
+
+        return messageBuilder.build();
+    }
+
+    private SignalServiceAttachment buildOutgoingAttachment(final OutgoingAttachment attachment) throws FileNotFoundException {
+        final FileInputStream attachmentStream = new FileInputStream(attachment.getOutgoingAttachment());
+        return SignalServiceAttachment.newStreamBuilder()
+                .withStream(attachmentStream)
+                .withContentType(attachment.getMimeType())
+                .withLength(attachment.getOutgoingAttachment().length())
+                .build();
     }
 
     private void storeMessage(final User receiver, final SofaMessage message, final @SendState.State int sendState) {
@@ -503,7 +534,8 @@ public final class SofaMessageManager {
     }
 
     private void saveIncomingMessageFromUserToDatabase(final User user, final DecryptedSignalMessage signalMessage) {
-        final SofaMessage remoteMessage = new SofaMessage().makeNew(false, signalMessage.getBody())
+        final SofaMessage remoteMessage = new SofaMessage()
+                .makeNew(false, signalMessage.getBody())
                 .setAttachmentFilename(signalMessage.getAttachmentFilename());
         if (remoteMessage.getType() == SofaType.PAYMENT) {
             // Don't render incoming SOFA::Payments,
