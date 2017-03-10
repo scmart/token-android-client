@@ -66,6 +66,17 @@ public final class ChatActivity extends BasePresenterActivity<ChatPresenter, Cha
     }
 
     @Override
+    public void onRequestPermissionsResult(final int requestCode,
+                                           @NonNull final String permissions[],
+                                           @NonNull final int[] grantResults) {
+        if (this.presenter == null) {
+            return;
+        }
+
+        this.presenter.handlePermission(requestCode, permissions, grantResults);
+    }
+
+    @Override
     protected int loaderId() {
         return 4002;
     }

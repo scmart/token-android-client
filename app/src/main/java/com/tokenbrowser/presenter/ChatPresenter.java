@@ -1,10 +1,17 @@
 package com.tokenbrowser.presenter;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -33,6 +40,7 @@ import com.tokenbrowser.model.sofa.OutgoingAttachment;
 import com.tokenbrowser.model.sofa.PaymentRequest;
 import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.model.sofa.SofaType;
+import com.tokenbrowser.token.BuildConfig;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.FileUtil;
 import com.tokenbrowser.util.KeyboardUtil;
@@ -51,6 +59,7 @@ import com.tokenbrowser.view.fragment.DialogFragment.ChooserDialog;
 import com.tokenbrowser.view.fragment.DialogFragment.RateDialog;
 import com.tokenbrowser.view.notification.ChatNotificationManager;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -68,6 +77,8 @@ public final class ChatPresenter implements
     private static final int REQUEST_RESULT_CODE = 1;
     private static final int PAY_RESULT_CODE = 2;
     private static final int PICK_IMAGE = 3;
+    private static final int CAPTURE_IMAGE = 4;
+    private static final int CAMERA_PERMISSION = 5;
 
     private ChatActivity activity;
     private MessageAdapter messageAdapter;
@@ -80,6 +91,7 @@ public final class ChatPresenter implements
     private boolean firstViewAttachment = true;
     private int lastVisibleMessagePosition;
     private Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> chatObservables;
+    private String captureImageFilename;
 
     @Override
     public void onViewAttached(final ChatActivity activity) {
@@ -259,18 +271,61 @@ public final class ChatPresenter implements
         dialog.setOnChooserClickListener(new ChooserDialog.OnChooserClickListener() {
             @Override
             public void captureImageClicked() {
-                Toast.makeText(activity, "Not implemented yet", Toast.LENGTH_SHORT).show();
+                checkCameraPermission();
             }
 
             @Override
             public void importImageFromGalleryClicked() {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                activity.startActivityForResult(Intent.createChooser(intent, BaseApplication.get().getString(R.string.select_picture)), PICK_IMAGE);
+                startGalleryActivity();
             }
         });
         dialog.show(this.activity.getSupportFragmentManager(), ChooserDialog.TAG);
+    }
+
+    private void checkCameraPermission() {
+        if (ContextCompat.checkSelfPermission(activity,
+                Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(activity,
+                    new String[]{Manifest.permission.CAMERA},
+                    CAMERA_PERMISSION);
+        } else {
+            startCameraActivity();
+        }
+    }
+
+    private void startCameraActivity() {
+        final Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = new FileUtil().createImageFileWithRandomName(this.activity);
+                this.captureImageFilename = photoFile.getName();
+            } catch (IOException e) {
+                LogUtil.e(getClass(), "Error during creating image file " + e.getMessage());
+            }
+            if (photoFile != null) {
+                final Uri photoURI = FileProvider.getUriForFile(
+                        BaseApplication.get(),
+                        BuildConfig.APPLICATION_ID + ".photos",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                activity.startActivityForResult(takePictureIntent, CAPTURE_IMAGE);
+            }
+        }
+    }
+
+    private void startGalleryActivity() {
+        final Intent pickPictureIntent = new Intent()
+                .setType("image/*")
+                .setAction(Intent.ACTION_GET_CONTENT);
+
+        if (pickPictureIntent.resolveActivity(activity.getPackageManager()) != null) {
+            activity.startActivityForResult(Intent.createChooser(
+                    pickPictureIntent,
+                    BaseApplication.get().getString(R.string.select_picture)), PICK_IMAGE);
+        }
     }
 
     private final OnSingleClickListener sendButtonClicked = new OnSingleClickListener() {
@@ -645,18 +700,46 @@ public final class ChatPresenter implements
             sendPaymentWithValue(value);
         } else if (resultHolder.getRequestCode() == PICK_IMAGE && resultHolder.getResultCode() == Activity.RESULT_OK) {
             try {
-                sendMediaMessage(resultHolder);
+                handleGalleryImage(resultHolder);
             } catch (IOException e) {
                 LogUtil.e(getClass(), "Error during image saving " + e.getMessage());
+            }
+        } else if (resultHolder.getRequestCode() == CAPTURE_IMAGE && resultHolder.getResultCode() == Activity.RESULT_OK) {
+            handleCameraImage();
+        }
+    }
+
+    public void handlePermission(final int requestCode,
+                                  @NonNull final String permissions[],
+                                  @NonNull final int[] grantResults) {
+        switch (requestCode) {
+            case CAMERA_PERMISSION: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startCameraActivity();
+                }
             }
         }
     }
 
-    private void sendMediaMessage(final ActivityResultHolder resultHolder) throws IOException {
+    private void handleGalleryImage(final ActivityResultHolder resultHolder) throws IOException {
         final Uri uri = resultHolder.getIntent().getData();
-        final FileUtil fileUtil = new FileUtil();
-        final OutgoingAttachment attachment = fileUtil.saveFileFromUri(this.activity, uri);
+        final OutgoingAttachment attachment = new FileUtil().saveFileFromUri(this.activity, uri);
 
+        sendMediaMessage(attachment);
+    }
+
+    private void handleCameraImage() {
+        final File file = new File(this.activity.getFilesDir(), this.captureImageFilename);
+        final String mimeType = new FileUtil().getMimeTypeFromFilename(file.getName());
+        final OutgoingAttachment attachment = new OutgoingAttachment()
+                .setOutgoingAttachment(file)
+                .setMimeType(mimeType);
+
+        sendMediaMessage(attachment);
+    }
+
+    private void sendMediaMessage(final OutgoingAttachment attachment) {
         final Message message = new Message();
         final String messageBody = this.adapters.toJson(message);
         final SofaMessage sofaMessage = new SofaMessage()
