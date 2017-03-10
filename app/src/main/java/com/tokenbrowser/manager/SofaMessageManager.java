@@ -21,6 +21,8 @@ import com.tokenbrowser.model.local.SendState;
 import com.tokenbrowser.model.local.SofaMessage;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.network.UserSearchResults;
+import com.tokenbrowser.model.sofa.Init;
+import com.tokenbrowser.model.sofa.InitRequest;
 import com.tokenbrowser.model.sofa.Message;
 import com.tokenbrowser.model.sofa.OutgoingAttachment;
 import com.tokenbrowser.model.sofa.PaymentRequest;
@@ -549,9 +551,30 @@ public final class SofaMessageManager {
                         this.conversationStore.saveNewMessage(user, remoteMessage);
                     });
             return;
+        } else if (remoteMessage.getType() == SofaType.INIT_REQUEST) {
+            // Don't render initRequests,
+            // but respond to them.
+            respondToInitRequest(user, remoteMessage);
+            return;
         }
 
         this.conversationStore.saveNewMessage(user, remoteMessage);
+    }
+
+    private void respondToInitRequest(final User sender, final SofaMessage remoteMessage) {
+        try {
+            final InitRequest initRequest = this.adapters.initRequestFrom(remoteMessage.getPayload());
+            final Init initMessage = new Init().construct(initRequest, this.wallet.getPaymentAddress());
+            final String payload = this.adapters.toJson(initMessage);
+            final SofaMessage newSofaMessage = new SofaMessage().makeNew(false, payload);
+
+            BaseApplication.get()
+                    .getTokenManager()
+                    .getSofaMessageManager()
+                    .sendMessage(sender, newSofaMessage);
+        } catch (final IOException e) {
+            LogUtil.e(getClass(), "Failed to respond to incoming init request " + e);
+        }
     }
 
     private void fetchAndCacheIncomingPaymentSender(final User sender) {

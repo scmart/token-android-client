@@ -33,13 +33,10 @@ import com.tokenbrowser.model.local.SofaMessage;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.sofa.Command;
 import com.tokenbrowser.model.sofa.Control;
-import com.tokenbrowser.model.sofa.Init;
-import com.tokenbrowser.model.sofa.InitRequest;
 import com.tokenbrowser.model.sofa.Message;
 import com.tokenbrowser.model.sofa.OutgoingAttachment;
 import com.tokenbrowser.model.sofa.PaymentRequest;
 import com.tokenbrowser.model.sofa.SofaAdapters;
-import com.tokenbrowser.model.sofa.SofaType;
 import com.tokenbrowser.token.BuildConfig;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.FileUtil;
@@ -578,42 +575,12 @@ public final class ChatPresenter implements
     }
 
     private void handleNewMessage(final SofaMessage sofaMessage) {
-        if (isInitRequest(sofaMessage)) {
-            sendInitMessage(sofaMessage);
-            return;
-        }
-
         setControlView(sofaMessage);
         this.messageAdapter.updateMessage(sofaMessage);
         updateEmptyState();
         tryScrollToBottom(true);
         playNewMessageSound(sofaMessage.isSentByLocal());
         handleKeyboardVisibility(sofaMessage);
-    }
-
-    private boolean isInitRequest(final SofaMessage sofaMessage) {
-        final String type = SofaType.createHeader(SofaType.INIT_REQUEST);
-        return sofaMessage.getAsSofaMessage().startsWith(type);
-    }
-
-    private void sendInitMessage(final SofaMessage sofaMessage) {
-        if (this.userWallet == null || this.adapters == null) {
-            return;
-        }
-
-        try {
-            final InitRequest initRequest = this.adapters.initRequestFrom(sofaMessage.getPayload());
-            final Init initMessage = new Init().construct(initRequest, this.userWallet.getPaymentAddress());
-            final String payload = this.adapters.toJson(initMessage);
-            final SofaMessage newSofaMessage = new SofaMessage().makeNew(false, payload);
-
-            BaseApplication.get()
-                    .getTokenManager()
-                    .getSofaMessageManager()
-                    .sendMessage(this.remoteUser, newSofaMessage);
-        } catch (IOException e) {
-            LogUtil.e(getClass(), "IOException " + e);
-        }
     }
 
     private void tryScrollToBottom(final boolean animate) {
