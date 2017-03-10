@@ -700,7 +700,7 @@ public final class ChatPresenter implements
             sendPaymentWithValue(value);
         } else if (resultHolder.getRequestCode() == PICK_IMAGE && resultHolder.getResultCode() == Activity.RESULT_OK) {
             try {
-                sendMediaMessage(resultHolder);
+                handleGalleryImage(resultHolder);
             } catch (IOException e) {
                 LogUtil.e(getClass(), "Error during image saving " + e.getMessage());
             }
@@ -722,11 +722,24 @@ public final class ChatPresenter implements
         }
     }
 
-    private void sendMediaMessage(final ActivityResultHolder resultHolder) throws IOException {
+    private void handleGalleryImage(final ActivityResultHolder resultHolder) throws IOException {
         final Uri uri = resultHolder.getIntent().getData();
-        final FileUtil fileUtil = new FileUtil();
-        final OutgoingAttachment attachment = fileUtil.saveFileFromUri(this.activity, uri);
+        final OutgoingAttachment attachment = new FileUtil().saveFileFromUri(this.activity, uri);
 
+        sendMediaMessage(attachment);
+    }
+
+    private void handleCameraImage() {
+        final File file = new File(this.activity.getFilesDir(), this.captureImageFilename);
+        final String mimeType = new FileUtil().getMimeTypeFromFilename(file.getName());
+        final OutgoingAttachment attachment = new OutgoingAttachment()
+                .setOutgoingAttachment(file)
+                .setMimeType(mimeType);
+
+        sendMediaMessage(attachment);
+    }
+
+    private void sendMediaMessage(final OutgoingAttachment attachment) {
         final Message message = new Message();
         final String messageBody = this.adapters.toJson(message);
         final SofaMessage sofaMessage = new SofaMessage()
@@ -737,10 +750,6 @@ public final class ChatPresenter implements
                 .getTokenManager()
                 .getSofaMessageManager()
                 .sendMediaMessage(this.remoteUser, sofaMessage, attachment);
-    }
-
-    private void handleCameraImage() {
-        final File file = new File(this.activity.getFilesDir(), this.captureImageFilename);
     }
 
     private void showNotEnoughFundsDialog() {
