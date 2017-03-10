@@ -62,4 +62,9 @@ public class FileUtil {
             }
         }
     }
+
+    public File createImageFileWithRandomName(final Context context) throws IOException {
+        final String filename = UUID.randomUUID().toString() + ".jpg";
+        return new File(context.getFilesDir(), filename);
+    }
 }
