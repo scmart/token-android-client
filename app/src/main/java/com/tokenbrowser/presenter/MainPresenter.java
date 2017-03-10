@@ -122,8 +122,7 @@ public class MainPresenter implements Presenter<MainActivity> {
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.subscriptions.clear();
-        this.activity = null;
+    public void onDestroyed() {
+        this.adapter = null;
     }
 }

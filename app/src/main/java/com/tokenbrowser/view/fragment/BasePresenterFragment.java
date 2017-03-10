@@ -50,14 +50,6 @@ public abstract class BasePresenterFragment<P extends Presenter<V>, V> extends F
         super.onPause();
     }
 
-    @Override
-    public void onDestroy() {
-        if (presenter != null) {
-            presenter.onViewDestroyed();
-        }
-        super.onDestroy();
-    }
-
     /**
      * Instance of {@link PresenterFactory} use to create a Presenter when needed. This instance should
      * not contain {@link android.app.Activity} context reference since it will be keep on rotations.

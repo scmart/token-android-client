@@ -108,12 +108,13 @@ public final class ContactsPresenter implements
 
     @Override
     public void onViewDetached() {
+        this.subscriptions.clear();
         this.fragment = null;
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.subscriptions.clear();
+    public void onDestroyed() {
+        this.adapter = null;
         this.fragment = null;
     }
 

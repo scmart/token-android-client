@@ -48,7 +48,5 @@ public class BackupPhraseInfoPresenter implements Presenter<BackupPhraseInfoActi
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.activity = null;
-    }
+    public void onDestroyed() {}
 }

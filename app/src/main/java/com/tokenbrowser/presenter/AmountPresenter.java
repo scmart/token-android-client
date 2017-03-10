@@ -35,7 +35,10 @@ public class AmountPresenter implements Presenter<AmountActivity> {
     public void onViewAttached(AmountActivity view) {
         this.activity = view;
 
-        this.subscriptions = new CompositeSubscription();
+        if (this.subscriptions == null) {
+            this.subscriptions = new CompositeSubscription();
+        }
+
         getIntentData();
         initView();
         initSeparator();
@@ -204,7 +207,7 @@ public class AmountPresenter implements Presenter<AmountActivity> {
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.activity = null;
+    public void onDestroyed() {
+        this.subscriptions = null;
     }
 }

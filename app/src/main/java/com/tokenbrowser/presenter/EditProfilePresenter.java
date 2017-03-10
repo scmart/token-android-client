@@ -153,6 +153,7 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     @Override
     public void onViewDetached() {
         saveFields();
+        this.subscriptions.clear();
         this.fragment = null;
         this.handleUserLoaded.unsubscribe();
     }
@@ -165,8 +166,7 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.subscriptions.clear();
+    public void onDestroyed() {
         this.fragment = null;
     }
 }

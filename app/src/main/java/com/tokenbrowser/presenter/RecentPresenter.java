@@ -43,12 +43,12 @@ public final class RecentPresenter implements
     }
 
     private void initLongLivingObjects() {
+        this.subscriptions = new CompositeSubscription();
         this.adapter = new RecentAdapter()
                 .setOnItemClickListener(this);
     }
 
     private void initShortLivingObjects() {
-        this.subscriptions = new CompositeSubscription();
         initRecentsAdapter();
         populateRecentsAdapter();
         updateEmptyState();
@@ -124,13 +124,14 @@ public final class RecentPresenter implements
 
     @Override
     public void onViewDetached() {
+        this.subscriptions.clear();
         this.fragment = null;
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.subscriptions.clear();
-        this.fragment = null;
+    public void onDestroyed() {
+        this.subscriptions = null;
+        this.adapter = null;
     }
 
     public void handleActionMenuClicked(final MenuItem item) {

@@ -104,8 +104,6 @@ public final class ChatPresenter implements
     private void initLongLivingObjects() {
         this.subscriptions = new CompositeSubscription();
         initMessageAdapter();
-        initPendingTransactionStore();
-        initSubscribers();
     }
 
     private void initMessageAdapter() {
@@ -163,8 +161,20 @@ public final class ChatPresenter implements
         viewProfile(user.getTokenId());
     }
 
-    private void initPendingTransactionStore() {
-        final Subscription sub = BaseApplication
+    private void handleUpdatedMessage(final SofaMessage sofaMessage) {
+        this.messageAdapter.updateMessage(sofaMessage);
+    }
+
+    private void initSubscribers() {
+        final Subscription walletSub = BaseApplication.get()
+                .getTokenManager()
+                .getWallet()
+                .subscribeOn(Schedulers.io())
+                .subscribe(wallet -> this.userWallet = wallet);
+
+        this.subscriptions.add(walletSub);
+
+        final Subscription pendingTransactionSub = BaseApplication
                 .get()
                 .getTokenManager()
                 .getTransactionManager()
@@ -173,21 +183,7 @@ public final class ChatPresenter implements
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(pendingTransaction -> handleUpdatedMessage(pendingTransaction.getSofaMessage()));
 
-        this.subscriptions.add(sub);
-    }
-
-    private void handleUpdatedMessage(final SofaMessage sofaMessage) {
-        this.messageAdapter.updateMessage(sofaMessage);
-    }
-
-    private void initSubscribers() {
-        final Subscription sub = BaseApplication.get()
-                .getTokenManager()
-                .getWallet()
-                .subscribeOn(Schedulers.io())
-                .subscribe(wallet -> this.userWallet = wallet);
-
-        this.subscriptions.add(sub);
+        this.subscriptions.add(pendingTransactionSub);
 
         this.activity.getBinding().userInput.setOnEditorActionListener((v, actionId, event) -> {
             if (event != null && event.getAction() != KeyEvent.ACTION_DOWN) {
@@ -203,6 +199,7 @@ public final class ChatPresenter implements
     }
 
     private void initShortLivingObjects() {
+        initSubscribers();
         initLayoutManager();
         initAdapterAnimation();
         initRecyclerView();
@@ -800,15 +797,15 @@ public final class ChatPresenter implements
             this.notEnoughFundsDialog.dismiss();
         }
         this.lastVisibleMessagePosition = this.layoutManager.findLastVisibleItemPosition();
+        this.subscriptions.clear();
     }
 
     @Override
-    public void onViewDestroyed() {
+    public void onDestroyed() {
         this.messageAdapter = null;
-        this.subscriptions.clear();
         stopListeningForConversationChanges();
         ChatNotificationManager.stopNotificationSuppression();
-        this.activity = null;
+        this.subscriptions = null;
         this.chatObservables = null;
     }
 

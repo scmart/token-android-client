@@ -102,7 +102,5 @@ public class DepositPresenter implements Presenter<DepositActivity> {
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.activity = null;
-    }
+    public void onDestroyed() {}
 }

@@ -178,15 +178,14 @@ public final class ScannerPresenter implements
         if (this.capture != null) {
             this.capture.onPause();
         }
+        this.subscriptions.clear();
         this.activity = null;
     }
 
     @Override
-    public void onViewDestroyed() {
+    public void onDestroyed() {
         if (this.capture != null) {
             this.capture.onDestroy();
         }
-        this.subscriptions.clear();
-        this.activity = null;
     }
 }

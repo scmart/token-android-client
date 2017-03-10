@@ -41,7 +41,5 @@ public class LicensePresenter implements Presenter<LicenseActivity> {
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.activity = null;
-    }
+    public void onDestroyed() {}
 }

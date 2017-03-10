@@ -39,7 +39,5 @@ public class TrustedFriendsPresenter implements Presenter<TrustedFriendsActivity
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.activity = null;
-    }
+    public void onDestroyed() {}
 }

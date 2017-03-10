@@ -147,12 +147,10 @@ public final class SettingsPresenter implements
 
     @Override
     public void onViewDetached() {
+        this.subscriptions.clear();
         this.fragment = null;
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.subscriptions.clear();
-        this.fragment = null;
-    }
+    public void onDestroyed() {}
 }

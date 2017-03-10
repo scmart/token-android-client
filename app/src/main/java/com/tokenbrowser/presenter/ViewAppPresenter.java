@@ -160,12 +160,12 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
 
     @Override
     public void onViewDetached() {
+        this.subscriptions.clear();
         this.activity = null;
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.subscriptions.clear();
-        this.activity = null;
+    public void onDestroyed() {
+        this.subscriptions = null;
     }
 }

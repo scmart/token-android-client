@@ -150,11 +150,11 @@ public class AppsPresenter implements Presenter<AppsFragment>{
     @Override
     public void onViewDetached() {
         this.fragment = null;
+        this.subscriptions.clear();
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.subscriptions.unsubscribe();
+    public void onDestroyed() {
         this.fragment = null;
     }
 }

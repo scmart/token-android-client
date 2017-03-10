@@ -54,7 +54,5 @@ public class AboutPresenter implements Presenter<AboutActivity> {
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.activity = null;
-    }
+    public void onDestroyed() {}
 }

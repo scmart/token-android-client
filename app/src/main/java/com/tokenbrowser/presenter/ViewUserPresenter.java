@@ -46,11 +46,6 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
 
     private void initLongLivingObjects() {
         this.subscriptions = new CompositeSubscription();
-        final Intent intent = activity.getIntent();
-        final String userAddress = intent.getStringExtra(ViewUserActivity.EXTRA__USER_ADDRESS);
-        loadOrFetchUser(userAddress);
-        fetchUserReputation(userAddress);
-        generateQrCode(userAddress);
     }
 
     private void generateQrCode(final String address) {
@@ -74,6 +69,15 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
 
     private void initShortLivingObjects() {
         this.activity.getBinding().closeButton.setOnClickListener((View v) -> this.activity.onBackPressed());
+        parseIntentData();
+    }
+
+    private void parseIntentData() {
+        final Intent intent = activity.getIntent();
+        final String userAddress = intent.getStringExtra(ViewUserActivity.EXTRA__USER_ADDRESS);
+        loadOrFetchUser(userAddress);
+        fetchUserReputation(userAddress);
+        generateQrCode(userAddress);
     }
 
     private void loadOrFetchUser(final String userAddress) {
@@ -203,12 +207,12 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
 
     @Override
     public void onViewDetached() {
+        this.subscriptions.clear();
         this.activity = null;
     }
 
     @Override
-    public void onViewDestroyed() {
-        this.subscriptions.clear();
-        this.activity = null;
+    public void onDestroyed() {
+        this.subscriptions = null;
     }
 }
