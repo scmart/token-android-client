@@ -10,9 +10,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class EthUtilTest {
 
-    @Test(expected = NullPointerException.class)
-    public void weiToEthStringThrowsExceptionIfCalledWithNull() {
-        EthUtil.weiToEthString(null);
+    @Test
+    public void weiToEthStringCalledWithNullReturnsZero() {
+        final String expected = "0";
+        assertThat(EthUtil.weiToEthString(null), is(expected));
     }
 
     @Test
