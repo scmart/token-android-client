@@ -94,15 +94,18 @@ public final class SofaMessageManager {
     private String gcmToken;
     private SignalServiceMessageReceiver messageReceiver;
 
-    public final SofaMessageManager init(final HDWallet wallet) {
-        this.wallet = wallet;
+    public SofaMessageManager() {
+        this.conversationStore = new ConversationStore();
+        this.pendingMessageStore = new PendingMessageStore();
         this.userAgent = "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME +  ":" + BuildConfig.VERSION_CODE;
         this.adapters = new SofaAdapters();
         this.signalServiceUrls = new SignalServiceUrl[1];
         this.sharedPreferences = BaseApplication.get().getSharedPreferences(FileNames.GCM_PREFS, Context.MODE_PRIVATE);
-        initDatabases();
-        new Thread(this::initEverything).start();
+    }
 
+    public final SofaMessageManager init(final HDWallet wallet) {
+        this.wallet = wallet;
+        new Thread(this::initEverything).start();
         return this;
     }
 
@@ -230,16 +233,6 @@ public final class SofaMessageManager {
         attachSubscribers();
     }
 
-    private void initDatabases() {
-        this.conversationStore = new ConversationStore();
-        this.pendingMessageStore = new PendingMessageStore();
-        BaseApplication
-                .get()
-                .isConnectedSubject()
-                .filter(isConnected -> isConnected)
-                .subscribe(isConnected -> sendPendingMessages());
-    }
-
     private void generateStores() {
         this.protocolStore = new ProtocolStore().init();
         this.trustStore = new SignalTrustStore();
@@ -298,6 +291,12 @@ public final class SofaMessageManager {
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
                 .subscribe(this.handleMessagesSubscriber);
+
+        BaseApplication
+                .get()
+                .isConnectedSubject()
+                .filter(isConnected -> isConnected)
+                .subscribe(isConnected -> sendPendingMessages());
     }
 
     private final OnNextSubscriber<SofaMessageTask> handleMessagesSubscriber = new OnNextSubscriber<SofaMessageTask>() {
