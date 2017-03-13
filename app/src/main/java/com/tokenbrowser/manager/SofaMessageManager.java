@@ -94,7 +94,7 @@ public final class SofaMessageManager {
     private String gcmToken;
     private SignalServiceMessageReceiver messageReceiver;
 
-    public SofaMessageManager() {
+    /*package*/ SofaMessageManager() {
         this.conversationStore = new ConversationStore();
         this.pendingMessageStore = new PendingMessageStore();
         this.userAgent = "Android " + BuildConfig.APPLICATION_ID + " - " + BuildConfig.VERSION_NAME +  ":" + BuildConfig.VERSION_CODE;

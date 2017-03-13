@@ -35,6 +35,10 @@ public class UserManager {
     private ContactStore contactStore;
     private UserStore userStore;
 
+    /* package */ UserManager() {
+        initDatabases();
+    }
+
     public final BehaviorSubject<User> getUserObservable() {
         return this.userSubject;
     }
@@ -42,12 +46,11 @@ public class UserManager {
     public UserManager init(final HDWallet wallet) {
         this.wallet = wallet;
         this.prefs = BaseApplication.get().getSharedPreferences(FileNames.USER_PREFS, Context.MODE_PRIVATE);
-        initDatabase();
         attachConnectivityListener();
         return this;
     }
 
-    private void initDatabase() {
+    private void initDatabases() {
         this.contactStore = new ContactStore();
         this.userStore = new UserStore();
     }
