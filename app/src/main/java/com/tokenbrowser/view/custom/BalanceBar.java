@@ -16,11 +16,14 @@ import com.tokenbrowser.view.BaseApplication;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.subscriptions.CompositeSubscription;
 
 public class BalanceBar extends LinearLayout {
 
     private BigInteger previousWeiBalance;
+    private CompositeSubscription subscriptions;
 
     public void setOnBalanceClicked(final OnClickListener listener) {
         findViewById(R.id.balanceWrapper).setOnClickListener(listener);
@@ -49,26 +52,37 @@ public class BalanceBar extends LinearLayout {
     private void init() {
         inflate(getContext(), R.layout.view__balance_bar, this);
         setEmptyValues();
-        setBalance();
     }
 
     private void setEmptyValues() {
         showBalanceInUi(BigInteger.ZERO);
     }
 
-    private void setBalance() {
-        BaseApplication
+    public void onViewAttached() {
+        this.subscriptions = new CompositeSubscription();
+        attachBalanceSubscriber();
+    }
+
+    private void attachBalanceSubscriber() {
+        final Subscription getBalanceSub =
+                BaseApplication
                 .get()
                 .getTokenManager()
                 .getBalanceManager()
                 .getBalanceObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleNewBalance);
+        this.subscriptions.add(getBalanceSub);
     }
 
     private void handleNewBalance(final Balance balance) {
         setEthBalanceFromBigInteger(balance.getUnconfirmedBalance());
-        setLocalBalance(balance.getFormattedLocalBalance());
+        final Subscription getLocalBalanceSub =
+                balance
+                .getFormattedLocalBalance()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::setLocalBalance);
+        this.subscriptions.add(getLocalBalanceSub);
     }
 
     private void setEthBalanceFromBigInteger(final BigInteger weiBalance) {
@@ -98,6 +112,11 @@ public class BalanceBar extends LinearLayout {
 
     private void setLocalBalance(final String localBalance) {
         ((TextView) findViewById(R.id.local_currency_balance)).setText(localBalance);
+    }
+
+    public void onViewDetached() {
+        this.subscriptions.clear();
+        this.subscriptions = null;
     }
 
 }
