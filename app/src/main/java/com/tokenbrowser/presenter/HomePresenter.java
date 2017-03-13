@@ -109,7 +109,7 @@ public class HomePresenter implements Presenter<HomeFragment> {
                 this.balance
                 .getFormattedLocalBalance()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(localBalance -> this.fragment.getBinding().balanceUsd.setText(localBalance))
+                .subscribe(localBalance -> this.fragment.getBinding().balanceUsd.setText(localBalance));
         this.subscriptions.add(getLocalBalanceSub);
     }
 
