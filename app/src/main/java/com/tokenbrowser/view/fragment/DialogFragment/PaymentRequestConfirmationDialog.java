@@ -132,7 +132,7 @@ public class PaymentRequestConfirmationDialog extends DialogFragment {
 
     private String getEthValue() {
         final BigInteger eth = TypeConverter.StringHexToBigInteger(this.encodedEthAmount);
-        return EthUtil.weiToEthString(eth);
+        return EthUtil.weiAmountToUserVisibleString(eth);
     }
 
     private void initClickListeners() {

@@ -172,7 +172,7 @@ public class AmountPresenter implements Presenter<AmountActivity> {
                 .getBalanceManager()
                 .convertLocalCurrencyToEth(localValue)
                 .subscribe((ethAmount) -> {
-                    this.activity.getBinding().ethValue.setText(ethAmount.toPlainString());
+                    this.activity.getBinding().ethValue.setText(EthUtil.ethAmountToUserVisibleString(ethAmount));
                     this.activity.getBinding().btnContinue.setEnabled(ethAmount.compareTo(BigDecimal.ZERO) != 0);
 
                     final BigInteger weiAmount = EthUtil.ethToWei(ethAmount);

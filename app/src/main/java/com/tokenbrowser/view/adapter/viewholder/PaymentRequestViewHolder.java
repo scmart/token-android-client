@@ -74,7 +74,7 @@ public final class PaymentRequestViewHolder extends RecyclerView.ViewHolder {
             this.localRequestedAmount.setText(this.request.getLocalPrice());
             final String ethAmount = String.format(
                     BaseApplication.get().getResources().getString(R.string.eth_amount),
-                    EthUtil.valueToEthString(this.request.getValue()));
+                    EthUtil.hexAmountToUserVisibleString(this.request.getValue()));
             this.localSecondaryAmount.setText(ethAmount);
         } else {
             this.remoteView.setVisibility(View.VISIBLE);
@@ -82,7 +82,7 @@ public final class PaymentRequestViewHolder extends RecyclerView.ViewHolder {
             this.remoteRequestedAmount.setText(this.request.getLocalPrice());
             final String ethAmount = String.format(
                     BaseApplication.get().getResources().getString(R.string.eth_amount),
-                    EthUtil.valueToEthString(this.request.getValue()));
+                    EthUtil.hexAmountToUserVisibleString(this.request.getValue()));
             this.remoteSecondaryAmount.setText(ethAmount);
             setStatus(this.request.getState());
         }

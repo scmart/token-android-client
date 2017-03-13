@@ -6,14 +6,12 @@ import android.util.AttributeSet;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.tokenbrowser.token.R;
 import com.tokenbrowser.model.network.Balance;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.EthUtil;
-import com.tokenbrowser.util.LocaleUtil;
 import com.tokenbrowser.util.SoundManager;
 import com.tokenbrowser.view.BaseApplication;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import rx.android.schedulers.AndroidSchedulers;
@@ -91,9 +89,8 @@ public class BalanceBar extends LinearLayout {
     }
 
     private void showBalanceInUi(final BigInteger weiBalance) {
-        final BigDecimal ethBalance = EthUtil.weiToEth(weiBalance);
-        final String substring = String.format(LocaleUtil.getLocale(), "%.4f", ethBalance.setScale(4, BigDecimal.ROUND_DOWN));
-        ((TextView) findViewById(R.id.eth_balance)).setText(substring);
+        final String stringBalance = EthUtil.weiAmountToUserVisibleString(weiBalance);
+        ((TextView) findViewById(R.id.eth_balance)).setText(stringBalance);
     }
 
     private void setLocalBalance(final String localBalance) {
