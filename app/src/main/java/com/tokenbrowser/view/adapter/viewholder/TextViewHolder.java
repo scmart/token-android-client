@@ -120,6 +120,12 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
         this.attachmentFilename = null;
     }
 
+    public TextViewHolder setClickableImage(final OnItemClickListener<String> listener, final String filename) {
+        this.localImage.setOnClickListener(v -> listener.onItemClick(filename));
+        this.remoteImage.setOnClickListener(v -> listener.onItemClick(filename));
+        return this;
+    }
+
     public void setClickableUsernames(final OnItemClickListener<String> listener) {
         if (this.text == null) {
             return;

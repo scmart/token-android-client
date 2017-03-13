@@ -49,6 +49,7 @@ import com.tokenbrowser.view.Animation.SlideUpAnimator;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.AmountActivity;
 import com.tokenbrowser.view.activity.ChatActivity;
+import com.tokenbrowser.view.activity.FullscreenImageActivity;
 import com.tokenbrowser.view.activity.ViewUserActivity;
 import com.tokenbrowser.view.adapter.MessageAdapter;
 import com.tokenbrowser.view.custom.SpeedyLinearLayoutManager;
@@ -112,7 +113,8 @@ public final class ChatPresenter implements
         this.messageAdapter = new MessageAdapter()
                 .addOnPaymentRequestApproveListener(message -> updatePaymentRequestState(message, PaymentRequest.ACCEPTED))
                 .addOnPaymentRequestRejectListener(message -> updatePaymentRequestState(message, PaymentRequest.REJECTED))
-                .addOnUsernameClickListener(this::searchForUsername);
+                .addOnUsernameClickListener(this::searchForUsername)
+                .addOnImageClickListener(this::handleImageClicked);
     }
 
     private void searchForUsername(final String username) {
@@ -128,6 +130,12 @@ public final class ChatPresenter implements
                                 e -> LogUtil.e(getClass(), e.toString()));
 
         this.subscriptions.add(sub);
+    }
+
+    private void handleImageClicked(final String filename) {
+        final Intent intent = new Intent(this.activity, FullscreenImageActivity.class)
+                .putExtra(FullscreenImageActivity.FILENAME, filename);
+        this.activity.startActivity(intent);
     }
 
     private void updatePaymentRequestState(

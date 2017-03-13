@@ -30,6 +30,7 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
     private OnItemClickListener<SofaMessage> onPaymentRequestApproveListener;
     private OnItemClickListener<SofaMessage> onPaymentRequestRejectListener;
     private OnItemClickListener<String> onUsernameClickListener;
+    private OnItemClickListener<String> onImageClickListener;
 
     public MessageAdapter() {
         this.sofaMessages = new ArrayList<>();
@@ -48,6 +49,11 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public final MessageAdapter addOnUsernameClickListener(final OnItemClickListener<String> listener) {
         this.onUsernameClickListener = listener;
+        return this;
+    }
+
+    public final MessageAdapter addOnImageClickListener(final OnItemClickListener<String> listener) {
+        this.onImageClickListener = listener;
         return this;
     }
 
@@ -152,6 +158,7 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
                         .setSentByLocal(sofaMessage.isSentByLocal())
                         .setSendState(sofaMessage.getSendState())
                         .setAttachmentFilename(sofaMessage.getAttachmentFilename())
+                        .setClickableImage(this.onImageClickListener, sofaMessage.getAttachmentFilename())
                         .draw()
                         .setClickableUsernames(this.onUsernameClickListener);
                 break;

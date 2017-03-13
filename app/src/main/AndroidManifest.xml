@@ -54,6 +54,7 @@
         <activity android:name="com.tokenbrowser.view.activity.BackupPhraseActivity" />
         <activity android:name="com.tokenbrowser.view.activity.BackupPhraseVerifyActivity" />
         <activity android:name="com.tokenbrowser.view.activity.DepositActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.FullscreenImageActivity"/>
 
         <meta-data
             android:name="io.fabric.ApiKey"
