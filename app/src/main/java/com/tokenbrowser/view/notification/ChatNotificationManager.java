@@ -77,14 +77,17 @@ public class ChatNotificationManager {
             return;
         }
 
+        final int blinkRate = 1000 * 5;
+        final int notificationColor = ContextCompat.getColor(BaseApplication.get(), R.color.colorPrimary);
         final Uri notificationSound = Uri.parse("android.resource://" + BaseApplication.get().getPackageName() + "/" + R.raw.notification);
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(BaseApplication.get())
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(title)
                 .setContentText(content)
                 .setAutoCancel(true)
-                .setColor(ContextCompat.getColor(BaseApplication.get(), R.color.colorPrimary))
+                .setColor(notificationColor)
                 .setSound(notificationSound)
+                .setLights(notificationColor, blinkRate, 1)
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
 
         final NotificationCompat.BigTextStyle bigTextBuilder = new NotificationCompat.BigTextStyle(builder);
