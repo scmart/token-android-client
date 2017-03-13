@@ -27,7 +27,7 @@ import okio.Source;
 
 public class FileUtil {
 
-    public static final int MAX_SIZE = 1048576;
+    public static final int MAX_SIZE = 1024 * 1024;
 
     public OutgoingAttachment saveFileFromUri(final Context context, final Uri uri) throws IOException {
         final InputStream inputStream = BaseApplication.get().getContentResolver().openInputStream(uri);
@@ -81,7 +81,7 @@ public class FileUtil {
     }
 
     public void compressImage(final long maxSize, final File file) throws FileNotFoundException {
-        if (file.length() < maxSize) {
+        if (file.length() <= maxSize) {
             return;
         }
 

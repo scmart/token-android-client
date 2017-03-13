@@ -531,11 +531,6 @@ public final class ChatPresenter implements
     private void initChatMessageStore(final User remoteUser) {
         ChatNotificationManager.suppressNotificationsForConversation(remoteUser.getTokenId());
 
-        if (this.chatObservables != null) {
-            // Don't double subscribe
-            return;
-        }
-
         this.chatObservables =
                 BaseApplication
                 .get()
