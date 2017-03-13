@@ -42,9 +42,12 @@ public class TransactionManager {
     private PendingTransactionStore pendingTransactionStore;
     private SofaAdapters adapters;
 
+    /*package */ TransactionManager() {
+        initDatabase();
+    }
+
     public TransactionManager init(final HDWallet wallet) {
         this.wallet = wallet;
-        initDatabase();
         new Thread(this::initEverything).start();
         return this;
     }
