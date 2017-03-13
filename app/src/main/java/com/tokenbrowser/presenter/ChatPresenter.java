@@ -49,6 +49,7 @@ import com.tokenbrowser.view.Animation.SlideUpAnimator;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.AmountActivity;
 import com.tokenbrowser.view.activity.ChatActivity;
+import com.tokenbrowser.view.activity.FullscreenImageActivity;
 import com.tokenbrowser.view.activity.ViewUserActivity;
 import com.tokenbrowser.view.adapter.MessageAdapter;
 import com.tokenbrowser.view.custom.SpeedyLinearLayoutManager;
@@ -57,6 +58,7 @@ import com.tokenbrowser.view.fragment.DialogFragment.RateDialog;
 import com.tokenbrowser.view.notification.ChatNotificationManager;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -111,7 +113,8 @@ public final class ChatPresenter implements
         this.messageAdapter = new MessageAdapter()
                 .addOnPaymentRequestApproveListener(message -> updatePaymentRequestState(message, PaymentRequest.ACCEPTED))
                 .addOnPaymentRequestRejectListener(message -> updatePaymentRequestState(message, PaymentRequest.REJECTED))
-                .addOnUsernameClickListener(this::searchForUsername);
+                .addOnUsernameClickListener(this::searchForUsername)
+                .addOnImageClickListener(this::handleImageClicked);
     }
 
     private void searchForUsername(final String username) {
@@ -127,6 +130,12 @@ public final class ChatPresenter implements
                                 e -> LogUtil.e(getClass(), e.toString()));
 
         this.subscriptions.add(sub);
+    }
+
+    private void handleImageClicked(final String filename) {
+        final Intent intent = new Intent(this.activity, FullscreenImageActivity.class)
+                .putExtra(FullscreenImageActivity.FILENAME, filename);
+        this.activity.startActivity(intent);
     }
 
     private void updatePaymentRequestState(
@@ -522,11 +531,6 @@ public final class ChatPresenter implements
     private void initChatMessageStore(final User remoteUser) {
         ChatNotificationManager.suppressNotificationsForConversation(remoteUser.getTokenId());
 
-        if (this.chatObservables != null) {
-            // Don't double subscribe
-            return;
-        }
-
         this.chatObservables =
                 BaseApplication
                 .get()
@@ -669,7 +673,11 @@ public final class ChatPresenter implements
                 LogUtil.e(getClass(), "Error during image saving " + e.getMessage());
             }
         } else if (resultHolder.getRequestCode() == CAPTURE_IMAGE && resultHolder.getResultCode() == Activity.RESULT_OK) {
-            handleCameraImage();
+            try {
+                handleCameraImage();
+            } catch (FileNotFoundException e) {
+                LogUtil.e(getClass(), "Error during sending camera image " + e.getMessage());
+            }
         }
     }
 
@@ -688,18 +696,21 @@ public final class ChatPresenter implements
 
     private void handleGalleryImage(final ActivityResultHolder resultHolder) throws IOException {
         final Uri uri = resultHolder.getIntent().getData();
-        final OutgoingAttachment attachment = new FileUtil().saveFileFromUri(this.activity, uri);
-
+        final FileUtil fileUtil = new FileUtil();
+        final OutgoingAttachment attachment = fileUtil.saveFileFromUri(this.activity, uri);
+        fileUtil.compressImage(FileUtil.MAX_SIZE, attachment.getOutgoingAttachment());
         sendMediaMessage(attachment);
     }
 
-    private void handleCameraImage() {
+    private void handleCameraImage() throws FileNotFoundException {
         final File file = new File(this.activity.getFilesDir(), this.captureImageFilename);
-        final String mimeType = new FileUtil().getMimeTypeFromFilename(file.getName());
+        final FileUtil fileUtil = new FileUtil();
+        final String mimeType = fileUtil.getMimeTypeFromFilename(file.getName());
         final OutgoingAttachment attachment = new OutgoingAttachment()
                 .setOutgoingAttachment(file)
                 .setMimeType(mimeType);
 
+        fileUtil.compressImage(FileUtil.MAX_SIZE, file);
         sendMediaMessage(attachment);
     }
 

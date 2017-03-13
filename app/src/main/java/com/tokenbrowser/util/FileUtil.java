@@ -1,6 +1,8 @@
 package com.tokenbrowser.util;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.webkit.MimeTypeMap;
 
@@ -12,8 +14,11 @@ import org.whispersystems.signalservice.api.SignalServiceMessageReceiver;
 import org.whispersystems.signalservice.api.messages.SignalServiceAttachmentPointer;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.UUID;
 
 import okio.BufferedSink;
@@ -21,6 +26,8 @@ import okio.Okio;
 import okio.Source;
 
 public class FileUtil {
+
+    public static final int MAX_SIZE = 1024 * 1024;
 
     public OutgoingAttachment saveFileFromUri(final Context context, final Uri uri) throws IOException {
         final InputStream inputStream = BaseApplication.get().getContentResolver().openInputStream(uri);
@@ -71,5 +78,16 @@ public class FileUtil {
     public String getMimeTypeFromFilename(final String filename) {
         final String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filename);
         return  MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+    }
+
+    public void compressImage(final long maxSize, final File file) throws FileNotFoundException {
+        if (file.length() <= maxSize) {
+            return;
+        }
+
+        final int compressPercentage = (int)(((double)maxSize / file.length()) * 100);
+        final Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+        final OutputStream outputStream = new FileOutputStream(file);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, compressPercentage, outputStream);
     }
 }
