@@ -5,7 +5,6 @@ import com.tokenbrowser.crypto.util.TypeConverter;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
 public class EthUtil {
@@ -14,14 +13,18 @@ public class EthUtil {
     private static final DecimalFormat formatting = new DecimalFormat("#0.##########");
 
 
-    public static String valueToEthString(final String hexEncodedWei) {
+    public static String hexAmountToUserVisibleString(final String hexEncodedWei) {
         final BigInteger wei = TypeConverter.StringHexToBigInteger(hexEncodedWei);
-        return weiToEthString(wei);
+        return weiAmountToUserVisibleString(wei);
     }
 
-    public static String weiToEthString(final BigInteger wei) {
+    public static String weiAmountToUserVisibleString(final BigInteger wei) {
         final BigDecimal eth = weiToEth(wei);
-        return ethToEthString(eth);
+        return ethAmountToUserVisibleString(eth);
+    }
+
+    public static String ethAmountToUserVisibleString(final BigDecimal eth) {
+        return String.format(LocaleUtil.getLocale(), "%.4f", eth.setScale(4, BigDecimal.ROUND_DOWN));
     }
 
     public static BigDecimal weiToEth(final BigInteger wei) {
@@ -33,10 +36,5 @@ public class EthUtil {
 
     public static BigInteger ethToWei(final BigDecimal amountInEth) {
         return amountInEth.multiply(weiToEthRatio).toBigInteger();
-    }
-
-    public static String ethToEthString(final BigDecimal eth) {
-        formatting.setRoundingMode(RoundingMode.FLOOR);
-        return formatting.format(eth);
     }
 }

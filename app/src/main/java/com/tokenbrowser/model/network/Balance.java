@@ -38,6 +38,6 @@ public class Balance {
 
     public String getFormattedUnconfirmedBalance() {
         final BigDecimal unconfirmedEthBalance = EthUtil.weiToEth(getUnconfirmedBalance());
-        return BaseApplication.get().getString(R.string.eth_balance, EthUtil.ethToEthString(unconfirmedEthBalance));
+        return BaseApplication.get().getString(R.string.eth_balance, EthUtil.ethAmountToUserVisibleString(unconfirmedEthBalance));
     }
 }

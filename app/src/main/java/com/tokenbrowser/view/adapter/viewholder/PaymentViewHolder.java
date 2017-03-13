@@ -114,7 +114,7 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
 
     private String getFormattedEthAmount() {
         final BigInteger weiAmount = TypeConverter.StringHexToBigInteger(this.payment.getValue());
-        final String ethAmount = EthUtil.weiToEthString(weiAmount);
+        final String ethAmount = EthUtil.weiAmountToUserVisibleString(weiAmount);
         return String.format(
                 BaseApplication.get().getResources().getString(R.string.eth_amount),
                 ethAmount);

@@ -13,14 +13,14 @@ public class EthUtilTest {
     @Test
     public void weiToEthStringCalledWithNullReturnsZero() {
         final String expected = "0";
-        assertThat(EthUtil.weiToEthString(null), is(expected));
+        assertThat(EthUtil.weiAmountToUserVisibleString(null), is(expected));
     }
 
     @Test
     public void weiToEthStringCalledWithZeroWeiReturnsCorrectly() {
         final BigInteger zeroWei = BigInteger.ZERO;
         final String expected = "0";
-        assertThat(EthUtil.weiToEthString(zeroWei), is(expected));
+        assertThat(EthUtil.weiAmountToUserVisibleString(zeroWei), is(expected));
     }
 
     @Test
@@ -28,21 +28,21 @@ public class EthUtilTest {
         // Output is limit to 10dp
         final BigInteger oneWei = BigInteger.ONE;
         final String expected = "0";
-        assertThat(EthUtil.weiToEthString(oneWei), is(expected));
+        assertThat(EthUtil.weiAmountToUserVisibleString(oneWei), is(expected));
     }
 
     @Test
     public void weiToEthStringCalledWithOneEthReturnsCorrectly() {
         final BigInteger oneWei = new BigInteger("1000000000000000000");
         final String expected = "1";
-        assertThat(EthUtil.weiToEthString(oneWei), is(expected));
+        assertThat(EthUtil.weiAmountToUserVisibleString(oneWei), is(expected));
     }
 
     @Test
     public void weiToEthStringRoundsDown() {
         final BigInteger oneWei = new BigInteger("1555555555555555555");
         final String expected = "1.5555555555";
-        assertThat(EthUtil.weiToEthString(oneWei), is(expected));
+        assertThat(EthUtil.weiAmountToUserVisibleString(oneWei), is(expected));
     }
 
     @Test(expected = NullPointerException.class)
