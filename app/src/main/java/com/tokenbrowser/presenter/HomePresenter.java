@@ -104,7 +104,13 @@ public class HomePresenter implements Presenter<HomeFragment> {
         }
 
         this.fragment.getBinding().balanceEth.setText(this.balance.getFormattedUnconfirmedBalance());
-        this.fragment.getBinding().balanceUsd.setText(this.balance.getFormattedLocalBalance());
+
+        final Subscription getLocalBalanceSub =
+                this.balance
+                .getFormattedLocalBalance()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(localBalance -> this.fragment.getBinding().balanceUsd.setText(localBalance))
+        this.subscriptions.add(getLocalBalanceSub);
     }
 
     private void getFeaturedApps() {

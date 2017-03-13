@@ -9,7 +9,6 @@ import com.tokenbrowser.model.network.Balance;
 import com.tokenbrowser.model.network.GcmRegistration;
 import com.tokenbrowser.model.network.MarketRates;
 import com.tokenbrowser.model.network.ServerTime;
-import com.tokenbrowser.util.EthUtil;
 import com.tokenbrowser.util.LocaleUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.BaseApplication;
@@ -68,13 +67,7 @@ public class BalanceManager {
 
     private void handleNewBalance(final Balance balance) {
         this.balance = balance;
-        final BigDecimal ethAmount = EthUtil.weiToEth(this.balance.getUnconfirmedBalance());
-
-        convertEthToLocalCurrencyString(ethAmount)
-        .subscribe((newBalance) -> {
-            this.balance.setFormattedLocalBalance(newBalance);
-            balanceObservable.onNext(balance);
-        });
+        balanceObservable.onNext(this.balance);
     }
 
     private void handleError(final Throwable throwable) {

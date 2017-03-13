@@ -1,14 +1,17 @@
 package com.tokenbrowser.model.network;
 
 
-import com.tokenbrowser.token.R;
+import com.squareup.moshi.Json;
 import com.tokenbrowser.crypto.util.TypeConverter;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.EthUtil;
 import com.tokenbrowser.view.BaseApplication;
-import com.squareup.moshi.Json;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import rx.Single;
+import rx.schedulers.Schedulers;
 
 public class Balance {
 
@@ -28,12 +31,17 @@ public class Balance {
     }
 
 
-    public String getFormattedLocalBalance() {
-        return localBalance;
-    }
+    public Single<String> getFormattedLocalBalance() {
+        if (this.localBalance != null) {
+            return Single.just(this.localBalance);
+        }
 
-    public void setFormattedLocalBalance(final String localBalance) {
-        this.localBalance = localBalance;
+        return BaseApplication
+                .get()
+                .getTokenManager()
+                .getBalanceManager()
+                .convertEthToLocalCurrencyString(EthUtil.weiToEth(getUnconfirmedBalance()))
+                .subscribeOn(Schedulers.io());
     }
 
     public String getFormattedUnconfirmedBalance() {
