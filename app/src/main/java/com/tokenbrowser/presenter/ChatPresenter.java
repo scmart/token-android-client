@@ -57,6 +57,7 @@ import com.tokenbrowser.view.fragment.DialogFragment.RateDialog;
 import com.tokenbrowser.view.notification.ChatNotificationManager;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -669,7 +670,11 @@ public final class ChatPresenter implements
                 LogUtil.e(getClass(), "Error during image saving " + e.getMessage());
             }
         } else if (resultHolder.getRequestCode() == CAPTURE_IMAGE && resultHolder.getResultCode() == Activity.RESULT_OK) {
-            handleCameraImage();
+            try {
+                handleCameraImage();
+            } catch (FileNotFoundException e) {
+                LogUtil.e(getClass(), "Error during sending camera image " + e.getMessage());
+            }
         }
     }
 
@@ -688,18 +693,21 @@ public final class ChatPresenter implements
 
     private void handleGalleryImage(final ActivityResultHolder resultHolder) throws IOException {
         final Uri uri = resultHolder.getIntent().getData();
-        final OutgoingAttachment attachment = new FileUtil().saveFileFromUri(this.activity, uri);
-
+        final FileUtil fileUtil = new FileUtil();
+        final OutgoingAttachment attachment = fileUtil.saveFileFromUri(this.activity, uri);
+        fileUtil.compressImage(FileUtil.MAX_SIZE, attachment.getOutgoingAttachment());
         sendMediaMessage(attachment);
     }
 
-    private void handleCameraImage() {
+    private void handleCameraImage() throws FileNotFoundException {
         final File file = new File(this.activity.getFilesDir(), this.captureImageFilename);
-        final String mimeType = new FileUtil().getMimeTypeFromFilename(file.getName());
+        final FileUtil fileUtil = new FileUtil();
+        final String mimeType = fileUtil.getMimeTypeFromFilename(file.getName());
         final OutgoingAttachment attachment = new OutgoingAttachment()
                 .setOutgoingAttachment(file)
                 .setMimeType(mimeType);
 
+        fileUtil.compressImage(FileUtil.MAX_SIZE, file);
         sendMediaMessage(attachment);
     }
 
