@@ -75,7 +75,7 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
             this.remoteWrapper.setVisibility(View.GONE);
             this.localContainer.setVisibility(View.VISIBLE);
             this.sentStatusMessage.setVisibility(View.GONE);
-            this.localText.setText(text);
+            showText(this.localText);
             loadImage(this.localImage);
 
             if (this.sendState == SendState.STATE_FAILED || this.sendState == SendState.STATE_PENDING) {
@@ -85,19 +85,12 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
                         : R.string.error__message_pending);
             }
 
-            if (this.text == null) {
-                this.localText.setVisibility(View.GONE);
-            }
-
         } else {
             this.localContainer.setVisibility(View.GONE);
             this.remoteWrapper.setVisibility(View.VISIBLE);
             this.remoteText.setText(text);
+            showText(this.remoteText);
             loadImage(this.remoteImage);
-
-            if (this.text == null) {
-                this.remoteText.setVisibility(View.GONE);
-            }
         }
 
         return this;
@@ -105,7 +98,16 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
 
     private void loadImage(final ImageView imageView) {
         if (this.attachmentFilename != null) {
-            imageView.setVisibility(View.VISIBLE);
+            if (this.sentByLocal) {
+                this.remoteImage.setVisibility(View.GONE);
+                this.localImage.setVisibility(View.VISIBLE);
+            } else {
+                this.localImage.setVisibility(View.GONE);
+                this.remoteImage.setVisibility(View.VISIBLE);
+            }
+
+            this.remoteText.setVisibility(View.GONE);
+            this.localText.setVisibility(View.GONE);
 
             final String path = BaseApplication.get().getFilesDir() + "/" + this.attachmentFilename;
             final File imageFile = new File(path);
@@ -118,6 +120,11 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
         }
 
         this.attachmentFilename = null;
+    }
+
+    private void showText(final TextView tv) {
+        tv.setVisibility(View.VISIBLE);
+        tv.setText(text);
     }
 
     public TextViewHolder setClickableImage(final OnItemClickListener<String> listener, final String filename) {
