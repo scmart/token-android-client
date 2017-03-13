@@ -56,7 +56,9 @@ public class BalanceBar extends LinearLayout {
         showBalanceInUi(BigInteger.ZERO);
     }
 
-    public void onViewAttached() {
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
         this.subscriptions = new CompositeSubscription();
         attachBalanceSubscriber();
     }
@@ -111,9 +113,11 @@ public class BalanceBar extends LinearLayout {
         ((TextView) findViewById(R.id.local_currency_balance)).setText(localBalance);
     }
 
-    public void onViewDetached() {
+    @Override
+    public void onDetachedFromWindow() {
         this.subscriptions.clear();
         this.subscriptions = null;
+        super.onDetachedFromWindow();
     }
 
 }

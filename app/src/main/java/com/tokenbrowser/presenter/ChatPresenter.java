@@ -101,7 +101,6 @@ public final class ChatPresenter implements
             initLongLivingObjects();
         }
         initShortLivingObjects();
-        this.activity.getBinding().balanceBar.onViewAttached();
     }
 
     private void initLongLivingObjects() {
@@ -810,7 +809,6 @@ public final class ChatPresenter implements
         }
         this.lastVisibleMessagePosition = this.layoutManager.findLastVisibleItemPosition();
         this.subscriptions.clear();
-        this.activity.getBinding().balanceBar.onViewDetached();
         this.activity = null;
     }
 
