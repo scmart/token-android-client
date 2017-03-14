@@ -136,4 +136,7 @@
     <string name="select_picture">Select Picture</string>
     <string name="capture_image">Capture image</string>
     <string name="gallery">Gallery</string>
+    <string name="edit_profile_photo">Edit profile photo</string>
+    <string name="profile_image_success">Profile photo successfully set</string>
+    <string name="profile_image_error">Could not upload photo</string>
 </resources>

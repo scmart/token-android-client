@@ -30,6 +30,7 @@ import com.tokenbrowser.view.fragment.children.EditProfileFragment;
 import java.io.File;
 import java.io.IOException;
 
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -41,7 +42,6 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     private static final int CAMERA_PERMISSION = 5;
     private static final String INTENT_TYPE = "image/*";
 
-    private OnNextSubscriber<User> handleUserLoaded;
     private EditProfileFragment fragment;
     private CompositeSubscription subscriptions;
     private boolean firstTimeAttaching = true;
@@ -49,7 +49,7 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     private String userNameFieldContents;
     private String aboutFieldContents;
     private String locationFieldContents;
-    private String captureImageFilename;
+    private String cameraImagePath;
 
     @Override
     public void onViewAttached(final EditProfileFragment fragment) {
@@ -166,7 +166,7 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
             File photoFile = null;
             try {
                 photoFile = new FileUtil().createImageFileWithRandomName(this.fragment.getContext());
-                this.captureImageFilename = photoFile.getName();
+                this.cameraImagePath = photoFile.getAbsolutePath();
             } catch (IOException e) {
                 LogUtil.e(getClass(), "Error during creating image file " + e.getMessage());
             }
@@ -258,12 +258,64 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
         }
 
         if (resultHolder.getRequestCode() == PICK_IMAGE) {
-            //Upload image
+            try {
+                handleGalleryImage(resultHolder);
+            } catch (IOException e) {
+                LogUtil.e(getClass(), "Error during uploading gallery image");
+                showFailureMessage();
+                return false;
+            }
         } else if (resultHolder.getRequestCode() == CAPTURE_IMAGE) {
-            //Upload image
+            handleCameraImage();
         }
 
         return true;
+    }
+
+    private void handleGalleryImage(final ActivityResultHolder resultHolder) throws IOException {
+        final Uri uri = resultHolder.getIntent().getData();
+        final FileUtil fileUtil = new FileUtil();
+        final File file = fileUtil.saveFileFromUri(this.fragment.getContext(), uri);
+        uploadAvatar(file);
+    }
+
+    private void handleCameraImage() {
+        final File cameraImage = new File(this.cameraImagePath);
+        uploadAvatar(cameraImage);
+    }
+
+    private void uploadAvatar(final File file) {
+        if (file == null) return;
+        if (!file.exists()) return;
+
+        final Subscription sub = BaseApplication.get()
+                .getTokenManager()
+                .getUserManager()
+                .uploadAvatar(file)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSuccess(unused -> tryDeleteCachedFile(file))
+                .doOnError(unused -> tryDeleteCachedFile(file))
+                .subscribe(
+                        this::handleUploadSuccess,
+                        unused -> showFailureMessage()
+                );
+
+        this.subscriptions.add(sub);
+    }
+
+    private void handleUploadSuccess(final User user) {
+        if (this.fragment == null) return;
+        Toast.makeText(this.fragment.getContext(), this.fragment.getString(R.string.profile_image_success), Toast.LENGTH_SHORT).show();
+    }
+
+    private void tryDeleteCachedFile(final File file) {
+        if (!file.exists()) return;
+        file.delete();
+    }
+
+    private void showFailureMessage() {
+        if (this.fragment == null) return;
+        Toast.makeText(this.fragment.getContext(), this.fragment.getString(R.string.profile_image_error), Toast.LENGTH_SHORT).show();
     }
 
     public boolean handlePermissionResult(final PermissionResultHolder permissionResultHolder) {
