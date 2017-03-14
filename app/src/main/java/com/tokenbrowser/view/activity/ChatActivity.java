@@ -30,6 +30,12 @@ public final class ChatActivity extends BasePresenterActivity<ChatPresenter, Cha
         init();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        tryProcessResultHolder();
+    }
+
     private void init() {
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_chat);
     }
@@ -61,8 +67,9 @@ public final class ChatActivity extends BasePresenterActivity<ChatPresenter, Cha
             return;
         }
 
-        this.presenter.handleActivityResult(this.resultHolder);
-        this.resultHolder = null;
+        if (this.presenter.handleActivityResult(this.resultHolder)) {
+            this.resultHolder = null;
+        }
     }
 
     @Override
