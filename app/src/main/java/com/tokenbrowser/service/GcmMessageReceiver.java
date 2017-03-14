@@ -126,7 +126,6 @@ public class GcmMessageReceiver extends GcmListenerService {
     }
 
     private void renderNotificationForPayment(final Payment payment) {
-        final String title = this.getString(R.string.payment_received);
         final BigInteger weiAmount = TypeConverter.StringHexToBigInteger(payment.getValue());
         final BigDecimal ethAmount = EthUtil.weiToEth(weiAmount);
         BaseApplication
@@ -141,7 +140,7 @@ public class GcmMessageReceiver extends GcmListenerService {
                             .getTokenManager()
                             .getUserManager()
                             .getUserFromPaymentAddress(payment.getFromAddress())
-                            .subscribe((sender) -> ChatNotificationManager.showNotification(title, content, sender.getTokenId()));
+                            .subscribe((sender) -> ChatNotificationManager.showChatNotification(sender, content));
                 });
     }
 }

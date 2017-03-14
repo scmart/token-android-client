@@ -93,4 +93,18 @@ public class User extends RealmObject {
     public int getReviewCount() {
         return review_count;
     }
+
+    @Override
+    public boolean equals(Object other){
+        if (other == null) return false;
+        if (other == this) return true;
+        if (!(other instanceof User)) return false;
+        final User otherUser = (User) other;
+        return otherUser.getTokenId().equals(this.getTokenId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getTokenId().hashCode();
+    }
 }

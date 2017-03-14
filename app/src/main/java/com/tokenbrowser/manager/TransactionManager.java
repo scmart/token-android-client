@@ -182,12 +182,11 @@ public class TransactionManager {
                     }
 
                     private void showPaymentFailedNotification(final User receiver) {
-                        final String title = BaseApplication.get().getString(R.string.payment_failed);
                         final String content = String.format(
                                 LocaleUtil.getLocale(),
                                 BaseApplication.get().getString(R.string.payment_failed_message),
                                 receiver.getDisplayName());
-                        ChatNotificationManager.showNotification(title, content, receiver.getTokenId());
+                        ChatNotificationManager.showChatNotification(receiver, content);
                     }
 
                     @Override
