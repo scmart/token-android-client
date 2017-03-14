@@ -6,15 +6,13 @@ import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.tokenbrowser.model.local.SendState;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
+import com.tokenbrowser.view.custom.RoundCornersImageView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,10 +26,8 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
     private TextView localText;
     private TextView remoteText;
     private TextView sentStatusMessage;
-    private ImageView localImage;
-    private ImageView remoteImage;
-    private LinearLayout localWrapper;
-    private LinearLayout remoteWrapper;
+    private RoundCornersImageView localImage;
+    private RoundCornersImageView remoteImage;
 
     private String text;
     private boolean sentByLocal;
@@ -44,10 +40,8 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
         this.localText = (TextView) v.findViewById(R.id.local_message);
         this.remoteText = (TextView) v.findViewById(R.id.remote_message);
         this.sentStatusMessage = (TextView) v.findViewById(R.id.sent_status_message);
-        this.localImage = (ImageView) v.findViewById(R.id.local_image);
-        this.remoteImage = (ImageView) v.findViewById(R.id.remote_image);
-        this.localWrapper = (LinearLayout) v.findViewById(R.id.local_wrapper);
-        this.remoteWrapper = (LinearLayout) v.findViewById(R.id.remote_wrapper);
+        this.localImage = (RoundCornersImageView) v.findViewById(R.id.local_image);
+        this.remoteImage = (RoundCornersImageView) v.findViewById(R.id.remote_image);
     }
 
     public TextViewHolder setText(final String text) {
@@ -72,59 +66,83 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
 
     public TextViewHolder draw() {
         if (this.sentByLocal) {
-            this.remoteWrapper.setVisibility(View.GONE);
-            this.localContainer.setVisibility(View.VISIBLE);
-            this.sentStatusMessage.setVisibility(View.GONE);
-            showText(this.localText);
-            loadImage(this.localImage);
+            hideRemoteView();
 
-            if (this.sendState == SendState.STATE_FAILED || this.sendState == SendState.STATE_PENDING) {
-                this.sentStatusMessage.setVisibility(View.VISIBLE);
-                this.sentStatusMessage.setText(this.sendState == SendState.STATE_FAILED
-                        ? R.string.error__message_failed
-                        : R.string.error__message_pending);
+            if (this.attachmentFilename == null) {
+                showText(this.localText);
+                hideImageViews();
+            } else {
+                showImage(this.localImage);
+                hideTextViews();
             }
 
+            setSendState();
+
         } else {
-            this.localContainer.setVisibility(View.GONE);
-            this.remoteWrapper.setVisibility(View.VISIBLE);
-            this.remoteText.setText(text);
-            showText(this.remoteText);
-            loadImage(this.remoteImage);
+            hideLocalView();
+            if (this.attachmentFilename == null) {
+                showText(this.remoteText);
+                hideImageViews();
+            } else {
+                showImage(this.remoteImage);
+                hideTextViews();
+            }
         }
 
         return this;
     }
 
-    private void loadImage(final ImageView imageView) {
-        if (this.attachmentFilename != null) {
-            if (this.sentByLocal) {
-                this.remoteImage.setVisibility(View.GONE);
-                this.localImage.setVisibility(View.VISIBLE);
-            } else {
-                this.localImage.setVisibility(View.GONE);
-                this.remoteImage.setVisibility(View.VISIBLE);
-            }
+    private void hideRemoteView() {
+        this.remoteText.setVisibility(View.GONE);
+    }
 
-            this.remoteText.setVisibility(View.GONE);
-            this.localText.setVisibility(View.GONE);
+    private void hideLocalView() {
+        this.localContainer.setVisibility(View.GONE);
+    }
 
-            final String path = BaseApplication.get().getFilesDir() + "/" + this.attachmentFilename;
-            final File imageFile = new File(path);
-
-            Glide.with(this.itemView.getContext())
-                    .load(imageFile)
-                    .into(imageView);
-        } else {
-            imageView.setVisibility(View.GONE);
+    private void showText(final TextView tv) {
+        if (this.sentByLocal) {
+            this.localContainer.setVisibility(View.VISIBLE);
+            this.sentStatusMessage.setVisibility(View.GONE);
         }
+
+        tv.setVisibility(View.VISIBLE);
+        tv.setText(this.text);
+    }
+
+    private void hideImageViews() {
+        this.remoteImage.setVisibility(View.GONE);
+        this.localImage.setVisibility(View.GONE);
+    }
+
+    private void hideTextViews() {
+        this.localText.setVisibility(View.GONE);
+        this.remoteText.setVisibility(View.GONE);
+    }
+
+    private void showImage(final RoundCornersImageView imageView) {
+        if (this.sentByLocal) {
+            this.remoteImage.setVisibility(View.GONE);
+            this.localImage.setVisibility(View.VISIBLE);
+        } else {
+            this.localImage.setVisibility(View.GONE);
+            this.remoteImage.setVisibility(View.VISIBLE);
+        }
+
+        final String path = BaseApplication.get().getFilesDir() + "/" + this.attachmentFilename;
+        final File imageFile = new File(path);
+        imageView.setImage(imageFile);
 
         this.attachmentFilename = null;
     }
 
-    private void showText(final TextView tv) {
-        tv.setVisibility(View.VISIBLE);
-        tv.setText(text);
+    private void setSendState() {
+        if (this.sendState == SendState.STATE_FAILED || this.sendState == SendState.STATE_PENDING) {
+            this.sentStatusMessage.setVisibility(View.VISIBLE);
+            this.sentStatusMessage.setText(this.sendState == SendState.STATE_FAILED
+                    ? R.string.error__message_failed
+                    : R.string.error__message_pending);
+        }
     }
 
     public TextViewHolder setClickableImage(final OnItemClickListener<String> listener, final String filename) {

@@ -31,4 +31,6 @@
 
     <dimen name="backup_phrase_spacing">10dp</dimen>
     <dimen name="spinner">50dp</dimen>
+
+    <dimen name="image_frame_padding">16dp</dimen>
 </resources>
