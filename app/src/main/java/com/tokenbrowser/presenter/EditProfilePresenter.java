@@ -12,6 +12,8 @@ import android.support.v4.content.FileProvider;
 import android.view.View;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.model.local.PermissionResultHolder;
 import com.tokenbrowser.model.local.User;
@@ -20,7 +22,6 @@ import com.tokenbrowser.token.BuildConfig;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.FileUtil;
 import com.tokenbrowser.util.LogUtil;
-import com.tokenbrowser.util.OnNextSubscriber;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ProfileActivity;
@@ -49,6 +50,7 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     private String userNameFieldContents;
     private String aboutFieldContents;
     private String locationFieldContents;
+    private String avatarUrl;
     private String cameraImagePath;
 
     @Override
@@ -74,6 +76,7 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
         parentActivity.getBinding().saveButton.setVisibility(View.VISIBLE);
         parentActivity.getBinding().saveButton.setOnClickListener(this.handleSaveClicked);
         this.fragment.getBinding().avatar.setOnClickListener(this::handleAvatarClicked);
+        this.fragment.getBinding().editProfilePhoto.setOnClickListener(this::handleAvatarClicked);
     }
 
     private void updateView() {
@@ -81,6 +84,11 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
         this.fragment.getBinding().inputUsername.setText(this.userNameFieldContents);
         this.fragment.getBinding().inputAbout.setText(this.aboutFieldContents);
         this.fragment.getBinding().inputLocation.setText(this.locationFieldContents);
+        Glide.with(this.fragment.getContext())
+                .load(this.avatarUrl)
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .into(this.fragment.getBinding().avatar);
     }
 
     private final OnSingleClickListener handleSaveClicked = new OnSingleClickListener() {
@@ -195,31 +203,26 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     }
 
     private void attachListeners() {
-        generateUserLoadedHandler();
         this.subscriptions.add(BaseApplication.get()
                 .getTokenManager()
                 .getUserManager()
                 .getUserObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleUserLoaded));
+                .subscribe(this::handleUserLoaded));
     }
 
-    private void generateUserLoadedHandler() {
-        this.handleUserLoaded = new OnNextSubscriber<User>() {
-            @Override
-            public void onNext(final User user) {
-                setFieldsFromUser(user);
-                updateView();
-            }
+    private void handleUserLoaded(final User user) {
+        setFieldsFromUser(user);
+        updateView();
+    }
 
-            private void setFieldsFromUser(final User user) {
-                if (displayNameFieldContents == null) displayNameFieldContents = user.getDisplayName();
-                if (userNameFieldContents == null) userNameFieldContents = user.getUsernameForEditing();
-                if (aboutFieldContents == null) aboutFieldContents = user.getAbout();
-                if (locationFieldContents == null) locationFieldContents = user.getLocation();
-            }
-        };
+    private void setFieldsFromUser(final User user) {
+        if (this.displayNameFieldContents == null) this.displayNameFieldContents = user.getDisplayName();
+        if (this.userNameFieldContents == null) this.userNameFieldContents = user.getUsernameForEditing();
+        if (this.aboutFieldContents == null) this.aboutFieldContents = user.getAbout();
+        if (this.locationFieldContents == null) this.locationFieldContents = user.getLocation();
+        this.avatarUrl = user.getAvatar();
     }
 
     private void handleUserUpdated(final User updatedUser) {
@@ -241,7 +244,6 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
         saveFields();
         this.subscriptions.clear();
         this.fragment = null;
-        this.handleUserLoaded.unsubscribe();
     }
 
     private void saveFields() {
@@ -305,6 +307,7 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
 
     private void handleUploadSuccess(final User user) {
         if (this.fragment == null) return;
+        handleUserLoaded(user);
         Toast.makeText(this.fragment.getContext(), this.fragment.getString(R.string.profile_image_success), Toast.LENGTH_SHORT).show();
     }
 
