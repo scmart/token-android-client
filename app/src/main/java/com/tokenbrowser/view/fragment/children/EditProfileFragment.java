@@ -1,6 +1,7 @@
 package com.tokenbrowser.view.fragment.children;
 
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -9,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.tokenbrowser.model.local.ActivityResultHolder;
+import com.tokenbrowser.model.local.PermissionResultHolder;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.token.databinding.FragmentEditProfileBinding;
 import com.tokenbrowser.presenter.EditProfilePresenter;
@@ -19,6 +22,9 @@ import com.tokenbrowser.view.fragment.BasePresenterFragment;
 public class EditProfileFragment extends BasePresenterFragment<EditProfilePresenter, EditProfileFragment> {
 
     private FragmentEditProfileBinding binding;
+    private EditProfilePresenter presenter;
+    private ActivityResultHolder resultHolder;
+    private PermissionResultHolder permissionResultHolder;
 
     public static EditProfileFragment newInstance() {
         return new EditProfileFragment();
@@ -44,7 +50,52 @@ public class EditProfileFragment extends BasePresenterFragment<EditProfilePresen
     }
 
     @Override
-    protected void onPresenterPrepared(@NonNull final EditProfilePresenter presenter) {}
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        this.resultHolder = new ActivityResultHolder(requestCode, resultCode, data);
+        tryProcessResultHolder();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(final int requestCode,
+                                           @NonNull final String permissions[],
+                                           @NonNull final int[] grantResults) {
+        this.permissionResultHolder = new PermissionResultHolder(requestCode, permissions, grantResults);
+        tryProcessPermissionResultHolder();
+    }
+
+    private void tryProcessResultHolder() {
+        if (this.presenter == null || this.resultHolder == null) return;
+
+        if (this.presenter.handleActivityResult(this.resultHolder)) {
+            this.resultHolder = null;
+        }
+    }
+
+    private void tryProcessPermissionResultHolder() {
+        if (this.presenter == null || this.permissionResultHolder == null) return;
+
+        if (this.presenter.handlePermissionResult(this.permissionResultHolder)) {
+            this.permissionResultHolder = null;
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        tryProcessResultHolder();
+        tryProcessPermissionResultHolder();
+    }
+
+    @Override
+    protected void onPresenterPrepared(@NonNull final EditProfilePresenter presenter) {
+        this.presenter = presenter;
+    }
+
+    @Override
+    protected void onPresenterDestroyed() {
+        super.onPresenterDestroyed();
+        this.presenter = null;
+    }
 
     @Override
     protected int loaderId() {
