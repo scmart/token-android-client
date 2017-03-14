@@ -654,10 +654,9 @@ public final class ChatPresenter implements
         this.activity.getBinding().messagesList.scrollToPosition(this.messageAdapter.getItemCount() - 1);
     }
 
-    public void handleActivityResult(final ActivityResultHolder resultHolder) {
-        if (resultHolder.getResultCode() != Activity.RESULT_OK
-                || this.activity == null) {
-            return;
+    public boolean handleActivityResult(final ActivityResultHolder resultHolder) {
+        if (resultHolder.getResultCode() != Activity.RESULT_OK || this.activity == null) {
+            return false;
         }
 
         if (resultHolder.getRequestCode() == REQUEST_RESULT_CODE) {
@@ -671,14 +670,17 @@ public final class ChatPresenter implements
                 handleGalleryImage(resultHolder);
             } catch (IOException e) {
                 LogUtil.e(getClass(), "Error during image saving " + e.getMessage());
+                return false;
             }
         } else if (resultHolder.getRequestCode() == CAPTURE_IMAGE && resultHolder.getResultCode() == Activity.RESULT_OK) {
             try {
                 handleCameraImage();
             } catch (FileNotFoundException e) {
                 LogUtil.e(getClass(), "Error during sending camera image " + e.getMessage());
+                return false;
             }
         }
+        return true;
     }
 
     public void handlePermission(final int requestCode,
