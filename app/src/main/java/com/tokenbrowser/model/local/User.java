@@ -1,10 +1,8 @@
 package com.tokenbrowser.model.local;
 
 
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.manager.TokenManager;
-import com.tokenbrowser.view.BaseApplication;
 import com.squareup.moshi.Json;
+import com.tokenbrowser.manager.TokenManager;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -65,7 +63,7 @@ public class User extends RealmObject {
     public String getAvatar() {
         return customUserInfo == null
                 ? null
-                : String.format("%s%s", BaseApplication.get().getResources().getString(R.string.id_url), this.customUserInfo.getAvatar());
+                : this.customUserInfo.getAvatar();
     }
 
     public String getLocation() {
