@@ -139,4 +139,5 @@
     <string name="edit_profile_photo">Edit profile photo</string>
     <string name="profile_image_success">Profile photo successfully set</string>
     <string name="profile_image_error">Could not upload photo</string>
+    <string name="error__offline">No internet connection</string>
 </resources>
