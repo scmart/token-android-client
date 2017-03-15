@@ -76,6 +76,12 @@ public class ChatNotificationManager {
     public static void showChatNotification(
             final User sender,
             final String content) {
+
+        if (sender == null) {
+            // Most likely sent from outside of Token
+            return;
+        }
+
         if (sender.getTokenId() != null && sender.getTokenId().equals(currentlyOpenConversation)) {
             return;
         }
