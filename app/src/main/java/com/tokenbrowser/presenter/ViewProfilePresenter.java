@@ -59,6 +59,20 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
 
     private void attachButtonListeners() {
         this.fragment.getBinding().editProfileButton.setOnClickListener(this.editProfileClicked);
+
+        final Subscription sub =
+                BaseApplication.get()
+                .isConnectedSubject()
+                .subscribe(this::handleConnectionChanged);
+        this.subscriptions.add(sub);
+    }
+
+    private void handleConnectionChanged(final Boolean isConnected) {
+        if (this.fragment == null) {
+            return;
+        }
+        
+        this.fragment.getBinding().editProfileButton.setEnabled(isConnected);
     }
 
     private void updateView() {
