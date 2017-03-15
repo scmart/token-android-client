@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.webkit.MimeTypeMap;
 
-import com.tokenbrowser.model.sofa.OutgoingAttachment;
 import com.tokenbrowser.view.BaseApplication;
 
 import org.whispersystems.libsignal.InvalidMessageException;
@@ -29,18 +28,16 @@ public class FileUtil {
 
     public static final int MAX_SIZE = 1024 * 1024;
 
-    public OutgoingAttachment saveFileFromUri(final Context context, final Uri uri) throws IOException {
-        final InputStream inputStream = BaseApplication.get().getContentResolver().openInputStream(uri);
+    public File saveFileFromUri(final Context context, final Uri uri) throws IOException {
         final String mimeType = context.getContentResolver().getType(uri);
         final MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
         final String fileExtension = mimeTypeMap.getExtensionFromMimeType(mimeType);
         final String fileName = String.format("%s.%s", UUID.randomUUID().toString(), fileExtension);
         final File destFile = new File(BaseApplication.get().getFilesDir(), fileName);
-        final File file = writeToFileFromInputStream(destFile, inputStream);
-        return new OutgoingAttachment()
-                .setOutgoingAttachment(file)
-                .setMimeType(mimeType);
-
+        final InputStream inputStream = BaseApplication.get()
+                .getContentResolver()
+                .openInputStream(uri);
+        return writeToFileFromInputStream(destFile, inputStream);
     }
 
     private File writeToFileFromInputStream(final File file, final InputStream inputStream) throws IOException {

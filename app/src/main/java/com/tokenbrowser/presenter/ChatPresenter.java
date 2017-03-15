@@ -699,7 +699,11 @@ public final class ChatPresenter implements
     private void handleGalleryImage(final ActivityResultHolder resultHolder) throws IOException {
         final Uri uri = resultHolder.getIntent().getData();
         final FileUtil fileUtil = new FileUtil();
-        final OutgoingAttachment attachment = fileUtil.saveFileFromUri(this.activity, uri);
+        final File file = fileUtil.saveFileFromUri(this.activity, uri);
+        final String mimeType = fileUtil.getMimeTypeFromFilename(file.getName());
+        final OutgoingAttachment attachment = new OutgoingAttachment()
+                .setOutgoingAttachment(file)
+                .setMimeType(mimeType);
         fileUtil.compressImage(FileUtil.MAX_SIZE, attachment.getOutgoingAttachment());
         sendMediaMessage(attachment);
     }

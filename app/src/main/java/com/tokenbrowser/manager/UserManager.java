@@ -14,11 +14,16 @@ import com.tokenbrowser.model.network.ServerTime;
 import com.tokenbrowser.model.network.UserDetails;
 import com.tokenbrowser.model.network.UserSearchResults;
 import com.tokenbrowser.util.FileNames;
+import com.tokenbrowser.util.FileUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.BaseApplication;
 
+import java.io.File;
 import java.util.List;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
 import rx.Single;
@@ -28,6 +33,7 @@ import rx.subjects.BehaviorSubject;
 public class UserManager {
 
     private final static String USER_ID = "uid";
+    private final static String FORM_DATA_NAME = "Profile-Image-Upload";
 
     private final BehaviorSubject<User> userSubject = BehaviorSubject.create();
     private SharedPreferences prefs;
@@ -233,5 +239,22 @@ public class UserManager {
         return IdService
                 .getApi()
                 .getTimestamp();
+    }
+
+    public Single<User> uploadAvatar(final File file) {
+        final FileUtil fileUtil = new FileUtil();
+        final String mimeType = fileUtil.getMimeTypeFromFilename(file.getName());
+        final MediaType mediaType = MediaType.parse(mimeType);
+        final RequestBody requestFile = RequestBody.create(mediaType, file);
+        final MultipartBody.Part body = MultipartBody.Part.createFormData(FORM_DATA_NAME, file.getName(), requestFile);
+
+        return IdService
+                .getApi()
+                .getTimestamp()
+                .subscribeOn(Schedulers.io())
+                .flatMap(serverTime -> IdService
+                        .getApi()
+                        .uploadFile(body, serverTime.get()))
+                .doOnSuccess(this::cacheUser);
     }
 }

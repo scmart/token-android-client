@@ -6,11 +6,14 @@ import com.tokenbrowser.model.network.ServerTime;
 import com.tokenbrowser.model.network.UserDetails;
 import com.tokenbrowser.model.network.UserSearchResults;
 
+import okhttp3.MultipartBody;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 import rx.Single;
@@ -42,4 +45,10 @@ public interface IdInterface {
     @GET("/v1/login/{id}")
     Single<Void> webLogin(@Path("id") String loginToken,
                           @Query("timestamp") long timestamp);
+
+    @Multipart
+    @PUT("v1/user")
+    Single<User> uploadFile(@Part MultipartBody.Part file,
+                            @Query("timestamp") long timestamp);
 }
+

@@ -17,18 +17,33 @@
 
         <android.support.v4.widget.Space
             android:layout_width="0dp"
-            android:layout_height="16dp"/>
+            android:layout_height="30dp"/>
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/avatar"
-            android:layout_width="166dp"
-            android:layout_height="166dp"
+            android:layout_width="104dp"
+            android:layout_height="104dp"
             android:layout_gravity="center_horizontal"
             android:src="@mipmap/ic_launcher"/>
 
         <android.support.v4.widget.Space
             android:layout_width="0dp"
-            android:layout_height="32dp"/>
+            android:layout_height="15dp"/>
+
+        <TextView
+            android:id="@+id/edit_profile_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:textSize="14sp"
+            android:textColor="@color/colorPrimary"
+            android:text="@string/edit_profile_photo"/>
+
+        <android.support.v4.widget.Space
+            android:layout_width="0dp"
+            android:layout_height="27dp"/>
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
