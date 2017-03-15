@@ -25,12 +25,13 @@ import java.util.Map;
 public class ChatNotificationManager {
 
     private static String currentlyOpenConversation;
-    private static final Map<User, ChatNotification> activeNotifications = new HashMap<>();
+    private static final Map<String, ChatNotification> activeNotifications = new HashMap<>();
 
     public static void suppressNotificationsForConversation(final String conversationId) {
         currentlyOpenConversation = conversationId;
         final NotificationManager manager = (NotificationManager) BaseApplication.get().getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(conversationId, 1);
+        activeNotifications.remove(conversationId);
     }
 
     public static void stopNotificationSuppression() {
@@ -79,10 +80,10 @@ public class ChatNotificationManager {
             return;
         }
 
-        ChatNotification activeChatNotification = activeNotifications.get(sender);
+        ChatNotification activeChatNotification = activeNotifications.get(sender.getTokenId());
         if (activeChatNotification == null) {
             activeChatNotification = new ChatNotification(sender);
-            activeNotifications.put(sender, activeChatNotification);
+            activeNotifications.put(sender.getTokenId(), activeChatNotification);
         }
 
         activeChatNotification.addUnreadMessage(content);
@@ -120,7 +121,7 @@ public class ChatNotificationManager {
         }
 
         final NotificationManager manager = (NotificationManager) BaseApplication.get().getSystemService(Context.NOTIFICATION_SERVICE);
-        final String tag = "CHAT" + chatNotification.getTitle();
+        final String tag = chatNotification.getSender().getTokenId();
         manager.notify(tag, 1, builder.build());
     }
 
