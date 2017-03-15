@@ -8,7 +8,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.tokenbrowser.model.local.User;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.FileNames;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.view.BaseApplication;
@@ -19,7 +21,6 @@ import com.tokenbrowser.view.activity.TrustedFriendsActivity;
 import com.tokenbrowser.view.adapter.SettingsAdapter;
 import com.tokenbrowser.view.custom.RecyclerViewDivider;
 import com.tokenbrowser.view.fragment.children.SettingsFragment;
-import com.bumptech.glide.Glide;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -63,12 +64,32 @@ public final class SettingsPresenter implements
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleUserLoaded);
 
+        if (!BaseApplication.get()
+                .getTokenManager()
+                .getUserManager()
+                .getUserObservable()
+                .hasValue()) {
+            handleNoUser();
+        }
+
         this.subscriptions.add(sub);
     }
 
     private void handleUserLoaded(final User user) {
         this.localUser = user;
         updateUi();
+    }
+
+
+    private void handleNoUser() {
+        if (this.fragment == null) {
+            return;
+        }
+
+        this.fragment.getBinding().name.setText(this.fragment.getString(R.string.profile__unknown_name));
+        this.fragment.getBinding().username.setText("");
+        this.fragment.getBinding().ratingView.setStars(0);
+        this.fragment.getBinding().avatar.setImageResource(R.drawable.ic_unknown_user_24dp);
     }
 
     private void initRecyclerView() {
