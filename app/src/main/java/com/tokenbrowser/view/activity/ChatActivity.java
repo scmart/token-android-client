@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.token.databinding.ActivityChatBinding;
@@ -13,8 +14,11 @@ import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.presenter.ChatPresenter;
 import com.tokenbrowser.presenter.factory.ChatPresenterFactory;
 import com.tokenbrowser.presenter.factory.PresenterFactory;
+import com.tokenbrowser.view.custom.OfflineViewRenderer;
 
-public final class ChatActivity extends BasePresenterActivity<ChatPresenter, ChatActivity> {
+public final class ChatActivity
+        extends OfflineViewBasePresenterActivity<ChatPresenter, ChatActivity>
+        implements OfflineViewRenderer {
 
     public static final String EXTRA__REMOTE_USER_ADDRESS = "remote_user_owner_address";
     public static final String EXTRA__PAYMENT_ACTION = "payment_action";
@@ -98,5 +102,10 @@ public final class ChatActivity extends BasePresenterActivity<ChatPresenter, Cha
     public boolean onOptionsItemSelected(final MenuItem item) {
         this.presenter.handleActionMenuClicked(item);
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public View getOfflineViewContainer() {
+        return this.binding.getRoot();
     }
 }
