@@ -1,14 +1,19 @@
 package com.tokenbrowser.manager.network;
 
 
-import com.tokenbrowser.token.R;
+import com.squareup.moshi.Moshi;
+import com.tokenbrowser.manager.network.interceptor.LoggingInterceptor;
+import com.tokenbrowser.manager.network.interceptor.OfflineCacheInterceptor;
+import com.tokenbrowser.manager.network.interceptor.ReadFromCacheInterceptor;
+import com.tokenbrowser.manager.network.interceptor.UserAgentInterceptor;
 import com.tokenbrowser.model.adapter.BigDecimalAdapter;
 import com.tokenbrowser.model.adapter.BigIntegerAdapter;
-import com.tokenbrowser.manager.network.interceptor.LoggingInterceptor;
-import com.tokenbrowser.manager.network.interceptor.UserAgentInterceptor;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.view.BaseApplication;
-import com.squareup.moshi.Moshi;
 
+import java.io.File;
+
+import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -44,7 +49,12 @@ public class CurrencyService {
     private CurrencyService() {
         final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory
                 .createWithScheduler(Schedulers.io());
-        this.client = new OkHttpClient.Builder();
+        final File cachePath = new File(BaseApplication.get().getCacheDir(), "ratesCache");
+        this.client = new OkHttpClient
+                .Builder()
+                .cache(new Cache(cachePath, 1024 * 1024))
+                .addNetworkInterceptor(new ReadFromCacheInterceptor())
+                .addInterceptor(new OfflineCacheInterceptor());
 
         addUserAgentHeader();
         addLogging();
