@@ -102,6 +102,14 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleUserLoaded);
 
+        if (!BaseApplication.get()
+                .getTokenManager()
+                .getUserManager()
+                .getUserObservable()
+                .hasValue()) {
+            handleNoUser();
+        }
+
         this.subscriptions.add(sub);
     }
 
@@ -109,6 +117,18 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
         this.localUser = user;
         updateView();
         fetchUserReputation(user.getTokenId());
+    }
+
+   private void handleNoUser() {
+        if (this.fragment == null) {
+            return;
+        }
+
+        this.fragment.getBinding().name.setText(this.fragment.getString(R.string.profile__unknown_name));
+        this.fragment.getBinding().username.setText("");
+        this.fragment.getBinding().about.setText("");
+        this.fragment.getBinding().location.setText("");
+        this.fragment.getBinding().ratingView.setStars(0);
     }
 
     private void fetchUserReputation(final String userAddress) {
