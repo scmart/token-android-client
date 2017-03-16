@@ -255,6 +255,6 @@ public class UserManager {
                 .flatMap(serverTime -> IdService
                         .getApi()
                         .uploadFile(body, serverTime.get()))
-                .doOnSuccess(this::cacheUser);
+                .doOnSuccess(this.userSubject::onNext);
     }
 }
