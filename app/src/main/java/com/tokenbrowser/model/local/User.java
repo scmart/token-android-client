@@ -14,12 +14,14 @@ public class User extends RealmObject {
     private String owner_address;
     private String payment_address;
     private String username;
-    @Json(name = "custom")
-    private CustomUserInformation customUserInfo;
     private CustomAppInformation customAppInfo;
     private long cacheTimestamp;
     private Double reputation_score;
     private int review_count;
+    private String about;
+    private String avatar;
+    private String location;
+    private String name;
 
     // ctors
     public User() {
@@ -42,10 +44,10 @@ public class User extends RealmObject {
 
     // Defaults to the username if no name is set.
     public String getDisplayName() {
-        if (customUserInfo == null || customUserInfo.getName() == null) {
+        if (this.name == null) {
             return username;
         }
-        return customUserInfo.getName();
+        return this.name;
     }
 
     public String getTokenId() {
@@ -57,21 +59,15 @@ public class User extends RealmObject {
     }
 
     public String getAbout() {
-        return customUserInfo == null ? null : this.customUserInfo.getAbout();
+        return this.about;
     }
 
     public String getAvatar() {
-        return customUserInfo == null
-                ? null
-                : this.customUserInfo.getAvatar();
+        return this.avatar;
     }
 
     public String getLocation() {
-        return customUserInfo == null ? null : this.customUserInfo.getLocation();
-    }
-
-    private CustomUserInformation getCustomUserInfo() {
-        return this.customUserInfo;
+        return this.location;
     }
 
     // Setters
