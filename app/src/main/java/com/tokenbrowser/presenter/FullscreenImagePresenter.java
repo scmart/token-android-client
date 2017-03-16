@@ -10,7 +10,7 @@ import java.io.File;
 public class FullscreenImagePresenter implements Presenter<FullscreenImageActivity> {
 
     private FullscreenImageActivity activity;
-    private String filename;
+    private String filePath;
 
     @Override
     public void onViewAttached(FullscreenImageActivity view) {
@@ -21,7 +21,7 @@ public class FullscreenImagePresenter implements Presenter<FullscreenImageActivi
     }
 
     private void getIntentData() {
-        this.filename = this.activity.getIntent().getStringExtra(FullscreenImageActivity.FILENAME);
+        this.filePath = this.activity.getIntent().getStringExtra(FullscreenImageActivity.FILE_PATH);
     }
 
     private void hideStatusBar() {
@@ -29,7 +29,7 @@ public class FullscreenImagePresenter implements Presenter<FullscreenImageActivi
     }
 
     private void initView() {
-        final File file = new File(this.activity.getFilesDir(), this.filename);
+        final File file = new File(this.filePath);
         Glide.with(this.activity)
                 .load(file)
                 .into(this.activity.getBinding().image);

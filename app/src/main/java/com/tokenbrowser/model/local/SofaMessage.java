@@ -18,7 +18,7 @@ public class SofaMessage extends RealmObject {
     private @SendState.State int sendState;
     private String payload;
     private boolean sentByLocal;
-    private String attachmentFilename;
+    private String attachmentFilePath;
 
     public SofaMessage() {
         this.creationTime = System.currentTimeMillis();
@@ -47,8 +47,8 @@ public class SofaMessage extends RealmObject {
         return this;
     }
 
-    public SofaMessage setAttachmentFilename(String attachmentFilename) {
-        this.attachmentFilename = attachmentFilename;
+    public SofaMessage setAttachmentFilePath(String attachmentFilePath) {
+        this.attachmentFilePath = attachmentFilePath;
         return this;
     }
 
@@ -66,8 +66,8 @@ public class SofaMessage extends RealmObject {
         return this.payload;
     }
 
-    public String getAttachmentFilename() {
-        return attachmentFilename;
+    public String getAttachmentFilePath() {
+        return attachmentFilePath;
     }
 
     // Return message in the correct format for SOFA

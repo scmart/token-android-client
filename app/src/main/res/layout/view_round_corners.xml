@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/bubbleMargin"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/bubbleMargin" />
+
+    <ImageView
+        android:id="@+id/frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/bubbleMargin"
+        android:layout_marginBottom="@dimen/bubbleMargin"
+        android:src="@drawable/frame"/>
+
+</merge>

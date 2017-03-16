@@ -68,5 +68,13 @@ public class TokenMigration implements RealmMigration {
                     .removeField("customUserInfo");
             oldVersion++;
         }
+
+        // Migrate to version 6:
+        // Rename attachmentFilename to attachmentFilePath
+        if (oldVersion == 5) {
+            final RealmObjectSchema sofaMessageSchema = schema.get("SofaMessage");
+            sofaMessageSchema.renameField("attachmentFilename", "attachmentFilePath");
+            oldVersion++;
+        }
     }
 }

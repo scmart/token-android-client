@@ -11,7 +11,7 @@ public class DecryptedSignalMessage {
     private final String body;
     private final String source;
     private Optional<List<SignalServiceAttachment>> attachments;
-    private String attachmentFilename;
+    private String attachmentFilePath;
 
     public DecryptedSignalMessage(final String source, final String body, final Optional<List<SignalServiceAttachment>> attachments) {
         this.source = source;
@@ -19,8 +19,8 @@ public class DecryptedSignalMessage {
         this.attachments = attachments;
     }
 
-    public DecryptedSignalMessage setAttachmentFilename(final String attachmentFilename) {
-        this.attachmentFilename = attachmentFilename;
+    public DecryptedSignalMessage setAttachmentFilePath(final String attachmentFilePath) {
+        this.attachmentFilePath = attachmentFilePath;
         return this;
     }
 
@@ -36,7 +36,7 @@ public class DecryptedSignalMessage {
         return attachments;
     }
 
-    public String getAttachmentFilename() {
-        return attachmentFilename;
+    public String getAttachmentFilePath() {
+        return attachmentFilePath;
     }
 }
