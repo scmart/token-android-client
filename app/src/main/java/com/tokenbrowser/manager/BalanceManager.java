@@ -30,7 +30,6 @@ public class BalanceManager {
 
     private HDWallet wallet;
     private Balance balance;
-    private MarketRates rates;
 
     /* package */ BalanceManager() {
         this.balance = new Balance();
@@ -50,10 +49,9 @@ public class BalanceManager {
         BaseApplication
                 .get()
                 .isConnectedSubject()
-                .filter(isConnected -> isConnected)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .subscribe(isConnected -> refreshBalance());
+                .subscribe(unused -> this.refreshBalance());
     }
 
     public void refreshBalance() {
@@ -76,21 +74,15 @@ public class BalanceManager {
 
 
     private Single<MarketRates> getRates() {
-        return Single
-                .concat(
-                    Single.just(this.rates),
-                        fetchAndCacheLatestRates())
+        return fetchLatestRates()
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .first(rates -> rates != null && !rates.needsRefresh())
-                .toSingle();
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
-    private Single<MarketRates> fetchAndCacheLatestRates() {
+    private Single<MarketRates> fetchLatestRates() {
         return CurrencyService
                 .getApi()
-                .getRates("ETH")
-                .doOnSuccess((rates) -> this.rates = rates);
+                .getRates("ETH");
     }
 
     // Currently hard-coded to USD
