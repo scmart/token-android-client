@@ -34,7 +34,6 @@ import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.sofa.Command;
 import com.tokenbrowser.model.sofa.Control;
 import com.tokenbrowser.model.sofa.Message;
-import com.tokenbrowser.model.sofa.OutgoingAttachment;
 import com.tokenbrowser.model.sofa.PaymentRequest;
 import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.token.BuildConfig;
@@ -700,36 +699,28 @@ public final class ChatPresenter implements
         final Uri uri = resultHolder.getIntent().getData();
         final FileUtil fileUtil = new FileUtil();
         final File file = fileUtil.saveFileFromUri(this.activity, uri);
-        final String mimeType = fileUtil.getMimeTypeFromFilename(file.getName());
-        final OutgoingAttachment attachment = new OutgoingAttachment()
-                .setOutgoingAttachment(file)
-                .setMimeType(mimeType);
-        fileUtil.compressImage(FileUtil.MAX_SIZE, attachment.getOutgoingAttachment());
-        sendMediaMessage(attachment);
+        fileUtil.compressImage(FileUtil.MAX_SIZE, file);
+        sendMediaMessage(file.getAbsolutePath());
     }
 
     private void handleCameraImage() throws FileNotFoundException {
         final File file = new File(this.activity.getFilesDir(), this.captureImageFilename);
         final FileUtil fileUtil = new FileUtil();
-        final String mimeType = fileUtil.getMimeTypeFromFilename(file.getName());
-        final OutgoingAttachment attachment = new OutgoingAttachment()
-                .setOutgoingAttachment(file)
-                .setMimeType(mimeType);
         fileUtil.compressImage(FileUtil.MAX_SIZE, file);
-        sendMediaMessage(attachment);
+        sendMediaMessage(file.getAbsolutePath());
     }
 
-    private void sendMediaMessage(final OutgoingAttachment attachment) {
+    private void sendMediaMessage(final String filePath) {
         final Message message = new Message();
         final String messageBody = this.adapters.toJson(message);
         final SofaMessage sofaMessage = new SofaMessage()
                 .makeNew(true, messageBody)
-                .setAttachmentFilePath(attachment.getOutgoingAttachment().getAbsolutePath());
+                .setAttachmentFilePath(filePath);
 
         BaseApplication.get()
                 .getTokenManager()
                 .getSofaMessageManager()
-                .sendMediaMessage(this.remoteUser, sofaMessage, attachment);
+                .sendAndSaveMediaMessage(this.remoteUser, sofaMessage);
     }
 
     private void showNotEnoughFundsDialog() {

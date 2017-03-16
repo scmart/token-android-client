@@ -147,9 +147,9 @@ public final class SofaMessageManager {
         }
     }
 
-    public final void sendMediaMessage(final User receiver, final SofaMessage message, final OutgoingAttachment attachment) {
+    public final void sendAndSaveMediaMessage(final User receiver, final SofaMessage message) {
         final SofaMessageTask messageTask = new SofaMessageTask(receiver, message, SofaMessageTask.SEND_AND_SAVE)
-                .setOutgoingAttachment(attachment);
+                .setOutgoingAttachment(new OutgoingAttachment(message));
         this.chatMessageQueue.onNext(messageTask);
     }
 
@@ -330,7 +330,11 @@ public final class SofaMessageManager {
     private void sendPendingMessages() {
         final List<PendingMessage> pendingMessages = this.pendingMessageStore.getAllPendingMessages();
         for (final PendingMessage pendingMessage : pendingMessages) {
-            sendAndSaveMessage(pendingMessage.getReceiver(), pendingMessage.getSofaMessage());
+            if (pendingMessage.getSofaMessage().getAttachmentFilePath() != null) {
+                sendAndSaveMediaMessage(pendingMessage.getReceiver(), pendingMessage.getSofaMessage());
+            } else {
+                sendAndSaveMessage(pendingMessage.getReceiver(), pendingMessage.getSofaMessage());
+            }
         }
     }
 
