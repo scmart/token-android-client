@@ -12,7 +12,7 @@ import com.tokenbrowser.token.databinding.ActivityFullscreenImageBinding;
 
 public class FullscreenImageActivity extends BasePresenterActivity<FullscreenImagePresenter, FullscreenImageActivity> {
 
-    public static final String FILENAME = "filename";
+    public static final String FILE_PATH = "file_path";
     private ActivityFullscreenImageBinding binding;
 
     @Override

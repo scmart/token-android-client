@@ -153,12 +153,12 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
             case SofaType.PLAIN_TEXT: {
                 final TextViewHolder vh = (TextViewHolder) holder;
                 final Message message = this.adapters.messageFrom(payload)
-                        .setAttachmentFilename(sofaMessage.getAttachmentFilename());
+                        .setAttachmentFilename(sofaMessage.getAttachmentFilePath());
                 vh.setText(message.getBody())
                         .setSentByLocal(sofaMessage.isSentByLocal())
                         .setSendState(sofaMessage.getSendState())
-                        .setAttachmentFilename(sofaMessage.getAttachmentFilename())
-                        .setClickableImage(this.onImageClickListener, sofaMessage.getAttachmentFilename())
+                        .setAttachmentFilePath(sofaMessage.getAttachmentFilePath())
+                        .setClickableImage(this.onImageClickListener, sofaMessage.getAttachmentFilePath())
                         .draw()
                         .setClickableUsernames(this.onUsernameClickListener);
                 break;

@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.tokenbrowser.model.local.SendState;
 import com.tokenbrowser.token.R;
-import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
 import com.tokenbrowser.view.custom.RoundCornersImageView;
 
@@ -32,7 +31,7 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
     private String text;
     private boolean sentByLocal;
     private @SendState.State int sendState;
-    private String attachmentFilename;
+    private String attachmentFilePath;
 
     public TextViewHolder(final View v) {
         super(v);
@@ -59,8 +58,8 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public TextViewHolder setAttachmentFilename(final String fileName) {
-        this.attachmentFilename = fileName;
+    public TextViewHolder setAttachmentFilePath(final String filePath) {
+        this.attachmentFilePath = filePath;
         return this;
     }
 
@@ -68,7 +67,7 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
         if (this.sentByLocal) {
             hideRemoteView();
 
-            if (this.attachmentFilename == null) {
+            if (this.attachmentFilePath == null) {
                 showText(this.localText);
                 hideImageViews();
             } else {
@@ -80,7 +79,7 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
 
         } else {
             hideLocalView();
-            if (this.attachmentFilename == null) {
+            if (this.attachmentFilePath == null) {
                 showText(this.remoteText);
                 hideImageViews();
             } else {
@@ -129,11 +128,10 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
             this.remoteImage.setVisibility(View.VISIBLE);
         }
 
-        final String path = BaseApplication.get().getFilesDir() + "/" + this.attachmentFilename;
-        final File imageFile = new File(path);
+        final File imageFile = new File(this.attachmentFilePath);
         imageView.setImage(imageFile);
 
-        this.attachmentFilename = null;
+        this.attachmentFilePath = null;
     }
 
     private void setSendState() {
@@ -145,9 +143,9 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
-    public TextViewHolder setClickableImage(final OnItemClickListener<String> listener, final String filename) {
-        this.localImage.setOnClickListener(v -> listener.onItemClick(filename));
-        this.remoteImage.setOnClickListener(v -> listener.onItemClick(filename));
+    public TextViewHolder setClickableImage(final OnItemClickListener<String> listener, final String filePath) {
+        this.localImage.setOnClickListener(v -> listener.onItemClick(filePath));
+        this.remoteImage.setOnClickListener(v -> listener.onItemClick(filePath));
         return this;
     }
 

@@ -132,9 +132,9 @@ public final class ChatPresenter implements
         this.subscriptions.add(sub);
     }
 
-    private void handleImageClicked(final String filename) {
+    private void handleImageClicked(final String filePath) {
         final Intent intent = new Intent(this.activity, FullscreenImageActivity.class)
-                .putExtra(FullscreenImageActivity.FILENAME, filename);
+                .putExtra(FullscreenImageActivity.FILE_PATH, filePath);
         this.activity.startActivity(intent);
     }
 
@@ -715,7 +715,6 @@ public final class ChatPresenter implements
         final OutgoingAttachment attachment = new OutgoingAttachment()
                 .setOutgoingAttachment(file)
                 .setMimeType(mimeType);
-
         fileUtil.compressImage(FileUtil.MAX_SIZE, file);
         sendMediaMessage(attachment);
     }
@@ -725,7 +724,7 @@ public final class ChatPresenter implements
         final String messageBody = this.adapters.toJson(message);
         final SofaMessage sofaMessage = new SofaMessage()
                 .makeNew(true, messageBody)
-                .setAttachmentFilename(attachment.getOutgoingAttachment().getName());
+                .setAttachmentFilePath(attachment.getOutgoingAttachment().getAbsolutePath());
 
         BaseApplication.get()
                 .getTokenManager()

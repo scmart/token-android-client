@@ -523,21 +523,21 @@ public final class SofaMessageManager {
         final List<SignalServiceAttachment> attachments = signalMessage.getAttachments().get();
         if (attachments.size() > 0) {
             final SignalServiceAttachment attachment = attachments.get(0);
-            final String filename = saveAttachmentToFile(attachment.asPointer());
-            signalMessage.setAttachmentFilename(filename);
+            final String filePath = saveAttachmentToFile(attachment.asPointer());
+            signalMessage.setAttachmentFilePath(filePath);
         }
     }
 
     private String saveAttachmentToFile(final SignalServiceAttachmentPointer attachment) {
         final FileUtil fileUtil = new FileUtil();
         final File attachmentFile = fileUtil.writeAttachmentToFileFromMessageReceiver(attachment, this.messageReceiver);
-        return attachmentFile.getName();
+        return attachmentFile.getAbsolutePath();
     }
 
     private void saveIncomingMessageFromUserToDatabase(final User user, final DecryptedSignalMessage signalMessage) {
         final SofaMessage remoteMessage = new SofaMessage()
                 .makeNew(false, signalMessage.getBody())
-                .setAttachmentFilename(signalMessage.getAttachmentFilename());
+                .setAttachmentFilePath(signalMessage.getAttachmentFilePath());
         if (remoteMessage.getType() == SofaType.PAYMENT) {
             // Don't render incoming SOFA::Payments,
             // but ensure we have the sender cached.
