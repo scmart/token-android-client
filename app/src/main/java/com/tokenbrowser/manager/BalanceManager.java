@@ -49,10 +49,9 @@ public class BalanceManager {
         BaseApplication
                 .get()
                 .isConnectedSubject()
-                .filter(isConnected -> isConnected)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .subscribe(isConnected -> refreshBalance());
+                .subscribe(unused -> this.refreshBalance());
     }
 
     public void refreshBalance() {

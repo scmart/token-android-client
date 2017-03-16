@@ -79,6 +79,12 @@ public class ChatNotificationManager {
 
         if (sender == null) {
             // Most likely sent from outside of Token
+            // Try and refresh balance -- it might have been a payment!
+            BaseApplication
+                    .get()
+                    .getTokenManager()
+                    .getBalanceManager()
+                    .refreshBalance();
             return;
         }
 
