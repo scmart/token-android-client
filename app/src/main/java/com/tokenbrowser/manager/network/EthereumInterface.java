@@ -17,7 +17,7 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 import rx.Single;
 
-public interface BalanceInterface {
+public interface EthereumInterface {
 
     @Headers("Cache-control: no-store")
     @POST("/v1/tx/skel")

@@ -21,25 +21,25 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.moshi.MoshiConverterFactory;
 import rx.schedulers.Schedulers;
 
-public class BalanceService {
+public class EthereumService {
 
-    private static BalanceService instance;
+    private static EthereumService instance;
 
-    private final BalanceInterface balanceInterface;
+    private final EthereumInterface ethereumInterface;
     private final OkHttpClient.Builder client;
 
-    public static BalanceInterface getApi() {
-        return get().balanceInterface;
+    public static EthereumInterface getApi() {
+        return get().ethereumInterface;
     }
 
-    private static synchronized BalanceService get() {
+    private static synchronized EthereumService get() {
         if (instance == null) {
-            instance = new BalanceService();
+            instance = new EthereumService();
         }
         return instance;
     }
 
-    private BalanceService() {
+    private EthereumService() {
         final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory
                 .createWithScheduler(Schedulers.io());
         final File cachePath = new File(BaseApplication.get().getCacheDir(), "balanceCache");
@@ -63,7 +63,7 @@ public class BalanceService {
                 .addCallAdapterFactory(rxAdapter)
                 .client(client.build())
                 .build();
-        this.balanceInterface = retrofit.create(BalanceInterface.class);
+        this.ethereumInterface = retrofit.create(EthereumInterface.class);
     }
 
     private void addUserAgentHeader() {

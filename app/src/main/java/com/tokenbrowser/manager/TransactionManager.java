@@ -3,7 +3,7 @@ package com.tokenbrowser.manager;
 import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.exception.UnknownTransactionException;
 import com.tokenbrowser.manager.model.PaymentTask;
-import com.tokenbrowser.manager.network.BalanceService;
+import com.tokenbrowser.manager.network.EthereumService;
 import com.tokenbrowser.manager.store.PendingTransactionStore;
 import com.tokenbrowser.model.local.PendingTransaction;
 import com.tokenbrowser.model.local.SendState;
@@ -212,7 +212,7 @@ public class TransactionManager {
 
     private Observable<SentTransaction> sendNewTransaction(final Payment payment) {
         final TransactionRequest transactionRequest = generateTransactionRequest(payment);
-        return BalanceService.getApi()
+        return EthereumService.getApi()
                 .createTransaction(transactionRequest)
                 .toObservable()
                 .switchMap(this::signAndSendTransaction);
@@ -226,7 +226,7 @@ public class TransactionManager {
     }
 
     private Observable<SentTransaction> signAndSendTransaction(final UnsignedTransaction unsignedTransaction) {
-        return BalanceService
+        return EthereumService
                 .getApi()
                 .getTimestamp()
                 .flatMapObservable(st -> signAndSendTransactionWithTimestamp(unsignedTransaction, st));
@@ -240,7 +240,7 @@ public class TransactionManager {
 
         final long timestamp = serverTime.get();
 
-        return BalanceService.getApi()
+        return EthereumService.getApi()
                 .sendSignedTransaction(timestamp, signedTransaction)
                 .toObservable();
     }
