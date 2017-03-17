@@ -274,7 +274,7 @@ public class TransactionManager {
 
     private void processUpdatedPayment(final Payment payment) {
         pendingTransactionStore
-                .load(payment.getTxHash())
+                .loadTransaction(payment.getTxHash())
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .toObservable()

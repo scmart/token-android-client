@@ -2,6 +2,9 @@ package com.tokenbrowser.manager.store;
 
 
 import com.tokenbrowser.model.local.PendingTransaction;
+import com.tokenbrowser.model.local.SendState;
+
+import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmQuery;
@@ -28,21 +31,38 @@ public class PendingTransactionStore {
         broadcastPendingTransaction(pendingTransaction);
     }
 
-    public Single<PendingTransaction> load(final String txHash) {
-        return Single.fromCallable(() -> loadWhere("txHash", txHash));
+    public Single<PendingTransaction> loadTransaction(final String txHash) {
+        return Single.fromCallable(() -> loadSingleWhere("txHash", txHash));
     }
 
-    private PendingTransaction loadWhere(final String fieldName, final String value) {
+    public Single<List<PendingTransaction>> loadAllUnconfirmed() {
+        return Single.fromCallable(() -> loadSeveralWhere("sofaMessage.sendState", SendState.STATE_SENDING));
+    }
+
+    private PendingTransaction loadSingleWhere(final String fieldName, final String value) {
         final Realm realm = Realm.getDefaultInstance();
         final RealmQuery<PendingTransaction> query = realm
-                        .where(PendingTransaction.class)
-                        .equalTo(fieldName, value);
+                .where(PendingTransaction.class)
+                .equalTo(fieldName, value);
 
         final PendingTransaction pendingTransaction = query.findFirst();
         final PendingTransaction retVal = pendingTransaction == null ? null : realm.copyFromRealm(pendingTransaction);
         realm.close();
         return retVal;
     }
+
+    private List<PendingTransaction> loadSeveralWhere(final String fieldName, final int value) {
+        final Realm realm = Realm.getDefaultInstance();
+        final RealmQuery<PendingTransaction> query = realm
+                .where(PendingTransaction.class)
+                .equalTo(fieldName, value);
+
+        final List<PendingTransaction> pendingTransactions = query.findAll();
+        final List<PendingTransaction> retVal = realm.copyFromRealm(pendingTransactions);
+        realm.close();
+        return retVal;
+    }
+
 
     private void broadcastPendingTransaction(final PendingTransaction pendingTransaction) {
         this.pendingTransactionObservable.onNext(pendingTransaction);
