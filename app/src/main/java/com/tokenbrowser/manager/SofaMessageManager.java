@@ -7,7 +7,7 @@ import android.util.Pair;
 
 import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.crypto.signal.SignalPreferences;
-import com.tokenbrowser.crypto.signal.SignalService;
+import com.tokenbrowser.crypto.signal.ChatService;
 import com.tokenbrowser.crypto.signal.model.DecryptedSignalMessage;
 import com.tokenbrowser.crypto.signal.store.ProtocolStore;
 import com.tokenbrowser.crypto.signal.store.SignalTrustStore;
@@ -80,7 +80,7 @@ public final class SofaMessageManager {
     private final PublishSubject<SofaMessageTask> chatMessageQueue = PublishSubject.create();
 
     private SharedPreferences sharedPreferences;
-    private SignalService signalService;
+    private ChatService chatService;
     private HDWallet wallet;
     private SignalTrustStore trustStore;
     private ProtocolStore protocolStore;
@@ -125,7 +125,7 @@ public final class SofaMessageManager {
         }
         try {
             final Optional<String> optional = Optional.of(this.gcmToken);
-            this.signalService.setGcmId(optional);
+            this.chatService.setGcmId(optional);
             this.sharedPreferences.edit().putBoolean
                     (RegistrationIntentService.CHAT_SERVICE_SENT_TOKEN_TO_SERVER, true).apply();
             this.gcmToken = null;
@@ -241,7 +241,7 @@ public final class SofaMessageManager {
                 BaseApplication.get().getResources().getString(R.string.chat_url),
                 this.trustStore);
         this.signalServiceUrls[0] = signalServiceUrl;
-        this.signalService = new SignalService(this.signalServiceUrls, this.wallet, this.protocolStore, this.userAgent);
+        this.chatService = new ChatService(this.signalServiceUrls, this.wallet, this.protocolStore, this.userAgent);
     }
 
     private void initSignalMessageReceiver() {
@@ -264,7 +264,7 @@ public final class SofaMessageManager {
     }
 
     private void registerWithServer() {
-        this.signalService.registerKeys(
+        this.chatService.registerKeys(
                 this.protocolStore,
                 new SingleSubscriber<Void>() {
                     @Override

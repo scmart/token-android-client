@@ -10,7 +10,7 @@ import retrofit2.http.PUT;
 import retrofit2.http.Query;
 import rx.Single;
 
-public interface SignalInterface {
+public interface ChatInterface {
 
     @Headers("Cache-control: no-store")
     @GET("/v1/accounts/bootstrap")

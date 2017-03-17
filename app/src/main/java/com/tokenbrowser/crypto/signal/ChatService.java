@@ -3,7 +3,7 @@ package com.tokenbrowser.crypto.signal;
 
 import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.crypto.signal.model.SignalBootstrap;
-import com.tokenbrowser.crypto.signal.network.SignalInterface;
+import com.tokenbrowser.crypto.signal.network.ChatInterface;
 import com.tokenbrowser.crypto.signal.store.ProtocolStore;
 import com.tokenbrowser.model.network.ServerTime;
 import com.tokenbrowser.manager.network.interceptor.LoggingInterceptor;
@@ -35,13 +35,13 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 import rx.SingleSubscriber;
 import rx.schedulers.Schedulers;
 
-public final class SignalService extends SignalServiceAccountManager {
+public final class ChatService extends SignalServiceAccountManager {
 
-    private final SignalInterface signalInterface;
+    private final ChatInterface chatInterface;
     private final OkHttpClient.Builder client;
     private final String url;
 
-    public SignalService(
+    public ChatService(
             final SignalServiceUrl[] urls,
             final HDWallet wallet,
             final ProtocolStore protocolStore,
@@ -53,17 +53,17 @@ public final class SignalService extends SignalServiceAccountManager {
                 userAgent);
     }
 
-    private SignalService(final SignalServiceUrl[] urls,
-                          final String user,
-                          final String password,
-                          final String userAgent) {
+    private ChatService(final SignalServiceUrl[] urls,
+                        final String user,
+                        final String password,
+                        final String userAgent) {
         super(urls, user, password, userAgent);
         this.url = urls[0].getUrl();
         this.client = new OkHttpClient.Builder();
-        this.signalInterface = generateSignalInterface();
+        this.chatInterface = generateSignalInterface();
     }
 
-    private SignalInterface generateSignalInterface() {
+    private ChatInterface generateSignalInterface() {
         final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io());
 
         addUserAgentHeader();
@@ -80,7 +80,7 @@ public final class SignalService extends SignalServiceAccountManager {
                 .addCallAdapterFactory(rxAdapter)
                 .client(client.build())
                 .build();
-        return retrofit.create(SignalInterface.class);
+        return retrofit.create(ChatInterface.class);
     }
 
     private void addUserAgentHeader() {
@@ -124,7 +124,7 @@ public final class SignalService extends SignalServiceAccountManager {
             final List<PreKeyRecord> preKeys,
             final SingleSubscriber<Void> registrationSubscriber) {
 
-        this.signalInterface.getTimestamp()
+        this.chatInterface.getTimestamp()
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new SingleSubscriber<ServerTime>() {
@@ -198,7 +198,7 @@ public final class SignalService extends SignalServiceAccountManager {
 
         final String payloadForSigning = JsonUtil.toJson(payload);
 
-        this.signalInterface.register(payloadForSigning, amendedTimestamp)
+        this.chatInterface.register(payloadForSigning, amendedTimestamp)
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new SingleSubscriber<Void>() {

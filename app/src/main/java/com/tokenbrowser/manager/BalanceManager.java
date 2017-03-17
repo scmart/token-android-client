@@ -2,7 +2,7 @@ package com.tokenbrowser.manager;
 
 
 import com.tokenbrowser.crypto.HDWallet;
-import com.tokenbrowser.manager.network.BalanceService;
+import com.tokenbrowser.manager.network.EthereumService;
 import com.tokenbrowser.manager.network.CurrencyService;
 import com.tokenbrowser.model.network.Addresses;
 import com.tokenbrowser.model.network.Balance;
@@ -55,7 +55,7 @@ public class BalanceManager {
     }
 
     public void refreshBalance() {
-            BalanceService
+            EthereumService
                 .getApi()
                 .getBalance(this.wallet.getPaymentAddress())
                 .subscribeOn(Schedulers.io())
@@ -126,7 +126,7 @@ public class BalanceManager {
 
 
     public Single<Void> registerForGcm(final String token) {
-        return BalanceService
+        return EthereumService
                 .getApi()
                 .getTimestamp()
                 .subscribeOn(Schedulers.io())
@@ -139,13 +139,13 @@ public class BalanceManager {
             throw new IllegalStateException("ServerTime was null");
         }
 
-        return BalanceService
+        return EthereumService
                 .getApi()
                 .registerGcm(serverTime.get(), new GcmRegistration(token));
     }
 
     public Single<Void> watchForWalletTransactions() {
-        return BalanceService
+        return EthereumService
                 .getApi()
                 .getTimestamp()
                 .subscribeOn(Schedulers.io())
@@ -162,7 +162,7 @@ public class BalanceManager {
         list.add(wallet.getPaymentAddress());
         final Addresses addresses = new Addresses(list);
 
-        return BalanceService
+        return EthereumService
                 .getApi()
                 .startWatchingAddresses(serverTime.get(), addresses);
     }
