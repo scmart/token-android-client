@@ -49,6 +49,7 @@ import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.AmountActivity;
 import com.tokenbrowser.view.activity.ChatActivity;
 import com.tokenbrowser.view.activity.FullscreenImageActivity;
+import com.tokenbrowser.view.activity.ImageConfirmationActivity;
 import com.tokenbrowser.view.activity.ViewUserActivity;
 import com.tokenbrowser.view.adapter.MessageAdapter;
 import com.tokenbrowser.view.custom.SpeedyLinearLayoutManager;
@@ -77,6 +78,7 @@ public final class ChatPresenter implements
     private static final int PICK_IMAGE = 3;
     private static final int CAPTURE_IMAGE = 4;
     private static final int CAMERA_PERMISSION = 5;
+    private static final int CONFIRM_IMAGE = 6;
 
     private ChatActivity activity;
     private MessageAdapter messageAdapter;
@@ -664,19 +666,25 @@ public final class ChatPresenter implements
         } else if(resultHolder.getRequestCode() == PAY_RESULT_CODE) {
             final String value = resultHolder.getIntent().getStringExtra(AmountPresenter.INTENT_EXTRA__ETH_AMOUNT);
             sendPaymentWithValue(value);
-        } else if (resultHolder.getRequestCode() == PICK_IMAGE && resultHolder.getResultCode() == Activity.RESULT_OK) {
+        } else if (resultHolder.getRequestCode() == PICK_IMAGE) {
             try {
-                handleGalleryImage(resultHolder);
+                handleGalleryResult(resultHolder);
             } catch (IOException e) {
                 LogUtil.e(getClass(), "Error during image saving " + e.getMessage());
                 return false;
             }
-        } else if (resultHolder.getRequestCode() == CAPTURE_IMAGE && resultHolder.getResultCode() == Activity.RESULT_OK) {
+        } else if (resultHolder.getRequestCode() == CAPTURE_IMAGE) {
             try {
-                handleCameraImage();
+                handleCameraResult();
             } catch (FileNotFoundException e) {
                 LogUtil.e(getClass(), "Error during sending camera image " + e.getMessage());
                 return false;
+            }
+        } else if (resultHolder.getRequestCode() == CONFIRM_IMAGE) {
+            try {
+                handleConfirmationResult(resultHolder);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
             }
         }
         return true;
@@ -695,15 +703,28 @@ public final class ChatPresenter implements
         }
     }
 
-    private void handleGalleryImage(final ActivityResultHolder resultHolder) throws IOException {
+    private void handleGalleryResult(final ActivityResultHolder resultHolder) throws IOException {
         final Uri uri = resultHolder.getIntent().getData();
+        final Intent confirmationIntent = new Intent(this.activity, ImageConfirmationActivity.class)
+                .putExtra(ImageConfirmationActivity.FILE_URI, uri);
+        this.activity.startActivityForResult(confirmationIntent, CONFIRM_IMAGE);
+    }
+
+    private void handleConfirmationResult(final ActivityResultHolder resultHolder) throws FileNotFoundException {
+        final String filePath = resultHolder.getIntent().getStringExtra(ImageConfirmationActivity.FILE_PATH);
+
+        if (filePath == null) {
+            startGalleryActivity();
+            return;
+        }
+
+        final File file = new File(filePath);
         final FileUtil fileUtil = new FileUtil();
-        final File file = fileUtil.saveFileFromUri(this.activity, uri);
         fileUtil.compressImage(FileUtil.MAX_SIZE, file);
         sendMediaMessage(file.getAbsolutePath());
     }
 
-    private void handleCameraImage() throws FileNotFoundException {
+    private void handleCameraResult() throws FileNotFoundException {
         final File file = new File(this.activity.getFilesDir(), this.captureImageFilename);
         final FileUtil fileUtil = new FileUtil();
         fileUtil.compressImage(FileUtil.MAX_SIZE, file);
