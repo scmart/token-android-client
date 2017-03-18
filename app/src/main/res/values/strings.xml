@@ -134,8 +134,8 @@
     <string name="review">Review</string>
     <string name="search_people">Search people</string>
     <string name="select_picture">Select Picture</string>
-    <string name="capture_image">Capture image</string>
-    <string name="gallery">Gallery</string>
+    <string name="take_photo">Take photo</string>
+    <string name="pick_from_library">Pick from library</string>
     <string name="edit_profile_photo">Edit profile photo</string>
     <string name="profile_image_success">Profile photo successfully set</string>
     <string name="profile_image_error">Could not upload photo</string>

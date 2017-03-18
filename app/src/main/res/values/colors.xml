@@ -28,4 +28,6 @@
     <color name="error_color">#FB3E3E</color>
     <color name="disabled_button_color">#D1D1D1</color>
     <color name="fullscreen_dark_background">#000000</color>
+
+    <color name="icon_color">#66000000</color>
 </resources>
