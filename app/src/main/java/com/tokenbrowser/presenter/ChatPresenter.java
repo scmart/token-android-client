@@ -79,6 +79,7 @@ public final class ChatPresenter implements
     private static final int CAPTURE_IMAGE = 4;
     private static final int CAMERA_PERMISSION = 5;
     private static final int CONFIRM_IMAGE = 6;
+    private static final int READ_EXTERNAL_STORAGE_PERMISSION = 7;
 
     private ChatActivity activity;
     private MessageAdapter messageAdapter;
@@ -280,18 +281,18 @@ public final class ChatPresenter implements
 
             @Override
             public void importImageFromGalleryClicked() {
-                startGalleryActivity();
+                checkExternalStoragePermission();
             }
         });
         dialog.show(this.activity.getSupportFragmentManager(), ChooserDialog.TAG);
     }
 
     private void checkCameraPermission() {
-        if (ContextCompat.checkSelfPermission(activity,
+        if (ContextCompat.checkSelfPermission(this.activity,
                 Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            ActivityCompat.requestPermissions(activity,
+            ActivityCompat.requestPermissions(this.activity,
                     new String[]{Manifest.permission.CAMERA},
                     CAMERA_PERMISSION);
         } else {
@@ -300,8 +301,8 @@ public final class ChatPresenter implements
     }
 
     private void startCameraActivity() {
-        final Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
+        final Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (cameraIntent.resolveActivity(this.activity.getPackageManager()) != null) {
             File photoFile = null;
             try {
                 photoFile = new FileUtil().createImageFileWithRandomName(this.activity);
@@ -314,9 +315,35 @@ public final class ChatPresenter implements
                         BaseApplication.get(),
                         BuildConfig.APPLICATION_ID + ".photos",
                         photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                activity.startActivityForResult(takePictureIntent, CAPTURE_IMAGE);
+                grantUriPermission(cameraIntent, photoURI);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                this.activity.startActivityForResult(cameraIntent, CAPTURE_IMAGE);
             }
+        }
+    }
+
+    private void grantUriPermission(final Intent intent, final Uri uri) {
+        if (Build.VERSION.SDK_INT >= 21) return;
+        final PackageManager pm = this.activity.getPackageManager();
+        final String packageName = intent.resolveActivity(pm).getPackageName();
+        this.activity.grantUriPermission(
+                packageName,
+                uri,
+                Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        | Intent.FLAG_GRANT_READ_URI_PERMISSION
+        );
+    }
+
+    private void checkExternalStoragePermission() {
+        if (ContextCompat.checkSelfPermission(this.activity,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this.activity,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    READ_EXTERNAL_STORAGE_PERMISSION);
+        } else {
+            startGalleryActivity();
         }
     }
 
@@ -326,7 +353,7 @@ public final class ChatPresenter implements
                 .setAction(Intent.ACTION_GET_CONTENT);
 
         if (pickPictureIntent.resolveActivity(activity.getPackageManager()) != null) {
-            activity.startActivityForResult(Intent.createChooser(
+            this.activity.startActivityForResult(Intent.createChooser(
                     pickPictureIntent,
                     BaseApplication.get().getString(R.string.select_picture)), PICK_IMAGE);
         }
@@ -693,12 +720,20 @@ public final class ChatPresenter implements
     public void handlePermission(final int requestCode,
                                   @NonNull final String permissions[],
                                   @NonNull final int[] grantResults) {
+        if (grantResults.length == 0) return;
+
         switch (requestCode) {
             case CAMERA_PERMISSION: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     startCameraActivity();
                 }
+                break;
+            }
+            case READ_EXTERNAL_STORAGE_PERMISSION: {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startGalleryActivity();
+                }
+                break;
             }
         }
     }

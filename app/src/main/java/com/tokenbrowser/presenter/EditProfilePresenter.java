@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -41,6 +42,7 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     private static final int PICK_IMAGE = 1;
     private static final int CAPTURE_IMAGE = 2;
     private static final int CAMERA_PERMISSION = 5;
+    private static final int READ_EXTERNAL_STORAGE_PERMISSION = 6;
     private static final String INTENT_TYPE = "image/*";
 
     private EditProfileFragment fragment;
@@ -149,7 +151,7 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
 
             @Override
             public void importImageFromGalleryClicked() {
-                startGalleryActivity();
+                checkExternalStoragePermission();
             }
         });
         dialog.show(this.fragment.getChildFragmentManager(), ChooserDialog.TAG);
@@ -169,8 +171,8 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     }
 
     private void startCameraActivity() {
-        final Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(this.fragment.getContext().getPackageManager()) != null) {
+        final Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (cameraIntent.resolveActivity(this.fragment.getContext().getPackageManager()) != null) {
             File photoFile = null;
             try {
                 photoFile = new FileUtil().createImageFileWithRandomName(this.fragment.getContext());
@@ -183,9 +185,35 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
                         BaseApplication.get(),
                         BuildConfig.APPLICATION_ID + ".photos",
                         photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                this.fragment.startActivityForResult(takePictureIntent, CAPTURE_IMAGE);
+                grantUriPermission(cameraIntent, photoURI);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                this.fragment.startActivityForResult(cameraIntent, CAPTURE_IMAGE);
             }
+        }
+    }
+
+    private void grantUriPermission(final Intent intent, final Uri uri) {
+        if (Build.VERSION.SDK_INT >= 21) return;
+        final PackageManager pm = this.fragment.getContext().getPackageManager();
+        final String packageName = intent.resolveActivity(pm).getPackageName();
+        this.fragment.getContext().grantUriPermission(
+                packageName,
+                uri,
+                Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        | Intent.FLAG_GRANT_READ_URI_PERMISSION
+        );
+    }
+
+    private void checkExternalStoragePermission() {
+        if (ContextCompat.checkSelfPermission(this.fragment.getContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            this.fragment.requestPermissions(
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    READ_EXTERNAL_STORAGE_PERMISSION);
+        } else {
+            startGalleryActivity();
         }
     }
 
@@ -323,12 +351,17 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
 
     public boolean handlePermissionResult(final PermissionResultHolder permissionResultHolder) {
         if (permissionResultHolder == null || this.fragment == null) return false;
+        final int[] grantResults = permissionResultHolder.getGrantResults();
+        if (grantResults.length == 0) return true;
 
         if (permissionResultHolder.getRequestCode() == CAMERA_PERMISSION) {
-            final int[] grantResults = permissionResultHolder.getGrantResults();
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startCameraActivity();
+                return true;
+            }
+        } else if (permissionResultHolder.getRequestCode() == READ_EXTERNAL_STORAGE_PERMISSION) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startGalleryActivity();
                 return true;
             }
         }
