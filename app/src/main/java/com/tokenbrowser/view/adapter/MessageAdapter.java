@@ -211,4 +211,9 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
             onPaymentRequestRejectListener.onItemClick(sofaMessage);
         }
     };
+
+    public void clear() {
+        this.sofaMessages.clear();
+        notifyDataSetChanged();
+    }
 }

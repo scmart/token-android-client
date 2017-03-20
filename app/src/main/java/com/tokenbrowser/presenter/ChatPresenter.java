@@ -574,17 +574,7 @@ public final class ChatPresenter implements
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleConversationLoaded);
 
-        final Subscription subNewMessage = chatObservables.first
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::handleNewMessage);
-
-        final Subscription subUpdateMessage = chatObservables.second
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::handleUpdatedMessage);
-
-        this.subscriptions.addAll(subConversationLoaded, subNewMessage, subUpdateMessage);
+        this.subscriptions.add(subConversationLoaded);
     }
 
     private void handleConversationLoaded(final Conversation conversation) {
@@ -601,6 +591,18 @@ public final class ChatPresenter implements
             final SofaMessage lastSofaMessage = messages.get(messages.size() - 1);
             setControlView(lastSofaMessage);
         }
+
+        final Subscription subNewMessage = chatObservables.first
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleNewMessage);
+
+        final Subscription subUpdateMessage = chatObservables.second
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleUpdatedMessage);
+
+        this.subscriptions.addAll(subNewMessage, subUpdateMessage);
     }
 
     private void handleNewMessage(final SofaMessage sofaMessage) {
@@ -861,6 +863,7 @@ public final class ChatPresenter implements
         }
         this.lastVisibleMessagePosition = this.layoutManager.findLastVisibleItemPosition();
         this.subscriptions.clear();
+        this.messageAdapter.clear();
         this.activity = null;
     }
 
