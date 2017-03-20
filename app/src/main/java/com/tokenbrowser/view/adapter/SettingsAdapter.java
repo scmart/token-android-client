@@ -8,24 +8,24 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.tokenbrowser.R;
+import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
 import com.tokenbrowser.view.adapter.viewholder.ClickableViewHolder;
 
-import java.util.ArrayList;
-
 public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHolder> {
 
-    private final ArrayList<String> settings;
-    private OnItemClickListener<String> listener;
+    public static final int LOCAL_CURRENCY = 0;
+    public static final int ABOUT = 1;
+    public static final int SIGN_OUT = 2;
+
+    private final String[] settings;
+    private OnItemClickListener<Integer> listener;
 
     public SettingsAdapter() {
-        this.settings = new ArrayList<>(3);
-        this.settings.add("Local currency");
-        this.settings.add("About");
-        this.settings.add("Sign out");
+        this.settings = BaseApplication.get().getResources().getStringArray(R.array.settings_options);
     }
 
-    public void setOnItemClickListener(final OnItemClickListener<String> listener) {
+    public void setOnItemClickListener(final OnItemClickListener<Integer> listener) {
         this.listener = listener;
     }
 
@@ -37,14 +37,14 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        final String label = this.settings.get(position);
+        final String label = this.settings[position];
         holder.label.setText(label);
-        holder.bind(label, listener);
+        holder.bind(position, listener);
     }
 
     @Override
     public int getItemCount() {
-        return this.settings.size();
+        return this.settings.length;
     }
 
     static class ViewHolder extends ClickableViewHolder {
@@ -55,13 +55,13 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
             this.label = (TextView) view.findViewById(R.id.label);
         }
 
-        public void bind(final String option, final OnItemClickListener<String> listener) {
+        public void bind(final int position, final OnItemClickListener<Integer> listener) {
             this.itemView.setOnClickListener(view -> {
                 if (listener == null) {
                     return;
                 }
 
-                listener.onItemClick(option);
+                listener.onItemClick(position);
             });
         }
     }

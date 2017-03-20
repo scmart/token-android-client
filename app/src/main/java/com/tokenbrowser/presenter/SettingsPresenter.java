@@ -3,6 +3,7 @@ package com.tokenbrowser.presenter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -102,11 +103,15 @@ public final class SettingsPresenter implements
         recyclerView.addItemDecoration(new RecyclerViewDivider(this.fragment.getContext(), 0));
     }
 
-    private void handleItemClickListener(final String option) {
+    private void handleItemClickListener(final int option) {
         switch (option) {
-            case "About": {
+            case SettingsAdapter.ABOUT: {
                 final Intent intent = new Intent(this.fragment.getContext(), AboutActivity.class);
                 this.fragment.getContext().startActivity(intent);
+                break;
+            }
+            case SettingsAdapter.SIGN_OUT: {
+                showSignOutWarning();
                 break;
             }
             default: {
@@ -114,6 +119,22 @@ public final class SettingsPresenter implements
             }
         }
     }
+
+    private void showSignOutWarning() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this.fragment.getContext(), R.style.AlertDialogCustom);
+        builder.setTitle(R.string.sign_out_warning_title)
+                .setMessage(R.string.sign_out_warning_message)
+                .setPositiveButton(R.string.yes, (dialog, which) -> {
+                    handleSignOutClicked();
+                    dialog.dismiss();
+                })
+                .setNegativeButton(R.string.no, (dialog, which) -> {
+                    dialog.dismiss();
+                });
+        builder.create().show();
+    }
+
+    private void handleSignOutClicked() {}
 
     private void updateUi() {
         if (this.localUser == null || this.fragment == null) {

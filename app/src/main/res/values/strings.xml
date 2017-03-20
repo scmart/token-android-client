@@ -131,4 +131,8 @@
     <string name="profile__unknown_name">No username set</string>
     <string name="unknown_sender">Unknown Sender</string>
     <string name="payment_seperator" translatable="false"> · </string>
+    <string name="sign_out_warning_title">Have you recorded your backup phrase?</string>
+    <string name="sign_out_warning_message">Without this you will not be able to sign back in to your account.</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>
