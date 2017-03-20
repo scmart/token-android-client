@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.support.v4.app.TaskStackBuilder;
 
 import com.tokenbrowser.model.local.User;
+import com.tokenbrowser.service.NotificationDismissedReceiver;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ChatActivity;
 import com.tokenbrowser.view.activity.MainActivity;
@@ -14,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChatNotification {
+
+    public static final String DEFAULT_TAG = "unknown";
 
     private final User sender;
     private final ArrayList<String> messages;
@@ -28,12 +32,14 @@ public class ChatNotification {
         this.messages.add(unreadMessage);
     }
 
-    public User getSender() {
-        return this.sender;
+    public String getTag() {
+        return this.sender == null ? DEFAULT_TAG : sender.getTokenId();
     }
 
     public String getTitle() {
-        return this.sender.getDisplayName();
+        return this.sender == null
+                ? BaseApplication.get().getString(R.string.unknown_sender)
+                : this.sender.getDisplayName();
     }
 
     public List<String> getLastFewMessages() {
@@ -49,21 +55,35 @@ public class ChatNotification {
     public PendingIntent getPendingIntent() {
         final Intent mainIntent = new Intent(BaseApplication.get(), MainActivity.class);
         mainIntent.putExtra(MainActivity.EXTRA__ACTIVE_TAB, 1);
-        final Intent chatIntent = new Intent(BaseApplication.get(), ChatActivity.class);
-        chatIntent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, this.sender.getTokenId());
 
-        if (this.sender.getTokenId() == null) {
+        if (this.sender == null || this.sender.getTokenId() == null) {
             return TaskStackBuilder.create(BaseApplication.get())
                     .addParentStack(MainActivity.class)
                     .addNextIntent(mainIntent)
                     .getPendingIntent(0, PendingIntent.FLAG_ONE_SHOT);
         }
 
+        final Intent chatIntent = new Intent(BaseApplication.get(), ChatActivity.class);
+        chatIntent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, this.sender.getTokenId());
+
         return TaskStackBuilder.create(BaseApplication.get())
                 .addParentStack(MainActivity.class)
                 .addNextIntent(mainIntent)
                 .addNextIntent(chatIntent)
                 .getPendingIntent(0, PendingIntent.FLAG_ONE_SHOT);
+    }
+
+    public PendingIntent getDeleteIntent() {
+        final Intent intent =
+                new Intent(BaseApplication.get(), NotificationDismissedReceiver.class)
+                        .putExtra(NotificationDismissedReceiver.TAG, getTag());
+
+        final PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                BaseApplication.get(),
+                1,
+                intent,
+                0);
+        return pendingIntent;
     }
 
     public int getNumberOfUnreadMessages() {

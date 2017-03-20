@@ -120,6 +120,7 @@ public class TransactionManager {
         this.newPaymentQueue
             .observeOn(Schedulers.io())
             .subscribeOn(Schedulers.io())
+            .filter(paymentTask -> paymentTask.getUser() != null)
             .subscribe(this::processNewPayment);
     }
 
