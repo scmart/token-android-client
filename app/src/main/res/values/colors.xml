@@ -12,6 +12,8 @@
     <color name="textColorContrast">#FFFFFF</color>
     <color name="textColorHint">#B2B4B8</color>
     <color name="textColorHintToolbar">#4DD199</color>
+    <color name="textColorInput">#212121</color>
+    <color name="textColorLightButton">#4F4F53</color>
 
     <color name="input_bg">#FFFFFF</color>
     <color name="balance_bar__bg">#FFFFFF</color>
@@ -27,4 +29,5 @@
     <color name="fullscreen_dark_background">#000000</color>
 
     <color name="icon_color">#66000000</color>
+    <color name="border_color">#C7CBCE</color>
 </resources>

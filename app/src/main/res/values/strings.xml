@@ -135,4 +135,10 @@
     <string name="sign_out_warning_message">Without this you will not be able to sign back in to your account.</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_in_alert_message">This is your 12 word phrase, separated by spaces</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="scan_qr_to_sign_in">Scan QR to sign in</string>
+    <string name="create_new_account">Create new account</string>
 </resources>
