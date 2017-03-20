@@ -2,12 +2,12 @@ package com.tokenbrowser.manager.store;
 
 
 import com.tokenbrowser.model.local.PendingTransaction;
-import com.tokenbrowser.model.local.SendState;
 
 import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmQuery;
+import rx.Observable;
 import rx.Single;
 import rx.subjects.PublishSubject;
 
@@ -35,8 +35,8 @@ public class PendingTransactionStore {
         return Single.fromCallable(() -> loadSingleWhere("txHash", txHash));
     }
 
-    public Single<List<PendingTransaction>> loadAllUnconfirmed() {
-        return Single.fromCallable(() -> loadSeveralWhere("sofaMessage.sendState", SendState.STATE_SENDING));
+    public Observable<PendingTransaction> loadAllTransactions() {
+        return Observable.from(loadAll());
     }
 
     private PendingTransaction loadSingleWhere(final String fieldName, final String value) {
@@ -51,11 +51,10 @@ public class PendingTransactionStore {
         return retVal;
     }
 
-    private List<PendingTransaction> loadSeveralWhere(final String fieldName, final int value) {
+    private List<PendingTransaction> loadAll() {
         final Realm realm = Realm.getDefaultInstance();
         final RealmQuery<PendingTransaction> query = realm
-                .where(PendingTransaction.class)
-                .equalTo(fieldName, value);
+                .where(PendingTransaction.class);
 
         final List<PendingTransaction> pendingTransactions = query.findAll();
         final List<PendingTransaction> retVal = realm.copyFromRealm(pendingTransactions);

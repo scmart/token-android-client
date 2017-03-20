@@ -28,6 +28,7 @@ public class SofaType {
     public static final String PAYMENT_ADDRESS = "paymentAddress";
     public static final String LANGUAGE = "language";
     public static final String CONFIRMED = "confirmed";
+    public static final String UNCONFIRMED = "unconfirmed";
 
     private static final String plain_text = "SOFA::Message:";
     private static final String command_request = "SOFA::Command:";

@@ -8,6 +8,9 @@ import com.tokenbrowser.manager.network.interceptor.ReadFromCacheWhenOfflineInte
 import com.tokenbrowser.manager.network.interceptor.SigningInterceptor;
 import com.tokenbrowser.manager.network.interceptor.UserAgentInterceptor;
 import com.tokenbrowser.model.adapter.BigIntegerAdapter;
+import com.tokenbrowser.model.local.SofaMessage;
+import com.tokenbrowser.model.sofa.Payment;
+import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.view.BaseApplication;
 
@@ -15,10 +18,13 @@ import java.io.File;
 
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.moshi.MoshiConverterFactory;
+import rx.Single;
 import rx.schedulers.Schedulers;
 
 public class EthereumService {
@@ -29,10 +35,14 @@ public class EthereumService {
     private final OkHttpClient.Builder client;
 
     public static EthereumInterface getApi() {
-        return get().ethereumInterface;
+        return getInstance().ethereumInterface;
     }
 
-    private static synchronized EthereumService get() {
+    public static EthereumService get() {
+        return getInstance();
+    }
+
+    private static synchronized EthereumService getInstance() {
         if (instance == null) {
             instance = new EthereumService();
         }
@@ -61,7 +71,7 @@ public class EthereumService {
                 .baseUrl(BaseApplication.get().getResources().getString(R.string.balance_url))
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .addCallAdapterFactory(rxAdapter)
-                .client(client.build())
+                .client(this.client.build())
                 .build();
         this.ethereumInterface = retrofit.create(EthereumInterface.class);
     }
@@ -78,5 +88,34 @@ public class EthereumService {
         final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor(new LoggingInterceptor());
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         this.client.addInterceptor(interceptor);
+    }
+
+    public Single<Payment> getStatusOfTransaction(final String transactionHash) {
+        return Single.fromCallable(() -> {
+            final String url = String.format(
+                    "%s%s%s%s",
+                    BaseApplication.get().getResources().getString(R.string.balance_url),
+                    "/v1/tx/",
+                    transactionHash,
+                    "?format=sofa"
+            );
+            final Request request = new Request.Builder()
+                    .url(url)
+                    .build();
+
+            final Response response = new OkHttpClient()
+                    .newCall(request)
+                    .execute();
+
+            if (response.code() == 404) {
+                return null;
+            }
+
+            final SofaMessage sofaMessage = new SofaMessage()
+                    .makeNew(response.body().string());
+            
+            response.close();
+            return new SofaAdapters().paymentFrom(sofaMessage.getPayload());
+        });
     }
 }

@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.tokenbrowser.model.sofa.SofaType;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.crypto.util.TypeConverter;
 import com.tokenbrowser.model.local.SendState;
@@ -81,7 +82,7 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
     }
 
     private void renderPaymentStatus(final TextView tv, final ImageView imageView) {
-        if (this.payment.getStatus() != null && this.payment.getStatus().equals("confirmed")) {
+        if (this.payment.getStatus() != null && this.payment.getStatus().equals(SofaType.CONFIRMED)) {
             tv.setVisibility(View.VISIBLE);
             tv.setText(R.string.error__transaction_succeeded);
             imageView.setVisibility(View.VISIBLE);
