@@ -8,11 +8,16 @@ import com.tokenbrowser.model.local.SofaMessage;
 import com.tokenbrowser.model.local.User;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
+import rx.Observable;
+import rx.Single;
+import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 public class ConversationStore {
@@ -20,6 +25,7 @@ public class ConversationStore {
     private final static PublishSubject<SofaMessage> newMessageObservable = PublishSubject.create();
     private final static PublishSubject<SofaMessage> updatedMessageObservable = PublishSubject.create();
     private final static PublishSubject<Conversation> conversationChangedObservable = PublishSubject.create();
+    private final static ExecutorService dbThread = Executors.newSingleThreadExecutor();
 
     // Returns a pair of RxSubjects, the first being the observable for new messages
     // the second being the observable for updated messages.
@@ -32,28 +38,35 @@ public class ConversationStore {
         watchedConversationId = null;
     }
 
-    public PublishSubject<Conversation> getConversationChangedObservable() {
-        return conversationChangedObservable;
+    public Observable<Conversation> getConversationChangedObservable() {
+        return conversationChangedObservable
+                .filter(conversation -> conversation != null);
     }
 
     public void saveNewMessage(final User user, final SofaMessage message) {
-        final Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        final Conversation existingConversation = loadWhere("conversationId", user.getTokenId());
-        final Conversation conversationToStore = existingConversation == null
-                ? new Conversation(user)
-                : existingConversation;
-        final SofaMessage storedMessage = realm.copyToRealmOrUpdate(message);
-        conversationToStore.setLatestMessage(storedMessage);
-        conversationToStore.setNumberOfUnread(calculateNumberOfUnread(conversationToStore));
-        final Conversation storedConversation = realm.copyToRealmOrUpdate(conversationToStore);
-        final Conversation conversationForBroadcast = realm.copyFromRealm(storedConversation);
+        Single.fromCallable(() -> {
+            final Realm realm = Realm.getDefaultInstance();
+            realm.beginTransaction();
+            final Conversation existingConversation = loadWhere("conversationId", user.getTokenId());
+            final Conversation conversationToStore = existingConversation == null
+                    ? new Conversation(user)
+                    : existingConversation;
+            final SofaMessage storedMessage = realm.copyToRealmOrUpdate(message);
+            conversationToStore.setLatestMessage(storedMessage);
+            conversationToStore.setNumberOfUnread(calculateNumberOfUnread(conversationToStore));
+            final Conversation storedConversation = realm.copyToRealmOrUpdate(conversationToStore);
+            final Conversation conversationForBroadcast = realm.copyFromRealm(storedConversation);
 
-        realm.commitTransaction();
-        realm.close();
-
-        broadcastNewChatMessage(user.getTokenId(), message);
-        broadcastConversationChanged(conversationForBroadcast);
+            realm.commitTransaction();
+            realm.close();
+            return conversationForBroadcast;
+        })
+        .observeOn(Schedulers.immediate())
+        .subscribeOn(Schedulers.from(dbThread))
+        .subscribe(conversationForBroadcast -> {
+            broadcastNewChatMessage(user.getTokenId(), message);
+            broadcastConversationChanged(conversationForBroadcast);
+        });
     }
 
     private int calculateNumberOfUnread(final Conversation conversationToStore) {
@@ -66,18 +79,23 @@ public class ConversationStore {
     }
 
     private void resetUnreadMessageCounter(final String conversationId) {
-        final Conversation storedConversation = loadWhere("conversationId", conversationId);
-        if (storedConversation == null) {
-            return;
-        }
+        Single.fromCallable(() -> {
+            final Conversation storedConversation = loadWhere("conversationId", conversationId);
+            if (storedConversation == null) {
+                return null;
+            }
 
-        final Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        storedConversation.setNumberOfUnread(0);
-        realm.insertOrUpdate(storedConversation);
-        realm.commitTransaction();
-        realm.close();
-        broadcastConversationChanged(storedConversation);
+            final Realm realm = Realm.getDefaultInstance();
+            realm.beginTransaction();
+            storedConversation.setNumberOfUnread(0);
+            realm.insertOrUpdate(storedConversation);
+            realm.commitTransaction();
+            realm.close();
+            return storedConversation;
+        })
+        .observeOn(Schedulers.immediate())
+        .subscribeOn(Schedulers.from(dbThread))
+        .subscribe(this::broadcastConversationChanged);
     }
 
     public List<Conversation> loadAll() {
@@ -110,12 +128,17 @@ public class ConversationStore {
     }
 
     public void updateMessage(final User user, final SofaMessage message) {
-        final Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        realm.insertOrUpdate(message);
-        realm.commitTransaction();
-        realm.close();
-        broadcastUpdatedChatMessage(user.getTokenId(), message);
+        Single.fromCallable(() -> {
+            final Realm realm = Realm.getDefaultInstance();
+            realm.beginTransaction();
+            realm.insertOrUpdate(message);
+            realm.commitTransaction();
+            realm.close();
+            return null;
+        })
+        .observeOn(Schedulers.immediate())
+        .subscribeOn(Schedulers.from(dbThread))
+        .subscribe(unused -> broadcastUpdatedChatMessage(user.getTokenId(), message));
     }
 
     public boolean areUnreadMessages() {

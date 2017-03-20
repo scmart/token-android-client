@@ -69,6 +69,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import rx.Observable;
 import rx.Single;
 import rx.SingleSubscriber;
 import rx.schedulers.Schedulers;
@@ -206,7 +207,7 @@ public final class SofaMessageManager {
                 .subscribeOn(Schedulers.io());
     }
 
-    public final PublishSubject<Conversation> registerForAllConversationChanges() {
+    public final Observable<Conversation> registerForAllConversationChanges() {
         return this.conversationStore.getConversationChangedObservable();
     }
 
