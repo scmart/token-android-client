@@ -2,13 +2,14 @@ package com.tokenbrowser.manager;
 
 
 import com.tokenbrowser.crypto.HDWallet;
-import com.tokenbrowser.manager.network.EthereumService;
 import com.tokenbrowser.manager.network.CurrencyService;
+import com.tokenbrowser.manager.network.EthereumService;
 import com.tokenbrowser.model.network.Addresses;
 import com.tokenbrowser.model.network.Balance;
 import com.tokenbrowser.model.network.GcmRegistration;
 import com.tokenbrowser.model.network.MarketRates;
 import com.tokenbrowser.model.network.ServerTime;
+import com.tokenbrowser.model.sofa.Payment;
 import com.tokenbrowser.util.LocaleUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.BaseApplication;
@@ -165,5 +166,11 @@ public class BalanceManager {
         return EthereumService
                 .getApi()
                 .startWatchingAddresses(serverTime.get(), addresses);
+    }
+
+    /* package */ Single<Payment> getTransactionStatus(final String transactionHash) {
+        return EthereumService
+                .get()
+                .getStatusOfTransaction(transactionHash);
     }
 }

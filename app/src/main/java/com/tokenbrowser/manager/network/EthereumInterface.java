@@ -48,5 +48,4 @@ public interface EthereumInterface {
     Single<Void> startWatchingAddresses(
             @Query("timestamp") long timestamp,
             @Body Addresses addresses);
-
 }

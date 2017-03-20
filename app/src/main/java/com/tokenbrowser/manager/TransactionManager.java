@@ -17,6 +17,7 @@ import com.tokenbrowser.model.network.UnsignedTransaction;
 import com.tokenbrowser.model.sofa.Payment;
 import com.tokenbrowser.model.sofa.PaymentRequest;
 import com.tokenbrowser.model.sofa.SofaAdapters;
+import com.tokenbrowser.model.sofa.SofaType;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.LocaleUtil;
 import com.tokenbrowser.util.LogUtil;
@@ -99,11 +100,38 @@ public class TransactionManager {
 
     private void initEverything() {
         initAdapters();
+        updatePendingTransactions();
         attachSubscribers();
     }
 
     private void initAdapters() {
         this.adapters = new SofaAdapters();
+    }
+
+    private void updatePendingTransactions() {
+        this.pendingTransactionStore
+                .loadAllTransactions()
+                .filter(this::isUnconfirmed)
+                .switchMap(pendingTransaction ->
+                        BaseApplication
+                                .get()
+                                .getTokenManager()
+                                .getBalanceManager()
+                                .getTransactionStatus(pendingTransaction.getTxHash())
+                                .toObservable())
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(this::updatePayment);
+    }
+
+    private Boolean isUnconfirmed(final PendingTransaction pendingTransaction) {
+        try {
+            final SofaMessage sofaMessage = pendingTransaction.getSofaMessage();
+            final Payment payment = this.adapters.paymentFrom(sofaMessage.getPayload());
+            return payment.getStatus() == null || payment.getStatus().equals(SofaType.UNCONFIRMED);
+        } catch (final IOException ex) {
+            return false;
+        }
     }
 
     private void initDatabase() {
@@ -270,12 +298,13 @@ public class TransactionManager {
         this.updatePaymentQueue
             .observeOn(Schedulers.io())
             .subscribeOn(Schedulers.io())
+            .filter(payment -> payment != null)
             .subscribe(this::processUpdatedPayment);
     }
 
     private void processUpdatedPayment(final Payment payment) {
         pendingTransactionStore
-                .load(payment.getTxHash())
+                .loadTransaction(payment.getTxHash())
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .toObservable()
