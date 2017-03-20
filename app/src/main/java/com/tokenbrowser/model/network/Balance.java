@@ -22,8 +22,18 @@ public class Balance {
 
     private String localBalance;
 
+    public Balance() {}
+
+    public Balance(final String unconfirmedBalanceAsHex) {
+        this.unconfirmedBalanceAsHex = unconfirmedBalanceAsHex;
+    }
+
     public BigInteger getConfirmedBalance() {
         return TypeConverter.StringHexToBigInteger(confirmedBalanceAsHex);
+    }
+
+    public String getUnconfirmedBalanceAsHex() {
+        return unconfirmedBalanceAsHex;
     }
 
     public BigInteger getUnconfirmedBalance() {
