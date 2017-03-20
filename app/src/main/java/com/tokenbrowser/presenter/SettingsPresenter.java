@@ -18,6 +18,7 @@ import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.AboutActivity;
 import com.tokenbrowser.view.activity.BackupPhraseInfoActivity;
 import com.tokenbrowser.view.activity.ProfileActivity;
+import com.tokenbrowser.view.activity.SignInActivity;
 import com.tokenbrowser.view.activity.TrustedFriendsActivity;
 import com.tokenbrowser.view.adapter.SettingsAdapter;
 import com.tokenbrowser.view.custom.RecyclerViewDivider;
@@ -134,7 +135,11 @@ public final class SettingsPresenter implements
         builder.create().show();
     }
 
-    private void handleSignOutClicked() {}
+    private void handleSignOutClicked() {
+        final Intent intent = new Intent(this.fragment.getActivity(), SignInActivity.class);
+        this.fragment.getActivity().startActivity(intent);
+        this.fragment.getActivity().finish();
+    }
 
     private void updateUi() {
         if (this.localUser == null || this.fragment == null) {
