@@ -77,32 +77,24 @@ public class ChatNotificationManager {
             final User sender,
             final String content) {
 
-        if (sender == null) {
-            // Most likely sent from outside of Token
-            // Try and refresh balance -- it might have been a payment!
-            BaseApplication
-                    .get()
-                    .getTokenManager()
-                    .getBalanceManager()
-                    .refreshBalance();
+        // Sender will be null if the transaction came from outside of the Token platform.
+        final String notificationKey = sender == null ? "unknown" : sender.getTokenId();
+
+        if (notificationKey.equals(currentlyOpenConversation)) {
             return;
         }
 
-        if (sender.getTokenId() != null && sender.getTokenId().equals(currentlyOpenConversation)) {
-            return;
-        }
-
-        ChatNotification activeChatNotification = activeNotifications.get(sender.getTokenId());
+        ChatNotification activeChatNotification = activeNotifications.get(notificationKey);
         if (activeChatNotification == null) {
             activeChatNotification = new ChatNotification(sender);
-            activeNotifications.put(sender.getTokenId(), activeChatNotification);
+            activeNotifications.put(notificationKey, activeChatNotification);
         }
 
         activeChatNotification.addUnreadMessage(content);
-        showChatNotification(activeChatNotification);
+        showChatNotification(notificationKey, activeChatNotification);
     }
 
-    private static void showChatNotification(final ChatNotification chatNotification) {
+    private static void showChatNotification(final String notificationKey, final ChatNotification chatNotification) {
         final NotificationCompat.Style style = generateNotificationStyle(chatNotification);
         final CharSequence contextText = chatNotification.getLastMessage();
 
@@ -133,8 +125,7 @@ public class ChatNotificationManager {
         }
 
         final NotificationManager manager = (NotificationManager) BaseApplication.get().getSystemService(Context.NOTIFICATION_SERVICE);
-        final String tag = chatNotification.getSender().getTokenId();
-        manager.notify(tag, 1, builder.build());
+        manager.notify(notificationKey, 1, builder.build());
     }
 
     private static NotificationCompat.Style generateNotificationStyle(final ChatNotification chatNotification) {
@@ -143,7 +134,7 @@ public class ChatNotificationManager {
         if (numberOfUnreadMessages == 1) {
             return new NotificationCompat
                     .BigTextStyle()
-                    .setBigContentTitle(chatNotification.getSender().getDisplayName())
+                    .setBigContentTitle(chatNotification.getTitle())
                     .bigText(chatNotification.getLastMessage());
         }
 
@@ -151,7 +142,7 @@ public class ChatNotificationManager {
         final NotificationCompat.Style style =
                 new NotificationCompat
                         .InboxStyle()
-                        .setBigContentTitle(chatNotification.getSender().getDisplayName());
+                        .setBigContentTitle(chatNotification.getTitle());
         for (final String message : lastFewMessages) {
             ((NotificationCompat.InboxStyle) style).addLine(message);
         }
