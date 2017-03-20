@@ -31,7 +31,11 @@ public class ChatNotificationManager {
         currentlyOpenConversation = conversationId;
         final NotificationManager manager = (NotificationManager) BaseApplication.get().getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(conversationId, 1);
-        activeNotifications.remove(conversationId);
+        handleNotificationDismissed(conversationId);
+    }
+
+    public static void handleNotificationDismissed(final String notificationTag) {
+        activeNotifications.remove(notificationTag);
     }
 
     public static void stopNotificationSuppression() {
@@ -78,7 +82,7 @@ public class ChatNotificationManager {
             final String content) {
 
         // Sender will be null if the transaction came from outside of the Token platform.
-        final String notificationKey = sender == null ? "unknown" : sender.getTokenId();
+        final String notificationKey = sender == null ? ChatNotification.DEFAULT_TAG : sender.getTokenId();
 
         if (notificationKey.equals(currentlyOpenConversation)) {
             return;
@@ -91,10 +95,10 @@ public class ChatNotificationManager {
         }
 
         activeChatNotification.addUnreadMessage(content);
-        showChatNotification(notificationKey, activeChatNotification);
+        showChatNotification(activeChatNotification);
     }
 
-    private static void showChatNotification(final String notificationKey, final ChatNotification chatNotification) {
+    private static void showChatNotification(final ChatNotification chatNotification) {
         final NotificationCompat.Style style = generateNotificationStyle(chatNotification);
         final CharSequence contextText = chatNotification.getLastMessage();
 
@@ -115,7 +119,8 @@ public class ChatNotificationManager {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setStyle(style)
                 .setNumber(chatNotification.getNumberOfUnreadMessages())
-                .setContentIntent(chatNotification.getPendingIntent());
+                .setContentIntent(chatNotification.getPendingIntent())
+                .setDeleteIntent(chatNotification.getDeleteIntent());
 
         final int maxNumberMessagesWithSound = 3;
         if (chatNotification.getNumberOfUnreadMessages() > maxNumberMessagesWithSound) {
@@ -125,7 +130,7 @@ public class ChatNotificationManager {
         }
 
         final NotificationManager manager = (NotificationManager) BaseApplication.get().getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(notificationKey, 1, builder.build());
+        manager.notify(chatNotification.getTag(), 1, builder.build());
     }
 
     private static NotificationCompat.Style generateNotificationStyle(final ChatNotification chatNotification) {

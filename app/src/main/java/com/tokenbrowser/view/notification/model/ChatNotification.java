@@ -3,10 +3,10 @@ package com.tokenbrowser.view.notification.model;
 
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.support.annotation.Nullable;
 import android.support.v4.app.TaskStackBuilder;
 
 import com.tokenbrowser.model.local.User;
+import com.tokenbrowser.service.NotificationDismissedReceiver;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ChatActivity;
@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChatNotification {
+
+    public static final String DEFAULT_TAG = "unknown";
 
     private final User sender;
     private final ArrayList<String> messages;
@@ -30,9 +32,8 @@ public class ChatNotification {
         this.messages.add(unreadMessage);
     }
 
-    @Nullable
-    public User getSender() {
-        return this.sender;
+    public String getTag() {
+        return this.sender == null ? DEFAULT_TAG : sender.getTokenId();
     }
 
     public String getTitle() {
@@ -70,6 +71,19 @@ public class ChatNotification {
                 .addNextIntent(mainIntent)
                 .addNextIntent(chatIntent)
                 .getPendingIntent(0, PendingIntent.FLAG_ONE_SHOT);
+    }
+
+    public PendingIntent getDeleteIntent() {
+        final Intent intent =
+                new Intent(BaseApplication.get(), NotificationDismissedReceiver.class)
+                        .putExtra(NotificationDismissedReceiver.TAG, getTag());
+
+        final PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                BaseApplication.get(),
+                1,
+                intent,
+                0);
+        return pendingIntent;
     }
 
     public int getNumberOfUnreadMessages() {

@@ -72,6 +72,11 @@
         </receiver>
 
         <receiver
+            android:name="com.tokenbrowser.service.NotificationDismissedReceiver"
+            android:exported="false" >
+        </receiver>
+
+        <receiver
             android:name="com.tokenbrowser.service.NetworkChangeReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
