@@ -57,6 +57,7 @@
         <activity android:name="com.tokenbrowser.view.activity.DepositActivity" />
         <activity android:name="com.tokenbrowser.view.activity.FullscreenImageActivity"/>
         <activity android:name="com.tokenbrowser.view.activity.ImageConfirmationActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.SignInActivity" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
