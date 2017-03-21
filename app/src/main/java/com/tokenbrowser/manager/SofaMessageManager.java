@@ -148,12 +148,6 @@ public final class SofaMessageManager {
         }
     }
 
-    public final void sendAndSaveMediaMessage(final User receiver, final SofaMessage message) {
-        final SofaMessageTask messageTask = new SofaMessageTask(receiver, message, SofaMessageTask.SEND_AND_SAVE)
-                .setOutgoingAttachment(new OutgoingAttachment(message));
-        this.chatMessageQueue.onNext(messageTask);
-    }
-
     // Will send the message to a remote peer
     // but not store the message in the local database
     public final void sendMessage(final User receiver, final SofaMessage message) {
@@ -331,11 +325,7 @@ public final class SofaMessageManager {
     private void sendPendingMessages() {
         final List<PendingMessage> pendingMessages = this.pendingMessageStore.getAllPendingMessages();
         for (final PendingMessage pendingMessage : pendingMessages) {
-            if (pendingMessage.getSofaMessage().getAttachmentFilePath() != null) {
-                sendAndSaveMediaMessage(pendingMessage.getReceiver(), pendingMessage.getSofaMessage());
-            } else {
-                sendAndSaveMessage(pendingMessage.getReceiver(), pendingMessage.getSofaMessage());
-            }
+            sendAndSaveMessage(pendingMessage.getReceiver(), pendingMessage.getSofaMessage());
         }
     }
 
@@ -397,8 +387,10 @@ public final class SofaMessageManager {
     private SignalServiceDataMessage buildMessage(final SofaMessageTask messageTask) throws FileNotFoundException {
         final SignalServiceDataMessage.Builder messageBuilder = SignalServiceDataMessage.newBuilder();
         messageBuilder.withBody(messageTask.getSofaMessage().getAsSofaMessage());
-        if (messageTask.getOutgoingAttachment() != null) {
-            messageBuilder.withAttachment(buildOutgoingAttachment(messageTask.getOutgoingAttachment()));
+        final OutgoingAttachment outgoingAttachment = new OutgoingAttachment(messageTask.getSofaMessage());
+        if (outgoingAttachment.isValid()) {
+            final SignalServiceAttachment signalAttachment = buildOutgoingAttachment(outgoingAttachment);
+            messageBuilder.withAttachment(signalAttachment);
         }
 
         return messageBuilder.build();
