@@ -3,8 +3,6 @@ package com.tokenbrowser.manager.network;
 
 import com.squareup.moshi.Moshi;
 import com.tokenbrowser.manager.network.interceptor.LoggingInterceptor;
-import com.tokenbrowser.manager.network.interceptor.OfflineCacheInterceptor;
-import com.tokenbrowser.manager.network.interceptor.ReadFromCacheWhenOfflineInterceptor;
 import com.tokenbrowser.manager.network.interceptor.SigningInterceptor;
 import com.tokenbrowser.manager.network.interceptor.UserAgentInterceptor;
 import com.tokenbrowser.model.adapter.BigIntegerAdapter;
@@ -14,9 +12,6 @@ import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.view.BaseApplication;
 
-import java.io.File;
-
-import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -52,12 +47,7 @@ public class EthereumService {
     private EthereumService() {
         final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory
                 .createWithScheduler(Schedulers.io());
-        final File cachePath = new File(BaseApplication.get().getCacheDir(), "balanceCache");
-        this.client = new OkHttpClient
-                .Builder()
-                .cache(new Cache(cachePath, 1024 * 128))
-                .addNetworkInterceptor(new ReadFromCacheWhenOfflineInterceptor())
-                .addInterceptor(new OfflineCacheInterceptor());
+        this.client = new OkHttpClient.Builder();
 
         addUserAgentHeader();
         addSigningInterceptor();
