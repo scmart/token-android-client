@@ -141,4 +141,6 @@
     <string name="password">Password</string>
     <string name="scan_qr_to_sign_in">Scan QR to sign in</string>
     <string name="create_new_account">Create new account</string>
+    <string name="unable_to_restore_wallet">Unable to restore wallet</string>
+    <string name="sign_in_length_error_message">Please insert 12 words</string>
 </resources>

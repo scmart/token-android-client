@@ -6,7 +6,7 @@ import com.tokenbrowser.crypto.HDWallet;
 import rx.Single;
 
 public class TokenManager {
-    
+
     public static final long CACHE_TIMEOUT = 1000 * 60 * 60 * 24;
 
     private AppsManager appsManager;
@@ -26,15 +26,25 @@ public class TokenManager {
     }
 
     public Single<TokenManager> init() {
+        return new HDWallet().getOrCreateWallet()
+                .doOnSuccess(wallet -> this.wallet = wallet)
+                .flatMap(unused -> initManagers());
+    }
+
+    public Single<TokenManager> init(final HDWallet wallet) {
+        this.wallet = wallet;
+        return initManagers();
+    }
+
+    private Single<TokenManager> initManagers() {
         return Single.fromCallable(() -> {
-            TokenManager.this.wallet = new HDWallet().init();
-            TokenManager.this.appsManager.init();
-            TokenManager.this.balanceManager.init(TokenManager.this.wallet);
-            TokenManager.this.sofaMessageManager.init(TokenManager.this.wallet);
-            TokenManager.this.transactionManager.init(TokenManager.this.wallet);
-            TokenManager.this.userManager.init(TokenManager.this.wallet);
-            TokenManager.this.reputationManager = new ReputationManager();
-            return TokenManager.this;
+            this.appsManager.init();
+            this.balanceManager.init(this.wallet);
+            this.sofaMessageManager.init(this.wallet);
+            this.transactionManager.init(this.wallet);
+            this.userManager.init(this.wallet);
+            this.reputationManager = new ReputationManager();
+            return this;
         });
     }
 

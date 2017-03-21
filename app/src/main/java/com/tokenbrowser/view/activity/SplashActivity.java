@@ -6,15 +6,19 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.tokenbrowser.BuildConfig;
-import com.tokenbrowser.crypto.HDWallet;
-import com.tokenbrowser.view.BaseApplication;
 import com.crashlytics.android.Crashlytics;
+import com.tokenbrowser.util.SharedPrefsUtil;
+import com.tokenbrowser.view.BaseApplication;
 
 import io.fabric.sdk.android.Fabric;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 public class SplashActivity extends AppCompatActivity {
+
+    private CompositeSubscription subscriptions;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -24,18 +28,49 @@ public class SplashActivity extends AppCompatActivity {
             Fabric.with(this, new Crashlytics());
         }
 
-        BaseApplication
-                .get()
-                .getTokenManager()
-                .getWallet()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::gotoMainActivity);
+        this.subscriptions = new CompositeSubscription();
+        redirect();
     }
 
-    private void gotoMainActivity(final HDWallet unused) {
+    private void redirect() {
+        final boolean hasSignedOut = SharedPrefsUtil.hasSignedOut();
+
+        if (!hasSignedOut) {
+            initManagersAndGoToMainActivity();
+        } else {
+            goToSignInActivity();
+        }
+    }
+
+    private void initManagersAndGoToMainActivity() {
+        final Subscription sub = BaseApplication
+                .get()
+                .getTokenManager()
+                .init()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(tokenManager -> goToMainActivity());
+
+        this.subscriptions.add(sub);
+    }
+
+    private void goToMainActivity() {
+        SharedPrefsUtil.setSignedIn();
         final Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    private void goToSignInActivity() {
+        final Intent intent = new Intent(this, SignInActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        this.subscriptions.clear();
+        this.subscriptions = null;
     }
 }

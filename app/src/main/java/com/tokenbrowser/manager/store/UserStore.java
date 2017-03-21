@@ -53,5 +53,4 @@ public class UserStore {
         realm.close();
         return result;
     }
-
 }

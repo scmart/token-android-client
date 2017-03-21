@@ -9,12 +9,9 @@ import android.support.multidex.MultiDexApplication;
 import com.tokenbrowser.manager.TokenManager;
 import com.tokenbrowser.manager.store.TokenMigration;
 import com.tokenbrowser.service.NetworkChangeReceiver;
-import com.tokenbrowser.util.LogUtil;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
-import rx.SingleSubscriber;
-import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 
 public final class BaseApplication extends MultiDexApplication {
@@ -54,24 +51,7 @@ public final class BaseApplication extends MultiDexApplication {
 
     private void initTokenManager() {
         this.tokenManager = new TokenManager();
-        this.tokenManager.init()
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe(new SingleSubscriber<TokenManager>() {
-                    @Override
-                    public void onSuccess(final TokenManager tokenManager) {
-                        this.unsubscribe();
-                    }
-
-                    @Override
-                    public void onError(final Throwable error) {
-                        this.unsubscribe();
-                        LogUtil.e(getClass(), "Fundamental error setting up managers. " + error);
-                        throw new RuntimeException(error);
-                    }
-                });
     }
-
 
     private void initRealm() {
         Realm.init(this);
