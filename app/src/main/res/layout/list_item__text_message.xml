@@ -41,15 +41,15 @@
             android:visibility="gone"
             tools:visibility="visible"/>
 
-    </LinearLayout>
+        <com.tokenbrowser.view.custom.RoundCornersImageView
+            android:id="@+id/remote_image"
+            android:layout_width="250dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="@dimen/bubbleMargin"
+            android:layout_marginBottom="@dimen/bubbleMargin"
+            android:visibility="gone" />
 
-    <com.tokenbrowser.view.custom.RoundCornersImageView
-        android:id="@+id/remote_image"
-        android:layout_width="250dp"
-        android:layout_height="200dp"
-        android:layout_marginTop="@dimen/bubbleMargin"
-        android:layout_marginBottom="@dimen/bubbleMargin"
-        android:visibility="gone" />
+    </LinearLayout>
 
     <com.tokenbrowser.view.custom.RoundCornersImageView
         android:id="@+id/local_image"
