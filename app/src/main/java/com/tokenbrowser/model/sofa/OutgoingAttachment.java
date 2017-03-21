@@ -10,6 +10,10 @@ public class OutgoingAttachment {
     private String mimeType;
 
     public OutgoingAttachment(final SofaMessage sofaMessage) {
+        if (sofaMessage == null || sofaMessage.getAttachmentFilePath() == null) {
+            return;
+        }
+
         this.outgoingAttachment = new File(sofaMessage.getAttachmentFilePath());
         this.mimeType = new FileUtil().getMimeTypeFromFilename(this.outgoingAttachment.getName());
     }
@@ -20,5 +24,9 @@ public class OutgoingAttachment {
 
     public String getMimeType() {
         return mimeType;
+    }
+
+    public boolean isValid() {
+        return this.outgoingAttachment != null && this.mimeType != null;
     }
 }

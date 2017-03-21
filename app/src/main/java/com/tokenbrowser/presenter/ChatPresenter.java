@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -66,6 +67,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
+import rx.subjects.ReplaySubject;
 import rx.subscriptions.CompositeSubscription;
 
 
@@ -81,6 +83,8 @@ public final class ChatPresenter implements
     private static final int CONFIRM_IMAGE = 6;
     private static final int READ_EXTERNAL_STORAGE_PERMISSION = 7;
 
+    private static final String CAPTURE_FILENAME = "caputureImageFilename";
+
     private ChatActivity activity;
     private MessageAdapter messageAdapter;
     private User remoteUser;
@@ -92,6 +96,7 @@ public final class ChatPresenter implements
     private boolean firstViewAttachment = true;
     private int lastVisibleMessagePosition;
     private Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> chatObservables;
+    private ReplaySubject<SofaMessage> outgoingMessageQueue;
     private String captureImageFilename;
 
     @Override
@@ -107,6 +112,7 @@ public final class ChatPresenter implements
 
     private void initLongLivingObjects() {
         this.subscriptions = new CompositeSubscription();
+        this.outgoingMessageQueue = ReplaySubject.create();
         initMessageAdapter();
     }
 
@@ -370,10 +376,7 @@ public final class ChatPresenter implements
             final Message sofaMessage = new Message().setBody(userInput);
             final String messageBody = adapters.toJson(sofaMessage);
             final SofaMessage message = new SofaMessage().makeNew(true, messageBody);
-            BaseApplication.get()
-                    .getTokenManager()
-                    .getSofaMessageManager()
-                    .sendAndSaveMessage(remoteUser, message);
+            outgoingMessageQueue.onNext(message);
 
             activity.getBinding().userInput.setText(null);
         }
@@ -419,12 +422,8 @@ public final class ChatPresenter implements
                 .setBody(control.getLabel())
                 .setValue(control.getValue());
         final String commandPayload = adapters.toJson(command);
-        final SofaMessage sofaCommandMessage = new SofaMessage().makeNew(true, commandPayload);
-
-        BaseApplication.get()
-                .getTokenManager()
-                .getSofaMessageManager()
-                .sendAndSaveMessage(remoteUser, sofaCommandMessage);
+        final SofaMessage sofaMessage = new SofaMessage().makeNew(true, commandPayload);
+        this.outgoingMessageQueue.onNext(sofaMessage);
     }
 
     private void initControlView() {
@@ -467,7 +466,24 @@ public final class ChatPresenter implements
         this.remoteUser = user;
         if (this.remoteUser != null) {
             processIntentData();
+            attachOutgoingQueueSubscriber();
         }
+    }
+
+    private void attachOutgoingQueueSubscriber() {
+        final Subscription subscription =
+                this.outgoingMessageQueue
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(outgoingSofaMessage ->
+                        BaseApplication
+                                .get()
+                                .getTokenManager()
+                                .getSofaMessageManager()
+                                .sendAndSaveMessage(this.remoteUser, outgoingSofaMessage)
+                );
+
+        this.subscriptions.add(subscription);
     }
 
     private void handleUserFetchFailed(final Throwable throwable) {
@@ -520,12 +536,7 @@ public final class ChatPresenter implements
                 .subscribe((request) -> {
                     final String messageBody = this.adapters.toJson(request);
                     final SofaMessage message = new SofaMessage().makeNew(true, messageBody);
-
-                    BaseApplication
-                            .get()
-                            .getTokenManager()
-                            .getSofaMessageManager()
-                            .sendAndSaveMessage(remoteUser, message);
+                    this.outgoingMessageQueue.onNext(message);
                 });
 
     }
@@ -774,11 +785,7 @@ public final class ChatPresenter implements
         final SofaMessage sofaMessage = new SofaMessage()
                 .makeNew(true, messageBody)
                 .setAttachmentFilePath(filePath);
-
-        BaseApplication.get()
-                .getTokenManager()
-                .getSofaMessageManager()
-                .sendAndSaveMediaMessage(this.remoteUser, sofaMessage);
+        this.outgoingMessageQueue.onNext(sofaMessage);
     }
 
     private void showNotEnoughFundsDialog() {
@@ -874,6 +881,7 @@ public final class ChatPresenter implements
         ChatNotificationManager.stopNotificationSuppression();
         this.subscriptions = null;
         this.chatObservables = null;
+        this.outgoingMessageQueue = null;
     }
 
     private void stopListeningForConversationChanges() {
@@ -883,4 +891,13 @@ public final class ChatPresenter implements
                 .getSofaMessageManager()
                 .stopListeningForConversationChanges();
     }
+
+    public void onSaveInstanceState(final Bundle outState) {
+        outState.putString(CAPTURE_FILENAME, this.captureImageFilename);
+    }
+
+    public void onRestoreInstanceState(final Bundle savedInstanceState) {
+        this.captureImageFilename = savedInstanceState.getString(CAPTURE_FILENAME);
+    }
+
 }

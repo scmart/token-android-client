@@ -108,4 +108,17 @@ public final class ChatActivity
     public View getOfflineViewContainer() {
         return this.binding.getRoot();
     }
+
+    @Override
+    public void onSaveInstanceState(final Bundle outState) {
+        this.presenter.onSaveInstanceState(outState);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onRestoreInstanceState(final Bundle savedInstanceState) {
+        this.presenter.onRestoreInstanceState(savedInstanceState);
+    }
+
+
 }

@@ -5,7 +5,6 @@ import android.support.annotation.IntDef;
 
 import com.tokenbrowser.model.local.SofaMessage;
 import com.tokenbrowser.model.local.User;
-import com.tokenbrowser.model.sofa.OutgoingAttachment;
 
 public class SofaMessageTask {
 
@@ -20,7 +19,6 @@ public class SofaMessageTask {
     private final User receiver;
     private final SofaMessage sofaMessage;
     private final @Action int action;
-    private OutgoingAttachment outgoingAttachment;
 
     public SofaMessageTask(
             final User receiver,
@@ -41,14 +39,5 @@ public class SofaMessageTask {
 
     public int getAction() {
         return action;
-    }
-
-    public OutgoingAttachment getOutgoingAttachment() {
-        return outgoingAttachment;
-    }
-
-    public SofaMessageTask setOutgoingAttachment(OutgoingAttachment outgoingAttachment) {
-        this.outgoingAttachment = outgoingAttachment;
-        return this;
     }
 }
