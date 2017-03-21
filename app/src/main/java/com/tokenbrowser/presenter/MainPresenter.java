@@ -2,6 +2,7 @@ package com.tokenbrowser.presenter;
 
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 
@@ -29,13 +30,12 @@ public class MainPresenter implements Presenter<MainActivity> {
     private final AHBottomNavigation.OnTabSelectedListener tabListener = new AHBottomNavigation.OnTabSelectedListener() {
         @Override
         public boolean onTabSelected(final int position, final boolean wasSelected) {
-            if (wasSelected) {
-                return false;
-            }
-
             final FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
             transaction.replace(activity.getBinding().fragmentContainer.getId(), adapter.getItem(position)).commit();
-            SoundManager.getInstance().playSound(SoundManager.TAB_BUTTON);
+
+            if (!wasSelected) {
+                SoundManager.getInstance().playSound(SoundManager.TAB_BUTTON);
+            }
             return true;
         }
     };
@@ -51,19 +51,11 @@ public class MainPresenter implements Presenter<MainActivity> {
             manuallySelectFirstTab();
         }
         initNavBar();
-        selectTabFromIntent();
         attachUnreadMessagesSubscription();
     }
 
     private void manuallySelectFirstTab() {
         this.tabListener.onTabSelected(DEFAULT_TAB, false);
-    }
-
-    private void selectTabFromIntent() {
-        final Intent intent = this.activity.getIntent();
-        final int activeTab = intent.getIntExtra(MainActivity.EXTRA__ACTIVE_TAB, this.activity.getBinding().navBar.getCurrentItem());
-        this.activity.getIntent().removeExtra(MainActivity.EXTRA__ACTIVE_TAB);
-        this.activity.getBinding().navBar.setCurrentItem(activeTab);
     }
 
     private void initNavBar() {
@@ -124,5 +116,16 @@ public class MainPresenter implements Presenter<MainActivity> {
     @Override
     public void onDestroyed() {
         this.adapter = null;
+    }
+
+    public void onRestoreInstanceState(final Bundle savedInstanceState) {
+        selectTabFromIntent();
+    }
+
+    private void selectTabFromIntent() {
+        final Intent intent = this.activity.getIntent();
+        final int activeTab = intent.getIntExtra(MainActivity.EXTRA__ACTIVE_TAB, this.activity.getBinding().navBar.getCurrentItem());
+        this.activity.getIntent().removeExtra(MainActivity.EXTRA__ACTIVE_TAB);
+        this.activity.getBinding().navBar.setCurrentItem(activeTab);
     }
 }
