@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import com.tokenbrowser.model.local.Conversation;
 import com.tokenbrowser.model.local.SofaMessage;
+import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.sofa.Message;
 import com.tokenbrowser.model.sofa.Payment;
 import com.tokenbrowser.model.sofa.PaymentRequest;
@@ -15,6 +16,7 @@ import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.model.sofa.SofaType;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.LogUtil;
+import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
 import com.tokenbrowser.view.adapter.viewholder.ClickableViewHolder;
 import com.tokenbrowser.view.adapter.viewholder.ConversationViewHolder;
@@ -88,6 +90,7 @@ public class RecentAdapter extends RecyclerView.Adapter<ConversationViewHolder> 
     }
 
     private String formatLastMessage(final SofaMessage sofaMessage) {
+        final User localUser = getCurrentLocalUser();
 
         try {
             switch (sofaMessage.getType()) {
@@ -98,12 +101,12 @@ public class RecentAdapter extends RecyclerView.Adapter<ConversationViewHolder> 
 
                 case SofaType.PAYMENT: {
                     final Payment payment = this.adapters.paymentFrom(sofaMessage.getPayload());
-                    return payment.toUserVisibleString(sofaMessage.isSentByLocal());
+                    return payment.toUserVisibleString(sofaMessage.isSentBy(localUser));
                 }
 
                 case SofaType.PAYMENT_REQUEST: {
                     final PaymentRequest request = this.adapters.txRequestFrom(sofaMessage.getPayload());
-                    return request.toUserVisibleString(sofaMessage.isSentByLocal());
+                    return request.toUserVisibleString(sofaMessage.isSentBy(localUser));
                 }
             }
         } catch (final IOException ex) {
@@ -111,5 +114,16 @@ public class RecentAdapter extends RecyclerView.Adapter<ConversationViewHolder> 
         }
 
         return "";
+    }
+
+    private User getCurrentLocalUser() {
+        // Yes, this blocks. But realistically, a value should be always ready for returning.
+        return BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .getCurrentUser()
+                .toBlocking()
+                .value();
     }
 }

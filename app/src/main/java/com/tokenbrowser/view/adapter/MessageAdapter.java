@@ -5,14 +5,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.tokenbrowser.token.R;
 import com.tokenbrowser.model.local.SofaMessage;
+import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.sofa.Message;
 import com.tokenbrowser.model.sofa.Payment;
 import com.tokenbrowser.model.sofa.PaymentRequest;
 import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.model.sofa.SofaType;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.LogUtil;
+import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
 import com.tokenbrowser.view.adapter.viewholder.PaymentRequestViewHolder;
 import com.tokenbrowser.view.adapter.viewholder.PaymentViewHolder;
@@ -148,6 +150,8 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
             final SofaMessage sofaMessage,
             final String payload) throws IOException {
 
+        final User localUser = getCurrentLocalUser();
+
         switch (holder.getItemViewType()) {
             case SofaType.COMMAND_REQUEST:
             case SofaType.PLAIN_TEXT: {
@@ -155,7 +159,8 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
                 final Message message = this.adapters.messageFrom(payload)
                         .setAttachmentFilename(sofaMessage.getAttachmentFilePath());
                 vh.setText(message.getBody())
-                        .setSentByLocal(sofaMessage.isSentByLocal())
+                        .setSentByLocal(sofaMessage.isSentBy(localUser))
+                        .setAvatarUri(sofaMessage.getSender() != null ? sofaMessage.getSender().getAvatar() : null)
                         .setSendState(sofaMessage.getSendState())
                         .setAttachmentFilePath(sofaMessage.getAttachmentFilePath())
                         .setClickableImage(this.onImageClickListener, sofaMessage.getAttachmentFilePath())
@@ -169,7 +174,7 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
                 final Payment payment = this.adapters.paymentFrom(payload);
                 vh.setPayment(payment)
                   .setSendState(sofaMessage.getSendState())
-                  .setSentByLocal(sofaMessage.isSentByLocal())
+                  .setSentByLocal(sofaMessage.isSentBy(localUser))
                   .draw();
                 break;
             }
@@ -178,7 +183,7 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
                 final PaymentRequestViewHolder vh = (PaymentRequestViewHolder) holder;
                 final PaymentRequest request = this.adapters.txRequestFrom(payload);
                 vh.setPaymentRequest(request)
-                  .setSentByLocal(sofaMessage.isSentByLocal())
+                  .setSentByLocal(sofaMessage.isSentBy(localUser))
                   .setOnApproveListener(this.handleOnPaymentRequestApproved)
                   .setOnRejectListener(this.handleOnPaymentRequestRejected)
                   .draw();
@@ -215,5 +220,16 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
     public void clear() {
         this.sofaMessages.clear();
         notifyDataSetChanged();
+    }
+
+    private User getCurrentLocalUser() {
+        // Yes, this blocks. But realistically, a value should be always ready for returning.
+        return BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .getCurrentUser()
+                .toBlocking()
+                .value();
     }
 }

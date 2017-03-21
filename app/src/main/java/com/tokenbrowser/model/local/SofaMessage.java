@@ -17,8 +17,8 @@ public class SofaMessage extends RealmObject {
     private @SofaType.Type int type;
     private @SendState.State int sendState;
     private String payload;
-    private boolean sentByLocal;
     private String attachmentFilePath;
+    private User sender;
 
     public SofaMessage() {
         this.creationTime = System.currentTimeMillis();
@@ -37,13 +37,13 @@ public class SofaMessage extends RealmObject {
         return this;
     }
 
-    public SofaMessage setPayload(final String payload) {
-        this.payload = payload;
+    public SofaMessage setSender(final User sender) {
+        this.sender = sender;
         return this;
     }
 
-    private SofaMessage setSentByLocal(final boolean sentByLocal) {
-        this.sentByLocal = sentByLocal;
+    public SofaMessage setPayload(final String payload) {
+        this.payload = payload;
         return this;
     }
 
@@ -70,6 +70,10 @@ public class SofaMessage extends RealmObject {
         return attachmentFilePath;
     }
 
+    public User getSender() {
+        return this.sender;
+    }
+
     // Return message in the correct format for SOFA
     public String getAsSofaMessage() {
         // Strip away local-only data before sending via Signal
@@ -85,15 +89,15 @@ public class SofaMessage extends RealmObject {
         return this.sendState;
     }
 
-    public boolean isSentByLocal() {
-        return this.sentByLocal;
-    }
-
     public long getCreationTime() {
         return this.creationTime;
     }
 
     // Helper functions
+
+    public boolean isSentBy(final User sender) {
+        return this.sender!= null && this.sender.equals(sender);
+    }
 
     private String cleanPayload(final String payload) {
         final String regexString = "\\{.*\\}";
@@ -116,14 +120,14 @@ public class SofaMessage extends RealmObject {
     }
 
     public SofaMessage makeNew(
-            final boolean sentByLocal,
+            final User sender,
             final String sofaPayload) {
         final String sofaHeader = getSofaHeader(sofaPayload);
         final @SofaType.Type int sofaType = SofaType.getType(sofaHeader);
 
         return  setSendState(SendState.STATE_SENDING)
                 .setType(sofaType)
-                .setSentByLocal(sentByLocal)
+                .setSender(sender)
                 .setPayload(sofaPayload);
     }
 

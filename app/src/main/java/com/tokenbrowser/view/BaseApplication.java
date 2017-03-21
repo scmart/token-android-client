@@ -77,7 +77,7 @@ public final class BaseApplication extends MultiDexApplication {
         Realm.init(this);
         final RealmConfiguration config = new RealmConfiguration
                 .Builder()
-                .schemaVersion(6)
+                .schemaVersion(7)
                 .migration(new TokenMigration())
                 .build();
         Realm.setDefaultConfiguration(config);
