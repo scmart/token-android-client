@@ -22,6 +22,7 @@ public class MainActivity
     public static final String EXTRA__ACTIVE_TAB = "active_tab";
     private static final int UNIQUE_ACTIVITY_ID = 9000;
     private ActivityMainBinding binding;
+    private MainPresenter presenter;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -47,7 +48,7 @@ public class MainActivity
 
     @Override
     protected void onPresenterPrepared(@NonNull final MainPresenter presenter) {
-        // Nothing to do
+        this.presenter = presenter;
     }
 
     public final ActivityMainBinding getBinding() {
@@ -62,5 +63,11 @@ public class MainActivity
     @Override
     public View getOfflineViewContainer() {
         return this.binding.snackbarContainer;
+    }
+
+    @Override
+    public void onRestoreInstanceState(final Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        this.presenter.onRestoreInstanceState(savedInstanceState);
     }
 }
