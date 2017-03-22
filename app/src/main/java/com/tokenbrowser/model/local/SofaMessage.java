@@ -99,6 +99,10 @@ public class SofaMessage extends RealmObject {
         return this.sender!= null && this.sender.equals(sender);
     }
 
+    public boolean hasAttachment() {
+        return this.attachmentFilePath != null;
+    }
+
     private String cleanPayload(final String payload) {
         final String regexString = "\\{.*\\}";
         final Pattern pattern = Pattern.compile(regexString);
