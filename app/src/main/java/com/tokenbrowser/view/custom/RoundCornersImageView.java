@@ -37,10 +37,12 @@ public class RoundCornersImageView extends FrameLayout {
     }
 
     public void setImage(final File file) {
-        final ImageView imageView = (ImageView) findViewById(R.id.image);
-        final ImageView frame = (ImageView) findViewById(R.id.frame);
+        final ImageView image = (ImageView) findViewById(R.id.rciv__image);
+        final ImageView frame = (ImageView) findViewById(R.id.rciv__frame);
+        
+        resetSizes(frame, image);
 
-        final GlideDrawableImageViewTarget imageViewTarget = new GlideDrawableImageViewTarget(imageView);
+        final GlideDrawableImageViewTarget imageViewTarget = new GlideDrawableImageViewTarget(image);
         Glide.with(getContext())
                 .load(file)
                 .crossFade()
@@ -62,39 +64,49 @@ public class RoundCornersImageView extends FrameLayout {
                         if (heightRatio < widthRatio) {
                             final int height = ((GlideDrawableImageViewTarget) target).getView().getHeight();
                             final int width = (int) (resource.getIntrinsicWidth() * heightRatio);
-                            resizeFrameAndImage(height, width);
+                            resizeFrameAndImage(frame, image, height, width);
                         } else {
                             final int height = (int) (resource.getIntrinsicHeight() * widthRatio);
                             final int width = ((GlideDrawableImageViewTarget) target).getView().getWidth();
-                            resizeFrameAndImage(height, width);
+                            resizeFrameAndImage(frame, image, height, width);
                         }
 
                         return false;
                     }
-
-                    private void resizeFrameAndImage(final int height, final int width) {
-                        final int gravity =
-                                getLayoutParams() instanceof FrameLayout.LayoutParams
-                                        ? ((LayoutParams)getLayoutParams()).gravity
-                                        : Gravity.LEFT;
-
-                        final int padding = getResources().getDimensionPixelSize(R.dimen.image_frame_padding);
-
-                        frame.setLayoutParams(new LayoutParams(width, height, gravity));
-
-                        final LayoutParams imageParams = new LayoutParams(width - padding, height - padding, gravity);
-                        final int leftPadding =
-                                gravity == Gravity.LEFT || gravity == -1
-                                    ? padding / 2
-                                    : 0;
-                        final int rightPadding =
-                                gravity == Gravity.RIGHT
-                                    ? padding / 2
-                                    : 0;
-                        imageParams.setMargins(leftPadding, padding / 2, rightPadding, 0);
-                        imageView.setLayoutParams(imageParams);
-                    }
                 })
                 .into(imageViewTarget);
+    }
+
+    private void resetSizes(final ImageView frame,
+                            final ImageView image) {
+        final int defaultSize = getResources().getDimensionPixelSize(R.dimen.round_corners_image_view__default_size);
+        resizeFrameAndImage(frame, image, defaultSize, defaultSize);
+    }
+
+    private void resizeFrameAndImage(
+            final ImageView frame,
+            final ImageView image,
+            final int height,
+            final int width) {
+        final int gravity =
+                getLayoutParams() instanceof FrameLayout.LayoutParams
+                        ? ((LayoutParams)getLayoutParams()).gravity
+                        : Gravity.LEFT;
+
+        final int padding = getResources().getDimensionPixelSize(R.dimen.image_frame_padding);
+
+        frame.setLayoutParams(new LayoutParams(width, height, gravity));
+
+        final LayoutParams imageParams = new LayoutParams(width - padding, height - padding, gravity);
+        final int leftPadding =
+                gravity == Gravity.LEFT || gravity == -1
+                        ? padding / 2
+                        : 0;
+        final int rightPadding =
+                gravity == Gravity.RIGHT
+                        ? padding / 2
+                        : 0;
+        imageParams.setMargins(leftPadding, padding / 2, rightPadding, 0);
+        image.setLayoutParams(imageParams);
     }
 }

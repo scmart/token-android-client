@@ -19,24 +19,11 @@
         android:layout_marginTop="17dp"
         android:layout_marginBottom="17dp"/>
 
-    <TextView
-        android:id="@+id/message"
+    <com.tokenbrowser.view.custom.RoundCornersImageView
+        android:id="@+id/image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="left"
-        android:layout_marginBottom="@dimen/bubbleMargin"
         android:layout_marginTop="@dimen/bubbleMargin"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
-        android:background="@drawable/background__remote_message"
-        android:autoLink="web"
-        android:lineSpacingExtra="2dp"
-        android:textColor="@color/textColorPrimary"
-        android:textColorLink="@color/colorAccent"
-        android:textSize="@dimen/defaultTextSize"
-        tools:text="Remote Message! www.test.com"
-        android:visibility="visible" />
+        android:layout_marginBottom="@dimen/bubbleMargin" />
 
 </LinearLayout>

@@ -16,6 +16,7 @@ import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
+import com.tokenbrowser.view.adapter.viewholder.ImageViewHolder;
 import com.tokenbrowser.view.adapter.viewholder.PaymentRequestViewHolder;
 import com.tokenbrowser.view.adapter.viewholder.PaymentViewHolder;
 import com.tokenbrowser.view.adapter.viewholder.TextViewHolder;
@@ -122,6 +123,13 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
                 return new PaymentViewHolder(v);
             }
 
+            case SofaType.IMAGE: {
+                final View v = isRemote
+                        ? LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__image_message_remote, parent, false)
+                        : LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__image_message_local, parent, false);
+                return new ImageViewHolder(v);
+            }
+
             case SofaType.UNKNOWN:
             case SofaType.PLAIN_TEXT:
             default: {
@@ -130,7 +138,6 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
                     : LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__text_message_local, parent, false);
                 return new TextViewHolder(v);
             }
-
         }
     }
 
@@ -167,11 +174,23 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
             case SofaType.PLAIN_TEXT: {
                 final TextViewHolder vh = (TextViewHolder) holder;
                 final Message message = this.adapters.messageFrom(payload);
-                vh.setText(message.getBody())
+                vh
+                        .setText(message.getBody())
                         .setAvatarUri(sofaMessage.getSender() != null ? sofaMessage.getSender().getAvatar() : null)
                         .setSendState(sofaMessage.getSendState())
                         .draw()
                         .setClickableUsernames(this.onUsernameClickListener);
+                break;
+            }
+
+            case SofaType.IMAGE: {
+                final ImageViewHolder vh = (ImageViewHolder) holder;
+                vh
+                        .setAvatarUri(sofaMessage.getSender() != null ? sofaMessage.getSender().getAvatar() : null)
+                        .setSendState(sofaMessage.getSendState())
+                        .setAttachmentFilePath(sofaMessage.getAttachmentFilePath())
+                        .setClickableImage(this.onImageClickListener, sofaMessage.getAttachmentFilePath())
+                        .draw();
                 break;
             }
 
