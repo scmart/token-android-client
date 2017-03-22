@@ -5,12 +5,14 @@
         android:id="@+id/rciv__image"
         android:layout_width="@dimen/round_corners_image_view__default_size"
         android:layout_height="@dimen/round_corners_image_view__default_size"
+        android:adjustViewBounds="true"
         android:layout_gravity="center"/>
 
     <ImageView
         android:id="@+id/rciv__frame"
         android:layout_width="@dimen/round_corners_image_view__default_size"
         android:layout_height="@dimen/round_corners_image_view__default_size"
-        android:src="@drawable/frame"/>
+        android:src="@drawable/frame"
+        android:adjustViewBounds="true"/>
 
 </merge>
