@@ -76,5 +76,16 @@ public class TokenMigration implements RealmMigration {
             sofaMessageSchema.renameField("attachmentFilename", "attachmentFilePath");
             oldVersion++;
         }
+
+        // Migrate to version 7:
+        // Add reference to Sender; this deleted all old messages
+        // Migration is too much effort considering we're yet to go live.
+        if (oldVersion == 6) {
+            final RealmObjectSchema sofaMessageSchema = schema.get("SofaMessage");
+            sofaMessageSchema
+                    .removeField("sentByLocal")
+                    .addRealmObjectField("sender", schema.get("User"));
+            oldVersion++;
+        }
     }
 }

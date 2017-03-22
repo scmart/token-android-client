@@ -170,12 +170,15 @@ public class TransactionManager {
         .subscribe((updatedPayment) -> {
             switch (task.getAction()) {
                 case INCOMING: {
-                    final SofaMessage storedSofaMessage = storePayment(task.getUser(), updatedPayment, false);
+                    final User sender = task.getUser();
+                    final SofaMessage storedSofaMessage = storePayment(sender, updatedPayment, sender);
                     handleIncomingPayment(updatedPayment, storedSofaMessage);
                     break;
                 }
                 case OUTGOING: {
-                    final SofaMessage storedSofaMessage = storePayment(task.getUser(), updatedPayment, true);
+                    final User receiver = task.getUser();
+                    final User sender = getCurrentLocalUser();
+                    final SofaMessage storedSofaMessage = storePayment(receiver, updatedPayment, sender);
                     handleOutgoingPayment(user, updatedPayment, storedSofaMessage);
                     break;
                 }
@@ -183,9 +186,9 @@ public class TransactionManager {
         });
     }
 
-    private SofaMessage storePayment(final User user, final Payment payment, final boolean sentByLocal) {
-        final SofaMessage sofaMessage = generateMessageFromPayment(payment, sentByLocal);
-        storeMessage(user, sofaMessage);
+    private SofaMessage storePayment(final User receiver, final Payment payment, final User sender) {
+        final SofaMessage sofaMessage = generateMessageFromPayment(payment, sender);
+        storeMessage(receiver, sofaMessage);
         return sofaMessage;
     }
 
@@ -224,7 +227,7 @@ public class TransactionManager {
                         payment.setTxHash(txHash);
 
                         // Update the stored message with the transactions details
-                        final SofaMessage updatedMessage = generateMessageFromPayment(payment, true);
+                        final SofaMessage updatedMessage = generateMessageFromPayment(payment, getCurrentLocalUser());
                         storedSofaMessage.setPayload(updatedMessage.getPayloadWithHeaders());
                         updateMessageState(receiver, storedSofaMessage, SendState.STATE_SENT);
                         storeUnconfirmedTransaction(txHash, storedSofaMessage);
@@ -288,9 +291,9 @@ public class TransactionManager {
     }
 
 
-    private SofaMessage generateMessageFromPayment(final Payment payment, final boolean sentByLocal) {
+    private SofaMessage generateMessageFromPayment(final Payment payment, final User sender) {
         final String messageBody = this.adapters.toJson(payment);
-        return new SofaMessage().makeNew(sentByLocal, messageBody);
+        return new SofaMessage().makeNew(sender, messageBody);
     }
 
 
@@ -311,13 +314,13 @@ public class TransactionManager {
                 .subscribe(pendingTransaction -> updatePendingTransaction(pendingTransaction, payment));
     }
 
-    private void storeMessage(final User user, final SofaMessage message) {
+    private void storeMessage(final User receiver, final SofaMessage message) {
         message.setSendState(SendState.STATE_SENDING);
         BaseApplication
                 .get()
                 .getTokenManager()
                 .getSofaMessageManager()
-                .saveTransaction(user, message);
+                .saveTransaction(receiver, message);
     }
 
     private void storeUnconfirmedTransaction(final String txHash, final SofaMessage message) {
@@ -367,5 +370,16 @@ public class TransactionManager {
 
         final String messageBody = adapters.toJson(existingPayment);
         return sofaMessage.setPayload(messageBody);
+    }
+
+    private User getCurrentLocalUser() {
+        // Yes, this blocks. But realistically, a value should be always ready for returning.
+        return BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .getCurrentUser()
+                .toBlocking()
+                .value();
     }
 }

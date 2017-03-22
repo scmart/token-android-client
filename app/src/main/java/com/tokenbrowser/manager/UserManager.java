@@ -49,6 +49,14 @@ public class UserManager {
         return this.userSubject;
     }
 
+    public final Single<User> getCurrentUser() {
+        return
+                this.userSubject
+                .filter(user -> user != null)
+                .first()
+                .toSingle();
+    }
+
     public UserManager init(final HDWallet wallet) {
         this.wallet = wallet;
         this.prefs = BaseApplication.get().getSharedPreferences(FileNames.USER_PREFS, Context.MODE_PRIVATE);

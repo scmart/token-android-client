@@ -533,7 +533,7 @@ public final class SofaMessageManager {
 
     private void saveIncomingMessageFromUserToDatabase(final User user, final DecryptedSignalMessage signalMessage) {
         final SofaMessage remoteMessage = new SofaMessage()
-                .makeNew(false, signalMessage.getBody())
+                .makeNew(user, signalMessage.getBody())
                 .setAttachmentFilePath(signalMessage.getAttachmentFilePath());
         if (remoteMessage.getType() == SofaType.PAYMENT) {
             // Don't render incoming SOFA::Payments,
@@ -562,7 +562,7 @@ public final class SofaMessageManager {
             final InitRequest initRequest = this.adapters.initRequestFrom(remoteMessage.getPayload());
             final Init initMessage = new Init().construct(initRequest, this.wallet.getPaymentAddress());
             final String payload = this.adapters.toJson(initMessage);
-            final SofaMessage newSofaMessage = new SofaMessage().makeNew(false, payload);
+            final SofaMessage newSofaMessage = new SofaMessage().makeNew(sender, payload);
 
             BaseApplication.get()
                     .getTokenManager()
@@ -613,20 +613,35 @@ public final class SofaMessageManager {
         final List<User> users = results.getResults();
         for (final User user : users) {
             if (user.getUsernameForEditing().equals(ONBOARDING_BOT_NAME)) {
-                BaseApplication
-                        .get()
-                        .getTokenManager()
-                        .getSofaMessageManager()
-                        .sendMessage(user, generateOnboardingMessage());
-                SharedPrefsUtil.setHasOnboarded();
+                sendOnboardMessageToOnbaordingBot(user);
                 break;
             }
         }
     }
 
-    private SofaMessage generateOnboardingMessage() {
+    private void sendOnboardMessageToOnbaordingBot(final User onboardingBot) {
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .getUserObservable()
+                .subscribe(new OnNextSubscriber<User>() {
+                    @Override
+                    public void onNext(final User localUser) {
+                        this.unsubscribe();
+                        BaseApplication
+                                .get()
+                                .getTokenManager()
+                                .getSofaMessageManager()
+                                .sendMessage(onboardingBot, generateOnboardingMessage(localUser));
+                        SharedPrefsUtil.setHasOnboarded();
+                    }
+                });
+    }
+
+    private SofaMessage generateOnboardingMessage(final User localUser) {
         final Message sofaMessage = new Message().setBody("");
         final String messageBody = new SofaAdapters().toJson(sofaMessage);
-        return new SofaMessage().makeNew(true, messageBody);
+        return new SofaMessage().makeNew(localUser, messageBody);
     }
 }

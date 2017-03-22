@@ -6,7 +6,7 @@
     <color name="colorPrimary">#02BE6E</color>
     <color name="colorPrimaryDark">#0F945C</color>
     <color name="colorAccent">#33AFFF</color>
-    <color name="textColorPrimary">#161621</color>
+    <color name="textColorPrimary">#000000</color>
     <color name="textColorSecondary">#9F9FA3</color>
     <color name="textColorTertiary">#73E37E</color>
     <color name="textColorContrast">#FFFFFF</color>

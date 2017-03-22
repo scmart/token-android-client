@@ -375,7 +375,7 @@ public final class ChatPresenter implements
             final String userInput = activity.getBinding().userInput.getText().toString();
             final Message sofaMessage = new Message().setBody(userInput);
             final String messageBody = adapters.toJson(sofaMessage);
-            final SofaMessage message = new SofaMessage().makeNew(true, messageBody);
+            final SofaMessage message = new SofaMessage().makeNew(getCurrentLocalUser(), messageBody);
             outgoingMessageQueue.onNext(message);
 
             activity.getBinding().userInput.setText(null);
@@ -422,7 +422,7 @@ public final class ChatPresenter implements
                 .setBody(control.getLabel())
                 .setValue(control.getValue());
         final String commandPayload = adapters.toJson(command);
-        final SofaMessage sofaMessage = new SofaMessage().makeNew(true, commandPayload);
+        final SofaMessage sofaMessage = new SofaMessage().makeNew(getCurrentLocalUser(), commandPayload);
         this.outgoingMessageQueue.onNext(sofaMessage);
     }
 
@@ -535,7 +535,7 @@ public final class ChatPresenter implements
                 .generateLocalPrice()
                 .subscribe((request) -> {
                     final String messageBody = this.adapters.toJson(request);
-                    final SofaMessage message = new SofaMessage().makeNew(true, messageBody);
+                    final SofaMessage message = new SofaMessage().makeNew(getCurrentLocalUser(), messageBody);
                     this.outgoingMessageQueue.onNext(message);
                 });
 
@@ -621,7 +621,7 @@ public final class ChatPresenter implements
         this.messageAdapter.updateMessage(sofaMessage);
         updateEmptyState();
         tryScrollToBottom(true);
-        playNewMessageSound(sofaMessage.isSentByLocal());
+        playNewMessageSound(sofaMessage.isSentBy(getCurrentLocalUser()));
         handleKeyboardVisibility(sofaMessage);
     }
 
@@ -652,7 +652,7 @@ public final class ChatPresenter implements
 
     private void handleKeyboardVisibility(final SofaMessage sofaMessage) {
         final boolean viewIsNull = this.activity == null || this.activity.getBinding().userInput == null;
-        if (viewIsNull || sofaMessage.isSentByLocal()) {
+        if (viewIsNull || sofaMessage.isSentBy(getCurrentLocalUser())) {
             return;
         }
 
@@ -783,7 +783,7 @@ public final class ChatPresenter implements
         final Message message = new Message();
         final String messageBody = this.adapters.toJson(message);
         final SofaMessage sofaMessage = new SofaMessage()
-                .makeNew(true, messageBody)
+                .makeNew(getCurrentLocalUser(), messageBody)
                 .setAttachmentFilePath(filePath);
         this.outgoingMessageQueue.onNext(sofaMessage);
     }
@@ -900,4 +900,14 @@ public final class ChatPresenter implements
         this.captureImageFilename = savedInstanceState.getString(CAPTURE_FILENAME);
     }
 
+    private User getCurrentLocalUser() {
+        // Yes, this blocks. But realistically, a value should be always ready for returning.
+        return BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .getCurrentUser()
+                .toBlocking()
+                .value();
+    }
 }
