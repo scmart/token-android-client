@@ -58,19 +58,41 @@ public class RoundCornersImageView extends FrameLayout {
                                                    final boolean isFirstResource) {
                         final float heightRatio = ((GlideDrawableImageViewTarget) target).getView().getHeight() / (float) resource.getIntrinsicHeight();
                         final float widthRatio = ((GlideDrawableImageViewTarget) target).getView().getWidth() / (float) resource.getIntrinsicWidth();
-                        final int padding = getResources().getDimensionPixelSize(R.dimen.image_frame_padding);
 
                         if (heightRatio < widthRatio) {
-                            final int height = ((GlideDrawableImageViewTarget) target).getView().getHeight() + padding;
-                            final int width = (int) (resource.getIntrinsicWidth() * heightRatio) + padding;
-                            frame.setLayoutParams(new FrameLayout.LayoutParams(width, height, Gravity.CENTER));
+                            final int height = ((GlideDrawableImageViewTarget) target).getView().getHeight();
+                            final int width = (int) (resource.getIntrinsicWidth() * heightRatio);
+                            resizeFrameAndImage(height, width);
                         } else {
-                            final int height = (int) (resource.getIntrinsicHeight() * widthRatio) + padding;
-                            final int width = ((GlideDrawableImageViewTarget) target).getView().getWidth() + padding;
-                            frame.setLayoutParams(new FrameLayout.LayoutParams(width, height, Gravity.CENTER));
+                            final int height = (int) (resource.getIntrinsicHeight() * widthRatio);
+                            final int width = ((GlideDrawableImageViewTarget) target).getView().getWidth();
+                            resizeFrameAndImage(height, width);
                         }
 
                         return false;
+                    }
+
+                    private void resizeFrameAndImage(final int height, final int width) {
+                        final int gravity =
+                                getLayoutParams() instanceof FrameLayout.LayoutParams
+                                        ? ((LayoutParams)getLayoutParams()).gravity
+                                        : Gravity.LEFT;
+
+                        final int padding = getResources().getDimensionPixelSize(R.dimen.image_frame_padding);
+
+                        frame.setLayoutParams(new LayoutParams(width, height, gravity));
+
+                        final LayoutParams imageParams = new LayoutParams(width - padding, height - padding, gravity);
+                        final int leftPadding =
+                                gravity == Gravity.LEFT || gravity == -1
+                                    ? padding / 2
+                                    : 0;
+                        final int rightPadding =
+                                gravity == Gravity.RIGHT
+                                    ? padding / 2
+                                    : 0;
+                        imageParams.setMargins(leftPadding, padding / 2, rightPadding, 0);
+                        imageView.setLayoutParams(imageParams);
                     }
                 })
                 .into(imageViewTarget);
