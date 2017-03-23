@@ -446,6 +446,7 @@ public final class ChatPresenter implements
 
         updateUiFromRemoteUser();
         processPaymentFromIntent();
+        attachOutgoingQueueSubscriber();
     }
 
     private void fetchUserFromAddress(final String remoteUserAddress) {
@@ -466,7 +467,6 @@ public final class ChatPresenter implements
         this.remoteUser = user;
         if (this.remoteUser != null) {
             processIntentData();
-            attachOutgoingQueueSubscriber();
         }
     }
 
