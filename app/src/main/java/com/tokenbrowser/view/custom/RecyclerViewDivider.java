@@ -3,7 +3,7 @@ package com.tokenbrowser.view.custom;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -14,7 +14,7 @@ public class RecyclerViewDivider extends RecyclerView.ItemDecoration {
     private int padding;
 
     public RecyclerViewDivider(final Context context, final int padding) {
-        mDivider = ContextCompat.getDrawable(context, R.drawable.decoration_linear_divider);
+        mDivider = AppCompatResources.getDrawable(context, R.drawable.decoration_linear_divider);
         this.padding = padding;
     }
 
