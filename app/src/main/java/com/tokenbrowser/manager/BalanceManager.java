@@ -197,4 +197,11 @@ public class BalanceManager {
                 .putString(LAST_KNOWN_BALANCE, balance.getUnconfirmedBalanceAsHex())
                 .apply();
     }
+
+    public void clear() {
+        this.prefs
+                .edit()
+                .clear()
+                .apply();
+    }
 }

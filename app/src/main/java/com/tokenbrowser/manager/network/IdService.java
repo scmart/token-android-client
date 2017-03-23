@@ -12,6 +12,7 @@ import com.tokenbrowser.R;
 import com.tokenbrowser.view.BaseApplication;
 
 import java.io.File;
+import java.io.IOException;
 
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
@@ -86,5 +87,9 @@ public class IdService {
         final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor(new LoggingInterceptor());
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         this.client.addInterceptor(interceptor);
+    }
+
+    public void clearCache() throws IOException {
+        this.cache.evictAll();
     }
 }

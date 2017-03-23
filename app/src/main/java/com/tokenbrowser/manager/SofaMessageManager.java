@@ -646,4 +646,11 @@ public final class SofaMessageManager {
         final String messageBody = new SofaAdapters().toJson(sofaMessage);
         return new SofaMessage().makeNew(localUser, messageBody);
     }
+
+    public void clear() {
+        this.sharedPreferences
+                .edit()
+                .clear()
+                .apply();
+    }
 }

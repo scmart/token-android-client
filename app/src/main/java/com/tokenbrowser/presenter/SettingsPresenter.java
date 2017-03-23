@@ -14,12 +14,11 @@ import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.R;
 import com.tokenbrowser.util.FileNames;
 import com.tokenbrowser.util.OnSingleClickListener;
-import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.AboutActivity;
 import com.tokenbrowser.view.activity.BackupPhraseInfoActivity;
 import com.tokenbrowser.view.activity.ProfileActivity;
-import com.tokenbrowser.view.activity.SignInActivity;
+import com.tokenbrowser.view.activity.SignOutActivity;
 import com.tokenbrowser.view.activity.TrustedFriendsActivity;
 import com.tokenbrowser.view.adapter.SettingsAdapter;
 import com.tokenbrowser.view.custom.RecyclerViewDivider;
@@ -127,7 +126,7 @@ public final class SettingsPresenter implements
         builder.setTitle(R.string.sign_out_warning_title)
                 .setMessage(R.string.sign_out_warning_message)
                 .setPositiveButton(R.string.yes, (dialog, which) -> {
-                    goToSignInActivity();
+                    goToSignOutActivity();
                     dialog.dismiss();
                 })
                 .setNegativeButton(R.string.no, (dialog, which) -> {
@@ -136,9 +135,8 @@ public final class SettingsPresenter implements
         builder.create().show();
     }
 
-    private void goToSignInActivity() {
-        SharedPrefsUtil.setSignedOut();
-        final Intent intent = new Intent(this.fragment.getActivity(), SignInActivity.class);
+    private void goToSignOutActivity() {
+        final Intent intent = new Intent(this.fragment.getActivity(), SignOutActivity.class);
         this.fragment.getActivity().startActivity(intent);
         this.fragment.getActivity().finish();
     }

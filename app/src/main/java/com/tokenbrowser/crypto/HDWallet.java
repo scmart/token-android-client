@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import com.tokenbrowser.crypto.util.TypeConverter;
 import com.tokenbrowser.R;
 import com.tokenbrowser.exception.InvalidMasterSeedException;
+import com.tokenbrowser.util.FileNames;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.BaseApplication;
 
@@ -45,7 +46,7 @@ public class HDWallet {
     }
 
     private void initPreferences() {
-        this.prefs = BaseApplication.get().getSharedPreferences("wa", Context.MODE_PRIVATE);
+        this.prefs = BaseApplication.get().getSharedPreferences(FileNames.WALLET_PREFS, Context.MODE_PRIVATE);
     }
 
     private void initWordList() {
@@ -205,6 +206,13 @@ public class HDWallet {
 
     private String readMasterSeedFromStorage() {
         return this.prefs.getString(MASTER_SEED, null);
+    }
+
+    public void clear() {
+        this.prefs
+                .edit()
+                .clear()
+                .apply();
     }
 
     private String seedToString(final DeterministicSeed seed) {
