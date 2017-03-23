@@ -63,6 +63,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
+import rx.Single;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -149,11 +150,15 @@ public final class ChatPresenter implements
     private void updatePaymentRequestState(
             final SofaMessage existingMessage,
             final @PaymentRequest.State int newState) {
-        BaseApplication
+
+        final Subscription sub = getRemoteUser()
+                .subscribe(remoteUser ->
+                BaseApplication
                 .get()
                 .getTokenManager()
                 .getTransactionManager()
-                .updatePaymentRequestState(this.remoteUser, existingMessage, newState);
+                .updatePaymentRequestState(remoteUser, existingMessage, newState));
+        this.subscriptions.add(sub);
     }
 
     private void handleSearchResult(final String searchedForUsername, final List<User> userResult) {
@@ -522,10 +527,13 @@ public final class ChatPresenter implements
     }
 
     private void sendPaymentWithValue(final String value) {
-        BaseApplication.get()
+        final Subscription sub = getRemoteUser()
+        .subscribe(remoteUser ->
+                BaseApplication.get()
                 .getTokenManager()
                 .getTransactionManager()
-                .sendPayment(remoteUser, value);
+                .sendPayment(remoteUser, value));
+        this.subscriptions.add(sub);
     }
 
     private void sendPaymentRequestWithValue(final String value) {
@@ -909,5 +917,17 @@ public final class ChatPresenter implements
                 .getCurrentUser()
                 .toBlocking()
                 .value();
+    }
+
+    private Single<User> getRemoteUser() {
+        return Single
+                .fromCallable(() -> {
+                    while (remoteUser == null) {
+                        Thread.sleep(100);
+                    }
+                    return remoteUser;
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io());
     }
 }
