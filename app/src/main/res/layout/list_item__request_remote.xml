@@ -4,15 +4,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    app:columnCount="2"
-    android:layout_gravity="left"
-    android:layout_marginBottom="@dimen/bubbleMargin"
-    android:layout_marginTop="@dimen/bubbleMargin" >
+    app:columnCount="2">
 
     <!-- Row 1 -->
+
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/avatar"
         tools:src="@mipmap/ic_launcher"
@@ -21,30 +18,31 @@
         app:layout_gravity="bottom"
         android:layout_marginRight="6dp"/>
 
-
     <android.support.v7.widget.GridLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:columnCount="3"
-        android:background="@drawable/btn_with_radius"
+        android:background="@drawable/request_background"
+        android:layout_marginTop="@dimen/bubbleMargin"
         android:minWidth="50dp">
 
+        <!-- Row 1 -->
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="monospace"
-            android:freezesText="false"
-            android:lineSpacingExtra="2dp"
-            android:paddingBottom="4dp"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:paddingTop="12dp"
-            android:text="@string/payment_title"
-            android:textColor="@color/textColorTertiary"
+            android:paddingBottom="8dp"
+            android:lineSpacingExtra="2dp"
+            android:text="@string/request_title"
+            android:textColor="@color/textColorSecondary"
             android:textSize="@dimen/defaultTextSize"
+            android:fontFamily="monospace"
             app:layout_columnSpan="3"/>
 
+        <!-- Row 2 -->
         <TextView
             android:id="@+id/requested_amount"
             android:layout_width="wrap_content"
@@ -52,7 +50,7 @@
             android:paddingLeft="16dp"
             android:paddingBottom="12dp"
             android:lineSpacingExtra="2dp"
-            android:textColor="@color/textColorContrast"
+            android:textColor="@color/colorPrimary"
             android:textSize="@dimen/defaultTextSize"
             android:textStyle="bold"
             tools:text="$20.00 USD"/>
@@ -65,10 +63,10 @@
             android:paddingRight="4dp"
             android:paddingBottom="12dp"
             android:lineSpacingExtra="2dp"
-            android:textColor="@color/textColorTertiary"
+            android:textColor="@color/textColorSecondary"
             android:textSize="@dimen/defaultTextSize"
-            android:gravity="center_horizontal"
-            android:text=" · "/>
+            tools:text=" · "/>
+
 
         <TextView
             android:id="@+id/eth_amount"
@@ -77,20 +75,73 @@
             android:paddingRight="16dp"
             android:paddingBottom="12dp"
             android:lineSpacingExtra="2dp"
-            android:textColor="@color/textColorTertiary"
+            android:textColor="@color/textColorSecondary"
             android:textSize="@dimen/defaultTextSize"
             tools:text="0.4534 ETH"/>
+
+        <!-- Row 3 -->
+
+        <LinearLayout
+            android:id="@+id/container_accept_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_columnSpan="3"
+            android:orientation="horizontal"
+            android:layout_marginRight="@dimen/bubbleMargin"
+            app:layout_gravity="center_vertical|right">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                app:srcCompat="@drawable/ic_done"
+                android:tint="@color/colorPrimary"
+                android:layout_gravity="center_vertical"/>
+
+            <Button
+                android:id="@+id/approve_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/button_accept"
+                style="@style/InChatButton"/>
+        </LinearLayout>
+
+        <!-- Row 4 -->
+
+        <LinearLayout
+            android:id="@+id/container_decline_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_columnSpan="3"
+            android:orientation="horizontal"
+            android:layout_marginRight="@dimen/bubbleMargin"
+            app:layout_gravity="center_vertical|right">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                app:srcCompat="@drawable/ic_close_black_24dp"
+                android:tint="@color/colorPrimary"
+                android:layout_gravity="center_vertical"/>
+
+            <Button
+                android:id="@+id/reject_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/button_decline"
+                style="@style/InChatButton"/>
+        </LinearLayout>
 
     </android.support.v7.widget.GridLayout>
 
     <!-- Row 2 -->
 
-    <android.support.v4.widget.Space />
+    <android.support.v4.widget.Space/>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:layout_marginTop="@dimen/bubbleMargin">
 
         <ImageView
@@ -98,7 +149,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
-        <android.support.v4.widget.Space
+        <Space
             android:layout_width="8dp"
             android:layout_height="0dp" />
 
@@ -106,12 +157,8 @@
             android:id="@+id/status_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/textColorSecondary"
-            android:layout_gravity="center_horizontal"
-            android:visibility="gone"
-            tools:visibility="visible"
-            android:text="@string/error__transaction_failed"/>
+            tools:text="You approved this request" />
 
     </LinearLayout>
-</android.support.v7.widget.GridLayout>
 
+</android.support.v7.widget.GridLayout>
