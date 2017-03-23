@@ -2,6 +2,7 @@ package com.tokenbrowser.view.adapter.viewholder;
 
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -62,7 +63,7 @@ public class ControlGroupViewHolder extends RecyclerView.ViewHolder {
 
     private void select(final Control control, final ControlAdapter.OnControlClickListener listener) {
         final int selectedColor = ContextCompat.getColor(BaseApplication.get(), R.color.control_selected_text_color);
-        final Drawable selectedDrawable = ContextCompat.getDrawable(BaseApplication.get(), R.drawable.ic_arrow_up_selected);
+        final Drawable selectedDrawable = AppCompatResources.getDrawable(BaseApplication.get(), R.drawable.ic_arrow_up_selected);
         this.label.setTextColor(selectedColor);
         this.arrow.setImageDrawable(selectedDrawable);
         isFocused = true;
@@ -76,7 +77,7 @@ public class ControlGroupViewHolder extends RecyclerView.ViewHolder {
 
     public void unselectView() {
         final int selectedColor = ContextCompat.getColor(BaseApplication.get(), R.color.control_text_color);
-        final Drawable unselectedDrawable = ContextCompat.getDrawable(BaseApplication.get(), R.drawable.ic_arrow_up);
+        final Drawable unselectedDrawable = AppCompatResources.getDrawable(BaseApplication.get(), R.drawable.ic_arrow_up);
         this.label.setTextColor(selectedColor);
         this.arrow.setImageDrawable(unselectedDrawable);
         isFocused = false;
