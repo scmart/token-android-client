@@ -16,6 +16,7 @@ import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
+import com.tokenbrowser.view.adapter.viewholder.ImageViewHolder;
 import com.tokenbrowser.view.adapter.viewholder.PaymentRequestViewHolder;
 import com.tokenbrowser.view.adapter.viewholder.PaymentViewHolder;
 import com.tokenbrowser.view.adapter.viewholder.TextViewHolder;
@@ -27,6 +28,8 @@ import java.util.List;
 
 
 public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private final static int SENDER_MASK = 0x1000;
+
     private final List<SofaMessage> sofaMessages;
     private final SofaAdapters adapters;
     private OnItemClickListener<SofaMessage> onPaymentRequestApproveListener;
@@ -96,7 +99,8 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
     @Override
     public int getItemViewType(final int position) {
         final SofaMessage sofaMessage = this.sofaMessages.get(position);
-        return sofaMessage.getType();
+        final @SofaType.Type int sofaType = sofaMessage.hasAttachment() ? SofaType.IMAGE : sofaMessage.getType();
+        return sofaMessage.isSentBy(getCurrentLocalUser()) ? sofaType : sofaType | SENDER_MASK;
     }
 
     @Override
@@ -104,7 +108,10 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
             final ViewGroup parent,
             final int viewType) {
 
-        switch (viewType) {
+        final boolean isRemote = viewType >= SENDER_MASK;
+        final int messageType = isRemote ? viewType ^ SENDER_MASK : viewType;
+
+        switch (messageType) {
 
             case SofaType.PAYMENT_REQUEST: {
                 final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__payment_request, parent, false);
@@ -116,13 +123,21 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
                 return new PaymentViewHolder(v);
             }
 
+            case SofaType.IMAGE: {
+                final View v = isRemote
+                        ? LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__image_message_remote, parent, false)
+                        : LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__image_message_local, parent, false);
+                return new ImageViewHolder(v);
+            }
+
             case SofaType.UNKNOWN:
             case SofaType.PLAIN_TEXT:
             default: {
-                final View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__text_message, parent, false);
+                final View v = isRemote
+                    ? LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__text_message_remote, parent, false)
+                    : LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item__text_message_local, parent, false);
                 return new TextViewHolder(v);
             }
-
         }
     }
 
@@ -151,21 +166,31 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
             final String payload) throws IOException {
 
         final User localUser = getCurrentLocalUser();
+        final boolean isRemote = holder.getItemViewType() >= SENDER_MASK;
+        final int messageType = isRemote ? holder.getItemViewType() ^ SENDER_MASK : holder.getItemViewType();
 
-        switch (holder.getItemViewType()) {
+        switch (messageType) {
             case SofaType.COMMAND_REQUEST:
             case SofaType.PLAIN_TEXT: {
                 final TextViewHolder vh = (TextViewHolder) holder;
-                final Message message = this.adapters.messageFrom(payload)
-                        .setAttachmentFilename(sofaMessage.getAttachmentFilePath());
-                vh.setText(message.getBody())
-                        .setSentByLocal(sofaMessage.isSentBy(localUser))
+                final Message message = this.adapters.messageFrom(payload);
+                vh
+                        .setText(message.getBody())
+                        .setAvatarUri(sofaMessage.getSender() != null ? sofaMessage.getSender().getAvatar() : null)
+                        .setSendState(sofaMessage.getSendState())
+                        .draw()
+                        .setClickableUsernames(this.onUsernameClickListener);
+                break;
+            }
+
+            case SofaType.IMAGE: {
+                final ImageViewHolder vh = (ImageViewHolder) holder;
+                vh
                         .setAvatarUri(sofaMessage.getSender() != null ? sofaMessage.getSender().getAvatar() : null)
                         .setSendState(sofaMessage.getSendState())
                         .setAttachmentFilePath(sofaMessage.getAttachmentFilePath())
                         .setClickableImage(this.onImageClickListener, sofaMessage.getAttachmentFilePath())
-                        .draw()
-                        .setClickableUsernames(this.onUsernameClickListener);
+                        .draw();
                 break;
             }
 
