@@ -2,6 +2,7 @@ package com.tokenbrowser.view.adapter.viewholder;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
@@ -94,11 +95,13 @@ public final class PaymentRequestViewHolder extends RecyclerView.ViewHolder {
         switch (state) {
             case PaymentRequest.ACCEPTED:
                 this.statusMessage.setText(R.string.payment_request__accepted);
-                this.statusIcon.setImageResource(R.drawable.ic_done_with_background);
+                this.statusIcon.setImageResource(R.drawable.ic_done);
+                this.statusIcon.setColorFilter(ContextCompat.getColor(BaseApplication.get(), R.color.colorPrimary));
                 break;
             case PaymentRequest.REJECTED:
                 this.statusMessage.setText(R.string.payment_request__rejected);
-                this.statusIcon.setImageResource(R.drawable.ic_clear_with_background);
+                this.statusIcon.setImageResource(R.drawable.ic_close_black_24dp);
+                this.statusIcon.setColorFilter(ContextCompat.getColor(BaseApplication.get(), R.color.textColorSecondary));
                 break;
             case PaymentRequest.PENDING:
             default:
