@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:columnCount="3"
-        android:background="@drawable/btn_with_radius"
+        android:background="@drawable/payment_background"
         android:layout_marginBottom="@dimen/bubbleMargin"
         android:layout_marginTop="@dimen/bubbleMargin"
         android:minWidth="50dp">
