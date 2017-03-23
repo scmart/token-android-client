@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<GridLayout
+<android.support.v7.widget.GridLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:columnCount="2"
+    app:columnCount="2"
     android:layout_gravity="left"
     android:layout_marginBottom="@dimen/bubbleMargin"
     android:layout_marginTop="@dimen/bubbleMargin" >
@@ -19,7 +18,7 @@
         tools:src="@mipmap/ic_launcher"
         android:layout_width="34dp"
         android:layout_height="34dp"
-        android:layout_gravity="bottom"
+        app:layout_gravity="bottom"
         android:layout_marginRight="6dp"/>
 
 
@@ -27,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:columnCount="3"
-        android:background="@drawable/btn_with_radius"
+        android:background="@drawable/payment_background"
         android:minWidth="50dp">
 
         <TextView
@@ -114,5 +113,5 @@
             android:text="@string/error__transaction_failed"/>
 
     </LinearLayout>
-</GridLayout>
+</android.support.v7.widget.GridLayout>
 
