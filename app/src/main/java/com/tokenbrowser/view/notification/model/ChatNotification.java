@@ -3,17 +3,24 @@ package com.tokenbrowser.view.notification.model;
 
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v4.app.TaskStackBuilder;
 
+import com.bumptech.glide.Glide;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.service.NotificationDismissedReceiver;
 import com.tokenbrowser.token.R;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ChatActivity;
 import com.tokenbrowser.view.activity.MainActivity;
+import com.tokenbrowser.view.custom.CropCircleTransformation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import rx.Completable;
 
 public class ChatNotification {
 
@@ -22,14 +29,16 @@ public class ChatNotification {
     private final User sender;
     private final ArrayList<String> messages;
     private static final int MAXIMUM_NUMBER_OF_SHOWN_MESSAGES = 5;
+    private Bitmap largeIcon;
 
     public ChatNotification(final User sender) {
         this.sender = sender;
         this.messages = new ArrayList<>();
     }
 
-    public void addUnreadMessage(final String unreadMessage) {
+    public ChatNotification addUnreadMessage(final String unreadMessage) {
         this.messages.add(unreadMessage);
+        return this;
     }
 
     public String getTag() {
@@ -40,6 +49,10 @@ public class ChatNotification {
         return this.sender == null
                 ? BaseApplication.get().getString(R.string.unknown_sender)
                 : this.sender.getDisplayName();
+    }
+
+    public Bitmap getLargeIcon() {
+        return this.largeIcon;
     }
 
     public List<String> getLastFewMessages() {
@@ -78,12 +91,11 @@ public class ChatNotification {
                 new Intent(BaseApplication.get(), NotificationDismissedReceiver.class)
                         .putExtra(NotificationDismissedReceiver.TAG, getTag());
 
-        final PendingIntent pendingIntent = PendingIntent.getBroadcast(
+        return PendingIntent.getBroadcast(
                 BaseApplication.get(),
                 1,
                 intent,
                 0);
-        return pendingIntent;
     }
 
     public int getNumberOfUnreadMessages() {
@@ -94,5 +106,38 @@ public class ChatNotification {
         return messages.size() == 0
                 ? ""
                 : messages.get(messages.size() -1);
+    }
+
+    public Completable generateLargeIcon() {
+        if (this.largeIcon != null) return Completable.complete();
+        if (getAvatarUri() == null) return Completable.fromAction(this::setDefaultLargeIcon);
+
+        return Completable.fromAction(() -> {
+            try {
+                fetchUserAvatar();
+            } catch (InterruptedException | ExecutionException e) {
+                setDefaultLargeIcon();
+            }
+        });
+    }
+
+    private void fetchUserAvatar() throws InterruptedException, ExecutionException {
+        this.largeIcon = Glide
+                        .with(BaseApplication.get())
+                        .load(getAvatarUri())
+                        .asBitmap()
+                        .transform(new CropCircleTransformation(BaseApplication.get()))
+                        .into(200, 200)
+                        .get();
+    }
+
+    private Bitmap setDefaultLargeIcon() {
+        return this.largeIcon = BitmapFactory.decodeResource(BaseApplication.get().getResources(), R.mipmap.ic_launcher);
+    }
+
+    private String getAvatarUri() {
+        return this.sender == null
+                ? null
+                : this.sender.getAvatar();
     }
 }
