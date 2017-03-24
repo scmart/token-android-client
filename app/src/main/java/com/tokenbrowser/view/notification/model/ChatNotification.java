@@ -95,7 +95,7 @@ public class ChatNotification {
                 BaseApplication.get(),
                 1,
                 intent,
-                0);
+                PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     public int getNumberOfUnreadMessages() {
