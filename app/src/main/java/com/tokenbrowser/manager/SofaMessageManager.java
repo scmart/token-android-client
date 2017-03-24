@@ -70,6 +70,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import rx.Completable;
 import rx.Observable;
 import rx.Single;
 import rx.SingleSubscriber;
@@ -136,6 +137,19 @@ public final class SofaMessageManager {
                     (RegistrationIntentService.CHAT_SERVICE_SENT_TOKEN_TO_SERVER, false).apply();
             LogUtil.d(getClass(), "Error during registering of GCM " + e.getMessage());
         }
+    }
+
+    public Completable tryUnregisterGcm() {
+        return Completable.fromAction(() -> {
+            try {
+                this.chatService.setGcmId(Optional.absent());
+                this.sharedPreferences.edit().putBoolean
+                        (RegistrationIntentService.CHAT_SERVICE_SENT_TOKEN_TO_SERVER, false).apply();
+            } catch (IOException e) {
+                LogUtil.d(getClass(), "Error during unregistering of GCM " + e.getMessage());
+            }
+        })
+        .subscribeOn(Schedulers.io());
     }
 
     // Will send the message to a remote peer
