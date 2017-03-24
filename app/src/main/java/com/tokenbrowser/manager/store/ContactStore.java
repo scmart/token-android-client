@@ -8,6 +8,7 @@ import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmQuery;
+import io.realm.RealmResults;
 import rx.Single;
 
 public class ContactStore {
@@ -47,8 +48,9 @@ public class ContactStore {
     public Single<List<Contact>> loadAll() {
         final Realm realm = Realm.getDefaultInstance();
         final RealmQuery<Contact> query = realm.where(Contact.class);
-        final List<Contact> results = realm.copyFromRealm(query.findAll());
+        final RealmResults<Contact> results = query.findAll();
+        final List<Contact> retVal = realm.copyFromRealm(results.sort("user.name"));
         realm.close();
-        return Single.just(results);
+        return Single.just(retVal);
     }
 }
