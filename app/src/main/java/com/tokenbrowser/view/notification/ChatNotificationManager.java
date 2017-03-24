@@ -88,14 +88,17 @@ public class ChatNotificationManager {
             return;
         }
 
-        ChatNotification activeChatNotification = activeNotifications.get(notificationKey);
-        if (activeChatNotification == null) {
-            activeChatNotification = new ChatNotification(sender);
-            activeNotifications.put(notificationKey, activeChatNotification);
-        }
+        final ChatNotification activeChatNotification
+                = activeNotifications.get(notificationKey) != null
+                ? activeNotifications.get(notificationKey)
+                : new ChatNotification(sender);
 
-        activeChatNotification.addUnreadMessage(content);
-        showChatNotification(activeChatNotification);
+        activeNotifications.put(notificationKey, activeChatNotification);
+
+        activeChatNotification
+                .addUnreadMessage(content)
+                .generateLargeIcon()
+                .subscribe(() -> showChatNotification(activeChatNotification));
     }
 
     private static void showChatNotification(final ChatNotification chatNotification) {
@@ -107,8 +110,10 @@ public class ChatNotificationManager {
         final int lightOffRate = 1000 * 15;
         final int notificationColor = ContextCompat.getColor(BaseApplication.get(), R.color.colorPrimary);
         final Uri notificationSound = Uri.parse("android.resource://" + BaseApplication.get().getPackageName() + "/" + R.raw.notification);
+
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(BaseApplication.get())
                 .setSmallIcon(R.drawable.ic_notification)
+                .setLargeIcon(chatNotification.getLargeIcon())
                 .setContentTitle(chatNotification.getTitle())
                 .setContentText(contextText)
                 .setTicker(contextText)
