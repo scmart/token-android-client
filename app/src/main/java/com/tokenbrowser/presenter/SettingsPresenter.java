@@ -10,6 +10,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.R;
+import com.tokenbrowser.model.network.Balance;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
@@ -21,6 +22,8 @@ import com.tokenbrowser.view.activity.TrustedFriendsActivity;
 import com.tokenbrowser.view.adapter.SettingsAdapter;
 import com.tokenbrowser.view.custom.RecyclerViewDivider;
 import com.tokenbrowser.view.fragment.children.SettingsFragment;
+
+import java.math.BigInteger;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -110,7 +113,7 @@ public final class SettingsPresenter implements
                 break;
             }
             case SettingsAdapter.SIGN_OUT: {
-                showSignOutWarning();
+                dialogHandler();
                 break;
             }
             default: {
@@ -119,15 +122,68 @@ public final class SettingsPresenter implements
         }
     }
 
+    private void dialogHandler() {
+        final Subscription sub =
+                BaseApplication
+                .get()
+                .getTokenManager()
+                .getBalanceManager()
+                .getBalanceObservable()
+                .first()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::showDialog);
+
+        this.subscriptions.add(sub);
+    }
+
+    private void showDialog(final Balance balance) {
+        if (shouldCancelSignOut(balance)) {
+            showSignOutCancelledDialog();
+        } else {
+            showSignOutWarning();
+        }
+    }
+
+    private boolean shouldCancelSignOut(final Balance balance) {
+        return !SharedPrefsUtil.hasBackedUpPhrase() && !isWalletEmpty(balance);
+    }
+    private boolean isWalletEmpty(final Balance balance) {
+        return balance.getUnconfirmedBalance().compareTo(BigInteger.ZERO) == 0;
+    }
+
+    private void showSignOutCancelledDialog() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this.fragment.getContext(), R.style.AlertDialogCustom);
+        builder.setTitle(R.string.sign_out_cancelled_title)
+                .setMessage(R.string.sign_out_cancelled_message)
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    dialog.dismiss();
+                });
+        builder.create().show();
+    }
+
     private void showSignOutWarning() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this.fragment.getContext(), R.style.AlertDialogCustom);
         builder.setTitle(R.string.sign_out_warning_title)
                 .setMessage(R.string.sign_out_warning_message)
                 .setPositiveButton(R.string.yes, (dialog, which) -> {
+                    dialog.dismiss();
+                    showSignOutConfirmationDialog();
+                })
+                .setNegativeButton(R.string.no, (dialog, which) -> {
+                    dialog.dismiss();
+                });
+        builder.create().show();
+    }
+
+    private void showSignOutConfirmationDialog() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this.fragment.getContext(), R.style.AlertDialogCustom);
+        builder.setTitle(R.string.sign_out_confirmation_title)
+                .setPositiveButton(R.string.sign_out, (dialog, which) -> {
                     goToSignOutActivity();
                     dialog.dismiss();
                 })
-                .setNegativeButton(R.string.no, (dialog, which) -> {
+                .setNegativeButton(R.string.cancel, (dialog, which) -> {
                     dialog.dismiss();
                 });
         builder.create().show();

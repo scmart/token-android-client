@@ -133,8 +133,14 @@
     <string name="payment_seperator" translatable="false"> · </string>
     <string name="sign_out_warning_title">Have you recorded your backup phrase?</string>
     <string name="sign_out_warning_message">Without this you will not be able to sign back in to your account.</string>
+    <string name="sign_out_cancelled_title">Sign out cancelled</string>
+    <string name="sign_out_cancelled_message">You need to complete at least one of the security steps before you sign out.</string>
+    <string name="sign_out_confirmation_title">Are you sure you want to sign out?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+    <string name="sign_out">Sign out</string>
     <string name="sign_in">Sign in</string>
     <string name="sign_in_alert_message">This is your 12 word phrase, separated by spaces</string>
     <string name="username">Username</string>
