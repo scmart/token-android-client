@@ -4,10 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <android.support.design.widget.CoordinatorLayout
-        android:id="@+id/snackbar_container"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.support.design.widget.CoordinatorLayout
+            android:id="@+id/snackbar_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
             <android.support.design.widget.AppBarLayout
                 android:id="@+id/fragment_container"
@@ -15,9 +21,8 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:background="@color/windowBackground"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        </android.support.design.widget.AppBarLayout>
+                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        </android.support.design.widget.CoordinatorLayout>
 
         <com.aurelhubert.ahbottomnavigation.AHBottomNavigation
             android:id="@+id/nav_bar"
@@ -27,5 +32,7 @@
             tools:layout_height="150dp"
             tools:background="@android:color/holo_red_dark"/>
 
-    </android.support.design.widget.CoordinatorLayout>
+    </LinearLayout>
+
+
 </layout>
