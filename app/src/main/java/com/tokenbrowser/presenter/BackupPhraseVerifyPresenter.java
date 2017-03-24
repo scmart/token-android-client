@@ -1,13 +1,11 @@
 package com.tokenbrowser.presenter;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.v4.app.ActivityCompat;
 import android.view.View;
 
 import com.tokenbrowser.crypto.HDWallet;
-import com.tokenbrowser.util.FileNames;
+import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.BackupPhraseVerifyActivity;
 import com.tokenbrowser.view.activity.MainActivity;
@@ -20,8 +18,6 @@ import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 public class BackupPhraseVerifyPresenter implements Presenter<BackupPhraseVerifyActivity> {
-
-    public static final String BACKUP_PHRASE_STATE = "back_phrase_state";
 
     private BackupPhraseVerifyActivity activity;
     private CompositeSubscription subscriptions;
@@ -66,8 +62,7 @@ public class BackupPhraseVerifyPresenter implements Presenter<BackupPhraseVerify
     }
 
     private void handleFinishedListener() {
-        final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(FileNames.BACKUP_PHRASE_STATE, Context.MODE_PRIVATE);
-        prefs.edit().putBoolean(BACKUP_PHRASE_STATE, true).apply();
+        SharedPrefsUtil.setHasBackedUpPhrase();
 
         final Intent intent = new Intent(this.activity, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

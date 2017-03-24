@@ -1,8 +1,6 @@
 package com.tokenbrowser.presenter;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,8 +10,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.R;
-import com.tokenbrowser.util.FileNames;
 import com.tokenbrowser.util.OnSingleClickListener;
+import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.AboutActivity;
 import com.tokenbrowser.view.activity.BackupPhraseInfoActivity;
@@ -159,10 +157,7 @@ public final class SettingsPresenter implements
     }
 
     private void setSecurityState() {
-        final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(FileNames.BACKUP_PHRASE_STATE, Context.MODE_PRIVATE);
-        final boolean isBackedUp = prefs.getBoolean(BackupPhraseVerifyPresenter.BACKUP_PHRASE_STATE, false);
-
-        if (isBackedUp) {
+        if (SharedPrefsUtil.hasBackedUpPhrase()) {
             this.fragment.getBinding().checkboxBackupPhrase.setChecked(true);
             this.fragment.getBinding().securityStatus.setVisibility(View.GONE);
         }

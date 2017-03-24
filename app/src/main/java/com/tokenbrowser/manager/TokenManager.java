@@ -1,13 +1,9 @@
 package com.tokenbrowser.manager;
 
 
-import android.content.Context;
-
 import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.crypto.signal.SignalPreferences;
-import com.tokenbrowser.util.FileNames;
 import com.tokenbrowser.util.SharedPrefsUtil;
-import com.tokenbrowser.view.BaseApplication;
 
 import rx.Completable;
 import rx.Single;
@@ -90,11 +86,6 @@ public class TokenManager {
 
     public Completable clearUserData() {
         return Completable.fromCallable(() -> {
-            BaseApplication.get()
-                    .getSharedPreferences(FileNames.BACKUP_PHRASE_STATE, Context.MODE_PRIVATE)
-                    .edit()
-                    .clear()
-                    .apply();
             this.sofaMessageManager.clear();
             this.userManager.clear();
             this.balanceManager.clear();
@@ -102,6 +93,7 @@ public class TokenManager {
             this.wallet = null;
             SignalPreferences.clear();
             SharedPrefsUtil.setSignedOut();
+            SharedPrefsUtil.clear();
             return null;
         });
     }
