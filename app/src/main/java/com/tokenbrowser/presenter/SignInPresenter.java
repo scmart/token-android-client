@@ -20,6 +20,7 @@ public class SignInPresenter implements Presenter<SignInActivity> {
     private SignInActivity activity;
     private boolean firstTimeAttaching = true;
     private CompositeSubscription subscriptions;
+    private boolean onGoingTask = false;
 
     @Override
     public void onViewAttached(SignInActivity view) {
@@ -37,6 +38,7 @@ public class SignInPresenter implements Presenter<SignInActivity> {
 
     private void initClickListeners() {
         this.activity.getBinding().signIn.setOnClickListener(v -> handleSignInClicked());
+        this.activity.getBinding().createNewAccount.setOnClickListener(v -> handleCreateNewAccountClicked());
     }
 
     private void handleSignInClicked() {
@@ -55,6 +57,9 @@ public class SignInPresenter implements Presenter<SignInActivity> {
     }
 
     private void tryCreateWallet(final String masterSeed) {
+        if (this.onGoingTask) return;
+        this.onGoingTask = true;
+
         final Subscription sub = new HDWallet().createFromMasterSeed(masterSeed)
                 .flatMap(wallet -> BaseApplication
                         .get()
@@ -63,13 +68,19 @@ public class SignInPresenter implements Presenter<SignInActivity> {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        unused -> goToMainActivity(),
+                        unused -> handleSuccess(),
                         throwable -> handleError());
 
         this.subscriptions.add(sub);
     }
 
+    private void handleSuccess() {
+        this.onGoingTask = false;
+        goToMainActivity();
+    }
+
     private void handleError() {
+        this.onGoingTask = false;
         Toast.makeText(
                 this.activity,
                 this.activity.getString(R.string.unable_to_restore_wallet),
@@ -82,6 +93,22 @@ public class SignInPresenter implements Presenter<SignInActivity> {
         final Intent intent = new Intent(this.activity, MainActivity.class);
         this.activity.startActivity(intent);
         this.activity.finish();
+    }
+
+    private void handleCreateNewAccountClicked() {
+        if (this.onGoingTask) return;
+        this.onGoingTask = true;
+
+        final Subscription sub =
+                BaseApplication
+                .get()
+                .getTokenManager()
+                .init()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(unused -> handleSuccess());
+
+        this.subscriptions.add(sub);
     }
 
     @Override
