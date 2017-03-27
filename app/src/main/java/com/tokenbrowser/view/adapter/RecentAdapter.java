@@ -108,6 +108,11 @@ public class RecentAdapter extends RecyclerView.Adapter<ConversationViewHolder> 
                     final PaymentRequest request = this.adapters.txRequestFrom(sofaMessage.getPayload());
                     return request.toUserVisibleString(sofaMessage.isSentBy(localUser));
                 }
+                case SofaType.COMMAND_REQUEST:
+                case SofaType.INIT_REQUEST:
+                case SofaType.INIT:
+                case SofaType.UNKNOWN:
+                    return "";
             }
         } catch (final IOException ex) {
             LogUtil.error(getClass(), "Error parsing SofaMessage. " + ex);

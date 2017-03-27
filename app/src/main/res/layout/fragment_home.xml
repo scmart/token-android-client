@@ -95,7 +95,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:gravity="center">
+                            android:gravity="center_horizontal">
 
                             <FrameLayout
                                 android:layout_width="@dimen/avatar_size_small"
@@ -114,6 +114,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
+                                android:gravity="center_horizontal"
                                 android:textColor="@color/textColorPrimary"
                                 android:text="@string/pay"/>
 
@@ -125,7 +126,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:gravity="center">
+                            android:gravity="center_horizontal">
 
                             <FrameLayout
                                 android:layout_width="@dimen/avatar_size_small"
@@ -144,6 +145,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
+                                android:gravity="center_horizontal"
                                 android:textColor="@color/textColorPrimary"
                                 android:text="@string/request"/>
 
@@ -155,7 +157,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:gravity="center">
+                            android:gravity="center_horizontal">
 
                             <FrameLayout
                                 android:layout_width="@dimen/avatar_size_small"
@@ -174,6 +176,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
+                                android:gravity="center_horizontal"
                                 android:textColor="@color/textColorPrimary"
                                 android:text="@string/add_money"/>
 
@@ -185,7 +188,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:gravity="center">
+                            android:gravity="center_horizontal">
 
                             <FrameLayout
                                 android:layout_width="@dimen/avatar_size_small"
@@ -204,6 +207,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
+                                android:gravity="center_horizontal"
                                 android:textColor="@color/textColorPrimary"
                                 android:text="@string/scan_qr"/>
 

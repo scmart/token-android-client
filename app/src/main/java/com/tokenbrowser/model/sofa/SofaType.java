@@ -26,10 +26,11 @@ public class SofaType {
 
     public static final String LOCAL_ONLY_PAYLOAD = "custom_local_only_payload";
     public static final String WEB_VIEW = "webview:";
-    public static final String PAYMENT_ADDRESS = "paymentAddress";
-    public static final String LANGUAGE = "language";
     public static final String CONFIRMED = "confirmed";
     public static final String UNCONFIRMED = "unconfirmed";
+
+    /* package */ static final String PAYMENT_ADDRESS = "paymentAddress";
+    /* package */ static final String LANGUAGE = "language";
 
     private static final String plain_text = "SOFA::Message:";
     private static final String command_request = "SOFA::Command:";
@@ -38,7 +39,7 @@ public class SofaType {
     private static final String init = "SOFA::Init:";
     private static final String init_request = "SOFA::InitRequest:";
 
-    public static String createHeader(final @SofaType.Type int type) {
+    /* package */ static String createHeader(final @SofaType.Type int type) {
         switch (type) {
             case PLAIN_TEXT: return plain_text;
             case PAYMENT_REQUEST: return payment_request;
@@ -46,6 +47,7 @@ public class SofaType {
             case PAYMENT: return payment;
             case INIT: return init;
             case INIT_REQUEST: return init_request;
+            case UNKNOWN: return null;
             default: return null;
         }
     }

@@ -1,5 +1,6 @@
 package com.tokenbrowser.util;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -52,6 +53,7 @@ public class FileUtil {
                                                          final SignalServiceMessageReceiver messageReceiver) {
         File file = null;
         try {
+            @SuppressLint("DefaultLocale")
             final String fileName = String.format("%d.jpg", attachment.getId());
             file = new File(BaseApplication.get().getCacheDir(), fileName);
             final InputStream stream = messageReceiver.retrieveAttachment(attachment, file);
