@@ -123,7 +123,7 @@
             <com.tokenbrowser.view.custom.RatingInfo
                 android:id="@+id/rating_info"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="110dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="40dp"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"/>
