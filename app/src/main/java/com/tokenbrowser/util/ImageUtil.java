@@ -46,6 +46,10 @@ public class ImageUtil {
     }
 
     private static Bitmap generateQrCodeBitmap(final String walletAddress) throws WriterException {
+        if (walletAddress == null) {
+            return null;
+        }
+        
         final QRCodeWriter writer = new QRCodeWriter();
         final int size = BaseApplication.get().getResources().getDimensionPixelSize(R.dimen.qr_code_size);
         final Map<EncodeHintType, Integer> map = new HashMap<>();
