@@ -311,8 +311,6 @@ public abstract class BaseItemAnimator extends SimpleItemAnimator {
                                  int toX, int toY) {
         final float prevTranslationX = ViewCompat.getTranslationX(oldHolder.itemView);
         final float prevTranslationY = ViewCompat.getTranslationY(oldHolder.itemView);
-        //final float prevAlpha = ViewCompat.getAlpha(oldHolder.itemView);
-        final float prevAlpha = 1f;
         endAnimation(oldHolder);
         int deltaX = (int) (toX - fromX - prevTranslationX);
         int deltaY = (int) (toY - fromY - prevTranslationY);

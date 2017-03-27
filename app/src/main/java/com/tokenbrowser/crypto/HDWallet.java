@@ -3,8 +3,8 @@ package com.tokenbrowser.crypto;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.tokenbrowser.token.R;
 import com.tokenbrowser.crypto.util.TypeConverter;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.BaseApplication;
 
@@ -108,6 +108,11 @@ public class HDWallet {
         for (int i = 0; i <= iteration; i++) {
             key = wallet.freshKey(keyPurpose);
         }
+
+        if (key == null) {
+            throw new IOException("Unable to derive key");
+        }
+
         return ECKey.fromPrivate(key.getPrivKey());
     }
 
@@ -136,7 +141,11 @@ public class HDWallet {
     }
 
     private String getPrivateKey() {
-        return Hex.toHexString(this.identityKey.getPrivKeyBytes());
+        if(this.identityKey != null) {
+            final byte[] privateKeyByes = this.identityKey.getPrivKeyBytes();
+            return privateKeyByes != null ? Hex.toHexString(privateKeyByes) : null;
+        }
+        return null;
     }
 
     private String getPublicKey() {
@@ -167,6 +176,10 @@ public class HDWallet {
     }
 
     private String seedToString(final DeterministicSeed seed) {
+        if (seed == null || seed.getMnemonicCode() == null) {
+            return null;
+        }
+
         final StringBuilder sb = new StringBuilder();
         for (final String word : seed.getMnemonicCode()) {
             sb.append(word).append(" ");

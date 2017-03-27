@@ -6,6 +6,8 @@ import java.util.Map;
 
 public class MarketRates {
 
+    private DataPoints data;
+
     // ctors
     public MarketRates() {}
 
@@ -24,8 +26,7 @@ public class MarketRates {
         return rate;
     }
 
-    private DataPoints data;
-
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private static class DataPoints{
         private Map<String, BigDecimal> rates;
     }

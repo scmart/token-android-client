@@ -58,7 +58,6 @@ public class ConversationViewHolder extends ClickableViewHolder {
         final Calendar lastMessageCreationTime = Calendar.getInstance();
         lastMessageCreationTime.setTimeInMillis(creationTime);
         final Calendar now = Calendar.getInstance();
-        final Date date = new Date(creationTime);
 
         if (now.get(Calendar.DAY_OF_YEAR) == lastMessageCreationTime.get(Calendar.DAY_OF_YEAR)) {
             return new SimpleDateFormat("H:mm a", LocaleUtil.getLocale()).format(new Date(creationTime));

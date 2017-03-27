@@ -169,7 +169,6 @@ public final class MessageAdapter extends RecyclerView.Adapter<RecyclerView.View
             final SofaMessage sofaMessage,
             final String payload) throws IOException {
 
-        final User localUser = getCurrentLocalUser();
         final boolean isRemote = holder.getItemViewType() >= SENDER_MASK;
         final int messageType = isRemote ? holder.getItemViewType() ^ SENDER_MASK : holder.getItemViewType();
 

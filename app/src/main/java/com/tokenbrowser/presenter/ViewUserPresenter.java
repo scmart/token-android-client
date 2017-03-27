@@ -151,8 +151,10 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         addContactButton.setSoundEffectsEnabled(isAContact);
 
         final Drawable checkMark = AppCompatResources.getDrawable(this.activity, R.drawable.ic_done);
-        DrawableCompat.setTint(checkMark, this.activity.getResources().getColor(R.color.colorPrimary));
-        addContactButton.setCompoundDrawablesWithIntrinsicBounds(isAContact ? checkMark : null, null, null, null);
+        if (checkMark != null) {
+            DrawableCompat.setTint(checkMark, this.activity.getResources().getColor(R.color.colorPrimary));
+            addContactButton.setCompoundDrawablesWithIntrinsicBounds(isAContact ? checkMark : null, null, null, null);
+        }
     }
 
     private final OnSingleClickListener handleOnAddContact = new OnSingleClickListener() {

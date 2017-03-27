@@ -22,7 +22,7 @@ public class NavigationAdapter extends FragmentPagerAdapter {
     public NavigationAdapter(final AppCompatActivity activity, final int menuRes) {
         super(activity.getSupportFragmentManager());
 
-        final PopupMenu popupMenu = new PopupMenu(activity, null);
+        final PopupMenu popupMenu = new PopupMenu(activity, activity.findViewById(android.R.id.content));
         final Menu menu = popupMenu.getMenu();
         activity.getMenuInflater().inflate(menuRes, menu);
 

@@ -55,7 +55,7 @@ public class ScannerActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         this.resultHolder = new PermissionResultHolder(requestCode, permissions, grantResults);
         tryHandlePermissionResultHolder();
     }

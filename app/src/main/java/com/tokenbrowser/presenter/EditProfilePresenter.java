@@ -339,9 +339,9 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
         Toast.makeText(this.fragment.getContext(), this.fragment.getString(R.string.profile_image_success), Toast.LENGTH_SHORT).show();
     }
 
-    private void tryDeleteCachedFile(final File file) {
-        if (!file.exists()) return;
-        file.delete();
+    private boolean tryDeleteCachedFile(final File file) {
+        if (!file.exists()) return true;
+        return file.delete();
     }
 
     private void showFailureMessage() {
