@@ -20,6 +20,10 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
+        if (!intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+            return;
+        }
+        
         final boolean isConnected = getCurrentConnectivityStatus(context);
         BaseApplication.get().isConnectedSubject().onNext(isConnected);
     }
