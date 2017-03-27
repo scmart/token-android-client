@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Pair;
 
-import com.crashlytics.android.Crashlytics;
 import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.crypto.signal.ChatService;
 import com.tokenbrowser.crypto.signal.SignalPreferences;
@@ -661,6 +660,7 @@ public final class SofaMessageManager {
     }
 
     public void clear() {
+        disconnect();
         clearSubscriptions();
         this.sharedPreferences
                 .edit()
