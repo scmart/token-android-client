@@ -35,7 +35,6 @@ public class RecommendedAppsViewHolder extends RecyclerView.ViewHolder {
             return;
         }
 
-        this.appCategory.setText("Category");
         final double reputationScore = app.getReputationScore() != null
                 ? app.getReputationScore()
                 : 0;

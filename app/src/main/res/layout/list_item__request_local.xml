@@ -56,7 +56,7 @@
             android:lineSpacingExtra="2dp"
             android:textColor="@color/textColorSecondary"
             android:textSize="@dimen/defaultTextSize"
-            android:text=" · "/>
+            android:text="@string/payment_seperator"/>
 
 
         <TextView

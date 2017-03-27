@@ -73,7 +73,7 @@
             android:layout_height="26dp"
             android:gravity="center"
             android:textColor="@color/textColorContrast"
-            android:text="999"/>
+            tools:text="99"/>
     </LinearLayout>
 
 </LinearLayout>

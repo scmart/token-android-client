@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:textSize="@dimen/subTitleSize"
             android:textStyle="bold"
-            android:text="$0.00 USD"/>
+            tools:text="$0.00 USD"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/textColorSecondary"
             android:textSize="@dimen/balance_bar_text_size"
-            android:text="0.0000"/>
+            tools:text="0.0000"/>
 
         <TextView
             android:layout_width="wrap_content"

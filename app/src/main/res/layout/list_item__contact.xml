@@ -64,7 +64,7 @@
             android:layout_gravity="right"
             android:textSize="14sp"
             android:textColor="@color/textColorSecondary"
-            android:text="(44)"/>
+            tools:text="(44)"/>
 
     </LinearLayout>
 
