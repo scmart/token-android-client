@@ -499,10 +499,9 @@ public class ECKey implements Serializable {
         return pub.isCompressed();
     }
 
+    @Override
     public String toString() {
-        StringBuilder b = new StringBuilder();
-        b.append("pub:").append(Hex.toHexString(pub.getEncoded(false)));
-        return b.toString();
+        return String.format("pub: %s", Hex.toHexString(pub.getEncoded(false)));
     }
 
     /**

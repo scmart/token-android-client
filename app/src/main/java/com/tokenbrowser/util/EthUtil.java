@@ -5,13 +5,9 @@ import com.tokenbrowser.crypto.util.TypeConverter;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.text.DecimalFormat;
 
 public class EthUtil {
-
     private static final BigDecimal weiToEthRatio = new BigDecimal("1000000000000000000");
-    private static final DecimalFormat formatting = new DecimalFormat("#0.##########");
-
 
     public static String hexAmountToUserVisibleString(final String hexEncodedWei) {
         final BigInteger wei = TypeConverter.StringHexToBigInteger(hexEncodedWei);
@@ -31,7 +27,7 @@ public class EthUtil {
         if (wei == null) {
             return BigDecimal.ZERO;
         }
-        return new BigDecimal(wei).divide(weiToEthRatio);
+        return new BigDecimal(wei).divide(weiToEthRatio, BigDecimal.ROUND_DOWN);
     }
 
     public static BigInteger ethToWei(final BigDecimal amountInEth) {

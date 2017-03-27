@@ -4,6 +4,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -38,7 +39,8 @@ public class RecentFragment extends BasePresenterFragment<RecentPresenter, Recen
 
     private void initMenu() {
         ((AppCompatActivity)getActivity()).setSupportActionBar(this.binding.toolbar);
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+        final ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        if (actionBar != null) actionBar.setDisplayShowTitleEnabled(false);
         setHasOptionsMenu(true);
     }
 

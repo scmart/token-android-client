@@ -225,8 +225,7 @@ public class PreKeyUtil {
     private static File getKeysDirectory(Context context, String name) {
         File directory = new File(context.getFilesDir(), name);
 
-        if (!directory.exists())
-            directory.mkdirs();
+        if (!directory.exists()) directory.mkdirs();
 
         return directory;
     }

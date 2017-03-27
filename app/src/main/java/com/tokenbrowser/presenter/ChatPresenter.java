@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -564,7 +565,8 @@ public final class ChatPresenter implements
         this.activity.getBinding().title.setText(remoteUser.getDisplayName());
         this.activity.getBinding().closeButton.setOnClickListener(this::handleBackButtonClicked);
         this.activity.setSupportActionBar(this.activity.getBinding().toolbar);
-        this.activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+        final ActionBar actionBar = this.activity.getSupportActionBar();
+        if (actionBar != null) actionBar.setDisplayShowTitleEnabled(false);
         Glide.with(this.activity.getBinding().avatar.getContext())
                 .load(remoteUser.getAvatar())
                 .into(this.activity.getBinding().avatar);

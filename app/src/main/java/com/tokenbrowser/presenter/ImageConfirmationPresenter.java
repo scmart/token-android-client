@@ -64,9 +64,9 @@ public class ImageConfirmationPresenter implements Presenter<ImageConfirmationAc
         this.activity.finish();
     }
 
-    private void deleteFile() {
-        if (this.imageFile == null) return;
-        this.imageFile.delete();
+    private boolean deleteFile() {
+        if (this.imageFile == null) return true;
+        return this.imageFile.delete();
     }
 
     private void handleConfirmedClicked() {
