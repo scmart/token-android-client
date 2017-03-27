@@ -3,17 +3,14 @@
     <string name="eth_currency_code">ETH</string>
     <!-- Dialog errors -->
     <string name="dollar">$</string>
-    <string name="fiat_iso__usd">USD</string>
     <string name="tab_1">Home</string>
     <string name="tab_2">Apps</string>
-    <string name="tab_3">Scan</string>
     <string name="tab_4">Contacts</string>
     <string name="tab_5">Settings</string>
     <string name="message">Message…</string>
     <string name="chat__empty_state">There are no messages, yet!</string>
     <string name="add_contact">Add Contact</string>
     <string name="remove_contact">Added</string>
-    <string name="added_contact">Added</string>
     <string name="my_profile">My Profile</string>
     <string name="settings">Settings</string>
     <string name="profile">Profile</string>
@@ -26,7 +23,6 @@
     <string name="error__invalid_characters">Invalid characters. No spaces allowed.</string>
     <string name="button_pay">Pay</string>
     <string name="button_request">Request</string>
-    <string name="request_sent">Request sent.</string>
     <string name="request_title">PAYMENT REQUEST</string>
     <string name="button_decline">DECLINE</string>
     <string name="button_accept">ACCEPT</string>
@@ -35,7 +31,6 @@
     <string name="payment_request__accepted">You accepted this request</string>
     <string name="payment_request__rejected">You declined this request</string>
     <string name="payment_title">PAYMENT</string>
-    <string name="money_received">Money received</string>
     <string name="error__transaction_failed">Failed</string>
     <string name="error__message_failed">Message did not send</string>
     <string name="error__transaction_succeeded">Complete</string>
@@ -44,12 +39,9 @@
     <string name="request">Request</string>
     <string name="add_money">Add Money</string>
     <string name="scan_qr">Scan QR</string>
-    <string name="usd_balance">$ %1$s %2$s</string>
     <string name="eth_balance">%1$s ETH</string>
     <string name="continue_">Continue</string>
     <string name="send">Send</string>
-    <string name="payment_received">Payment received</string>
-    <string name="payment_amount">Amount: %1$s</string>
     <string name="error__transaction_pending">Pending</string>
     <string name="error__message_pending">Pending</string>
     <string name="version">Version</string>
@@ -63,14 +55,12 @@
     <string name="to">To:</string>
     <string name="reputation">Reputation</string>
     <string name="bullet_point">•</string>
-    <string name="message_received">🔒 You have received a new message</string>
     <string name="profile_username">Username</string>
     <string name="about">About</string>
     <string name="contact_information_label">Contact information</string>
     <string name="contact_information">tokenbrowser@gmail.com</string>
     <string name="open_source_licenses">Legal</string>
     <string name="about__licenses">Open Source Licenses</string>
-    <string name="add_app">Add app</string>
     <string name="error__app_loading">There was a problem loading this app</string>
     <string name="your_account_is_at_risk">Your account is at risk</string>
     <string name="security">Security</string>
@@ -124,7 +114,6 @@
     <string name="latest_message__payment_incoming">Received %1$s</string>
     <string name="latest_message__request_incoming">Request for %1$s</string>
     <string name="latest_message__request_outgoing">You requested %1$s</string>
-    <string name="payment_failed">Payment failed</string>
     <string name="payment_failed_message">Unable to send money to %1$s</string>
     <string name="username_search_response_no_match">No user found with this username</string>
     <string name="parentheses">(%1$d)</string>

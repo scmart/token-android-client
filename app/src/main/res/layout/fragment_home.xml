@@ -87,6 +87,7 @@
                         android:layout_marginTop="26dp"
                         android:paddingRight="@dimen/activity_horizontal_margin"
                         android:paddingLeft="@dimen/activity_horizontal_margin"
+                        android:baselineAligned="false"
                         android:weightSum="4">
 
                         <LinearLayout

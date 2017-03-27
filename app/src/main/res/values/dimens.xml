@@ -13,8 +13,6 @@
     <dimen name="qr_code_size">170dp</dimen>
 
     <dimen name="control_horizontal_padding">20dp</dimen>
-    <dimen name="control_vertical_padding">15dp</dimen>
-    <dimen name="control_radius_size">8dp</dimen>
     <dimen name="control_spacing">8dp</dimen>
     <dimen name="control_group_recycleview_padding">24dp</dimen>
 
@@ -23,14 +21,12 @@
 
     <dimen name="message_list_bottom_padding">8dp</dimen>
     <dimen name="star_right_margin">2dp</dimen>
-    <dimen name="search_vertical_list_space">16dp</dimen>
     <dimen name="avatar_size_small">44dp</dimen>
 
     <dimen name="rating_bar_radius">3dp</dimen>
     <dimen name="rating_bar_width">160dp</dimen>
 
     <dimen name="backup_phrase_spacing">10dp</dimen>
-    <dimen name="spinner">50dp</dimen>
 
     <dimen name="image_frame_padding">16dp</dimen>
     <dimen name="round_corners_image_view__default_size">250dp</dimen>
