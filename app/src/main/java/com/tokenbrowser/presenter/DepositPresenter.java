@@ -72,6 +72,7 @@ public class DepositPresenter implements Presenter<DepositActivity> {
         }
 
         this.activity.getBinding().ownerAddress.setText(this.localUser.getPaymentAddress());
+        this.activity.getBinding().copyToClipboard.setEnabled(true);
         generateQrCode();
     }
 
