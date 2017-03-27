@@ -34,4 +34,6 @@
 
     <dimen name="image_frame_padding">16dp</dimen>
     <dimen name="round_corners_image_view__default_size">250dp</dimen>
+
+    <integer name="num_app_columns">3</integer>
 </resources>

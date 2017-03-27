@@ -99,6 +99,7 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
                 this.statusMessage.setText(R.string.error__transaction_pending);
                 this.statusIcon.setImageResource(R.drawable.ic_clock);
                 break;
+            case SendState.STATE_PENDING:
             case SendState.STATE_RECEIVED:
             case SendState.STATE_LOCAL_ONLY:
             default:
