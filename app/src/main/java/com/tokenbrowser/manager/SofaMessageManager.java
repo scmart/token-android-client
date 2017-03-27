@@ -5,9 +5,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Pair;
 
+import com.crashlytics.android.Crashlytics;
 import com.tokenbrowser.crypto.HDWallet;
-import com.tokenbrowser.crypto.signal.SignalPreferences;
 import com.tokenbrowser.crypto.signal.ChatService;
+import com.tokenbrowser.crypto.signal.SignalPreferences;
 import com.tokenbrowser.crypto.signal.model.DecryptedSignalMessage;
 import com.tokenbrowser.crypto.signal.store.ProtocolStore;
 import com.tokenbrowser.crypto.signal.store.SignalTrustStore;
@@ -318,6 +319,7 @@ public final class SofaMessageManager {
 
         @Override
         public void onError(final Throwable e) {
+            Crashlytics.logException(e);
             LogUtil.e(getClass(), "Message sending/receiving now broken due to this error: " + e);
         }
     };
