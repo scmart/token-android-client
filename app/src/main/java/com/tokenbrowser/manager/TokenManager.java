@@ -89,6 +89,7 @@ public class TokenManager {
             this.sofaMessageManager.clear();
             this.userManager.clear();
             this.balanceManager.clear();
+            this.transactionManager.clear();
             this.wallet.clear();
             this.wallet = null;
             SignalPreferences.clear();

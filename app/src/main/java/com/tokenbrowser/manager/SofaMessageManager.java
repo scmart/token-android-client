@@ -74,8 +74,10 @@ import rx.Completable;
 import rx.Observable;
 import rx.Single;
 import rx.SingleSubscriber;
+import rx.Subscription;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
+import rx.subscriptions.CompositeSubscription;
 
 public final class SofaMessageManager {
 
@@ -96,6 +98,7 @@ public final class SofaMessageManager {
     private SignalServiceUrl[] signalServiceUrls;
     private String gcmToken;
     private SignalServiceMessageReceiver messageReceiver;
+    private CompositeSubscription subscriptions;
 
     /*package*/ SofaMessageManager() {
         this.conversationStore = new ConversationStore();
@@ -104,6 +107,7 @@ public final class SofaMessageManager {
         this.adapters = new SofaAdapters();
         this.signalServiceUrls = new SignalServiceUrl[1];
         this.sharedPreferences = BaseApplication.get().getSharedPreferences(FileNames.GCM_PREFS, Context.MODE_PRIVATE);
+        this.subscriptions = new CompositeSubscription();
     }
 
     public final SofaMessageManager init(final HDWallet wallet) {
@@ -157,10 +161,6 @@ public final class SofaMessageManager {
     public final void sendAndSaveMessage(final User receiver, final SofaMessage message) {
         final SofaMessageTask messageTask = new SofaMessageTask(receiver, message, SofaMessageTask.SEND_AND_SAVE);
         this.chatMessageQueue.onNext(messageTask);
-
-        if (this.handleMessagesSubscriber.isUnsubscribed()) {
-            LogUtil.e(getClass(), "Not attached!");
-        }
     }
 
     // Will send the message to a remote peer
@@ -297,10 +297,14 @@ public final class SofaMessageManager {
     }
 
     private void attachSubscribers() {
-        this.chatMessageQueue
+        final Subscription sub = this.chatMessageQueue
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
-                .subscribe(this.handleMessagesSubscriber);
+                .subscribe(
+                        this::handleMessage,
+                        this::handleMessageError);
+
+        this.subscriptions.add(sub);
 
         BaseApplication
                 .get()
@@ -309,34 +313,29 @@ public final class SofaMessageManager {
                 .subscribe(isConnected -> sendPendingMessages());
     }
 
-    private final OnNextSubscriber<SofaMessageTask> handleMessagesSubscriber = new OnNextSubscriber<SofaMessageTask>() {
-        @Override
-        public void onNext(final SofaMessageTask messageTask) {
-            switch (messageTask.getAction()) {
-                case SofaMessageTask.SEND_AND_SAVE:
-                    sendMessageToRemotePeer(messageTask, true);
-                    break;
-                case SofaMessageTask.SAVE_ONLY:
-                    storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage(), SendState.STATE_LOCAL_ONLY);
-                    break;
-                case SofaMessageTask.SAVE_TRANSACTION:
-                    storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage(), SendState.STATE_SENDING);
-                    break;
-                case SofaMessageTask.SEND_ONLY:
-                    sendMessageToRemotePeer(messageTask, false);
-                    break;
-                case SofaMessageTask.UPDATE_MESSAGE:
-                    updateExistingMessage(messageTask.getReceiver(), messageTask.getSofaMessage());
-                    break;
-            }
+    private void handleMessage(final SofaMessageTask messageTask) {
+        switch (messageTask.getAction()) {
+            case SofaMessageTask.SEND_AND_SAVE:
+                sendMessageToRemotePeer(messageTask, true);
+                break;
+            case SofaMessageTask.SAVE_ONLY:
+                storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage(), SendState.STATE_LOCAL_ONLY);
+                break;
+            case SofaMessageTask.SAVE_TRANSACTION:
+                storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage(), SendState.STATE_SENDING);
+                break;
+            case SofaMessageTask.SEND_ONLY:
+                sendMessageToRemotePeer(messageTask, false);
+                break;
+            case SofaMessageTask.UPDATE_MESSAGE:
+                updateExistingMessage(messageTask.getReceiver(), messageTask.getSofaMessage());
+                break;
         }
+    }
 
-        @Override
-        public void onError(final Throwable e) {
-            Crashlytics.logException(e);
-            LogUtil.e(getClass(), "Message sending/receiving now broken due to this error: " + e);
-        }
-    };
+    private void handleMessageError(final Throwable throwable) {
+        LogUtil.e(getClass(), "Message sending/receiving now broken due to this error: " + throwable);
+    }
 
     private void sendPendingMessages() {
         final List<PendingMessage> pendingMessages = this.pendingMessageStore.getAllPendingMessages();
@@ -662,9 +661,14 @@ public final class SofaMessageManager {
     }
 
     public void clear() {
+        clearSubscriptions();
         this.sharedPreferences
                 .edit()
                 .clear()
                 .apply();
+    }
+
+    private void clearSubscriptions() {
+        this.subscriptions.clear();
     }
 }
