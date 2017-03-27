@@ -38,6 +38,11 @@ public interface EthereumInterface {
             @Query("timestamp") long timestamp,
             @Body GcmRegistration gcmRegistration);
 
+    @POST("/v1/gcm/deregister")
+    Single<Void> unregisterGcm(
+            @Query("timestamp") long timestamp,
+            @Body GcmRegistration gcmRegistration);
+
     @POST("/v1/register")
     Single<Void> startWatchingAddresses(
             @Query("timestamp") long timestamp,

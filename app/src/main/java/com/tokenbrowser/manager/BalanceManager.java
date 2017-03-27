@@ -147,6 +147,14 @@ public class BalanceManager {
                 .flatMap((st) -> registerForGcmWithTimestamp(token, st));
     }
 
+    public Single<Void> unregisterFromGcm(final String token) {
+        return EthereumService
+                .getApi()
+                .getTimestamp()
+                .subscribeOn(Schedulers.io())
+                .flatMap((st) -> unregisterGcmWithTimestamp(token, st));
+    }
+
     private Single<Void> registerForGcmWithTimestamp(final String token, final ServerTime serverTime) {
         if (serverTime == null) {
             throw new IllegalStateException("ServerTime was null");
@@ -155,6 +163,16 @@ public class BalanceManager {
         return EthereumService
                 .getApi()
                 .registerGcm(serverTime.get(), new GcmRegistration(token));
+    }
+
+    private Single<Void> unregisterGcmWithTimestamp(final String token, final ServerTime serverTime) {
+        if (serverTime == null) {
+            throw new IllegalStateException("ServerTime was null");
+        }
+
+        return EthereumService
+                .getApi()
+                .unregisterGcm(serverTime.get(), new GcmRegistration(token));
     }
 
     public Single<Void> watchForWalletTransactions() {

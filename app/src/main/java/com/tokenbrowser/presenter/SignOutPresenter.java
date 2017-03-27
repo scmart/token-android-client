@@ -2,6 +2,7 @@ package com.tokenbrowser.presenter;
 
 import android.content.Intent;
 
+import com.tokenbrowser.util.GcmUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.SignInActivity;
 import com.tokenbrowser.view.activity.SignOutActivity;
@@ -23,11 +24,22 @@ public class SignOutPresenter implements Presenter<SignOutActivity> {
     }
 
     private void clearTasks() {
-        this.signOutSubscription = unregisterGcm()
-                .andThen(clearUserDataAndLogOut())
+        this.signOutSubscription =
+                clearAndUnregister()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::goToSignInActivity);
+                .subscribe(
+                        this::goToSignInActivity,
+                        __ -> goToSignInActivity());
+    }
+
+    private Completable clearAndUnregister() {
+        return Completable
+                .mergeDelayError(
+                    unregisterChatGcm(),
+                    unregisterEthGcm(),
+                    clearUserDataAndLogOut()
+        );
     }
 
     private Completable clearUserDataAndLogOut() {
@@ -37,12 +49,23 @@ public class SignOutPresenter implements Presenter<SignOutActivity> {
                 .clearUserData();
     }
 
-    private Completable unregisterGcm() {
+    private Completable unregisterChatGcm() {
         return BaseApplication
                 .get()
                 .getTokenManager()
                 .getSofaMessageManager()
                 .tryUnregisterGcm();
+    }
+
+    private Completable unregisterEthGcm() {
+        return GcmUtil
+                .getGcmToken()
+                .flatMap(token -> BaseApplication
+                        .get()
+                        .getTokenManager()
+                        .getBalanceManager()
+                        .unregisterFromGcm(token))
+                .toCompletable();
     }
 
     private void goToSignInActivity() {
