@@ -10,6 +10,7 @@ import android.view.View;
 import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.model.network.App;
 import com.tokenbrowser.model.network.Balance;
+import com.tokenbrowser.token.R;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.util.PaymentType;
@@ -91,8 +92,9 @@ public class HomePresenter implements Presenter<HomeFragment> {
 
     private void initRecyclerView() {
         final RecyclerView appList = this.fragment.getBinding().appList;
+        final int numColumns = this.fragment.getContext().getResources().getInteger(R.integer.num_app_columns);
         appList.setNestedScrollingEnabled(false);
-        appList.setLayoutManager(new GridLayoutManager(this.fragment.getContext(), 4));
+        appList.setLayoutManager(new GridLayoutManager(this.fragment.getContext(), numColumns));
         final AppListAdapter adapter = new AppListAdapter(new ArrayList<>());
         adapter.setOnItemClickListener(this.appItemClickListener);
         appList.setAdapter(adapter);
