@@ -1,9 +1,11 @@
 package com.tokenbrowser.manager.network.interceptor;
 
 
+import com.crashlytics.android.Crashlytics;
 import com.tokenbrowser.token.BuildConfig;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -18,11 +20,16 @@ public class UserAgentInterceptor implements Interceptor {
     }
     @Override
     public Response intercept(final Chain chain) throws IOException {
-        final Request original = chain.request();
-        final Request request = original.newBuilder()
-                .header("User-Agent", this.userAgent)
-                .method(original.method(), original.body())
-                .build();
-        return chain.proceed(request);
+        try {
+            final Request original = chain.request();
+            final Request request = original.newBuilder()
+                    .header("User-Agent", this.userAgent)
+                    .method(original.method(), original.body())
+                    .build();
+            return chain.proceed(request);
+        } catch (final SocketTimeoutException ex) {
+            Crashlytics.logException(ex);
+            return null;
+        }
     }
 }
