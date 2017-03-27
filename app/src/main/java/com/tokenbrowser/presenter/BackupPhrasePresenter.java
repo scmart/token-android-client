@@ -129,12 +129,12 @@ public class BackupPhrasePresenter implements Presenter<BackupPhraseActivity> {
     };
 
     private void showWarningDialog() {
+        if (this.activity == null) return;
+
         this.dialog = new AlertDialog.Builder(this.activity)
                 .setTitle(R.string.screenshot_warning_title)
                 .setMessage(R.string.screenshot_warning_message)
-                .setPositiveButton(R.string.got_it, (dialog, which) -> {
-                    dialog.dismiss();
-                })
+                .setPositiveButton(R.string.got_it, (dialog, which) -> dialog.dismiss())
                 .show();
     }
 
