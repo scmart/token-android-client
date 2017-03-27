@@ -77,3 +77,8 @@
 
 # Retrolambda
 -dontwarn java.lang.invoke.*
+
+#Crashlytics
+-keepattributes *Annotation*
+-keepattributes SourceFile,LineNumberTable
+-keep public class * extends java.lang.Exception
