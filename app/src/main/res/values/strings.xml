@@ -142,4 +142,5 @@
     <string name="error__offline">No internet connection</string>
     <string name="profile__unknown_name">No username set</string>
     <string name="unknown_sender">Unknown Sender</string>
+    <string name="payment_seperator" translatable="false"> · </string>
 </resources>

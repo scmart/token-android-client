@@ -68,7 +68,7 @@
             android:textColor="@color/textColorTertiary"
             android:textSize="@dimen/defaultTextSize"
             android:gravity="center_horizontal"
-            android:text=" · "/>
+            android:text="@string/payment_seperator"/>
 
         <TextView
             android:id="@+id/eth_amount"

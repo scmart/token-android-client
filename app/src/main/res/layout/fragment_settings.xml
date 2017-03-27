@@ -96,7 +96,7 @@
                 app:layout_gravity="right"
                 android:textSize="14sp"
                 android:textColor="@color/textColorSecondary"
-                android:text="(44)"/>
+                tools:text="(44)"/>
 
             <!-- Row 6 -->
             <android.support.v4.widget.Space
