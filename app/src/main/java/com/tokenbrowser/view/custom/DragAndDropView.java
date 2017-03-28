@@ -22,14 +22,14 @@ public class DragAndDropView extends LinearLayout {
     private List<String> userInputtedBackupPhrase;
     private List<String> remainingInputBackupPhrase;
     private ShadowTextView draggedView;
-    private OnFinishedListener listener;
+    private OnFinishedListener onFinishedListener;
 
     public interface OnFinishedListener {
         void onFinish();
     }
 
     public void setOnFinishedListener(final OnFinishedListener listener) {
-        this.listener = listener;
+        this.onFinishedListener = listener;
     }
 
     public DragAndDropView(Context context) {
@@ -55,42 +55,42 @@ public class DragAndDropView extends LinearLayout {
     private void initListeners() {
         final FlowLayout sourceLayout = (FlowLayout) findViewById(R.id.remaining_phrases);
         for (int i = 0; i < sourceLayout.getChildCount(); i++) {
-            final ShadowTextView backupPhraseSource = (ShadowTextView) sourceLayout.getChildAt(i);
-            backupPhraseSource.setOnClickListener(this::handleClickEventSource);
-            backupPhraseSource.setOnLongClickListener(this::handleLongClickEvent);
-            backupPhraseSource.setOnDragListener(this::handleDragEvent);
+            final ShadowTextView remainingPhraseView = (ShadowTextView) sourceLayout.getChildAt(i);
+            remainingPhraseView.setListener(this.clickAndDragListener);
+            remainingPhraseView.setOnDragListener(this::handleDragEvent);
         }
 
         final FlowLayout targetLayout = (FlowLayout) findViewById(R.id.user_inputted_phrases);
         for (int i = 0; i < targetLayout.getChildCount(); i++) {
-            final ShadowTextView backupPhraseTarget = (ShadowTextView) targetLayout.getChildAt(i);
-            backupPhraseTarget.setOnClickListener(this::handleClickEventTarget);
-            backupPhraseTarget.setOnLongClickListener(this::handleLongClickEvent);
-            backupPhraseTarget.setOnDragListener(this::handleDragEvent);
+            final ShadowTextView inputtedPhraseView = (ShadowTextView) targetLayout.getChildAt(i);
+            inputtedPhraseView.setListener(this.clickAndDragListener);
+            inputtedPhraseView.setOnDragListener(this::handleDragEvent);
         }
     }
 
-    private void handleClickEventSource(final View v) {
+    private final ShadowTextView.ClickAndDragListener clickAndDragListener = new ShadowTextView.ClickAndDragListener() {
+        @Override
+        public void onClick(final ShadowTextView v) {
+            handlePhraseClicked(v);
+        }
+
+        @Override
+        public void onDrag(final ShadowTextView v) {
+            handlePhraseDragged(v);
+        }
+    };
+
+    private void handlePhraseClicked(final View v) {
         final ShadowTextView clickedView = (ShadowTextView) v;
         final String clickedPhrase = clickedView.getText();
         if (clickedPhrase.length() == 0) {
             return;
         }
 
-        addPhraseToUserInputtedPhrases(clickedPhrase);
+        movePhraseToCorrectLocation(clickedPhrase);
     }
 
-    private void handleClickEventTarget(final View v) {
-        final ShadowTextView clickedView = (ShadowTextView) v;
-        final String clickedPhrase = clickedView.getText();
-        if (clickedPhrase.length() == 0) {
-            return;
-        }
-
-        addPhraseToRemainingPhrases(clickedPhrase);
-    }
-
-    private boolean handleLongClickEvent(final View v) {
+    private boolean handlePhraseDragged(final View v) {
         this.draggedView = (ShadowTextView) v;
         final String clickedPhrase = this.draggedView.getText();
         if (clickedPhrase.length() == 0) {
@@ -118,7 +118,7 @@ public class DragAndDropView extends LinearLayout {
 
             case DragEvent.ACTION_DROP:
                 final String droppedPhrase = event.getClipData().getItemAt(0).getText().toString();
-                addPhraseToUnknownDestination(droppedPhrase);
+                movePhraseToCorrectLocation(droppedPhrase);
                 return true;
 
             default:
@@ -126,7 +126,7 @@ public class DragAndDropView extends LinearLayout {
         }
     }
 
-    private void addPhraseToUnknownDestination(final String phrase) {
+    private void movePhraseToCorrectLocation(final String phrase) {
         if (this.userInputtedBackupPhrase.contains(phrase)) {
             addPhraseToRemainingPhrases(phrase);
         } else {
@@ -214,7 +214,7 @@ public class DragAndDropView extends LinearLayout {
 
     private void checkBackupPhrase() {
         if (this.correctBackupPhrase.equals(this.userInputtedBackupPhrase)) {
-            this.listener.onFinish();
+            this.onFinishedListener.onFinish();
         }
     }
 }
