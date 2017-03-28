@@ -3,7 +3,7 @@ package com.tokenbrowser.presenter;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.view.activity.ProfileActivity;
 import com.tokenbrowser.view.fragment.children.EditProfileFragment;

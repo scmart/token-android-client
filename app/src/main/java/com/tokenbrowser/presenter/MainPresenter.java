@@ -9,7 +9,7 @@ import android.support.v4.content.ContextCompat;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
 import com.tokenbrowser.manager.SofaMessageManager;
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.util.SoundManager;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.MainActivity;

@@ -8,8 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.token.databinding.FragmentAppsBinding;
+import com.tokenbrowser.R;
+import com.tokenbrowser.databinding.FragmentAppsBinding;
 import com.tokenbrowser.presenter.AppsPresenter;
 import com.tokenbrowser.presenter.factory.AppsPresenterFactory;
 import com.tokenbrowser.presenter.factory.PresenterFactory;

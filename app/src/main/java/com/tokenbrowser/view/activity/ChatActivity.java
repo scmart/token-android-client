@@ -11,8 +11,8 @@ import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.presenter.ChatPresenter;
 import com.tokenbrowser.presenter.factory.ChatPresenterFactory;
 import com.tokenbrowser.presenter.factory.PresenterFactory;
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.token.databinding.ActivityChatBinding;
+import com.tokenbrowser.R;
+import com.tokenbrowser.databinding.ActivityChatBinding;
 
 public final class ChatActivity extends BasePresenterActivity<ChatPresenter, ChatActivity> {
 

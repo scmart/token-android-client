@@ -3,7 +3,7 @@ package com.tokenbrowser.presenter;
 import android.content.Intent;
 import android.view.View;
 
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.view.activity.TrustedFriendsActivity;
 
 public class TrustedFriendsPresenter implements Presenter<TrustedFriendsActivity> {

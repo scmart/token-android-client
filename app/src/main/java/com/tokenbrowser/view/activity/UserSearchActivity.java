@@ -4,8 +4,8 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.token.databinding.ActivityUserSearchBinding;
+import com.tokenbrowser.R;
+import com.tokenbrowser.databinding.ActivityUserSearchBinding;
 import com.tokenbrowser.presenter.UserSearchPresenter;
 import com.tokenbrowser.presenter.factory.PresenterFactory;
 import com.tokenbrowser.presenter.factory.UserSearchPresenterFactory;

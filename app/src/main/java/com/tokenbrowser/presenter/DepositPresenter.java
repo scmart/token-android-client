@@ -7,7 +7,7 @@ import android.graphics.Bitmap;
 import android.view.View;
 import android.widget.Toast;
 
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.util.OnNextSubscriber;

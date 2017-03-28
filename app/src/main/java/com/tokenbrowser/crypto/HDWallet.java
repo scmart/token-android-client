@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.tokenbrowser.crypto.util.TypeConverter;
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.BaseApplication;
 

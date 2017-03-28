@@ -4,7 +4,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.model.local.Conversation;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.util.LocaleUtil;

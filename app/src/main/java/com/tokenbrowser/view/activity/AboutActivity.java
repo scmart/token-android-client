@@ -4,8 +4,8 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.token.databinding.ActivityAboutBinding;
+import com.tokenbrowser.R;
+import com.tokenbrowser.databinding.ActivityAboutBinding;
 import com.tokenbrowser.presenter.AboutPresenter;
 import com.tokenbrowser.presenter.factory.AboutPresenterFactory;
 import com.tokenbrowser.presenter.factory.PresenterFactory;

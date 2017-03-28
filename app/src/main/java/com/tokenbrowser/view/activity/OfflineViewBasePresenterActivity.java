@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.tokenbrowser.presenter.Presenter;
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.custom.OfflineViewRenderer;

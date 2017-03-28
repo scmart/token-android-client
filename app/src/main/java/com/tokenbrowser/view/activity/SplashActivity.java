@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.tokenbrowser.token.BuildConfig;
+import com.tokenbrowser.BuildConfig;
 import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.view.BaseApplication;
 import com.crashlytics.android.Crashlytics;

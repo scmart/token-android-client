@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.tokenbrowser.model.local.SendState;
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
 
 import java.util.ArrayList;

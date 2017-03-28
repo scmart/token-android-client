@@ -7,8 +7,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.token.databinding.ActivityMainBinding;
+import com.tokenbrowser.R;
+import com.tokenbrowser.databinding.ActivityMainBinding;
 import com.tokenbrowser.presenter.MainPresenter;
 import com.tokenbrowser.presenter.factory.MainPresenterFactory;
 import com.tokenbrowser.presenter.factory.PresenterFactory;

@@ -9,7 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.tokenbrowser.model.local.User;
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ScannerActivity;

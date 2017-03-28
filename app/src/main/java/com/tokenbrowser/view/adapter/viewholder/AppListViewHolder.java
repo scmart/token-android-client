@@ -5,7 +5,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.model.network.App;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
 import com.bumptech.glide.Glide;

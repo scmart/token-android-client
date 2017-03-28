@@ -7,8 +7,8 @@ import android.support.annotation.NonNull;
 import com.tokenbrowser.presenter.ImageConfirmationPresenter;
 import com.tokenbrowser.presenter.factory.ImageConfirmationPresenterFactory;
 import com.tokenbrowser.presenter.factory.PresenterFactory;
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.token.databinding.ActivityImageConfirmationBinding;
+import com.tokenbrowser.R;
+import com.tokenbrowser.databinding.ActivityImageConfirmationBinding;
 
 public class ImageConfirmationActivity extends BasePresenterActivity<ImageConfirmationPresenter, ImageConfirmationActivity> {
 

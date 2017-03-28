@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.view.View;
 
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.crypto.util.TypeConverter;
 import com.tokenbrowser.util.EthUtil;
 import com.tokenbrowser.util.LocaleUtil;

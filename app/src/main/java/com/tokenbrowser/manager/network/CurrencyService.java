@@ -8,7 +8,7 @@ import com.tokenbrowser.manager.network.interceptor.ReadFromCacheInterceptor;
 import com.tokenbrowser.manager.network.interceptor.UserAgentInterceptor;
 import com.tokenbrowser.model.adapter.BigDecimalAdapter;
 import com.tokenbrowser.model.adapter.BigIntegerAdapter;
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.view.BaseApplication;
 
 import java.io.File;

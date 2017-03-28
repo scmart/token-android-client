@@ -8,7 +8,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.model.sofa.Control;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.adapter.ControlAdapter;

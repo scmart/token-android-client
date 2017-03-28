@@ -5,7 +5,7 @@ import android.support.annotation.DrawableRes;
 import android.view.View;
 import android.widget.CompoundButton;
 
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.view.activity.BackupPhraseActivity;
 import com.tokenbrowser.view.activity.BackupPhraseInfoActivity;
 

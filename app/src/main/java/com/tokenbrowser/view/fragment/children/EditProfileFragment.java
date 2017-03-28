@@ -12,8 +12,8 @@ import android.view.ViewGroup;
 
 import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.model.local.PermissionResultHolder;
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.token.databinding.FragmentEditProfileBinding;
+import com.tokenbrowser.R;
+import com.tokenbrowser.databinding.FragmentEditProfileBinding;
 import com.tokenbrowser.presenter.EditProfilePresenter;
 import com.tokenbrowser.presenter.factory.EditProfilePresenterFactory;
 import com.tokenbrowser.presenter.factory.PresenterFactory;

@@ -16,8 +16,8 @@ import android.view.ViewGroup;
 import com.tokenbrowser.presenter.RecentPresenter;
 import com.tokenbrowser.presenter.factory.PresenterFactory;
 import com.tokenbrowser.presenter.factory.RecentPresenterFactory;
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.token.databinding.FragmentRecentBinding;
+import com.tokenbrowser.R;
+import com.tokenbrowser.databinding.FragmentRecentBinding;
 import com.tokenbrowser.view.fragment.BasePresenterFragment;
 
 public class RecentFragment extends BasePresenterFragment<RecentPresenter, RecentFragment> {

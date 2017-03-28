@@ -3,7 +3,7 @@ package com.tokenbrowser.model.network;
 
 import com.squareup.moshi.Json;
 import com.tokenbrowser.crypto.util.TypeConverter;
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.util.EthUtil;
 import com.tokenbrowser.view.BaseApplication;
 

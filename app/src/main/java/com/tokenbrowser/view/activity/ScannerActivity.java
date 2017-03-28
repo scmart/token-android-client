@@ -5,8 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.token.databinding.ActivityScannerBinding;
+import com.tokenbrowser.R;
+import com.tokenbrowser.databinding.ActivityScannerBinding;
 import com.tokenbrowser.model.local.PermissionResultHolder;
 import com.tokenbrowser.presenter.ScannerPresenter;
 import com.tokenbrowser.presenter.factory.PresenterFactory;

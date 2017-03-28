@@ -2,7 +2,7 @@ package com.tokenbrowser.manager.network.interceptor;
 
 
 import com.crashlytics.android.Crashlytics;
-import com.tokenbrowser.token.BuildConfig;
+import com.tokenbrowser.BuildConfig;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;

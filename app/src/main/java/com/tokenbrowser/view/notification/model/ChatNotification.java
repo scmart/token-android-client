@@ -10,7 +10,7 @@ import android.support.v4.app.TaskStackBuilder;
 import com.bumptech.glide.Glide;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.service.NotificationDismissedReceiver;
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ChatActivity;
 import com.tokenbrowser.view.activity.MainActivity;

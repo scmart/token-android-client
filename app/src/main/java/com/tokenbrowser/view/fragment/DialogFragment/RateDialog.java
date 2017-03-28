@@ -10,8 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.token.databinding.FragmentRateBinding;
+import com.tokenbrowser.R;
+import com.tokenbrowser.databinding.FragmentRateBinding;
 import com.tokenbrowser.view.BaseApplication;
 
 public class RateDialog extends DialogFragment {

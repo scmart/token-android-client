@@ -1,7 +1,7 @@
 package com.tokenbrowser.crypto.signal.store;
 
 
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.view.BaseApplication;
 
 import org.whispersystems.signalservice.api.push.TrustStore;

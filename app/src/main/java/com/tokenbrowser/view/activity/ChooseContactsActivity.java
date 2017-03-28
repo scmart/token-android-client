@@ -5,8 +5,8 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.token.databinding.ActivityChooseContactBinding;
+import com.tokenbrowser.R;
+import com.tokenbrowser.databinding.ActivityChooseContactBinding;
 import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.presenter.ChooseContactPresenter;
 import com.tokenbrowser.presenter.factory.ChooseContactsPresenterFactory;

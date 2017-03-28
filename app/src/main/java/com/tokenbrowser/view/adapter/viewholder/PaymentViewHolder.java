@@ -12,7 +12,7 @@ import com.tokenbrowser.crypto.util.TypeConverter;
 import com.tokenbrowser.model.local.SendState;
 import com.tokenbrowser.model.sofa.Payment;
 import com.tokenbrowser.model.sofa.SofaType;
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.util.EthUtil;
 import com.tokenbrowser.view.BaseApplication;
 
