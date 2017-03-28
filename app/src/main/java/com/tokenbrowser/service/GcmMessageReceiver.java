@@ -29,6 +29,7 @@ import com.tokenbrowser.model.sofa.SofaType;
 import com.tokenbrowser.R;
 import com.tokenbrowser.util.EthUtil;
 import com.tokenbrowser.util.LogUtil;
+import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.notification.ChatNotificationManager;
 
@@ -53,6 +54,8 @@ public class GcmMessageReceiver extends GcmListenerService {
         try {
             final String messageBody = data.getString("message");
             LogUtil.i(getClass(), "Incoming PN: " + messageBody);
+
+            if (SharedPrefsUtil.hasSignedOut()) return;
 
             if (messageBody == null) {
                 tryShowSignalMessage();
