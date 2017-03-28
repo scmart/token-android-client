@@ -34,9 +34,9 @@ public class BackupPhraseVerifyPresenter implements Presenter<BackupPhraseVerify
         if (this.firstTimeAttaching) {
             this.firstTimeAttaching = false;
             initLongLivingObjects();
+            addBackupPhrase();
         }
 
-        addBackupPhrase();
         initListeners();
     }
 
