@@ -18,8 +18,10 @@ import java.util.List;
 
 public class DragAndDropView extends LinearLayout {
 
-    private ShadowTextView selectedBackupPhrase;
-    private List<String> backupPhrase;
+    private List<String> correctBackupPhrase;
+    private List<String> userInputtedBackupPhrase;
+    private List<String> remainingInputBackupPhrase;
+    private ShadowTextView draggedView;
     private OnFinishedListener listener;
 
     public interface OnFinishedListener {
@@ -51,7 +53,7 @@ public class DragAndDropView extends LinearLayout {
     }
 
     private void initListeners() {
-        final FlowLayout sourceLayout = (FlowLayout) findViewById(R.id.backup_phrase_source);
+        final FlowLayout sourceLayout = (FlowLayout) findViewById(R.id.remaining_phrases);
         for (int i = 0; i < sourceLayout.getChildCount(); i++) {
             final ShadowTextView backupPhraseSource = (ShadowTextView) sourceLayout.getChildAt(i);
             backupPhraseSource.setOnClickListener(this::handleClickEventSource);
@@ -59,7 +61,7 @@ public class DragAndDropView extends LinearLayout {
             backupPhraseSource.setOnDragListener(this::handleDragEvent);
         }
 
-        final FlowLayout targetLayout = (FlowLayout) findViewById(R.id.backup_phrase_target);
+        final FlowLayout targetLayout = (FlowLayout) findViewById(R.id.user_inputted_phrases);
         for (int i = 0; i < targetLayout.getChildCount(); i++) {
             final ShadowTextView backupPhraseTarget = (ShadowTextView) targetLayout.getChildAt(i);
             backupPhraseTarget.setOnClickListener(this::handleClickEventTarget);
@@ -69,140 +71,149 @@ public class DragAndDropView extends LinearLayout {
     }
 
     private void handleClickEventSource(final View v) {
-        final ShadowTextView selectedBackupPhrase = (ShadowTextView) v;
-
-        if (selectedBackupPhrase.getText().length() == 0) {
+        final ShadowTextView clickedView = (ShadowTextView) v;
+        final String clickedPhrase = clickedView.getText();
+        if (clickedPhrase.length() == 0) {
             return;
         }
 
-        final FlowLayout backupPhraseTargetLayout = (FlowLayout) findViewById(R.id.backup_phrase_target);
-        for (int i = 0; i < backupPhraseTargetLayout.getChildCount(); i++) {
-            final ShadowTextView backupPhraseTarget = (ShadowTextView) backupPhraseTargetLayout.getChildAt(i);
-            if (backupPhraseTarget.getText().length() == 0) {
-                final String selectedValue = selectedBackupPhrase.getText();
-                final String targetValue = backupPhraseTarget.getText();
-
-                backupPhraseTarget.setText(selectedValue);
-                backupPhraseTarget.setBackgroundResource(R.drawable.background_with_radius);
-                backupPhraseTarget.enableShadow();
-                selectedBackupPhrase.setText(targetValue);
-                selectedBackupPhrase.setBackground(null);
-                selectedBackupPhrase.disableShadow();
-
-                checkBackupPhrase();
-                return;
-            }
-        }
+        addPhraseToUserInputtedPhrases(clickedPhrase);
     }
 
     private void handleClickEventTarget(final View v) {
-        final ShadowTextView clickedTextView = (ShadowTextView) v;
-
-        if (clickedTextView.getText().length() == 0) {
+        final ShadowTextView clickedView = (ShadowTextView) v;
+        final String clickedPhrase = clickedView.getText();
+        if (clickedPhrase.length() == 0) {
             return;
         }
 
-        final FlowLayout backupPhraseSourceLayout = (FlowLayout) findViewById(R.id.backup_phrase_source);
-        for (int i = 0; i < backupPhraseSourceLayout.getChildCount(); i++) {
-            final ShadowTextView backupPhraseSource = (ShadowTextView) backupPhraseSourceLayout.getChildAt(i);
-            if (backupPhraseSource.getText().length() == 0) {
-                final String selectedValue = clickedTextView.getText();
-                final String targetValue = backupPhraseSource.getText();
-
-                clickedTextView.setBackground(null);
-                clickedTextView.disableShadow();
-                clickedTextView.setText(targetValue);
-
-                backupPhraseSource.setText(selectedValue);
-                backupPhraseSource.setBackgroundResource(R.drawable.background_with_radius);
-                backupPhraseSource.enableShadow();
-
-                checkBackupPhrase();
-                return;
-            }
-        }
+        addPhraseToRemainingPhrases(clickedPhrase);
     }
 
     private boolean handleLongClickEvent(final View v) {
-        this.selectedBackupPhrase = (ShadowTextView) v;
-        if (this.selectedBackupPhrase.getText().length() == 0) {
+        this.draggedView = (ShadowTextView) v;
+        final String clickedPhrase = this.draggedView.getText();
+        if (clickedPhrase.length() == 0) {
             return false;
         }
 
-        final ClipData clipData = ClipData.newPlainText("value", selectedBackupPhrase.getText());
+        final ClipData clipData = ClipData.newPlainText("value", clickedPhrase);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            this.selectedBackupPhrase.startDragAndDrop(clipData, new View.DragShadowBuilder(v), null, 0);
+            this.draggedView.startDragAndDrop(clipData, new View.DragShadowBuilder(v), null, 0);
         } else {
-            this.selectedBackupPhrase.startDrag(clipData, new View.DragShadowBuilder(v), null, 0);
+            this.draggedView.startDrag(clipData, new View.DragShadowBuilder(v), null, 0);
         }
 
         return true;
     }
 
     private boolean handleDragEvent(final View v, final DragEvent event) {
-        final ShadowTextView targetBackupPhrase = (ShadowTextView) v;
-
         switch(event.getAction()) {
             case DragEvent.ACTION_DRAG_STARTED:
-                return true;
-
             case DragEvent.ACTION_DRAG_ENTERED:
-                return true;
-
             case DragEvent.ACTION_DRAG_LOCATION:
-                return true;
-
             case DragEvent.ACTION_DRAG_EXITED:
-                return true;
-
-            case DragEvent.ACTION_DROP:
-                final String selectedValue = event.getClipData().getItemAt(0).getText().toString();
-                final String targetValue = targetBackupPhrase.getText();
-
-                targetBackupPhrase.setText(selectedValue);
-                targetBackupPhrase.setBackgroundResource(R.drawable.background_with_radius);
-                targetBackupPhrase.enableShadow();
-
-                this.selectedBackupPhrase.setText(targetValue);
-                if (this.selectedBackupPhrase.getText().length() == 0) {
-                    this.selectedBackupPhrase.setBackground(null);
-                }
-
-                checkBackupPhrase();
-
-                return true;
-
             case DragEvent.ACTION_DRAG_ENDED:
                 return true;
 
+            case DragEvent.ACTION_DROP:
+                final String droppedPhrase = event.getClipData().getItemAt(0).getText().toString();
+                addPhraseToUnknownDestination(droppedPhrase);
+                return true;
+
             default:
-                break;
+                return false;
         }
-        return false;
+    }
+
+    private void addPhraseToUnknownDestination(final String phrase) {
+        if (this.userInputtedBackupPhrase.contains(phrase)) {
+            addPhraseToRemainingPhrases(phrase);
+        } else {
+            addPhraseToUserInputtedPhrases(phrase);
+        }
+    }
+
+    private void addPhraseToUserInputtedPhrases(final String phrase) {
+        for (int i = 0; i < this.userInputtedBackupPhrase.size(); i++) {
+            final String phraseAtPosition = this.userInputtedBackupPhrase.get(i);
+
+            if (phraseAtPosition == null) {
+                Collections.replaceAll(this.remainingInputBackupPhrase, phrase, null);
+                this.userInputtedBackupPhrase.set(i, phrase);
+                renderPhraseSegments();
+                checkBackupPhrase();
+                return;
+            }
+        }
+    }
+
+    private void addPhraseToRemainingPhrases(final String phrase) {
+        for (int i = 0; i < this.remainingInputBackupPhrase.size(); i++) {
+            final String phraseAtPosition = this.remainingInputBackupPhrase.get(i);
+            if (phraseAtPosition == null) {
+                Collections.replaceAll(this.userInputtedBackupPhrase, phrase, null);
+                this.remainingInputBackupPhrase.set(i, phrase);
+                renderPhraseSegments();
+                checkBackupPhrase();
+                return;
+            }
+        }
     }
 
     public void setBackupPhrase(final List<String> backupPhrase) {
-        this.backupPhrase = new ArrayList<>(backupPhrase);
-        final List<String> shuffledBackupPhrase = new ArrayList<>(backupPhrase);
-        Collections.shuffle(shuffledBackupPhrase);
+        this.correctBackupPhrase = new ArrayList<>(backupPhrase);
+        this.userInputtedBackupPhrase = createEmptyArray(backupPhrase.size());
+        this.remainingInputBackupPhrase = new ArrayList<>(backupPhrase);
+        Collections.shuffle(this.remainingInputBackupPhrase);
 
-        final FlowLayout gridLayout = (FlowLayout) findViewById(R.id.backup_phrase_source);
+        renderPhraseSegments();
+    }
+
+    private List<String> createEmptyArray(final int size) {
+        final ArrayList<String> retVal = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            retVal.add(null);
+        }
+        return retVal;
+    }
+
+    private void renderPhraseSegments() {
+        renderUserInputtedPhrases();
+        renderRemainingInputPhrases();
+    }
+
+    private void renderUserInputtedPhrases() {
+        final FlowLayout backupPhraseTargetLayout = (FlowLayout) findViewById(R.id.user_inputted_phrases);
+        for (int i = 0; i < this.userInputtedBackupPhrase.size(); i++) {
+            final ShadowTextView backupPhraseTarget = (ShadowTextView) backupPhraseTargetLayout.getChildAt(i);
+            final String inputtedPhrase = this.userInputtedBackupPhrase.get(i);
+            setText(backupPhraseTarget, inputtedPhrase);
+        }
+    }
+
+    private void renderRemainingInputPhrases() {
+        final FlowLayout gridLayout = (FlowLayout) findViewById(R.id.remaining_phrases);
         for (int i = 0; i < gridLayout.getChildCount(); i++) {
             final ShadowTextView backupPhraseWord = (ShadowTextView) gridLayout.getChildAt(i);
-            backupPhraseWord.setText(shuffledBackupPhrase.get(i));
+            final String remainingPhrase = this.remainingInputBackupPhrase.get(i);
+            setText(backupPhraseWord, remainingPhrase);
+        }
+    }
+
+    private void setText(final ShadowTextView v, final String text) {
+        v.setText(text);
+        final int background = text != null ? R.drawable.background_with_radius : 0;
+        v.setBackgroundResource(background);
+
+        v.enableShadow();
+        if (text == null) {
+            v.disableShadow();
         }
     }
 
     private void checkBackupPhrase() {
-        final List<String> selectedBackupPhrase = new ArrayList<>();
-
-        final FlowLayout backupPhraseTargetLayout = (FlowLayout) findViewById(R.id.backup_phrase_target);
-        for (int i = 0; i < backupPhraseTargetLayout.getChildCount(); i++) {
-            final ShadowTextView backupPhraseTarget = (ShadowTextView) backupPhraseTargetLayout.getChildAt(i);
-            selectedBackupPhrase.add(i, backupPhraseTarget.getText());
-        }
-
-        if (this.backupPhrase.equals(selectedBackupPhrase)) {
+        if (this.correctBackupPhrase.equals(this.userInputtedBackupPhrase)) {
             this.listener.onFinish();
         }
     }
