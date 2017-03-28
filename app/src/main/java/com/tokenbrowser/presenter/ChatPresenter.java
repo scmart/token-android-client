@@ -62,6 +62,7 @@ import com.tokenbrowser.view.notification.ChatNotificationManager;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import rx.Single;
@@ -599,11 +600,9 @@ public final class ChatPresenter implements
     }
 
     private void handleConversationLoaded(final Conversation conversation) {
-        if (conversation == null) {
-            return;
-        }
-
-        final List<SofaMessage> messages = conversation.getAllMessages();
+        final List<SofaMessage> messages = conversation == null
+                                         ? new ArrayList<>(0)
+                                         : conversation.getAllMessages();
         if (messages.size() > 0) {
             this.messageAdapter.addMessages(messages);
             forceScrollToBottom();
