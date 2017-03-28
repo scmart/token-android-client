@@ -56,6 +56,7 @@
             android:text="@string/backup_phrase_info_message"/>
 
         <LinearLayout
+            android:id="@+id/understand_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -67,12 +68,14 @@
                 android:id="@+id/radio_button_understand"
                 android:layout_width="22dp"
                 android:layout_height="22dp"
-                android:button="@drawable/checkbox"/>
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:button="@drawable/checkbox"
+                android:layout_gravity="center_vertical"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="26dp"
                 android:text="@string/backup_phrase_understand_message" />
 
         </LinearLayout>
