@@ -37,6 +37,9 @@ import java.math.BigInteger;
 import java.util.Locale;
 import java.util.concurrent.TimeoutException;
 
+import rx.Single;
+import rx.schedulers.Schedulers;
+
 public class GcmMessageReceiver extends GcmListenerService {
 
     private final SofaAdapters adapters;
@@ -60,8 +63,7 @@ public class GcmMessageReceiver extends GcmListenerService {
 
             if (sofaMessage.getType() == SofaType.PAYMENT) {
                 final Payment payment = adapters.paymentFrom(sofaMessage.getPayload());
-                handleIncomingPayment(payment);
-                showPaymentNotification(payment);
+                handlePayment(payment);
             } else {
                 tryShowSignalMessage();
             }
@@ -69,6 +71,41 @@ public class GcmMessageReceiver extends GcmListenerService {
         } catch (final Exception ex) {
             LogUtil.e(getClass(), "Error -> " + ex);
         }
+    }
+
+    private void handlePayment(final Payment payment) {
+       isValidPayment(payment)
+       .subscribe(
+               this::handleValidPayment,
+               this::handleInvalidPayment
+       );
+    }
+
+    private Single<Payment> isValidPayment(final Payment payment) {
+        return BaseApplication
+                .get()
+                .getTokenManager()
+                .getWallet()
+                .toObservable()
+                .first(hdWallet -> isValidPayment(payment, hdWallet))
+                .map(__ ->  payment)
+                .toSingle()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io());
+    }
+
+    private boolean isValidPayment(final Payment payment, final HDWallet hdWallet) {
+        return payment.getToAddress().equals(hdWallet.getPaymentAddress());
+    }
+
+    private void handleValidPayment(final Payment payment) {
+        updatePayment(payment);
+        refreshBalance();
+        showPaymentNotification(payment);
+    }
+
+    private void handleInvalidPayment(final Throwable throwable) {
+        LogUtil.e(getClass(), "Invalid payment " + throwable.toString());
     }
 
     private void tryShowSignalMessage() {
@@ -90,13 +127,15 @@ public class GcmMessageReceiver extends GcmListenerService {
 
     }
 
-    private void handleIncomingPayment(final Payment payment) {
+    private void updatePayment(final Payment payment) {
         BaseApplication
                 .get()
                 .getTokenManager()
                 .getTransactionManager()
                 .updatePayment(payment);
+    }
 
+    private void refreshBalance() {
         BaseApplication
                 .get()
                 .getTokenManager()
