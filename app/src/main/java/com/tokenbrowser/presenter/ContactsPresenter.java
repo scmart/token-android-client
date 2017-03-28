@@ -95,6 +95,8 @@ public final class ContactsPresenter implements
     }
 
     private void updateEmptyState() {
+        if (this.fragment == null) return;
+        
         // Hide empty state if we have some content
         final boolean showingEmptyState = this.fragment.getBinding().emptyStateSwitcher.getCurrentView().getId() == this.fragment.getBinding().emptyState.getId();
         final boolean shouldShowEmptyState = this.adapter.getItemCount() == 0;

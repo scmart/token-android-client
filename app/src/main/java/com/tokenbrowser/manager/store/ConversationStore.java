@@ -71,7 +71,10 @@ public class ConversationStore {
 
     private int calculateNumberOfUnread(final Conversation conversationToStore) {
         // If we are watching the current conversation the message is automatically read.
-        if (conversationToStore.getMember().getTokenId().equals(watchedConversationId)) {
+        if (   conversationToStore == null
+            || conversationToStore.getMember() == null
+            || conversationToStore.getMember().getTokenId() == null
+            || conversationToStore.getMember().getTokenId().equals(watchedConversationId)) {
             return 0;
         }
         final int currentNumberOfUnread = conversationToStore.getNumberOfUnread();
