@@ -94,7 +94,8 @@ public class BalanceManager {
     private Single<MarketRates> fetchLatestRates() {
         return CurrencyService
                 .getApi()
-                .getRates("ETH");
+                .getRates("ETH")
+                .onErrorReturn(__ -> new MarketRates());
     }
 
     // Currently hard-coded to USD
