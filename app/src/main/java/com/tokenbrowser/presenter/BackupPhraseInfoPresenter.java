@@ -21,8 +21,13 @@ public class BackupPhraseInfoPresenter implements Presenter<BackupPhraseInfoActi
 
     private void initClickListeners() {
         this.activity.getBinding().closeButton.setOnClickListener(this::handleCloseButtonClosed);
+        this.activity.getBinding().understandContainer.setOnClickListener(this::handleContainerChecked);
         this.activity.getBinding().radioButtonUnderstand.setOnCheckedChangeListener(this::handleCheckboxChecked);
         this.activity.getBinding().continueBtn.setOnClickListener(this::handleContinueClicked);
+    }
+
+    private void handleContainerChecked(final View view) {
+        this.activity.getBinding().radioButtonUnderstand.performClick();
     }
 
     private void handleCloseButtonClosed(final View v) {

@@ -182,7 +182,7 @@ public class DragAndDropView extends LinearLayout {
     }
 
     public void setBackupPhrase(final List<String> backupPhrase) {
-        this.backupPhrase = new ArrayList<String>(backupPhrase);
+        this.backupPhrase = new ArrayList<>(backupPhrase);
         final List<String> shuffledBackupPhrase = new ArrayList<>(backupPhrase);
         Collections.shuffle(shuffledBackupPhrase);
 
