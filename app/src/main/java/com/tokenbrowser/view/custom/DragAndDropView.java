@@ -3,6 +3,8 @@ package com.tokenbrowser.view.custom;
 import android.content.ClipData;
 import android.content.Context;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.DragEvent;
 import android.view.View;
@@ -18,11 +20,16 @@ import java.util.List;
 
 public class DragAndDropView extends LinearLayout {
 
-    private List<String> correctBackupPhrase;
-    private List<String> userInputtedBackupPhrase;
-    private List<String> remainingInputBackupPhrase;
+    private ArrayList<String> correctBackupPhrase;
+    private ArrayList<String> userInputtedBackupPhrase;
+    private ArrayList<String> remainingInputBackupPhrase;
     private ShadowTextView draggedView;
     private OnFinishedListener onFinishedListener;
+
+    private static final String BUNDLE__CORRECT_BACKUP_PHRASE = "correctBackupPhrase";
+    private static final String BUNDLE__USER_INPUTTED_BACKUP_PHRASE = "userInputtedBackupPhrase";
+    private static final String BUNDLE__REMAINING_INPUT_BACKUP_PHRASE = "remainingInputBackupPhrase";
+    private static final String BUNDLE__SUPER_STATE = "superState";
 
     public interface OnFinishedListener {
         void onFinish();
@@ -170,7 +177,7 @@ public class DragAndDropView extends LinearLayout {
         renderPhraseSegments();
     }
 
-    private List<String> createEmptyArray(final int size) {
+    private ArrayList<String> createEmptyArray(final int size) {
         final ArrayList<String> retVal = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             retVal.add(null);
@@ -216,5 +223,28 @@ public class DragAndDropView extends LinearLayout {
         if (this.correctBackupPhrase.equals(this.userInputtedBackupPhrase)) {
             this.onFinishedListener.onFinish();
         }
+    }
+
+    @Override
+    public Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+        bundle.putStringArrayList(BUNDLE__CORRECT_BACKUP_PHRASE, this.correctBackupPhrase);
+        bundle.putStringArrayList(BUNDLE__USER_INPUTTED_BACKUP_PHRASE, this.userInputtedBackupPhrase);
+        bundle.putStringArrayList(BUNDLE__REMAINING_INPUT_BACKUP_PHRASE, this.remainingInputBackupPhrase);
+        bundle.putParcelable(BUNDLE__SUPER_STATE, super.onSaveInstanceState());
+        return bundle;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof Bundle) {
+            final Bundle bundle = (Bundle) state;
+            this.correctBackupPhrase = bundle.getStringArrayList(BUNDLE__CORRECT_BACKUP_PHRASE);
+            this.userInputtedBackupPhrase = bundle.getStringArrayList(BUNDLE__USER_INPUTTED_BACKUP_PHRASE);
+            this.remainingInputBackupPhrase = bundle.getStringArrayList(BUNDLE__REMAINING_INPUT_BACKUP_PHRASE);
+            state = bundle.getParcelable(BUNDLE__SUPER_STATE);
+        }
+        super.onRestoreInstanceState(state);
+        renderPhraseSegments();
     }
 }
