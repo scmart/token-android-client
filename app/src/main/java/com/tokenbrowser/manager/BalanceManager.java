@@ -35,7 +35,6 @@ public class BalanceManager {
     private static final String LAST_KNOWN_BALANCE = "lkb";
 
     private HDWallet wallet;
-    private Balance balance;
     private SharedPreferences prefs;
 
     /* package */ BalanceManager() {
@@ -77,9 +76,8 @@ public class BalanceManager {
     }
 
     private void handleNewBalance(final Balance balance) {
-        this.balance = balance;
         writeLastKnownBalance(balance);
-        balanceObservable.onNext(this.balance);
+        balanceObservable.onNext(balance);
     }
 
     private void handleError(final Throwable throwable) {
