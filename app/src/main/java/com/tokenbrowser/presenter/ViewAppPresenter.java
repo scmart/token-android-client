@@ -7,8 +7,8 @@ import android.widget.Toast;
 
 import com.tokenbrowser.model.network.App;
 import com.tokenbrowser.model.network.ReputationScore;
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.token.databinding.ActivityViewAppBinding;
+import com.tokenbrowser.R;
+import com.tokenbrowser.databinding.ActivityViewAppBinding;
 import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.BaseApplication;

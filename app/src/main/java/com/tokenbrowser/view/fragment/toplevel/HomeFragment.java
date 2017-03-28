@@ -9,8 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.token.databinding.FragmentHomeBinding;
+import com.tokenbrowser.R;
+import com.tokenbrowser.databinding.FragmentHomeBinding;
 import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.presenter.HomePresenter;
 import com.tokenbrowser.presenter.factory.HomePresenterFactory;

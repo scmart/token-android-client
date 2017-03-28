@@ -8,7 +8,7 @@ import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 
 public class ShadowTextView extends CardView {
 

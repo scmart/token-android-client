@@ -3,8 +3,8 @@ package com.tokenbrowser.presenter;
 import android.content.Intent;
 import android.view.View;
 
-import com.tokenbrowser.token.BuildConfig;
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.BuildConfig;
+import com.tokenbrowser.R;
 import com.tokenbrowser.view.activity.AboutActivity;
 import com.tokenbrowser.view.activity.LicenseListActivity;
 

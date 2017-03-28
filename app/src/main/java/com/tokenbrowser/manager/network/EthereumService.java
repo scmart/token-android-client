@@ -9,7 +9,7 @@ import com.tokenbrowser.model.adapter.BigIntegerAdapter;
 import com.tokenbrowser.model.local.SofaMessage;
 import com.tokenbrowser.model.sofa.Payment;
 import com.tokenbrowser.model.sofa.SofaAdapters;
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.view.BaseApplication;
 
 import okhttp3.OkHttpClient;

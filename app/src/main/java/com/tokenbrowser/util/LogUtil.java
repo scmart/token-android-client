@@ -3,7 +3,7 @@ package com.tokenbrowser.util;
 
 import android.util.Log;
 
-import com.tokenbrowser.token.BuildConfig;
+import com.tokenbrowser.BuildConfig;
 
 public class LogUtil  {
 

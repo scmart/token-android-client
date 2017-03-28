@@ -11,7 +11,7 @@ import com.jakewharton.rxbinding.widget.RxTextView;
 import com.tokenbrowser.crypto.util.TypeConverter;
 import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.model.local.User;
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.util.EthUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.PaymentType;

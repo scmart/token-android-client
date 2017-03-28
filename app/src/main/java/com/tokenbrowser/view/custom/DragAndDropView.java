@@ -8,7 +8,7 @@ import android.view.DragEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 
 import org.apmem.tools.layouts.FlowLayout;
 

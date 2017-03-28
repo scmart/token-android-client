@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import com.tokenbrowser.model.local.Contact;
 import com.tokenbrowser.model.local.User;
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
 import com.tokenbrowser.view.adapter.viewholder.ClickableViewHolder;
 import com.tokenbrowser.view.adapter.viewholder.ContactViewHolder;

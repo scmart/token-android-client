@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.tokenbrowser.model.network.ReputationScore;
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.view.adapter.viewholder.RatingInfoViewHolder;
 
 public class RatingInfoAdapter extends RecyclerView.Adapter<RatingInfoViewHolder> {

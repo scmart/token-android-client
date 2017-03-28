@@ -11,8 +11,8 @@ import android.widget.ToggleButton;
 
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.network.ReputationScore;
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.token.databinding.ActivityScanResultBinding;
+import com.tokenbrowser.R;
+import com.tokenbrowser.databinding.ActivityScanResultBinding;
 import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnSingleClickListener;

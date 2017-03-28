@@ -5,7 +5,7 @@ import android.support.annotation.IntDef;
 
 import com.squareup.moshi.Json;
 import com.tokenbrowser.crypto.util.TypeConverter;
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.util.EthUtil;
 import com.tokenbrowser.util.LocaleUtil;
 import com.tokenbrowser.view.BaseApplication;

@@ -17,8 +17,8 @@ import android.view.ViewGroup;
 import com.tokenbrowser.presenter.ContactsPresenter;
 import com.tokenbrowser.presenter.factory.ContactsPresenterFactory;
 import com.tokenbrowser.presenter.factory.PresenterFactory;
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.token.databinding.FragmentContactsBinding;
+import com.tokenbrowser.R;
+import com.tokenbrowser.databinding.FragmentContactsBinding;
 import com.tokenbrowser.view.fragment.BasePresenterFragment;
 
 public class ContactsFragment extends BasePresenterFragment<ContactsPresenter, ContactsFragment> {

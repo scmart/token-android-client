@@ -7,7 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.tokenbrowser.model.local.Library;
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.view.activity.LicenseActivity;
 import com.tokenbrowser.view.activity.LicenseListActivity;
 import com.tokenbrowser.view.adapter.LibraryAdapter;

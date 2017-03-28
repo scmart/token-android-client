@@ -7,8 +7,8 @@ import android.support.annotation.NonNull;
 import com.tokenbrowser.presenter.FullscreenImagePresenter;
 import com.tokenbrowser.presenter.factory.FullscreenImagePresenterFactory;
 import com.tokenbrowser.presenter.factory.PresenterFactory;
-import com.tokenbrowser.token.R;
-import com.tokenbrowser.token.databinding.ActivityFullscreenImageBinding;
+import com.tokenbrowser.R;
+import com.tokenbrowser.databinding.ActivityFullscreenImageBinding;
 
 public class FullscreenImageActivity extends BasePresenterActivity<FullscreenImagePresenter, FullscreenImageActivity> {
 

@@ -7,7 +7,7 @@ import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 
 public class RecyclerViewDivider extends RecyclerView.ItemDecoration {
     private Drawable mDivider;

@@ -10,7 +10,7 @@ import android.os.Build;
 import android.support.annotation.IntDef;
 import android.util.SparseIntArray;
 
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.view.BaseApplication;
 
 public class SoundManager {

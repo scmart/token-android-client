@@ -10,7 +10,7 @@ import android.view.View;
 import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.model.network.App;
 import com.tokenbrowser.model.network.Balance;
-import com.tokenbrowser.token.R;
+import com.tokenbrowser.R;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.util.PaymentType;
