@@ -337,7 +337,7 @@ public final class SofaMessageManager {
     }
 
     private void sendPendingMessages() {
-        final List<PendingMessage> pendingMessages = this.pendingMessageStore.getAllPendingMessages();
+        final List<PendingMessage> pendingMessages = this.pendingMessageStore.fetchAllPendingMessages();
         for (final PendingMessage pendingMessage : pendingMessages) {
             sendAndSaveMessage(pendingMessage.getReceiver(), pendingMessage.getSofaMessage());
         }
@@ -362,7 +362,6 @@ public final class SofaMessageManager {
             sendToSignal(messageTask);
 
             if (saveMessageToDatabase) {
-                tryDeletePendingMessage(message);
                 message.setSendState(SendState.STATE_SENT);
                 updateExistingMessage(receiver, message);
             }
@@ -430,10 +429,6 @@ public final class SofaMessageManager {
 
     private void savePendingMessage(final User receiver, final SofaMessage message) {
         this.pendingMessageStore.save(receiver, message);
-    }
-
-    private void tryDeletePendingMessage(final SofaMessage message) {
-        this.pendingMessageStore.delete(message);
     }
 
     private void receiveMessagesAsync() {
