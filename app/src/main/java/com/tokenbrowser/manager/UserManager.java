@@ -19,6 +19,7 @@ import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.BaseApplication;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import okhttp3.MediaType;
@@ -264,5 +265,28 @@ public class UserManager {
                         .getApi()
                         .uploadFile(body, serverTime.get()))
                 .doOnSuccess(this.userSubject::onNext);
+    }
+
+    public void clear() {
+        clearCache();
+        clearUserId();
+        this.userStore.clearRealm();
+    }
+
+    private void clearUserId() {
+        this.prefs
+                .edit()
+                .putString(USER_ID, null)
+                .apply();
+    }
+
+    private void clearCache() {
+        try {
+            IdService
+                    .get()
+                    .clearCache();
+        } catch (IOException e) {
+            LogUtil.e(getClass(), e.getMessage());
+        }
     }
 }

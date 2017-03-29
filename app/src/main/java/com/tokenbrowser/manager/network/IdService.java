@@ -12,6 +12,7 @@ import com.tokenbrowser.R;
 import com.tokenbrowser.view.BaseApplication;
 
 import java.io.File;
+import java.io.IOException;
 
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
@@ -27,12 +28,13 @@ public class IdService {
 
     private final IdInterface idInterface;
     private final OkHttpClient.Builder client;
+    private final Cache cache;
 
     public static IdInterface getApi() {
         return get().idInterface;
     }
 
-    private static IdService get() {
+    public static IdService get() {
         if (instance == null) {
             instance = getSync();
         }
@@ -49,9 +51,10 @@ public class IdService {
     private IdService() {
         final RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io());
         final File cachePath = new File(BaseApplication.get().getCacheDir(), "idCache");
+        this.cache = new Cache(cachePath, 1024 * 1024 * 2);
         this.client = new OkHttpClient
                 .Builder()
-                .cache(new Cache(cachePath, 1024 * 1024 * 2))
+                .cache(this.cache)
                 .addNetworkInterceptor(new ReadFromCacheInterceptor())
                 .addInterceptor(new OfflineCacheInterceptor());
 
@@ -84,5 +87,9 @@ public class IdService {
         final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor(new LoggingInterceptor());
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         this.client.addInterceptor(interceptor);
+    }
+
+    public void clearCache() throws IOException {
+        this.cache.evictAll();
     }
 }

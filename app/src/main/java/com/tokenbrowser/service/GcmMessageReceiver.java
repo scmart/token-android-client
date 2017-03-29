@@ -19,16 +19,18 @@ package com.tokenbrowser.service;
 import android.os.Bundle;
 
 import com.google.android.gms.gcm.GcmListenerService;
+import com.tokenbrowser.R;
 import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.crypto.signal.model.DecryptedSignalMessage;
 import com.tokenbrowser.crypto.util.TypeConverter;
+import com.tokenbrowser.manager.TokenManager;
 import com.tokenbrowser.model.local.SofaMessage;
 import com.tokenbrowser.model.sofa.Payment;
 import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.model.sofa.SofaType;
-import com.tokenbrowser.R;
 import com.tokenbrowser.util.EthUtil;
 import com.tokenbrowser.util.LogUtil;
+import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.notification.ChatNotificationManager;
 
@@ -36,6 +38,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Locale;
 import java.util.concurrent.TimeoutException;
+
+import rx.Single;
+import rx.schedulers.Schedulers;
 
 public class GcmMessageReceiver extends GcmListenerService {
 
@@ -47,6 +52,23 @@ public class GcmMessageReceiver extends GcmListenerService {
 
     @Override
     public void onMessageReceived(final String from, final Bundle data) {
+        if (SharedPrefsUtil.hasSignedOut()) return;
+
+        tryInitApp()
+        .subscribe(
+                __ -> handleIncomingMessage(data),
+                this::handleIncomingMessageError
+        );
+    }
+
+    private Single<TokenManager> tryInitApp() {
+        return BaseApplication
+                .get()
+                .getTokenManager()
+                .tryInit();
+    }
+
+    private void handleIncomingMessage(final Bundle data) {
         try {
             final String messageBody = data.getString("message");
             LogUtil.i(getClass(), "Incoming PN: " + messageBody);
@@ -59,9 +81,8 @@ public class GcmMessageReceiver extends GcmListenerService {
             final SofaMessage sofaMessage = new SofaMessage().makeNew(messageBody);
 
             if (sofaMessage.getType() == SofaType.PAYMENT) {
-                final Payment payment = adapters.paymentFrom(sofaMessage.getPayload());
-                handleIncomingPayment(payment);
-                showPaymentNotification(payment);
+                final Payment payment = this.adapters.paymentFrom(sofaMessage.getPayload());
+                handlePayment(payment);
             } else {
                 tryShowSignalMessage();
             }
@@ -69,6 +90,45 @@ public class GcmMessageReceiver extends GcmListenerService {
         } catch (final Exception ex) {
             LogUtil.e(getClass(), "Error -> " + ex);
         }
+    }
+
+    private void handleIncomingMessageError(final Throwable throwable) {
+        LogUtil.e(getClass(), "Error during incoming message " + throwable.toString());
+    }
+
+    private void handlePayment(final Payment payment) {
+       isValidPayment(payment)
+       .subscribe(
+               this::handleValidPayment,
+               this::handleInvalidPayment
+       );
+    }
+
+    private Single<Payment> isValidPayment(final Payment payment) {
+        return BaseApplication
+                .get()
+                .getTokenManager()
+                .getWallet()
+                .toObservable()
+                .first(hdWallet -> isValidPayment(payment, hdWallet))
+                .map(__ ->  payment)
+                .toSingle()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io());
+    }
+
+    private boolean isValidPayment(final Payment payment, final HDWallet hdWallet) {
+        return payment.getToAddress().equals(hdWallet.getPaymentAddress());
+    }
+
+    private void handleValidPayment(final Payment payment) {
+        updatePayment(payment);
+        refreshBalance();
+        showPaymentNotification(payment);
+    }
+
+    private void handleInvalidPayment(final Throwable throwable) {
+        LogUtil.e(getClass(), "Invalid payment " + throwable.toString());
     }
 
     private void tryShowSignalMessage() {
@@ -90,13 +150,15 @@ public class GcmMessageReceiver extends GcmListenerService {
 
     }
 
-    private void handleIncomingPayment(final Payment payment) {
+    private void updatePayment(final Payment payment) {
         BaseApplication
                 .get()
                 .getTokenManager()
                 .getTransactionManager()
                 .updatePayment(payment);
+    }
 
+    private void refreshBalance() {
         BaseApplication
                 .get()
                 .getTokenManager()

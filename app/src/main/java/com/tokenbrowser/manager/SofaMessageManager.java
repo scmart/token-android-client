@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Pair;
 
-import com.crashlytics.android.Crashlytics;
 import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.crypto.signal.ChatService;
 import com.tokenbrowser.crypto.signal.SignalPreferences;
@@ -70,11 +69,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import rx.Completable;
 import rx.Observable;
 import rx.Single;
 import rx.SingleSubscriber;
+import rx.Subscription;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
+import rx.subscriptions.CompositeSubscription;
 
 public final class SofaMessageManager {
 
@@ -95,6 +97,7 @@ public final class SofaMessageManager {
     private SignalServiceUrl[] signalServiceUrls;
     private String gcmToken;
     private SignalServiceMessageReceiver messageReceiver;
+    private CompositeSubscription subscriptions;
 
     /*package*/ SofaMessageManager() {
         this.conversationStore = new ConversationStore();
@@ -103,6 +106,7 @@ public final class SofaMessageManager {
         this.adapters = new SofaAdapters();
         this.signalServiceUrls = new SignalServiceUrl[1];
         this.sharedPreferences = BaseApplication.get().getSharedPreferences(FileNames.GCM_PREFS, Context.MODE_PRIVATE);
+        this.subscriptions = new CompositeSubscription();
     }
 
     public final SofaMessageManager init(final HDWallet wallet) {
@@ -138,15 +142,24 @@ public final class SofaMessageManager {
         }
     }
 
+    public Completable tryUnregisterGcm() {
+        return Completable.fromAction(() -> {
+            try {
+                this.chatService.setGcmId(Optional.absent());
+                this.sharedPreferences.edit().putBoolean
+                        (RegistrationIntentService.CHAT_SERVICE_SENT_TOKEN_TO_SERVER, false).apply();
+            } catch (IOException e) {
+                LogUtil.d(getClass(), "Error during unregistering of GCM " + e.getMessage());
+            }
+        })
+        .subscribeOn(Schedulers.io());
+    }
+
     // Will send the message to a remote peer
     // and store the message in the local database
     public final void sendAndSaveMessage(final User receiver, final SofaMessage message) {
         final SofaMessageTask messageTask = new SofaMessageTask(receiver, message, SofaMessageTask.SEND_AND_SAVE);
         this.chatMessageQueue.onNext(messageTask);
-
-        if (this.handleMessagesSubscriber.isUnsubscribed()) {
-            LogUtil.e(getClass(), "Not attached!");
-        }
     }
 
     // Will send the message to a remote peer
@@ -283,10 +296,14 @@ public final class SofaMessageManager {
     }
 
     private void attachSubscribers() {
-        this.chatMessageQueue
+        final Subscription sub = this.chatMessageQueue
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
-                .subscribe(this.handleMessagesSubscriber);
+                .subscribe(
+                        this::handleMessage,
+                        this::handleMessageError);
+
+        this.subscriptions.add(sub);
 
         BaseApplication
                 .get()
@@ -295,34 +312,29 @@ public final class SofaMessageManager {
                 .subscribe(isConnected -> sendPendingMessages());
     }
 
-    private final OnNextSubscriber<SofaMessageTask> handleMessagesSubscriber = new OnNextSubscriber<SofaMessageTask>() {
-        @Override
-        public void onNext(final SofaMessageTask messageTask) {
-            switch (messageTask.getAction()) {
-                case SofaMessageTask.SEND_AND_SAVE:
-                    sendMessageToRemotePeer(messageTask, true);
-                    break;
-                case SofaMessageTask.SAVE_ONLY:
-                    storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage(), SendState.STATE_LOCAL_ONLY);
-                    break;
-                case SofaMessageTask.SAVE_TRANSACTION:
-                    storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage(), SendState.STATE_SENDING);
-                    break;
-                case SofaMessageTask.SEND_ONLY:
-                    sendMessageToRemotePeer(messageTask, false);
-                    break;
-                case SofaMessageTask.UPDATE_MESSAGE:
-                    updateExistingMessage(messageTask.getReceiver(), messageTask.getSofaMessage());
-                    break;
-            }
+    private void handleMessage(final SofaMessageTask messageTask) {
+        switch (messageTask.getAction()) {
+            case SofaMessageTask.SEND_AND_SAVE:
+                sendMessageToRemotePeer(messageTask, true);
+                break;
+            case SofaMessageTask.SAVE_ONLY:
+                storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage(), SendState.STATE_LOCAL_ONLY);
+                break;
+            case SofaMessageTask.SAVE_TRANSACTION:
+                storeMessage(messageTask.getReceiver(), messageTask.getSofaMessage(), SendState.STATE_SENDING);
+                break;
+            case SofaMessageTask.SEND_ONLY:
+                sendMessageToRemotePeer(messageTask, false);
+                break;
+            case SofaMessageTask.UPDATE_MESSAGE:
+                updateExistingMessage(messageTask.getReceiver(), messageTask.getSofaMessage());
+                break;
         }
+    }
 
-        @Override
-        public void onError(final Throwable e) {
-            Crashlytics.logException(e);
-            LogUtil.e(getClass(), "Message sending/receiving now broken due to this error: " + e);
-        }
-    };
+    private void handleMessageError(final Throwable throwable) {
+        LogUtil.e(getClass(), "Message sending/receiving now broken due to this error: " + throwable);
+    }
 
     private void sendPendingMessages() {
         final List<PendingMessage> pendingMessages = this.pendingMessageStore.getAllPendingMessages();
@@ -645,5 +657,18 @@ public final class SofaMessageManager {
         final Message sofaMessage = new Message().setBody("");
         final String messageBody = new SofaAdapters().toJson(sofaMessage);
         return new SofaMessage().makeNew(localUser, messageBody);
+    }
+
+    public void clear() {
+        disconnect();
+        clearSubscriptions();
+        this.sharedPreferences
+                .edit()
+                .clear()
+                .apply();
+    }
+
+    private void clearSubscriptions() {
+        this.subscriptions.clear();
     }
 }

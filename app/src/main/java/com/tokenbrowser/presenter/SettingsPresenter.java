@@ -1,8 +1,7 @@
 package com.tokenbrowser.presenter;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -11,16 +10,20 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.R;
-import com.tokenbrowser.util.FileNames;
+import com.tokenbrowser.model.network.Balance;
 import com.tokenbrowser.util.OnSingleClickListener;
+import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.AboutActivity;
 import com.tokenbrowser.view.activity.BackupPhraseInfoActivity;
 import com.tokenbrowser.view.activity.ProfileActivity;
+import com.tokenbrowser.view.activity.SignOutActivity;
 import com.tokenbrowser.view.activity.TrustedFriendsActivity;
 import com.tokenbrowser.view.adapter.SettingsAdapter;
 import com.tokenbrowser.view.custom.RecyclerViewDivider;
 import com.tokenbrowser.view.fragment.children.SettingsFragment;
+
+import java.math.BigInteger;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -102,17 +105,94 @@ public final class SettingsPresenter implements
         recyclerView.addItemDecoration(new RecyclerViewDivider(this.fragment.getContext(), 0));
     }
 
-    private void handleItemClickListener(final String option) {
+    private void handleItemClickListener(final int option) {
         switch (option) {
-            case "About": {
+            case SettingsAdapter.ABOUT: {
                 final Intent intent = new Intent(this.fragment.getContext(), AboutActivity.class);
                 this.fragment.getContext().startActivity(intent);
+                break;
+            }
+            case SettingsAdapter.SIGN_OUT: {
+                dialogHandler();
                 break;
             }
             default: {
                 Toast.makeText(this.fragment.getContext(), "This option is not supported", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private void dialogHandler() {
+        final Subscription sub =
+                BaseApplication
+                .get()
+                .getTokenManager()
+                .getBalanceManager()
+                .getBalanceObservable()
+                .first()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::showDialog);
+
+        this.subscriptions.add(sub);
+    }
+
+    private void showDialog(final Balance balance) {
+        if (shouldCancelSignOut(balance)) {
+            showSignOutCancelledDialog();
+        } else {
+            showSignOutWarning();
+        }
+    }
+
+    private boolean shouldCancelSignOut(final Balance balance) {
+        return !SharedPrefsUtil.hasBackedUpPhrase() && !isWalletEmpty(balance);
+    }
+    private boolean isWalletEmpty(final Balance balance) {
+        return balance.getUnconfirmedBalance().compareTo(BigInteger.ZERO) == 0;
+    }
+
+    private void showSignOutCancelledDialog() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this.fragment.getContext(), R.style.AlertDialogCustom);
+        builder.setTitle(R.string.sign_out_cancelled_title)
+                .setMessage(R.string.sign_out_cancelled_message)
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    dialog.dismiss();
+                });
+        builder.create().show();
+    }
+
+    private void showSignOutWarning() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this.fragment.getContext(), R.style.AlertDialogCustom);
+        builder.setTitle(R.string.sign_out_warning_title)
+                .setMessage(R.string.sign_out_warning_message)
+                .setPositiveButton(R.string.yes, (dialog, which) -> {
+                    dialog.dismiss();
+                    showSignOutConfirmationDialog();
+                })
+                .setNegativeButton(R.string.no, (dialog, which) -> {
+                    dialog.dismiss();
+                });
+        builder.create().show();
+    }
+
+    private void showSignOutConfirmationDialog() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this.fragment.getContext(), R.style.AlertDialogCustom);
+        builder.setTitle(R.string.sign_out_confirmation_title)
+                .setPositiveButton(R.string.sign_out, (dialog, which) -> {
+                    goToSignOutActivity();
+                    dialog.dismiss();
+                })
+                .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                    dialog.dismiss();
+                });
+        builder.create().show();
+    }
+
+    private void goToSignOutActivity() {
+        final Intent intent = new Intent(this.fragment.getActivity(), SignOutActivity.class);
+        this.fragment.getActivity().startActivity(intent);
+        this.fragment.getActivity().finish();
     }
 
     private void updateUi() {
@@ -133,10 +213,7 @@ public final class SettingsPresenter implements
     }
 
     private void setSecurityState() {
-        final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(FileNames.BACKUP_PHRASE_STATE, Context.MODE_PRIVATE);
-        final boolean isBackedUp = prefs.getBoolean(BackupPhraseVerifyPresenter.BACKUP_PHRASE_STATE, false);
-
-        if (isBackedUp) {
+        if (SharedPrefsUtil.hasBackedUpPhrase()) {
             this.fragment.getBinding().checkboxBackupPhrase.setChecked(true);
             this.fragment.getBinding().securityStatus.setVisibility(View.GONE);
         }
@@ -173,5 +250,7 @@ public final class SettingsPresenter implements
     }
 
     @Override
-    public void onDestroyed() {}
+    public void onDestroyed() {
+        this.fragment = null;
+    }
 }

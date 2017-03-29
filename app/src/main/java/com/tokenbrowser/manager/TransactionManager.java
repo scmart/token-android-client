@@ -28,8 +28,10 @@ import com.tokenbrowser.view.notification.ChatNotificationManager;
 import java.io.IOException;
 
 import rx.Observable;
+import rx.Subscription;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
+import rx.subscriptions.CompositeSubscription;
 
 import static com.tokenbrowser.manager.model.PaymentTask.INCOMING;
 import static com.tokenbrowser.manager.model.PaymentTask.OUTGOING;
@@ -42,9 +44,11 @@ public class TransactionManager {
     private HDWallet wallet;
     private PendingTransactionStore pendingTransactionStore;
     private SofaAdapters adapters;
+    private CompositeSubscription subscriptions;
 
     /*package */ TransactionManager() {
         initDatabase();
+        initSubscriptions();
     }
 
     public TransactionManager init(final HDWallet wallet) {
@@ -109,7 +113,7 @@ public class TransactionManager {
     }
 
     private void updatePendingTransactions() {
-        this.pendingTransactionStore
+        final Subscription sub = this.pendingTransactionStore
                 .loadAllTransactions()
                 .filter(this::isUnconfirmed)
                 .switchMap(pendingTransaction ->
@@ -122,6 +126,8 @@ public class TransactionManager {
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(this::updatePayment);
+
+        this.subscriptions.add(sub);
     }
 
     private Boolean isUnconfirmed(final PendingTransaction pendingTransaction) {
@@ -138,6 +144,10 @@ public class TransactionManager {
         this.pendingTransactionStore = new PendingTransactionStore();
     }
 
+    private void initSubscriptions() {
+        this.subscriptions = new CompositeSubscription();
+    }
+
     private void attachSubscribers() {
         attachNewPaymentSubscriber();
         attachUpdatePaymentSubscriber();
@@ -145,11 +155,13 @@ public class TransactionManager {
 
 
     private void attachNewPaymentSubscriber() {
-        this.newPaymentQueue
+        final Subscription sub = this.newPaymentQueue
             .observeOn(Schedulers.io())
             .subscribeOn(Schedulers.io())
             .filter(paymentTask -> paymentTask.getUser() != null)
             .subscribe(this::processNewPayment);
+
+        this.subscriptions.add(sub);
     }
 
     private void createNewPayment(final User sender, final Payment payment) {
@@ -298,11 +310,13 @@ public class TransactionManager {
 
 
     private void attachUpdatePaymentSubscriber() {
-        this.updatePaymentQueue
+        final Subscription sub = this.updatePaymentQueue
             .observeOn(Schedulers.io())
             .subscribeOn(Schedulers.io())
             .filter(payment -> payment != null)
             .subscribe(this::processUpdatedPayment);
+
+        this.subscriptions.add(sub);
     }
 
     private void processUpdatedPayment(final Payment payment) {
@@ -381,5 +395,9 @@ public class TransactionManager {
                 .getCurrentUser()
                 .toBlocking()
                 .value();
+    }
+
+    public void clear() {
+        this.subscriptions.clear();
     }
 }

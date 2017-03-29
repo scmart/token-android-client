@@ -1,20 +1,17 @@
 package com.tokenbrowser.view.activity;
 
-
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
 
 import com.tokenbrowser.BuildConfig;
-import com.tokenbrowser.crypto.HDWallet;
-import com.tokenbrowser.view.BaseApplication;
 import com.crashlytics.android.Crashlytics;
+import com.tokenbrowser.presenter.SplashPresenter;
+import com.tokenbrowser.presenter.factory.PresenterFactory;
+import com.tokenbrowser.presenter.factory.SplashPresenterFactory;
 
 import io.fabric.sdk.android.Fabric;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
-public class SplashActivity extends AppCompatActivity {
+public class SplashActivity extends BasePresenterActivity<SplashPresenter, SplashActivity> {
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -23,19 +20,19 @@ public class SplashActivity extends AppCompatActivity {
         if (!BuildConfig.DEBUG) {
             Fabric.with(this, new Crashlytics());
         }
-
-        BaseApplication
-                .get()
-                .getTokenManager()
-                .getWallet()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::gotoMainActivity);
     }
 
-    private void gotoMainActivity(final HDWallet unused) {
-        final Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
+    @NonNull
+    @Override
+    protected PresenterFactory<SplashPresenter> getPresenterFactory() {
+        return new SplashPresenterFactory();
+    }
+
+    @Override
+    protected void onPresenterPrepared(@NonNull SplashPresenter presenter) {}
+
+    @Override
+    protected int loaderId() {
+        return 1;
     }
 }

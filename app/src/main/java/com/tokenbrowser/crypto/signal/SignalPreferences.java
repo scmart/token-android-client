@@ -73,6 +73,10 @@ public class SignalPreferences {
         setIntegerPreference(SIGNED_PRE_KEY_ID_PREF, signedPreKeyId);
     }
 
+    public static void clear() {
+        PreferenceManager.getDefaultSharedPreferences(BaseApplication.get()).edit().clear().apply();
+    }
+
     private static void setByteArrayPreference(final String key, final byte[] value) {
         final String encoded = Base64.encodeToString(value, Base64.NO_WRAP);
         setStringPreference(key, encoded);
@@ -110,6 +114,5 @@ public class SignalPreferences {
     private static void setBooleanPreference(final String key, final boolean value) {
         PreferenceManager.getDefaultSharedPreferences(BaseApplication.get()).edit().putBoolean(key, value).apply();
     }
-
 
 }
