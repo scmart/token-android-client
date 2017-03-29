@@ -95,8 +95,10 @@ public class HDWallet {
 
     private Wallet initFromMasterSeed(final String masterSeed) {
         try {
-            return Wallet.fromSeed(getNetworkParameters(), getSeed(masterSeed));
-        } catch (final UnreadableWalletException e) {
+            final DeterministicSeed seed = getSeed(masterSeed);
+            seed.check();
+            return Wallet.fromSeed(getNetworkParameters(), seed);
+        } catch (final UnreadableWalletException | MnemonicException e) {
             throw new RuntimeException("Unable to create wallet. Seed is invalid");
         }
     }
