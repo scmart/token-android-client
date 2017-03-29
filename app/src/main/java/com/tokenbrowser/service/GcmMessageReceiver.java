@@ -19,14 +19,15 @@ package com.tokenbrowser.service;
 import android.os.Bundle;
 
 import com.google.android.gms.gcm.GcmListenerService;
+import com.tokenbrowser.R;
 import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.crypto.signal.model.DecryptedSignalMessage;
 import com.tokenbrowser.crypto.util.TypeConverter;
+import com.tokenbrowser.manager.TokenManager;
 import com.tokenbrowser.model.local.SofaMessage;
 import com.tokenbrowser.model.sofa.Payment;
 import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.model.sofa.SofaType;
-import com.tokenbrowser.R;
 import com.tokenbrowser.util.EthUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.SharedPrefsUtil;
@@ -51,11 +52,26 @@ public class GcmMessageReceiver extends GcmListenerService {
 
     @Override
     public void onMessageReceived(final String from, final Bundle data) {
+        if (SharedPrefsUtil.hasSignedOut()) return;
+
+        tryInitApp()
+        .subscribe(
+                __ -> handleIncomingMessage(data),
+                this::handleIncomingMessageError
+        );
+    }
+
+    private Single<TokenManager> tryInitApp() {
+        return BaseApplication
+                .get()
+                .getTokenManager()
+                .tryInit();
+    }
+
+    private void handleIncomingMessage(final Bundle data) {
         try {
             final String messageBody = data.getString("message");
             LogUtil.i(getClass(), "Incoming PN: " + messageBody);
-
-            if (SharedPrefsUtil.hasSignedOut()) return;
 
             if (messageBody == null) {
                 tryShowSignalMessage();
@@ -65,7 +81,7 @@ public class GcmMessageReceiver extends GcmListenerService {
             final SofaMessage sofaMessage = new SofaMessage().makeNew(messageBody);
 
             if (sofaMessage.getType() == SofaType.PAYMENT) {
-                final Payment payment = adapters.paymentFrom(sofaMessage.getPayload());
+                final Payment payment = this.adapters.paymentFrom(sofaMessage.getPayload());
                 handlePayment(payment);
             } else {
                 tryShowSignalMessage();
@@ -74,6 +90,10 @@ public class GcmMessageReceiver extends GcmListenerService {
         } catch (final Exception ex) {
             LogUtil.e(getClass(), "Error -> " + ex);
         }
+    }
+
+    private void handleIncomingMessageError(final Throwable throwable) {
+        LogUtil.e(getClass(), "Error during incoming message " + throwable.toString());
     }
 
     private void handlePayment(final Payment payment) {

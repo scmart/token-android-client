@@ -58,6 +58,18 @@ public class HDWallet {
         }
     }
 
+    public Single<HDWallet> getExistingWallet() {
+        return Single.fromCallable(() -> {
+            tryInit();
+            this.masterSeed = readMasterSeedFromStorage();
+            if (this.masterSeed == null) throw new InvalidMasterSeedException(new Throwable("Master seed is null"));
+            final Wallet wallet = initFromMasterSeed(this.masterSeed);
+            deriveKeysFromWallet(wallet);
+
+            return this;
+        });
+    }
+
     public Single<HDWallet> getOrCreateWallet() {
         return Single.fromCallable(() -> {
             tryInit();
