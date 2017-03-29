@@ -12,7 +12,6 @@ import com.tokenbrowser.view.activity.SignInActivity;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 public class SignInPresenter implements Presenter<SignInActivity> {
@@ -65,7 +64,6 @@ public class SignInPresenter implements Presenter<SignInActivity> {
                         .get()
                         .getTokenManager()
                         .init(wallet))
-                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         unused -> handleSuccess(),
@@ -104,7 +102,6 @@ public class SignInPresenter implements Presenter<SignInActivity> {
                 .get()
                 .getTokenManager()
                 .init()
-                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(unused -> handleSuccess());
 
