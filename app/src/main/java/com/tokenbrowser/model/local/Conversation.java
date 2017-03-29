@@ -33,16 +33,24 @@ public class Conversation extends RealmObject {
     }
 
     public Conversation setLatestMessage(final SofaMessage latestMessage) {
+        if (isDuplicateMessage(latestMessage)) {
+            return this;
+        }
         this.latestMessage = latestMessage;
         this.updatedTime = latestMessage.getCreationTime();
         addMessage(latestMessage);
         return this;
     }
 
+    private boolean isDuplicateMessage(final SofaMessage message) {
+        return this.allMessages != null && this.allMessages.contains(message);
+    }
+
     private void addMessage(final SofaMessage latestMessage) {
         if (this.allMessages == null) {
             this.allMessages = new RealmList<>();
         }
+
         this.allMessages.add(latestMessage);
     }
 
