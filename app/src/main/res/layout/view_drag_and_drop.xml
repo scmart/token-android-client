@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <org.apmem.tools.layouts.FlowLayout
-        android:id="@+id/backup_phrase_target"
+        android:id="@+id/user_inputted_phrases"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -129,7 +129,7 @@
     </org.apmem.tools.layouts.FlowLayout>
 
     <org.apmem.tools.layouts.FlowLayout
-        android:id="@+id/backup_phrase_source"
+        android:id="@+id/remaining_phrases"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="33dp"

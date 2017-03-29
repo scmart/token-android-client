@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.widget.TextView;
 
 import com.tokenbrowser.R;
@@ -16,6 +17,15 @@ public class ShadowTextView extends CardView {
     private boolean visibleBackground;
     private String text;
     private int cornerRadius;
+    private float touchDownX;
+    private float touchDownY;
+    private boolean isClicked;
+    private ClickAndDragListener listener;
+
+    public interface ClickAndDragListener {
+        void onClick(ShadowTextView v);
+        void onDrag(ShadowTextView v);
+    }
 
     public ShadowTextView(@NonNull Context context) {
         super(context);
@@ -55,6 +65,10 @@ public class ShadowTextView extends CardView {
         }
     }
 
+    public void setListener(final ClickAndDragListener listener) {
+        this.listener = listener;
+    }
+
     public void enableShadow() {
         this.setCardElevation(4f);
     }
@@ -71,5 +85,32 @@ public class ShadowTextView extends CardView {
     public String getText() {
         final TextView textView = (TextView) findViewById(R.id.text_view);
         return textView.getText().toString();
+    }
+
+    @Override
+    public boolean onTouchEvent(final MotionEvent ev) {
+        switch (ev.getAction() & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_DOWN:
+                this.touchDownX = ev.getX();
+                this.touchDownY = ev.getY();
+                this.isClicked = true;
+                break;
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_UP:
+                if (isClicked) {
+                    if (this.listener != null) this.listener.onClick(this);
+                }
+                break;
+            case MotionEvent.ACTION_MOVE:
+                final float SCROLL_THRESHOLD = 10;
+                if (this.isClicked && (Math.abs(touchDownX - ev.getX()) > SCROLL_THRESHOLD || Math.abs(touchDownY - ev.getY()) > SCROLL_THRESHOLD)) {
+                    if (this.listener != null) this.listener.onDrag(this);
+                    isClicked = false;
+                }
+                break;
+            default:
+                break;
+        }
+        return true;
     }
 }
