@@ -7,6 +7,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public class EthUtil {
+
+    private static final int NUM_DECIMAL_PLACES = 4;
+    private static final String USER_VISIBLE_STRING_FORMATTING = "%.4f";
     private static final BigDecimal weiToEthRatio = new BigDecimal("1000000000000000000");
 
     public static String hexAmountToUserVisibleString(final String hexEncodedWei) {
@@ -20,14 +23,19 @@ public class EthUtil {
     }
 
     public static String ethAmountToUserVisibleString(final BigDecimal eth) {
-        return String.format(LocaleUtil.getLocale(), "%.4f", eth.setScale(4, BigDecimal.ROUND_DOWN));
+        return String.format(
+                LocaleUtil.getLocale(),
+                USER_VISIBLE_STRING_FORMATTING,
+                eth.setScale(NUM_DECIMAL_PLACES, BigDecimal.ROUND_DOWN));
     }
 
     public static BigDecimal weiToEth(final BigInteger wei) {
         if (wei == null) {
             return BigDecimal.ZERO;
         }
-        return new BigDecimal(wei).divide(weiToEthRatio, BigDecimal.ROUND_DOWN);
+        return new BigDecimal(wei)
+                .divide(weiToEthRatio)
+                .setScale(NUM_DECIMAL_PLACES, BigDecimal.ROUND_DOWN);
     }
 
     public static BigInteger ethToWei(final BigDecimal amountInEth) {

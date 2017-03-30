@@ -38,7 +38,6 @@ public class HomePresenter implements Presenter<HomeFragment> {
     private static final int ETH_SEND_CODE = 2;
 
     private HomeFragment fragment;
-    private Balance balance;
     private CompositeSubscription subscriptions;
     private List<App> featuredApps;
     private boolean firstTimeAttaching = true;
@@ -72,15 +71,13 @@ public class HomePresenter implements Presenter<HomeFragment> {
     }
 
     private void handleNewBalance(final Balance balance) {
-        this.balance = balance;
-        refreshBalance();
+        refreshBalance(balance);
     }
 
     private void initShortTermObjects() {
         attachSubscribers();
         assignClickListeners();
         initRecyclerView();
-        refreshBalance();
     }
 
     private void assignClickListeners() {
@@ -100,15 +97,15 @@ public class HomePresenter implements Presenter<HomeFragment> {
         appList.setAdapter(adapter);
     }
 
-    private void refreshBalance() {
-        if (this.fragment == null || this.balance == null) {
+    private void refreshBalance(final Balance balance) {
+        if (this.fragment == null || balance == null) {
             return;
         }
 
-        this.fragment.getBinding().balanceEth.setText(this.balance.getFormattedUnconfirmedBalance());
+        this.fragment.getBinding().balanceEth.setText(balance.getFormattedUnconfirmedBalance());
 
         final Subscription getLocalBalanceSub =
-                this.balance
+                balance
                 .getFormattedLocalBalance()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(localBalance -> this.fragment.getBinding().balanceUsd.setText(localBalance));
