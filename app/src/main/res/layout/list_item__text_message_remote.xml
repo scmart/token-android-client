@@ -3,11 +3,11 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="320dp"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginRight="@dimen/bubbleMargin"
     android:orientation="horizontal"
-    android:id="@+id/container"
-    android:visibility="visible">
+    android:id="@+id/container">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/avatar"
@@ -23,6 +23,7 @@
         android:id="@+id/message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:maxWidth="270dp"
         android:gravity="left"
         android:layout_marginBottom="@dimen/bubbleMargin"
         android:layout_marginTop="@dimen/bubbleMargin"
@@ -36,7 +37,6 @@
         android:textColor="@color/textColorPrimary"
         android:textColorLink="@color/colorAccent"
         android:textSize="@dimen/defaultTextSize"
-        tools:text="Remote Message! www.test.com"
-        android:visibility="visible" />
+        tools:text="Remote Message! www.test.com"  />
 
 </LinearLayout>
