@@ -37,82 +37,95 @@
 
         </LinearLayout>
 
-        <LinearLayout
+
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
+            android:layout_height="match_parent"
+            android:fillViewport="true">
 
             <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/local_currency"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:textColor="@color/textColorPrimary"
-                    android:textSize="53sp"
-                    android:layout_marginRight="5dp"
-                    android:text="@string/dollar"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
 
-                <TextView
-                    android:id="@+id/local_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:textColor="@color/textColorPrimary"
-                    android:textSize="53sp" />
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
 
+                        <TextView
+                            android:id="@+id/local_currency"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:textColor="@color/textColorPrimary"
+                            android:textSize="53sp"
+                            android:layout_marginRight="5dp"
+                            android:text="@string/dollar"/>
+
+                        <TextView
+                            android:id="@+id/local_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:textColor="@color/textColorPrimary"
+                            android:textSize="53sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/eth_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="5dp"
+                            android:textColor="@color/textColorSecondary"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/eth_currency"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="5dp"
+                            android:textColor="@color/textColorSecondary"
+                            android:textSize="14sp"
+                            android:layout_marginRight="4dp"
+                            android:text="@string/eth_currency_code"/>
+
+                    </LinearLayout>
+                </LinearLayout>
+
+                <com.tokenbrowser.view.custom.AmountInputView
+                    android:id="@+id/amount_input_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="27dp"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider_amount"/>
+
+                <Button
+                    android:id="@+id/btn_continue"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    style="@style/FlatButton"
+                    android:text="@string/continue_"/>
             </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/eth_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="5dp"
-                    android:textColor="@color/textColorSecondary"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/eth_currency"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="5dp"
-                    android:textColor="@color/textColorSecondary"
-                    android:textSize="14sp"
-                    android:layout_marginRight="4dp"
-                    android:text="@string/eth_currency_code"/>
-
-            </LinearLayout>
-        </LinearLayout>
-
-        <com.tokenbrowser.view.custom.AmountInputView
-            android:id="@+id/amount_input_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="27dp"/>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/divider_amount"/>
-
-        <Button
-            android:id="@+id/btn_continue"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            style="@style/FlatButton"
-            android:text="@string/continue_"/>
-
+        </ScrollView>
     </LinearLayout>
-
 </layout>
