@@ -24,29 +24,17 @@ public class PendingMessageStore {
         realm.close();
     }
 
-    public List<PendingMessage> getAllPendingMessages() {
+    // Gets, and removes all messages. After calling this any pending messages will be removed
+    public List<PendingMessage> fetchAllPendingMessages() {
         final Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
         final RealmResults<PendingMessage> result = realm
                 .where(PendingMessage.class)
                 .findAll();
         final List<PendingMessage> pendingMessages = realm.copyFromRealm(result);
-        realm.close();
-        return pendingMessages;
-    }
-
-    public void delete(final SofaMessage sofaMessage) {
-        final Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        final PendingMessage result = realm
-                .where(PendingMessage.class)
-                .equalTo("privateKey", sofaMessage.getPrivateKey())
-                .findFirst();
-
-        if (result!= null) {
-            result.deleteFromRealm();
-        }
-
+        result.deleteAllFromRealm();
         realm.commitTransaction();
         realm.close();
+        return pendingMessages;
     }
 }
