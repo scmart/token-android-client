@@ -8,8 +8,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.tokenbrowser.R;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.signature.StringSignature;
 import com.tokenbrowser.model.local.User;
+import com.tokenbrowser.R;
 import com.tokenbrowser.model.network.Balance;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.util.SharedPrefsUtil;
@@ -210,9 +212,19 @@ public final class SettingsPresenter implements
         this.fragment.getBinding().ratingView.setStars(reputationScore);
         final String reviewCount = this.fragment.getString(R.string.parentheses, this.localUser.getReviewCount());
         this.fragment.getBinding().numberOfRatings.setText(reviewCount);
+        loadAvatar();
+    }
 
-        Glide.with(this.fragment.getBinding().avatar.getContext())
+    private void loadAvatar() {
+        final String cachedAvatarKey = SharedPrefsUtil.getCachedAvatarKey();
+        final String avatarKey = cachedAvatarKey != null
+                ? cachedAvatarKey
+                : this.localUser.getAvatar();
+
+        Glide.with(this.fragment)
                 .load(this.localUser.getAvatar())
+                .signature(new StringSignature(avatarKey))
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(this.fragment.getBinding().avatar);
     }
 

@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tokenbrowser.model.network.App;
 import com.tokenbrowser.R;
 import com.tokenbrowser.view.BaseApplication;
@@ -40,6 +41,7 @@ public class SearchAppViewHolder extends RecyclerView.ViewHolder {
 
         Glide.with(this.appImage.getContext())
                 .load(app.getCustom().getAvatar())
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(this.appImage);
     }
 

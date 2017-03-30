@@ -4,6 +4,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tokenbrowser.R;
 import com.tokenbrowser.model.local.Conversation;
 import com.tokenbrowser.model.local.User;
@@ -46,6 +47,7 @@ public class ConversationViewHolder extends ClickableViewHolder {
 
         Glide.with(this.avatar.getContext())
                 .load(conversation.getMember().getAvatar())
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(this.avatar);
     }
 

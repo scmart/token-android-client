@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.signature.StringSignature;
 import com.tokenbrowser.BuildConfig;
 import com.tokenbrowser.R;
 import com.tokenbrowser.model.local.ActivityResultHolder;
@@ -26,6 +27,7 @@ import com.tokenbrowser.model.network.UserDetails;
 import com.tokenbrowser.util.FileUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
+import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.EditProfileActivity;
 import com.tokenbrowser.view.fragment.DialogFragment.ChooserDialog;
@@ -82,13 +84,27 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
     }
 
     private void updateView() {
+        populateFields();
+        loadAvatar();
+    }
+
+    private void populateFields() {
         this.activity.getBinding().inputName.setText(this.displayNameFieldContents);
         this.activity.getBinding().inputUsername.setText(this.userNameFieldContents);
         this.activity.getBinding().inputAbout.setText(this.aboutFieldContents);
         this.activity.getBinding().inputLocation.setText(this.locationFieldContents);
+    }
+
+    private void loadAvatar() {
+        if (this.avatarUrl == null) return;
+        final String cachedAvatarKey = SharedPrefsUtil.getCachedAvatarKey();
+        final String avatarKey = cachedAvatarKey != null
+                ? cachedAvatarKey
+                : this.avatarUrl;
+
         Glide.with(this.activity)
                 .load(this.avatarUrl)
-                .skipMemoryCache(true)
+                .signature(new StringSignature(avatarKey))
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(this.activity.getBinding().avatar);
     }
@@ -331,8 +347,15 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
 
     private void handleUploadSuccess(final User user) {
         if (this.activity == null) return;
+        storeAvatarKey(user);
         handleUserLoaded(user);
         Toast.makeText(this.activity, this.activity.getString(R.string.profile_image_success), Toast.LENGTH_SHORT).show();
+    }
+
+    private void storeAvatarKey(final User user) {
+        final String currentTime = String.valueOf(System.currentTimeMillis());
+        final String key = String.format("%s%s", currentTime, user.getAvatar());
+        SharedPrefsUtil.setCachedAvatarKey(key);
     }
 
     private boolean tryDeleteCachedFile(final File file) {

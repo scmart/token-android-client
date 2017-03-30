@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tokenbrowser.R;
 import com.tokenbrowser.databinding.ActivityViewAppBinding;
 import com.tokenbrowser.model.local.ActivityResultHolder;
@@ -131,6 +132,7 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
         binding.username.setText(this.app.getCustom().getName());
         Glide.with(this.activity)
                 .load(this.app.getCustom().getAvatar())
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(binding.avatar);
     }
 

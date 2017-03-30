@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tokenbrowser.model.local.SendState;
 import com.tokenbrowser.R;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
@@ -73,6 +74,7 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
         Glide
             .with(this.avatar.getContext())
             .load(this.avatarUri)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
             .into(this.avatar);
     }
 

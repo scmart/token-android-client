@@ -27,6 +27,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tokenbrowser.BuildConfig;
 import com.tokenbrowser.R;
 import com.tokenbrowser.crypto.HDWallet;
@@ -567,6 +568,7 @@ public final class ChatPresenter implements
         if (actionBar != null) actionBar.setDisplayShowTitleEnabled(false);
         Glide.with(this.activity.getBinding().avatar.getContext())
                 .load(remoteUser.getAvatar())
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(this.activity.getBinding().avatar);
     }
 

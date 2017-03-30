@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tokenbrowser.crypto.util.TypeConverter;
 import com.tokenbrowser.model.local.SendState;
 import com.tokenbrowser.model.sofa.Payment;
@@ -76,6 +77,7 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
         Glide
                 .with(this.avatar.getContext())
                 .load(this.avatarUri)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(this.avatar);
     }
 

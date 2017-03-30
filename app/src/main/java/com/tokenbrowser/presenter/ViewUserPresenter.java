@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tokenbrowser.R;
 import com.tokenbrowser.databinding.ActivityScanResultBinding;
 import com.tokenbrowser.model.local.ActivityResultHolder;
@@ -138,6 +139,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         binding.location.setText(scannedUser.getLocation());
         Glide.with(this.activity)
                 .load(scannedUser.getAvatar())
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(binding.avatar);
         addClickListeners();
         updateAddContactState();

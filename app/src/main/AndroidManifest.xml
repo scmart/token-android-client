@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.tokenbrowser">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -121,6 +122,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"/>
         </provider>
+
+        <meta-data
+            android:name="com.tokenbrowser.manager.network.TokenGlideModule"
+            android:value="GlideModule"/>
 
     </application>
 

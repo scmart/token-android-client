@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tokenbrowser.crypto.util.TypeConverter;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.R;
@@ -104,6 +105,7 @@ public class PaymentRequestConfirmationDialog extends DialogFragment {
     private void updateView(final User user) {
         Glide.with(this.getContext())
                 .load(user.getAvatar())
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(this.binding.avatar);
 
         final String title = this.paymentType == PaymentType.TYPE_SEND

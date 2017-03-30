@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tokenbrowser.R;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.view.BaseApplication;
@@ -34,6 +35,7 @@ public class ContactViewHolder extends ClickableViewHolder {
 
         Glide.with(this.avatar.getContext())
                 .load(user.getAvatar())
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(this.avatar);
 
         final double reputationScore = user.getReputationScore() != null
