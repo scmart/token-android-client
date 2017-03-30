@@ -27,6 +27,8 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.tokenbrowser.BuildConfig;
+import com.tokenbrowser.R;
 import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.model.local.Conversation;
@@ -38,8 +40,6 @@ import com.tokenbrowser.model.sofa.Control;
 import com.tokenbrowser.model.sofa.Message;
 import com.tokenbrowser.model.sofa.PaymentRequest;
 import com.tokenbrowser.model.sofa.SofaAdapters;
-import com.tokenbrowser.BuildConfig;
-import com.tokenbrowser.R;
 import com.tokenbrowser.util.FileUtil;
 import com.tokenbrowser.util.KeyboardUtil;
 import com.tokenbrowser.util.LogUtil;
@@ -65,12 +65,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observable;
 import rx.Single;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
-import rx.subjects.ReplaySubject;
 import rx.subscriptions.CompositeSubscription;
 
 
@@ -99,7 +99,9 @@ public final class ChatPresenter implements
     private boolean firstViewAttachment = true;
     private int lastVisibleMessagePosition;
     private Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> chatObservables;
-    private ReplaySubject<SofaMessage> outgoingMessageQueue;
+    private PublishSubject<SofaMessage> outgoingMessagesQueue;
+    private Subscription outgoingMessagesSubscription;
+    private List<SofaMessage> messagesAwaitingProcessing;
     private String captureImageFilename;
 
     @Override
@@ -115,7 +117,8 @@ public final class ChatPresenter implements
 
     private void initLongLivingObjects() {
         this.subscriptions = new CompositeSubscription();
-        this.outgoingMessageQueue = ReplaySubject.create();
+        this.outgoingMessagesQueue = PublishSubject.create();
+        this.messagesAwaitingProcessing = new ArrayList<>();
         initMessageAdapter();
     }
 
@@ -383,7 +386,7 @@ public final class ChatPresenter implements
             final Message sofaMessage = new Message().setBody(userInput);
             final String messageBody = adapters.toJson(sofaMessage);
             final SofaMessage message = new SofaMessage().makeNew(getCurrentLocalUser(), messageBody);
-            outgoingMessageQueue.onNext(message);
+            sendSofaMessage(message);
 
             activity.getBinding().userInput.setText(null);
         }
@@ -430,7 +433,7 @@ public final class ChatPresenter implements
                 .setValue(control.getValue());
         final String commandPayload = adapters.toJson(command);
         final SofaMessage sofaMessage = new SofaMessage().makeNew(getCurrentLocalUser(), commandPayload);
-        this.outgoingMessageQueue.onNext(sofaMessage);
+        sendSofaMessage(sofaMessage);
     }
 
     private void initControlView() {
@@ -478,8 +481,8 @@ public final class ChatPresenter implements
     }
 
     private void attachOutgoingQueueSubscriber() {
-        final Subscription subscription =
-                this.outgoingMessageQueue
+        this.outgoingMessagesSubscription =
+                this.outgoingMessagesQueue
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(outgoingSofaMessage ->
@@ -490,7 +493,28 @@ public final class ChatPresenter implements
                                 .sendAndSaveMessage(this.remoteUser, outgoingSofaMessage)
                 );
 
+        this.subscriptions.add(this.outgoingMessagesSubscription);
+
+        processExistingQueue();
+    }
+
+    private void processExistingQueue() {
+        final Subscription subscription =
+                Observable
+                .from(this.messagesAwaitingProcessing)
+                .doOnCompleted(() -> this.messagesAwaitingProcessing.clear())
+                .subscribe(sofaMessage -> this.outgoingMessagesQueue.onNext(sofaMessage));
         this.subscriptions.add(subscription);
+    }
+
+    private void sendSofaMessage(final SofaMessage message) {
+        // If the subscription is attached we can broadcast straight to the subject.
+        // If not it will need to be queued.
+        if (this.outgoingMessagesSubscription == null || this.outgoingMessagesSubscription.isUnsubscribed()) {
+            this.messagesAwaitingProcessing.add(message);
+        } else {
+            this.outgoingMessagesQueue.onNext(message);
+        }
     }
 
     private void handleUserFetchFailed(final Throwable throwable) {
@@ -546,7 +570,7 @@ public final class ChatPresenter implements
                 .subscribe((request) -> {
                     final String messageBody = this.adapters.toJson(request);
                     final SofaMessage message = new SofaMessage().makeNew(getCurrentLocalUser(), messageBody);
-                    this.outgoingMessageQueue.onNext(message);
+                    sendSofaMessage(message);
                 });
 
     }
@@ -794,7 +818,7 @@ public final class ChatPresenter implements
         final SofaMessage sofaMessage = new SofaMessage()
                 .makeNew(getCurrentLocalUser(), messageBody)
                 .setAttachmentFilePath(filePath);
-        this.outgoingMessageQueue.onNext(sofaMessage);
+        sendSofaMessage(sofaMessage);
     }
 
     private void showNotEnoughFundsDialog() {
@@ -890,7 +914,10 @@ public final class ChatPresenter implements
         ChatNotificationManager.stopNotificationSuppression();
         this.subscriptions = null;
         this.chatObservables = null;
-        this.outgoingMessageQueue = null;
+        this.outgoingMessagesQueue = null;
+        this.messagesAwaitingProcessing.clear();
+        this.messagesAwaitingProcessing = null;
+        this.outgoingMessagesSubscription = null;
     }
 
     private void stopListeningForConversationChanges() {
