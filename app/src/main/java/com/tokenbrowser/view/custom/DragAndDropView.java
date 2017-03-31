@@ -10,9 +10,8 @@ import android.view.DragEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import com.google.android.flexbox.FlexboxLayout;
 import com.tokenbrowser.R;
-
-import org.apmem.tools.layouts.FlowLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,14 +59,14 @@ public class DragAndDropView extends LinearLayout {
     }
 
     private void initListeners() {
-        final FlowLayout sourceLayout = (FlowLayout) findViewById(R.id.remaining_phrases);
+        final FlexboxLayout sourceLayout = (FlexboxLayout) findViewById(R.id.remaining_phrases);
         for (int i = 0; i < sourceLayout.getChildCount(); i++) {
             final ShadowTextView remainingPhraseView = (ShadowTextView) sourceLayout.getChildAt(i);
             remainingPhraseView.setListener(this.clickAndDragListener);
             remainingPhraseView.setOnDragListener(this::handleDragEvent);
         }
 
-        final FlowLayout targetLayout = (FlowLayout) findViewById(R.id.user_inputted_phrases);
+        final FlexboxLayout targetLayout = (FlexboxLayout) findViewById(R.id.user_inputted_phrases);
         for (int i = 0; i < targetLayout.getChildCount(); i++) {
             final ShadowTextView inputtedPhraseView = (ShadowTextView) targetLayout.getChildAt(i);
             inputtedPhraseView.setListener(this.clickAndDragListener);
@@ -191,7 +190,7 @@ public class DragAndDropView extends LinearLayout {
     }
 
     private void renderUserInputtedPhrases() {
-        final FlowLayout backupPhraseTargetLayout = (FlowLayout) findViewById(R.id.user_inputted_phrases);
+        final FlexboxLayout backupPhraseTargetLayout = (FlexboxLayout) findViewById(R.id.user_inputted_phrases);
         for (int i = 0; i < this.userInputtedBackupPhrase.size(); i++) {
             final ShadowTextView backupPhraseTarget = (ShadowTextView) backupPhraseTargetLayout.getChildAt(i);
             final String inputtedPhrase = this.userInputtedBackupPhrase.get(i);
@@ -200,7 +199,7 @@ public class DragAndDropView extends LinearLayout {
     }
 
     private void renderRemainingInputPhrases() {
-        final FlowLayout gridLayout = (FlowLayout) findViewById(R.id.remaining_phrases);
+        final FlexboxLayout gridLayout = (FlexboxLayout) findViewById(R.id.remaining_phrases);
         for (int i = 0; i < gridLayout.getChildCount(); i++) {
             final ShadowTextView backupPhraseWord = (ShadowTextView) gridLayout.getChildAt(i);
             final String remainingPhrase = this.remainingInputBackupPhrase.get(i);
