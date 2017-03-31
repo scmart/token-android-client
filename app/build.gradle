@@ -106,7 +106,6 @@ dependencies {
             'com.madgag.spongycastle:prov:1.54.0.0',
             //UI
             'com.beloo.widget:ChipsLayoutManager:0.3.4.1@aar',
-            'org.apmem.tools:layouts:1.10@aar',
     )
 
     compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {
