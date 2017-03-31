@@ -1,15 +1,13 @@
 package com.tokenbrowser.presenter;
 
-import android.graphics.Bitmap;
 import android.view.View;
 
-import com.tokenbrowser.model.network.ReputationScore;
+import com.bumptech.glide.Glide;
 import com.tokenbrowser.R;
 import com.tokenbrowser.model.local.User;
-import com.tokenbrowser.util.ImageUtil;
+import com.tokenbrowser.model.network.ReputationScore;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
-import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ProfileActivity;
 import com.tokenbrowser.view.fragment.children.ViewProfileFragment;
@@ -84,13 +82,9 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
         this.fragment.getBinding().username.setText(this.localUser.getUsername());
         this.fragment.getBinding().about.setText(this.localUser.getAbout());
         this.fragment.getBinding().location.setText(this.localUser.getLocation());
-
-        final byte[] decodedBitmap = SharedPrefsUtil.getQrCode();
-        if (decodedBitmap != null) {
-            renderQrCode(decodedBitmap);
-        } else {
-            generateQrCode();
-        }
+        Glide.with(this.fragment)
+                .load(this.localUser.getAvatar())
+                .into(this.fragment.getBinding().avatar);
     }
 
     private void fetchUser() {
@@ -158,34 +152,6 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileFragment
 
     private void handleReputationError(final Throwable throwable) {
         LogUtil.e(getClass(), "Error during reputation fetching " + throwable.getMessage());
-    }
-
-    private void renderQrCode(final byte[] qrCodeImageBytes) {
-        final Bitmap qrCodeBitmap = ImageUtil.decodeByteArray(qrCodeImageBytes);
-        renderQrCode(qrCodeBitmap);
-    }
-
-    private void renderQrCode(final Bitmap qrCodeBitmap) {
-        if (this.fragment == null) {
-            return;
-        }
-        this.fragment.getBinding().qrCodeImage.setAlpha(0.0f);
-        this.fragment.getBinding().qrCodeImage.setImageBitmap(qrCodeBitmap);
-        this.fragment.getBinding().qrCodeImage.animate().alpha(1f).setDuration(200).start();
-    }
-
-    private void generateQrCode() {
-        final Subscription sub = ImageUtil.generateQrCodeForWalletAddress(this.localUser.getTokenId())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::handleQrCodeGenerated);
-
-        this.subscriptions.add(sub);
-    }
-
-    private void handleQrCodeGenerated(final Bitmap bitmap) {
-        SharedPrefsUtil.saveQrCode(ImageUtil.compressBitmap(bitmap));
-        renderQrCode(bitmap);
     }
 
     private final OnSingleClickListener editProfileClicked = new OnSingleClickListener() {
