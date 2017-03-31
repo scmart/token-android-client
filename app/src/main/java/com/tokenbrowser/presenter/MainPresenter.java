@@ -51,6 +51,7 @@ public class MainPresenter implements Presenter<MainActivity> {
             manuallySelectFirstTab();
         }
         initNavBar();
+        trySelectTabFromIntent();
         attachUnreadMessagesSubscription();
     }
 
@@ -119,10 +120,10 @@ public class MainPresenter implements Presenter<MainActivity> {
     }
 
     public void onRestoreInstanceState(final Bundle savedInstanceState) {
-        selectTabFromIntent();
+        trySelectTabFromIntent();
     }
 
-    private void selectTabFromIntent() {
+    private void trySelectTabFromIntent() {
         final Intent intent = this.activity.getIntent();
         final int activeTab = intent.getIntExtra(MainActivity.EXTRA__ACTIVE_TAB, this.activity.getBinding().navBar.getCurrentItem());
         this.activity.getIntent().removeExtra(MainActivity.EXTRA__ACTIVE_TAB);
