@@ -48,12 +48,12 @@
 
                 <android.support.v4.widget.Space
                     android:layout_width="0dp"
-                    android:layout_height="16dp"/>
+                    android:layout_height="24dp"/>
 
-                <ImageView
-                    android:id="@+id/qrCodeImage"
-                    android:layout_width="166dp"
-                    android:layout_height="166dp"
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/avatar"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
                     android:layout_gravity="center_horizontal"/>
 
                 <android.support.v4.widget.Space
@@ -70,6 +70,10 @@
                     android:textStyle="bold"
                     tools:text="Damn Daniel!"/>
 
+                <android.support.v4.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="4dp" />
+
                 <TextView
                     android:id="@+id/username"
                     android:layout_width="wrap_content"
@@ -80,22 +84,128 @@
 
                 <android.support.v4.widget.Space
                     android:layout_width="0dp"
-                    android:layout_height="16dp"/>
+                    android:layout_height="17dp" />
 
-                <Button
-                    android:id="@+id/message_contact_button"
+                <TextView
+                    android:id="@+id/about"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_margin="@dimen/activity_horizontal_margin"
-                    android:layout_weight="2"
-                    style="@style/Button"
-                    android:text="@string/btn_message"/>
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:textSize="16sp"
+                    android:textColor="@color/textColorPrimary" />
 
                 <android.support.v4.widget.Space
                     android:layout_width="0dp"
-                    android:layout_height="16dp"/>
+                    android:layout_height="4dp" />
 
-                <include layout="@layout/horizontal_divider"/>
+                <TextView
+                    android:id="@+id/location"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:textSize="16sp"
+                    android:textColor="@color/textColorSecondary" />
+
+                <android.support.v4.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="20dp"/>
+
+                <include layout="@layout/horizontal_divider" />
+
+                <android.support.v4.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="14dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:weightSum="3">
+
+                    <LinearLayout
+                        android:id="@+id/message_contact_button"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center_horizontal"
+                            app:srcCompat="@drawable/ic_message"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="4dp"
+                            android:textSize="14sp"
+                            android:text="@string/message"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/favorite"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center_horizontal"
+                            app:srcCompat="@drawable/ic_star"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="4dp"
+                            android:textSize="14sp"
+                            android:text="@string/favorite"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/pay"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center_horizontal"
+                            app:srcCompat="@drawable/ic_money"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="4dp"
+                            android:textSize="14sp"
+                            android:text="@string/pay"/>
+
+                    </LinearLayout>
+                </LinearLayout>
+
+                <android.support.v4.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="12dp"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    android:background="@color/divider"/>
 
                 <android.support.v4.widget.Space
                     android:layout_width="0dp"
@@ -111,7 +221,7 @@
 
                 <android.support.v4.widget.Space
                     android:layout_width="0dp"
-                    android:layout_height="8dp" />
+                    android:layout_height="20dp" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -161,69 +271,6 @@
                         android:layout_marginRight="@dimen/activity_horizontal_margin"/>
 
                 </LinearLayout>
-
-                <android.support.v4.widget.Space
-                    android:layout_width="0dp"
-                    android:layout_height="20dp"/>
-
-                <include layout="@layout/horizontal_divider"/>
-
-                <android.support.v4.widget.Space
-                    android:layout_width="0dp"
-                    android:layout_height="20dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/profile_about"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:textColor="@color/textColorSecondary"/>
-
-                <android.support.v4.widget.Space
-                    android:layout_width="0dp"
-                    android:layout_height="8dp"/>
-
-                <TextView
-                    android:id="@+id/about"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    tools:text="Digital dingus @bakkenbaeck"
-                    android:textColor="@color/textColorPrimary"/>
-
-                <android.support.v4.widget.Space
-                    android:layout_width="0dp"
-                    android:layout_height="20dp"/>
-
-                <include layout="@layout/horizontal_divider"/>
-
-                <android.support.v4.widget.Space
-                    android:layout_width="0dp"
-                    android:layout_height="20dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:text="@string/profile_location"
-                    android:textColor="@color/textColorSecondary"/>
-
-                <android.support.v4.widget.Space
-                    android:layout_width="0dp"
-                    android:layout_height="8dp"/>
-
-                <TextView
-                    android:id="@+id/location"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    tools:text="Amsterdam, The Netherlands"
-                    android:textColor="@color/textColorPrimary"/>
-
-                <android.support.v4.widget.Space
-                    android:layout_width="0dp"
-                    android:layout_height="20dp"/>
-
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

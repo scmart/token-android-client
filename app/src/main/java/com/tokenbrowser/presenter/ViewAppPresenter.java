@@ -1,15 +1,14 @@
 package com.tokenbrowser.presenter;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.view.View;
 import android.widget.Toast;
 
-import com.tokenbrowser.model.network.App;
-import com.tokenbrowser.model.network.ReputationScore;
+import com.bumptech.glide.Glide;
 import com.tokenbrowser.R;
 import com.tokenbrowser.databinding.ActivityViewAppBinding;
-import com.tokenbrowser.util.ImageUtil;
+import com.tokenbrowser.model.network.App;
+import com.tokenbrowser.model.network.ReputationScore;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ChatActivity;
@@ -118,31 +117,16 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
         binding.title.setText(this.app.getCustom().getName());
         binding.name.setText(this.app.getCustom().getName());
         binding.username.setText(this.app.getCustom().getName());
-        generateQrCode(this.app.getTokenId());
-    }
-
-    private void generateQrCode(final String address) {
-        final Subscription sub = ImageUtil
-                .generateQrCodeForWalletAddress(address)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::renderQrCode);
-
-        this.subscriptions.add(sub);
-    }
-
-    private void renderQrCode(final Bitmap qrCodeBitmap) {
-        if (this.activity == null || this.activity.getBinding() == null) {
-            return;
-        }
-        this.activity.getBinding().qrCodeImage.setAlpha(0.0f);
-        this.activity.getBinding().qrCodeImage.setImageBitmap(qrCodeBitmap);
-        this.activity.getBinding().qrCodeImage.animate().alpha(1f).setDuration(200).start();
+        Glide.with(this.activity)
+                .load(this.app.getCustom().getAvatar())
+                .into(binding.avatar);
     }
 
     private void initClickListeners() {
         this.activity.getBinding().closeButton.setOnClickListener(this::handleClosedClicked);
         this.activity.getBinding().messageContactButton.setOnClickListener(this::handleOnMessageClicked);
+        this.activity.getBinding().favorite.setOnClickListener(v -> handleFavoriteClicked());
+        this.activity.getBinding().pay.setOnClickListener(v -> handlePayClicked());
     }
 
     private void handleClosedClicked(final View view) {
@@ -156,6 +140,14 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
         final Intent intent = new Intent(this.activity, ChatActivity.class);
         intent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, this.app.getTokenId());
         this.activity.startActivity(intent);
+    }
+
+    private void handleFavoriteClicked() {
+        Toast.makeText(this.activity, "Not implemented", Toast.LENGTH_SHORT).show();
+    }
+
+    private void handlePayClicked() {
+        Toast.makeText(this.activity, "Not implemented", Toast.LENGTH_SHORT).show();
     }
 
     @Override
