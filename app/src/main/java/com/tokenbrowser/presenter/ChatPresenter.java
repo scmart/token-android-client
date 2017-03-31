@@ -487,14 +487,12 @@ public final class ChatPresenter implements
                 .observeOn(Schedulers.io())
                 .subscribe(outgoingSofaMessage ->
                         BaseApplication
-                                .get()
-                                .getTokenManager()
-                                .getSofaMessageManager()
-                                .sendAndSaveMessage(this.remoteUser, outgoingSofaMessage)
+                        .get()
+                        .getTokenManager()
+                        .getSofaMessageManager()
+                        .sendAndSaveMessage(this.remoteUser, outgoingSofaMessage)
                 );
-
         this.subscriptions.add(this.outgoingMessagesSubscription);
-
         processExistingQueue();
     }
 
@@ -502,8 +500,10 @@ public final class ChatPresenter implements
         final Subscription subscription =
                 Observable
                 .from(this.messagesAwaitingProcessing)
-                .doOnCompleted(() -> this.messagesAwaitingProcessing.clear())
-                .subscribe(sofaMessage -> this.outgoingMessagesQueue.onNext(sofaMessage));
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .doOnCompleted(this.messagesAwaitingProcessing::clear)
+                .subscribe(this.outgoingMessagesQueue::onNext);
         this.subscriptions.add(subscription);
     }
 
