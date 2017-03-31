@@ -1,70 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+
+<com.google.android.flexbox.FlexboxLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/balanceWrapper"
+    app:flexDirection="row"
+    app:flexWrap="wrap"
+    app:justifyContent="flex_end"
+    app:alignItems="center"
+    app:showDividerHorizontal="end"
+    app:dividerDrawable="@drawable/decoration_linear_divider"
+
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/balance_bar__bg">
 
-    <LinearLayout
-        android:id="@+id/balanceWrapper"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin">
+    <android.support.v4.widget.Space
+        android:layout_width="@dimen/activity_horizontal_margin"
+        android:layout_height="0dp" />
 
-        <TextView
-            android:id="@+id/local_currency_balance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/subTitleSize"
-            android:textStyle="bold"
-            tools:text="$0.00 USD"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:gravity="center"
-            android:textColor="@color/textColorSecondary"
-            android:textSize="@dimen/balance_bar_text_size"
-            android:text="@string/bullet_point"/>
+    <TextView
+        android:id="@+id/local_currency_balance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/subTitleSize"
+        android:textStyle="bold"
+        tools:text="$0.00 USD"/>
 
-        <TextView
-            android:id="@+id/eth_balance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/textColorSecondary"
-            android:textSize="@dimen/balance_bar_text_size"
-            tools:text="0.0000"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:gravity="center"
+        android:textColor="@color/textColorSecondary"
+        android:textSize="@dimen/balance_bar_text_size"
+        android:text="@string/payment_seperator"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
-            android:textColor="@color/textColorSecondary"
-            android:textSize="@dimen/balance_bar_text_size"
-            android:text="@string/eth_currency_code"/>
+    <TextView
+        android:id="@+id/eth_balance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/textColorSecondary"
+        android:textSize="@dimen/balance_bar_text_size"
+        tools:text="0.0000"/>
 
-        <android.support.v4.widget.Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:textColor="@color/textColorSecondary"
+        android:textSize="@dimen/balance_bar_text_size"
+        android:text="@string/eth_currency_code"/>
 
-    </LinearLayout>
+    <android.support.v4.widget.Space
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_flexGrow="1"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:layout_gravity="right"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
 
         <Button
             android:id="@+id/request_button"
@@ -90,8 +89,11 @@
             android:visibility="gone"
             tools:visibility="visible"
             android:text="@string/button_pay"/>
+
     </LinearLayout>
 
-    <include layout="@layout/horizontal_divider"/>
+    <android.support.v4.widget.Space
+        android:layout_width="@dimen/activity_horizontal_margin"
+        android:layout_height="0dp" />
 
-</LinearLayout>
+</com.google.android.flexbox.FlexboxLayout>
