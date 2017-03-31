@@ -5,9 +5,10 @@
     <string name="dollar">$</string>
     <string name="tab_1">Home</string>
     <string name="tab_2">Apps</string>
-    <string name="tab_4">Contacts</string>
+    <string name="tab_4">Favorites</string>
     <string name="tab_5">Settings</string>
-    <string name="message">Message…</string>
+    <string name="send_message">Message…</string>
+    <string name="message">Message</string>
     <string name="chat__empty_state">There are no messages, yet!</string>
     <string name="add_contact">Add Contact</string>
     <string name="remove_contact">Added</string>
@@ -148,4 +149,5 @@
     <string name="create_new_account">Create new account</string>
     <string name="unable_to_restore_wallet">Unable to restore wallet</string>
     <string name="sign_in_length_error_message">Please insert 12 words</string>
+    <string name="favorite">Favorite</string>
 </resources>

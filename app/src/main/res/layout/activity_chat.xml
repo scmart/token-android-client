@@ -155,7 +155,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
-                android:hint="@string/message"
+                android:hint="@string/send_message"
                 android:imeOptions="actionSend"
                 android:inputType="text|textAutoCorrect"
                 android:maxLength="1500"

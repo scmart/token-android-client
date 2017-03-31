@@ -10,8 +10,8 @@
         <item name="android:textColorHint">@color/textColorHint</item>
 
         <item name="android:buttonStyleToggle">@style/ToggleButton</item>
-        <item name="colorControlActivated">@color/divider_amount</item>
-        <item name="colorControlNormal">@color/divider_amount</item>
+        <item name="colorControlActivated">@color/divider</item>
+        <item name="colorControlNormal">@color/divider</item>
     </style>
 
     <style name="FullScreenTheme" parent="AppTheme">

@@ -1,19 +1,14 @@
 package com.tokenbrowser.presenter;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v7.content.res.AppCompatResources;
 import android.view.View;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
-import com.tokenbrowser.model.local.User;
-import com.tokenbrowser.model.network.ReputationScore;
+import com.bumptech.glide.Glide;
 import com.tokenbrowser.R;
 import com.tokenbrowser.databinding.ActivityScanResultBinding;
-import com.tokenbrowser.util.ImageUtil;
+import com.tokenbrowser.model.local.User;
+import com.tokenbrowser.model.network.ReputationScore;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.util.SoundManager;
@@ -24,7 +19,6 @@ import com.tokenbrowser.view.activity.ViewUserActivity;
 import rx.Single;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
@@ -48,25 +42,6 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         this.subscriptions = new CompositeSubscription();
     }
 
-    private void generateQrCode(final String address) {
-        final Subscription sub = ImageUtil
-                .generateQrCodeForWalletAddress(address)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::renderQrCode);
-
-        this.subscriptions.add(sub);
-    }
-
-    private void renderQrCode(final Bitmap qrCodeBitmap) {
-        if (this.activity == null || this.activity.getBinding() == null) {
-            return;
-        }
-        this.activity.getBinding().qrCodeImage.setAlpha(0.0f);
-        this.activity.getBinding().qrCodeImage.setImageBitmap(qrCodeBitmap);
-        this.activity.getBinding().qrCodeImage.animate().alpha(1f).setDuration(200).start();
-    }
-
     private void initShortLivingObjects() {
         this.activity.getBinding().closeButton.setOnClickListener((View v) -> this.activity.onBackPressed());
         parseIntentData();
@@ -77,7 +52,6 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         final String userAddress = intent.getStringExtra(ViewUserActivity.EXTRA__USER_ADDRESS);
         loadOrFetchUser(userAddress);
         fetchUserReputation(userAddress);
-        generateQrCode(userAddress);
     }
 
     private void loadOrFetchUser(final String userAddress) {
@@ -134,28 +108,27 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         binding.username.setText(scannedUser.getUsername());
         binding.about.setText(scannedUser.getAbout());
         binding.location.setText(scannedUser.getLocation());
-        binding.addContactButton.setOnClickListener(handleOnAddContact);
-        binding.addContactButton.setEnabled(true);
-        binding.messageContactButton.setOnClickListener(this::handleMessageContactButton);
+        Glide.with(this.activity)
+                .load(scannedUser.getAvatar())
+                .into(binding.avatar);
+        addClickListeners();
         updateAddContactState();
     }
 
+    private void addClickListeners() {
+        this.activity.getBinding().favorite.setOnClickListener(this.handleOnAddContact);
+        this.activity.getBinding().favorite.setEnabled(true);
+        this.activity.getBinding().messageContactButton.setOnClickListener(this::handleMessageContactButton);
+        this.activity.getBinding().pay.setOnClickListener(v -> handlePayClicked());
+    }
+
     private void updateAddContactState() {
-        final Subscription sub = isAContact(this.scannedUser).subscribe(this::updateAddContactState);
+        final Subscription sub = isAContact(this.scannedUser)
+                .subscribe(this::updateAddContactState);
         this.subscriptions.add(sub);
     }
 
-    private void updateAddContactState(final boolean isAContact) {
-        final ToggleButton addContactButton = this.activity.getBinding().addContactButton;
-        addContactButton.setChecked(isAContact);
-        addContactButton.setSoundEffectsEnabled(isAContact);
-
-        final Drawable checkMark = AppCompatResources.getDrawable(this.activity, R.drawable.ic_done);
-        if (checkMark != null) {
-            DrawableCompat.setTint(checkMark, this.activity.getResources().getColor(R.color.colorPrimary));
-            addContactButton.setCompoundDrawablesWithIntrinsicBounds(isAContact ? checkMark : null, null, null, null);
-        }
-    }
+    private void updateAddContactState(final boolean isAContact) {}
 
     private final OnSingleClickListener handleOnAddContact = new OnSingleClickListener() {
         @Override
@@ -205,6 +178,10 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         intent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, this.scannedUser.getTokenId());
         this.activity.startActivity(intent);
         this.activity.finish();
+    }
+
+    private void handlePayClicked() {
+        Toast.makeText(this.activity, "Not implemented", Toast.LENGTH_SHORT).show();
     }
 
     @Override
