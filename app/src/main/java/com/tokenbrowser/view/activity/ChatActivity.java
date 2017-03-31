@@ -8,7 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.tokenbrowser.model.local.ActivityResultHolder;
-import com.tokenbrowser.presenter.ChatPresenter;
+import com.tokenbrowser.presenter.chat.ChatPresenter;
 import com.tokenbrowser.presenter.factory.ChatPresenterFactory;
 import com.tokenbrowser.presenter.factory.PresenterFactory;
 import com.tokenbrowser.R;

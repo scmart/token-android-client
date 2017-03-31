@@ -1,6 +1,6 @@
 package com.tokenbrowser.presenter.factory;
 
-import com.tokenbrowser.presenter.ChatPresenter;
+import com.tokenbrowser.presenter.chat.ChatPresenter;
 
 public final class ChatPresenterFactory implements PresenterFactory<ChatPresenter> {
 
