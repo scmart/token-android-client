@@ -40,7 +40,6 @@ import java.util.Locale;
 import java.util.concurrent.TimeoutException;
 
 import rx.Single;
-import rx.schedulers.Schedulers;
 
 public class GcmMessageReceiver extends GcmListenerService {
 
@@ -97,34 +96,28 @@ public class GcmMessageReceiver extends GcmListenerService {
     }
 
     private void handlePayment(final Payment payment) {
-       isValidPayment(payment)
-       .subscribe(
-               this::handleValidPayment,
-               this::handleInvalidPayment
-       );
+        payment.getPaymentDirection()
+               .subscribe(
+                   (paymentDirection) -> this.handleValidPayment(payment, paymentDirection),
+                   this::handleInvalidPayment
+               );
     }
 
-    private Single<Payment> isValidPayment(final Payment payment) {
-        return BaseApplication
-                .get()
-                .getTokenManager()
-                .getWallet()
-                .toObservable()
-                .first(hdWallet -> isValidPayment(payment, hdWallet))
-                .map(__ ->  payment)
-                .toSingle()
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io());
-    }
-
-    private boolean isValidPayment(final Payment payment, final HDWallet hdWallet) {
-        return payment.getToAddress().equals(hdWallet.getPaymentAddress());
-    }
-
-    private void handleValidPayment(final Payment payment) {
-        updatePayment(payment);
-        refreshBalance();
-        showPaymentNotification(payment);
+    private void handleValidPayment(final Payment payment, final @Payment.PaymentDirection Integer paymentDirection) {
+        switch (paymentDirection) {
+            case Payment.FROM_LOCAL_USER:
+                updatePayment(payment);
+                refreshBalance();
+                return;
+            case Payment.TO_LOCAL_USER:
+                updatePayment(payment);
+                refreshBalance();
+                showPaymentNotification(payment);
+                return;
+            default:
+            case Payment.NOT_RELEVANT:
+                handleInvalidPayment(new IllegalArgumentException("Not handling transaction that doesn't involve local user"));
+        }
     }
 
     private void handleInvalidPayment(final Throwable throwable) {
