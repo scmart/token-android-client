@@ -29,5 +29,6 @@
 
     <color name="icon_color">#66000000</color>
     <color name="profile_icon_color">#79797C</color>
+    <color name="profile_icon_text_color">#67676A</color>
     <color name="border_color">#C7CBCE</color>
 </resources>
