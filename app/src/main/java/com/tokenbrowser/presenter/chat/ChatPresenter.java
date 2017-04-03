@@ -474,6 +474,7 @@ public final class ChatPresenter implements
     private void handleUserLoaded(final User user) {
         this.remoteUser = user;
         if (this.remoteUser != null) {
+            if (shouldPlayScanSounds()) SoundManager.getInstance().playSound(SoundManager.FOUND_USER);
             processIntentData();
         }
     }
@@ -481,8 +482,15 @@ public final class ChatPresenter implements
     private void handleUserFetchFailed(final Throwable throwable) {
         Toast.makeText(BaseApplication.get(), R.string.error__app_loading, Toast.LENGTH_LONG).show();
         if (this.activity != null) {
+            if (shouldPlayScanSounds()) SoundManager.getInstance().playSound(SoundManager.SCAN_ERROR);
             this.activity.finish();
         }
+    }
+
+    private boolean shouldPlayScanSounds() {
+        return this.activity != null
+            && this.activity.getIntent() != null
+            && this.activity.getIntent().getBooleanExtra(ChatActivity.EXTRA__PLAY_SCAN_SOUNDS, false);
     }
 
     private void updateUiFromRemoteUser() {

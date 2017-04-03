@@ -87,7 +87,7 @@ public final class ScannerPresenter implements
     private final BarcodeCallback onScanSuccess = new BarcodeCallback() {
         @Override
         public void barcodeResult(final BarcodeResult result) {
-            SoundManager.getInstance().playSound(SoundManager.SCAN_RESULT);
+            SoundManager.getInstance().playSound(SoundManager.SCAN);
             // Right now, this assumes that the QR code is a contacts address
             // so it is currently very naive
             final ScanResult scanResult = new ScanResult(result);
@@ -104,21 +104,17 @@ public final class ScannerPresenter implements
                     webLoginWithToken(token);
                 } else {
                     final Intent intent = new Intent(activity, ViewUserActivity.class);
-                    intent.putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, scanResult.getText());
+                    intent
+                            .putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, scanResult.getText())
+                            .putExtra(ViewUserActivity.EXTRA__PLAY_SCAN_SOUNDS, true);
                     activity.startActivity(intent);
+                    activity.finish();
                 }
             }
         }
 
         @Override
-        public void possibleResultPoints(final List<ResultPoint> resultPoints) {
-            // 3 == the three eyes of a QR code; it means we only play this sound when
-            // we're close to looking at a QR code but haven't read it yet.
-            final int minimumPointsRequiredToPlaySound = 3;
-            if (resultPoints.size() >= minimumPointsRequiredToPlaySound) {
-                SoundManager.getInstance().playSound(SoundManager.SCAN);
-            }
-        }
+        public void possibleResultPoints(final List<ResultPoint> resultPoints) {}
     };
 
     private void showConfirmationDialog(final ScanResult scanResult) {
@@ -133,7 +129,8 @@ public final class ScannerPresenter implements
         final Intent intent = new Intent(activity, ChatActivity.class)
                 .putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, userAddress)
                 .putExtra(ChatActivity.EXTRA__PAYMENT_ACTION, this.paymentType)
-                .putExtra(ChatActivity.EXTRA__ETH_AMOUNT, this.encodedEthAmount);
+                .putExtra(ChatActivity.EXTRA__ETH_AMOUNT, this.encodedEthAmount)
+                .putExtra(ChatActivity.EXTRA__PLAY_SCAN_SOUNDS, true);
 
         this.activity.startActivity(intent);
         this.activity.finish();
