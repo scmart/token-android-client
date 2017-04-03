@@ -138,10 +138,10 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     private void updateAddContactState(final boolean isAContact) {
         if (isAContact) {
             this.activity.getBinding().favoriteImage.setImageResource(R.drawable.ic_clicked_star);
-            this.activity.getBinding().favoriteText.setTextColor(ContextCompat.getColor(this.activity,R.color.colorPrimary));
+            this.activity.getBinding().favoriteText.setTextColor(ContextCompat.getColor(this.activity, R.color.colorPrimary));
         } else {
             this.activity.getBinding().favoriteImage.setImageResource(R.drawable.ic_star);
-            this.activity.getBinding().favoriteText.setTextColor(ContextCompat.getColor(this.activity,R.color.textColorPrimary));
+            this.activity.getBinding().favoriteText.setTextColor(ContextCompat.getColor(this.activity, R.color.profile_icon_text_color));
         }
     }
 

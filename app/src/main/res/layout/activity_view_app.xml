@@ -98,7 +98,7 @@
 
                 <android.support.v4.widget.Space
                     android:layout_width="0dp"
-                    android:layout_height="4dp" />
+                    android:layout_height="6dp" />
 
                 <TextView
                     android:id="@+id/location"
@@ -112,13 +112,18 @@
 
                 <android.support.v4.widget.Space
                     android:layout_width="0dp"
-                    android:layout_height="20dp"/>
+                    android:layout_height="24dp"/>
 
-                <include layout="@layout/horizontal_divider" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:background="@color/divider"/>
 
                 <android.support.v4.widget.Space
                     android:layout_width="0dp"
-                    android:layout_height="14dp" />
+                    android:layout_height="20dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -141,12 +146,16 @@
                             android:layout_gravity="center_horizontal"
                             app:srcCompat="@drawable/ic_message"/>
 
+                        <android.support.v4.widget.Space
+                            android:layout_width="0dp"
+                            android:layout_height="7dp" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
-                            android:layout_marginTop="4dp"
                             android:textSize="14sp"
+                            android:textColor="@color/profile_icon_text_color"
                             android:text="@string/message"/>
 
                     </LinearLayout>
@@ -164,12 +173,16 @@
                             android:layout_gravity="center_horizontal"
                             app:srcCompat="@drawable/ic_star"/>
 
+                        <android.support.v4.widget.Space
+                            android:layout_width="0dp"
+                            android:layout_height="7dp" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
-                            android:layout_marginTop="4dp"
                             android:textSize="14sp"
+                            android:textColor="@color/profile_icon_text_color"
                             android:text="@string/favorite"/>
 
                     </LinearLayout>
@@ -187,12 +200,16 @@
                             android:layout_gravity="center_horizontal"
                             app:srcCompat="@drawable/ic_money"/>
 
+                        <android.support.v4.widget.Space
+                            android:layout_width="0dp"
+                            android:layout_height="7dp" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
-                            android:layout_marginTop="4dp"
                             android:textSize="14sp"
+                            android:textColor="@color/profile_icon_text_color"
                             android:text="@string/pay"/>
 
                     </LinearLayout>
@@ -200,7 +217,7 @@
 
                 <android.support.v4.widget.Space
                     android:layout_width="0dp"
-                    android:layout_height="12dp"/>
+                    android:layout_height="16dp"/>
 
                 <View
                     android:layout_width="match_parent"
