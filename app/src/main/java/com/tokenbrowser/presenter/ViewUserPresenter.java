@@ -2,8 +2,12 @@ package com.tokenbrowser.presenter;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.ColorInt;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.content.res.AppCompatResources;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -144,13 +148,18 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     }
 
     private void updateAddContactState(final boolean isAContact) {
-        if (isAContact) {
-            this.activity.getBinding().favoriteImage.setImageResource(R.drawable.ic_clicked_star);
-            this.activity.getBinding().favoriteText.setTextColor(ContextCompat.getColor(this.activity, R.color.colorPrimary));
-        } else {
-            this.activity.getBinding().favoriteImage.setImageResource(R.drawable.ic_star);
-            this.activity.getBinding().favoriteText.setTextColor(ContextCompat.getColor(this.activity, R.color.profile_icon_text_color));
-        }
+        final Button addContactButton = this.activity.getBinding().favorite;
+        addContactButton.setSoundEffectsEnabled(isAContact);
+
+        final Drawable checkMark = isAContact
+                ? AppCompatResources.getDrawable(this.activity, R.drawable.ic_star_selected)
+                : AppCompatResources.getDrawable(this.activity, R.drawable.ic_star_unselected);
+        addContactButton.setCompoundDrawablesWithIntrinsicBounds(null, checkMark, null, null);
+
+        final @ColorInt int color = isAContact
+                ? ContextCompat.getColor(this.activity, R.color.colorPrimary)
+                : ContextCompat.getColor(this.activity, R.color.profile_icon_text_color);
+        addContactButton.setTextColor(color);
     }
 
     private final OnSingleClickListener handleOnAddContact = new OnSingleClickListener() {
