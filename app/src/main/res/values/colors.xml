@@ -28,5 +28,6 @@
     <color name="fullscreen_dark_background">#000000</color>
 
     <color name="icon_color">#66000000</color>
+    <color name="profile_icon_color">#79797C</color>
     <color name="border_color">#C7CBCE</color>
 </resources>
