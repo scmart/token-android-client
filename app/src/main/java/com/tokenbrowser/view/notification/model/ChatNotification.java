@@ -83,7 +83,7 @@ public class ChatNotification {
                 .addParentStack(MainActivity.class)
                 .addNextIntent(mainIntent)
                 .addNextIntent(chatIntent)
-                .getPendingIntent(0, PendingIntent.FLAG_ONE_SHOT);
+                .getPendingIntent(getTitle().hashCode(), PendingIntent.FLAG_ONE_SHOT);
     }
 
     public PendingIntent getDeleteIntent() {
