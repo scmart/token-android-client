@@ -1,6 +1,7 @@
 package com.tokenbrowser.presenter;
 
 import android.content.Intent;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.Toast;
 
@@ -128,7 +129,15 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         this.subscriptions.add(sub);
     }
 
-    private void updateAddContactState(final boolean isAContact) {}
+    private void updateAddContactState(final boolean isAContact) {
+        if (isAContact) {
+            this.activity.getBinding().favoriteImage.setImageResource(R.drawable.ic_clicked_star);
+            this.activity.getBinding().favoriteText.setTextColor(ContextCompat.getColor(this.activity,R.color.colorPrimary));
+        } else {
+            this.activity.getBinding().favoriteImage.setImageResource(R.drawable.ic_star);
+            this.activity.getBinding().favoriteText.setTextColor(ContextCompat.getColor(this.activity,R.color.textColorPrimary));
+        }
+    }
 
     private final OnSingleClickListener handleOnAddContact = new OnSingleClickListener() {
         @Override
