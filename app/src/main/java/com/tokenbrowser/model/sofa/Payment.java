@@ -1,8 +1,11 @@
 package com.tokenbrowser.model.sofa;
 
+import android.support.annotation.IntDef;
+
 import com.squareup.moshi.Json;
-import com.tokenbrowser.crypto.util.TypeConverter;
 import com.tokenbrowser.R;
+import com.tokenbrowser.crypto.HDWallet;
+import com.tokenbrowser.crypto.util.TypeConverter;
 import com.tokenbrowser.util.EthUtil;
 import com.tokenbrowser.util.LocaleUtil;
 import com.tokenbrowser.view.BaseApplication;
@@ -11,6 +14,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import rx.Single;
+import rx.schedulers.Schedulers;
 
 public class Payment {
 
@@ -19,6 +23,16 @@ public class Payment {
     private String fromAddress;
     private String txHash;
     private String status;
+
+    @IntDef({
+            NOT_RELEVANT,
+            TO_LOCAL_USER,
+            FROM_LOCAL_USER,
+    })
+    public @interface PaymentDirection {}
+    public static final int NOT_RELEVANT = 0;
+    public static final int TO_LOCAL_USER = 1;
+    public static final int FROM_LOCAL_USER = 2;
 
     @Json(name = SofaType.LOCAL_ONLY_PAYLOAD)
     private ClientSideCustomData androidClientSideCustomData;
@@ -108,6 +122,31 @@ public class Payment {
                 BaseApplication.get().getResources().getString(stringId),
                 getLocalPrice());
     }
+
+    public Single<Integer> getPaymentDirection() {
+        return BaseApplication
+                .get()
+                .getTokenManager()
+                .getWallet()
+                .toObservable()
+                .map(this::getPaymentDirection)
+                .toSingle()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io());
+    }
+
+    private @PaymentDirection int getPaymentDirection(final HDWallet hdWallet) {
+        if (toAddress.equals(hdWallet.getPaymentAddress())) {
+            return TO_LOCAL_USER;
+        }
+
+        if (fromAddress.equals(hdWallet.getPaymentAddress())) {
+            return FROM_LOCAL_USER;
+        }
+
+        return NOT_RELEVANT;
+    }
+
 
     private static class ClientSideCustomData {
         private String localPrice;
