@@ -1,11 +1,13 @@
 package com.tokenbrowser.view.activity;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 import com.tokenbrowser.R;
 import com.tokenbrowser.databinding.ActivityViewAppBinding;
+import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.presenter.ViewAppPresenter;
 import com.tokenbrowser.presenter.factory.PresenterFactory;
 import com.tokenbrowser.presenter.factory.ViewAppPresenterFactory;
@@ -15,6 +17,8 @@ public class ViewAppActivity extends BasePresenterActivity<ViewAppPresenter, Vie
     public static final String APP_OWNER_ADDRESS = "app_owner_address";
 
     private ActivityViewAppBinding binding;
+    private ViewAppPresenter presenter;
+    private ActivityResultHolder resultHolder;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -24,6 +28,12 @@ public class ViewAppActivity extends BasePresenterActivity<ViewAppPresenter, Vie
 
     private void init() {
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_view_app);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        tryProcessResultHolder();
     }
 
     public ActivityViewAppBinding getBinding() {
@@ -39,7 +49,20 @@ public class ViewAppActivity extends BasePresenterActivity<ViewAppPresenter, Vie
 
     @Override
     protected void onPresenterPrepared(@NonNull final ViewAppPresenter presenter) {
+        this.presenter = presenter;
+    }
 
+    @Override
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        this.resultHolder = new ActivityResultHolder(requestCode, resultCode, data);
+        tryProcessResultHolder();
+    }
+
+    private void tryProcessResultHolder() {
+        if (this.presenter == null || this.resultHolder == null) return;
+        if (this.presenter.handleActivityResult(this.resultHolder)) {
+            this.resultHolder = null;
+        }
     }
 
     @Override

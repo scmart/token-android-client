@@ -1,5 +1,6 @@
 package com.tokenbrowser.presenter;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
 import android.widget.Toast;
@@ -7,12 +8,15 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.tokenbrowser.R;
 import com.tokenbrowser.databinding.ActivityScanResultBinding;
+import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.network.ReputationScore;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
+import com.tokenbrowser.util.PaymentType;
 import com.tokenbrowser.util.SoundManager;
 import com.tokenbrowser.view.BaseApplication;
+import com.tokenbrowser.view.activity.AmountActivity;
 import com.tokenbrowser.view.activity.ChatActivity;
 import com.tokenbrowser.view.activity.ViewUserActivity;
 
@@ -22,6 +26,8 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
 public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
+
+    private static final int ETH_PAY_CODE = 2;
 
     private boolean firstTimeAttached = true;
     private CompositeSubscription subscriptions;
@@ -181,7 +187,30 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     }
 
     private void handlePayClicked() {
-        Toast.makeText(this.activity, "Not implemented", Toast.LENGTH_SHORT).show();
+        final Intent intent = new Intent(this.activity, AmountActivity.class)
+                .putExtra(AmountActivity.VIEW_TYPE, PaymentType.TYPE_SEND);
+        this.activity.startActivityForResult(intent, ETH_PAY_CODE);
+    }
+
+    public boolean handleActivityResult(final ActivityResultHolder resultHolder) {
+        if (resultHolder.getResultCode() != Activity.RESULT_OK || this.activity == null) return false;
+
+        final int requestCode = resultHolder.getRequestCode();
+        if (requestCode == ETH_PAY_CODE) {
+            goToChatActivityFromPay(resultHolder.getIntent());
+        }
+
+        return true;
+    }
+
+    private void goToChatActivityFromPay(final Intent payResultIntent) {
+        final String ethAmount = payResultIntent.getStringExtra(AmountPresenter.INTENT_EXTRA__ETH_AMOUNT);
+        final Intent intent = new Intent(this.activity, ChatActivity.class)
+                .putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, this.scannedUser.getTokenId())
+                .putExtra(ChatActivity.EXTRA__ETH_AMOUNT, ethAmount)
+                .putExtra(ChatActivity.EXTRA__PAYMENT_ACTION, PaymentType.TYPE_SEND);
+        this.activity.startActivity(intent);
+        this.activity.finish();
     }
 
     @Override
