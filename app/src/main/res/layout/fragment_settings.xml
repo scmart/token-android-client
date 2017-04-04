@@ -4,240 +4,267 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@color/windowBackground">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <android.support.v7.widget.GridLayout
-            android:id="@+id/my_profile_card"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:columnCount="6" >
+            android:layout_height="?attr/actionBarSize"
+            android:gravity="center_vertical"
+            android:focusableInTouchMode="true"
+            style="@style/ToolbarTheme">
 
-            <!-- Row 1 -->
-            <android.support.v4.widget.Space
-                android:layout_width="@dimen/activity_horizontal_margin"
-                android:layout_height="wrap_content"
-                app:layout_rowSpan="6"/>
-
-            <android.support.v4.widget.Space
-                android:layout_width="0dp"
-                android:layout_height="20dp"
-                app:layout_columnSpan="4"/>
-
-            <android.support.v4.widget.Space
-                android:layout_width="@dimen/activity_horizontal_margin"
-                android:layout_height="wrap_content"
-                app:layout_rowSpan="6"/>
-
-            <!-- Row 2 -->
             <TextView
+                android:id="@+id/title"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="@string/my_profile"
-                android:textColor="@color/textColorSecondary"
-                app:layout_columnSpan="4"/>
-
-            <!-- Row 3 -->
-            <android.support.v4.widget.Space
-                android:layout_width="0dp"
-                android:layout_height="20dp"
-                app:layout_columnSpan="4"/>
-
-            <!-- Row 4 -->
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/avatar"
-                android:layout_width="@dimen/avatar_size_small"
-                android:layout_height="@dimen/avatar_size_small"
-                tools:src="@mipmap/ic_launcher"
-                android:layout_marginRight="@dimen/activity_horizontal_margin"
-                app:layout_rowSpan="2"/>
-
-            <TextView
-                android:id="@+id/name"
-                android:textColor="@color/textColorPrimary"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="Damn Daniel!"/>
+                style="@style/Toolbar.TitleText"
+                android:text="@string/tab_5"/>
 
-            <android.support.v4.widget.Space
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_columnWeight="1"/>
+        </android.support.v7.widget.Toolbar>
 
-            <com.tokenbrowser.view.custom.StarRatingView
-                android:id="@+id/rating_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-            <!-- Row 5 -->
-            <TextView
-                android:id="@+id/username"
-                android:textColor="@color/textColorSecondary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="\@username"/>
-
-            <android.support.v4.widget.Space
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_columnWeight="1"/>
-
-            <TextView
-                android:id="@+id/number_of_ratings"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_gravity="right"
-                android:textSize="14sp"
-                android:textColor="@color/textColorSecondary"
-                tools:text="(44)"/>
-
-            <!-- Row 6 -->
-            <android.support.v4.widget.Space
-                android:layout_width="0dp"
-                android:layout_height="20dp"
-                app:layout_columnSpan="4"/>
-
-        </android.support.v7.widget.GridLayout>
-
-        <View
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="10dp"
-            android:background="@color/windowBackgroundContrast"/>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="@dimen/activity_horizontal_margin"
-            android:layout_marginBottom="12dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:textSize="14sp"
-                android:textColor="@color/colorPrimary"
-                android:text="@string/security" />
+            android:layout_height="match_parent">
 
             <LinearLayout
-                android:id="@+id/security_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_gravity="right"
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_error"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:textColor="@color/error_color"
-                    android:text="@string/your_account_is_at_risk" />
-
-            </LinearLayout>
-
-        </FrameLayout>
-
-        <LinearLayout
-            android:id="@+id/backup_phrase"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:orientation="horizontal"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:gravity="center_vertical">
-
-            <CheckBox
-                android:id="@+id/checkbox_backup_phrase"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:clickable="false"
-                android:button="@drawable/checkbox"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="30dp"
-                android:textSize="16sp"
-                android:textColor="@color/textColorPrimary"
-                android:text="@string/store_backup_phrase"/>
-
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:background="@color/divider" />
-
-        <LinearLayout
-            android:id="@+id/trusted_friends"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:orientation="horizontal"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:gravity="center_vertical">
-
-            <CheckBox
-                android:id="@+id/checkbox_trusted_friends"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:clickable="false"
-                android:button="@drawable/checkbox"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="30dp"
-                android:textSize="16sp"
-                android:textColor="@color/textColorPrimary"
-                android:text="@string/choose_trusted_friends"/>
-
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="10dp"
-            android:background="@color/windowBackgroundContrast"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/activity_horizontal_margin"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/textColorSecondary"
-                android:text="@string/settings"/>
-
-            <android.support.v4.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/windowBackground">
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/settings"
+                <android.support.v7.widget.GridLayout
+                    android:id="@+id/my_profile_card"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    app:columnCount="6" >
 
-            </android.support.v4.widget.NestedScrollView>
-        </LinearLayout>
+                    <!-- Row 1 -->
+                    <android.support.v4.widget.Space
+                        android:layout_width="@dimen/activity_horizontal_margin"
+                        android:layout_height="wrap_content"
+                        app:layout_rowSpan="6"/>
+
+                    <android.support.v4.widget.Space
+                        android:layout_width="0dp"
+                        android:layout_height="20dp"
+                        app:layout_columnSpan="4"/>
+
+                    <android.support.v4.widget.Space
+                        android:layout_width="@dimen/activity_horizontal_margin"
+                        android:layout_height="wrap_content"
+                        app:layout_rowSpan="6"/>
+
+                    <!-- Row 2 -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="@string/my_profile"
+                        android:textColor="@color/textColorSecondary"
+                        app:layout_columnSpan="4"/>
+
+                    <!-- Row 3 -->
+                    <android.support.v4.widget.Space
+                        android:layout_width="0dp"
+                        android:layout_height="20dp"
+                        app:layout_columnSpan="4"/>
+
+                    <!-- Row 4 -->
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/avatar"
+                        android:layout_width="@dimen/avatar_size_small"
+                        android:layout_height="@dimen/avatar_size_small"
+                        tools:src="@mipmap/ic_launcher"
+                        android:layout_marginRight="@dimen/activity_horizontal_margin"
+                        app:layout_rowSpan="2"/>
+
+                    <TextView
+                        android:id="@+id/name"
+                        android:textColor="@color/textColorPrimary"
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="Damn Daniel!"/>
+
+                    <android.support.v4.widget.Space
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:layout_columnWeight="1"/>
+
+                    <com.tokenbrowser.view.custom.StarRatingView
+                        android:id="@+id/rating_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <!-- Row 5 -->
+                    <TextView
+                        android:id="@+id/username"
+                        android:textColor="@color/textColorSecondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="\@username"/>
+
+                    <android.support.v4.widget.Space
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:layout_columnWeight="1"/>
+
+                    <TextView
+                        android:id="@+id/number_of_ratings"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_gravity="right"
+                        android:textSize="14sp"
+                        android:textColor="@color/textColorSecondary"
+                        tools:text="(44)"/>
+
+                    <!-- Row 6 -->
+                    <android.support.v4.widget.Space
+                        android:layout_width="0dp"
+                        android:layout_height="20dp"
+                        app:layout_columnSpan="4"/>
+
+                </android.support.v7.widget.GridLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    android:background="@color/windowBackgroundContrast"/>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:textSize="14sp"
+                        android:textColor="@color/colorPrimary"
+                        android:text="@string/security" />
+
+                    <LinearLayout
+                        android:id="@+id/security_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_gravity="right"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:srcCompat="@drawable/ic_error"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="8dp"
+                            android:textColor="@color/error_color"
+                            android:text="@string/your_account_is_at_risk" />
+
+                    </LinearLayout>
+
+                </FrameLayout>
+
+                <LinearLayout
+                    android:id="@+id/backup_phrase"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:orientation="horizontal"
+                    android:paddingLeft="@dimen/activity_horizontal_margin"
+                    android:paddingRight="@dimen/activity_horizontal_margin"
+                    android:gravity="center_vertical">
+
+                    <CheckBox
+                        android:id="@+id/checkbox_backup_phrase"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:clickable="false"
+                        android:button="@drawable/checkbox"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="30dp"
+                        android:textSize="16sp"
+                        android:textColor="@color/textColorPrimary"
+                        android:text="@string/store_backup_phrase"/>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:background="@color/divider" />
+
+                <LinearLayout
+                    android:id="@+id/trusted_friends"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:orientation="horizontal"
+                    android:paddingLeft="@dimen/activity_horizontal_margin"
+                    android:paddingRight="@dimen/activity_horizontal_margin"
+                    android:gravity="center_vertical">
+
+                    <CheckBox
+                        android:id="@+id/checkbox_trusted_friends"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:clickable="false"
+                        android:button="@drawable/checkbox"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="30dp"
+                        android:textSize="16sp"
+                        android:textColor="@color/textColorPrimary"
+                        android:text="@string/choose_trusted_friends"/>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    android:background="@color/windowBackgroundContrast"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/activity_horizontal_margin"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/textColorSecondary"
+                        android:text="@string/settings"/>
+
+                    <android.support.v4.widget.NestedScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/settings"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </android.support.v4.widget.NestedScrollView>
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
     </LinearLayout>
-    </ScrollView>
+
 </layout>
