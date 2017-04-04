@@ -101,6 +101,7 @@ public final class ChatPresenter implements
     private int lastVisibleMessagePosition;
     private Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> chatObservables;
     private OutgoingMessageQueue outgoingMessageQueue;
+    private PendingTransactionsObservable pendingTransactionsObservable;
     private String captureImageFilename;
 
     @Override
@@ -117,6 +118,7 @@ public final class ChatPresenter implements
     private void initLongLivingObjects() {
         this.subscriptions = new CompositeSubscription();
         this.outgoingMessageQueue = new OutgoingMessageQueue();
+        this.pendingTransactionsObservable = new PendingTransactionsObservable();
         initMessageAdapter();
     }
 
@@ -198,17 +200,6 @@ public final class ChatPresenter implements
                 .subscribe(wallet -> this.userWallet = wallet);
 
         this.subscriptions.add(walletSub);
-
-        final Subscription pendingTransactionSub = BaseApplication
-                .get()
-                .getTokenManager()
-                .getTransactionManager()
-                .getPendingTransactionObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(pendingTransaction -> handleUpdatedMessage(pendingTransaction.getSofaMessage()));
-
-        this.subscriptions.add(pendingTransactionSub);
 
         this.activity.getBinding().userInput.setOnEditorActionListener((v, actionId, event) -> {
             if (event != null && event.getAction() != KeyEvent.ACTION_DOWN) {
@@ -455,6 +446,18 @@ public final class ChatPresenter implements
         updateUiFromRemoteUser();
         processPaymentFromIntent();
         this.outgoingMessageQueue.init(this.remoteUser);
+        initPendingTransactionsObservable(this.remoteUser);
+    }
+
+    private void initPendingTransactionsObservable(final User user) {
+        final Subscription subscription =
+                this.pendingTransactionsObservable
+                    .init(user)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(pendingTransaction -> handleUpdatedMessage(pendingTransaction.getSofaMessage()));
+
+        this.subscriptions.add(subscription);
     }
 
     private void fetchUserFromAddress(final String remoteUserAddress) {
