@@ -34,6 +34,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     private CompositeSubscription subscriptions;
     private ViewUserActivity activity;
     private User scannedUser;
+    private String userAddress;
 
     @Override
     public void onViewAttached(final ViewUserActivity activity) {
@@ -50,39 +51,54 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     }
 
     private void initShortLivingObjects() {
+        initClickListeners();
+        processIntentData();
+        loadUser();
+        fetchUserReputation();
+        initClickListeners();
+    }
+
+    private void initClickListeners() {
         this.activity.getBinding().closeButton.setOnClickListener((View v) -> this.activity.onBackPressed());
-        parseIntentData();
     }
 
-    private void parseIntentData() {
-        final Intent intent = activity.getIntent();
-        final String userAddress = intent.getStringExtra(ViewUserActivity.EXTRA__USER_ADDRESS);
-        loadOrFetchUser(userAddress);
-        fetchUserReputation(userAddress);
+    private void processIntentData() {
+        this.userAddress = this.activity.getIntent().getStringExtra(ViewUserActivity.EXTRA__USER_ADDRESS);
     }
 
-    private void loadOrFetchUser(final String userAddress) {
-        final Subscription userSub = BaseApplication
-                .get()
-                .getTokenManager()
-                .getUserManager()
-                .getUserFromAddress(userAddress)
+    private void loadUser() {
+        final Subscription userSub =
+                getUserById(this.userAddress)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleUserLoaded, this::handleUserLoadingFailed);
 
         this.subscriptions.add(userSub);
     }
 
-    private void fetchUserReputation(final String userAddress) {
-        final Subscription reputationSub = BaseApplication
+    private Single<User> getUserById(final String userAddress) {
+        return BaseApplication
                 .get()
                 .getTokenManager()
-                .getReputationManager()
-                .getReputationScore(userAddress)
+                .getUserManager()
+                .getUserFromAddress(userAddress)
+                .toSingle();
+    }
+
+    private void fetchUserReputation() {
+        final Subscription reputationSub =
+                getReputationScoreById(this.userAddress)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleReputationResponse, this::handleReputationError);
 
         this.subscriptions.add(reputationSub);
+    }
+
+    private Single<ReputationScore> getReputationScoreById(final String userAddress) {
+         return BaseApplication
+                .get()
+                .getTokenManager()
+                .getReputationManager()
+                .getReputationScore(userAddress);
     }
 
     private void handleReputationResponse(final ReputationScore reputationScore) {
@@ -222,8 +238,9 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
 
     private void goToChatActivityFromPay(final Intent payResultIntent) {
         final String ethAmount = payResultIntent.getStringExtra(AmountPresenter.INTENT_EXTRA__ETH_AMOUNT);
+        final String userAddress = this.activity.getIntent().getStringExtra(ViewUserActivity.EXTRA__USER_ADDRESS);
         final Intent intent = new Intent(this.activity, ChatActivity.class)
-                .putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, this.scannedUser.getTokenId())
+                .putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, userAddress)
                 .putExtra(ChatActivity.EXTRA__ETH_AMOUNT, ethAmount)
                 .putExtra(ChatActivity.EXTRA__PAYMENT_ACTION, PaymentType.TYPE_SEND);
         this.activity.startActivity(intent);
