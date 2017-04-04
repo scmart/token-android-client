@@ -79,6 +79,18 @@ public class EditProfileActivity extends BasePresenterActivity<EditProfilePresen
     }
 
     @Override
+    public void onSaveInstanceState(final Bundle outState) {
+        this.presenter.onSaveInstanceState(outState);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onRestoreInstanceState(final Bundle inState) {
+        super.onSaveInstanceState(inState);
+        this.presenter.onRestoreInstanceState(inState);
+    }
+
+    @Override
     protected void onPresenterPrepared(@NonNull final EditProfilePresenter presenter) {
         this.presenter = presenter;
     }

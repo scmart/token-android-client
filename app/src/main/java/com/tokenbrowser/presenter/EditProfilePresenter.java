@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -26,8 +27,8 @@ import com.tokenbrowser.util.FileUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.view.BaseApplication;
-import com.tokenbrowser.view.fragment.DialogFragment.ChooserDialog;
 import com.tokenbrowser.view.activity.EditProfileActivity;
+import com.tokenbrowser.view.fragment.DialogFragment.ChooserDialog;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +45,7 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
     private static final int CAMERA_PERMISSION = 5;
     private static final int READ_EXTERNAL_STORAGE_PERMISSION = 6;
     private static final String INTENT_TYPE = "image/*";
+    private static final String CAPTURED_IMAGE_PATH = "capturedImagePath";
 
     private EditProfileActivity activity;
     private CompositeSubscription subscriptions;
@@ -53,7 +55,7 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
     private String aboutFieldContents;
     private String locationFieldContents;
     private String avatarUrl;
-    private String cameraImagePath;
+    private String capturedImagePath;
 
     @Override
     public void onViewAttached(final EditProfileActivity view) {
@@ -187,7 +189,7 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
             File photoFile = null;
             try {
                 photoFile = new FileUtil().createImageFileWithRandomName(this.activity);
-                this.cameraImagePath = photoFile.getAbsolutePath();
+                this.capturedImagePath = photoFile.getAbsolutePath();
             } catch (IOException e) {
                 LogUtil.e(getClass(), "Error during creating image file " + e.getMessage());
             }
@@ -304,7 +306,7 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
     }
 
     private void handleCameraImage() {
-        final File cameraImage = new File(this.cameraImagePath);
+        final File cameraImage = new File(this.capturedImagePath);
         uploadAvatar(cameraImage);
     }
 
@@ -361,6 +363,14 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
         }
 
         return false;
+    }
+
+    public void onSaveInstanceState(final Bundle outState) {
+        outState.putString(CAPTURED_IMAGE_PATH, this.capturedImagePath);
+    }
+
+    public void onRestoreInstanceState(final Bundle inState) {
+        this.capturedImagePath = inState.getString(CAPTURED_IMAGE_PATH);
     }
 
     @Override
