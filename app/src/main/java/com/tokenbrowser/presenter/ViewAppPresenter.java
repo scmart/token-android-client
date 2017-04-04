@@ -18,6 +18,7 @@ import com.tokenbrowser.view.activity.AmountActivity;
 import com.tokenbrowser.view.activity.ChatActivity;
 import com.tokenbrowser.view.activity.ViewAppActivity;
 
+import rx.Single;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -28,10 +29,10 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
     private static final int ETH_PAY_CODE = 2;
 
     private ViewAppActivity activity;
-    private App app;
-    private String appTokenId;
     private CompositeSubscription subscriptions;
     private boolean firstTimeAttaching = true;
+    private App app;
+    private String appTokenId;
 
     @Override
     public void onViewAttached(ViewAppActivity view) {
@@ -41,18 +42,21 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
             this.firstTimeAttaching = false;
             initLongLivingObjects();
         }
-
-        getIntentData();
-        fetchApp();
-        fetchUserReputation();
-        initClickListeners();
+        initShortLivingObjects();
     }
 
     private void initLongLivingObjects() {
         this.subscriptions = new CompositeSubscription();
     }
 
-    private void getIntentData() {
+    private void initShortLivingObjects() {
+        processIntentData();
+        loadApp();
+        fetchUserReputation();
+        initClickListeners();
+    }
+
+    private void processIntentData() {
         this.appTokenId = this.activity.getIntent().getStringExtra(ViewAppActivity.APP_OWNER_ADDRESS);
         if (this.appTokenId == null) {
             Toast.makeText(this.activity, R.string.error__app_loading, Toast.LENGTH_LONG).show();
@@ -60,12 +64,9 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
         }
     }
 
-    private void fetchApp() {
-        final Subscription sub = BaseApplication
-                .get()
-                .getTokenManager()
-                .getAppsManager()
-                .getApp(this.appTokenId)
+    private void loadApp() {
+        final Subscription sub =
+                getAppById(this.appTokenId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleAppLoaded, this::handleAppLoadingFailed);
@@ -73,20 +74,25 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
         this.subscriptions.add(sub);
     }
 
+    private Single<App> getAppById(final String appId) {
+        return BaseApplication
+                .get()
+                .getTokenManager()
+                .getAppsManager()
+                .getApp(appId);
+    }
+
     private void handleAppLoaded(final App app) {
         this.app = app;
-        if (this.app == null || this.activity == null) {
-            return;
-        }
+        if (this.app == null || this.activity == null) return;
         initViewWithAppData();
     }
 
     private void handleAppLoadingFailed(final Throwable throwable) {
         LogUtil.e(getClass(), "Error during fetching of app " + throwable.getMessage());
-        if (this.activity != null) {
-            this.activity.finish();
-            Toast.makeText(this.activity, R.string.error__app_loading, Toast.LENGTH_LONG).show();
-        }
+        if (this.activity == null) return;
+        this.activity.finish();
+        Toast.makeText(this.activity, R.string.error__app_loading, Toast.LENGTH_LONG).show();
     }
 
     private void fetchUserReputation() {
@@ -168,11 +174,11 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
 
         return true;
     }
-
     private void goToChatActivityFromPay(final Intent payResultIntent) {
         final String ethAmount = payResultIntent.getStringExtra(AmountPresenter.INTENT_EXTRA__ETH_AMOUNT);
+        final String appId = this.activity.getIntent().getStringExtra(ViewAppActivity.APP_OWNER_ADDRESS);
         final Intent intent = new Intent(this.activity, ChatActivity.class)
-                .putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, this.app.getTokenId())
+                .putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, appId)
                 .putExtra(ChatActivity.EXTRA__ETH_AMOUNT, ethAmount)
                 .putExtra(ChatActivity.EXTRA__PAYMENT_ACTION, PaymentType.TYPE_SEND);
         this.activity.startActivity(intent);
