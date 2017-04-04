@@ -134,88 +134,45 @@
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:weightSum="3">
 
-                    <LinearLayout
+                    <Button
                         android:id="@+id/message_contact_button"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:background="@null"
+                        android:drawableTop="@drawable/ic_message"
+                        android:drawablePadding="7dp"
+                        android:textAllCaps="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/profile_icon_text_color"
+                        android:text="@string/message"/>
 
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_gravity="center_horizontal"
-                            app:srcCompat="@drawable/ic_message"/>
-
-                        <android.support.v4.widget.Space
-                            android:layout_width="0dp"
-                            android:layout_height="7dp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:textSize="14sp"
-                            android:textColor="@color/profile_icon_text_color"
-                            android:text="@string/message"/>
-
-                    </LinearLayout>
-
-                    <LinearLayout
+                    <Button
                         android:id="@+id/favorite"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:background="@null"
+                        android:drawableTop="@drawable/ic_star_unselected"
+                        android:drawablePadding="7dp"
+                        android:textAllCaps="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/profile_icon_text_color"
+                        android:text="@string/favorite"/>
 
-                        <ImageView
-                            android:id="@+id/favorite_image"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_gravity="center_horizontal"
-                            app:srcCompat="@drawable/ic_star"/>
-
-                        <android.support.v4.widget.Space
-                            android:layout_width="0dp"
-                            android:layout_height="7dp" />
-
-                        <TextView
-                            android:id="@+id/favorite_text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:textSize="14sp"
-                            android:textColor="@color/profile_icon_text_color"
-                            android:text="@string/favorite"/>
-
-                    </LinearLayout>
-
-                    <LinearLayout
+                    <Button
                         android:id="@+id/pay"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:background="@null"
+                        android:drawablePadding="7dp"
+                        android:drawableTop="@drawable/ic_money"
+                        android:textAllCaps="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/profile_icon_text_color"
+                        android:text="@string/pay"/>
 
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_gravity="center_horizontal"
-                            app:srcCompat="@drawable/ic_money"/>
-
-                        <android.support.v4.widget.Space
-                            android:layout_width="0dp"
-                            android:layout_height="7dp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:textSize="14sp"
-                            android:textColor="@color/profile_icon_text_color"
-                            android:text="@string/pay"/>
-
-                    </LinearLayout>
                 </LinearLayout>
 
                 <android.support.v4.widget.Space
