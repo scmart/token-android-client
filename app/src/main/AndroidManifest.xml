@@ -40,7 +40,8 @@
         </activity>
 
         <activity android:name="com.tokenbrowser.view.activity.ViewUserActivity" />
-        <activity android:name="com.tokenbrowser.view.activity.ProfileActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.ViewProfileActivity" />
+        <activity android:name="com.tokenbrowser.view.activity.EditProfileActivity" />
         <activity android:name="com.tokenbrowser.view.activity.UserSearchActivity" />
         <activity android:name="com.tokenbrowser.view.activity.AmountActivity" />
         <activity android:name="com.tokenbrowser.view.activity.ScannerActivity"

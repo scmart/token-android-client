@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.view.Menu;
 
-import com.tokenbrowser.view.fragment.children.SettingsFragment;
+import com.tokenbrowser.view.fragment.toplevel.SettingsFragment;
 import com.tokenbrowser.view.fragment.toplevel.AppsFragment;
 import com.tokenbrowser.view.fragment.toplevel.ContactsFragment;
 import com.tokenbrowser.view.fragment.toplevel.HomeFragment;

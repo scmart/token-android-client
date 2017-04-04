@@ -1,45 +1,37 @@
-package com.tokenbrowser.view.fragment.children;
+package com.tokenbrowser.view.activity;
 
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
+import com.tokenbrowser.R;
+import com.tokenbrowser.databinding.ActivityEditProfileBinding;
 import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.model.local.PermissionResultHolder;
-import com.tokenbrowser.R;
-import com.tokenbrowser.databinding.FragmentEditProfileBinding;
 import com.tokenbrowser.presenter.EditProfilePresenter;
 import com.tokenbrowser.presenter.factory.EditProfilePresenterFactory;
 import com.tokenbrowser.presenter.factory.PresenterFactory;
-import com.tokenbrowser.view.fragment.BasePresenterFragment;
 
-public class EditProfileFragment extends BasePresenterFragment<EditProfilePresenter, EditProfileFragment> {
+public class EditProfileActivity extends BasePresenterActivity<EditProfilePresenter, EditProfileActivity> {
 
-    private FragmentEditProfileBinding binding;
+    private ActivityEditProfileBinding binding;
     private EditProfilePresenter presenter;
     private ActivityResultHolder resultHolder;
     private PermissionResultHolder permissionResultHolder;
 
-    public static EditProfileFragment newInstance() {
-        return new EditProfileFragment();
-    }
-
-    @Nullable
     @Override
-    public View onCreateView(final LayoutInflater inflater,
-                             final ViewGroup container,
-                             final Bundle inState) {
-        this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_profile, container, false);
-        return binding.getRoot();
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        init();
     }
 
-    public FragmentEditProfileBinding getBinding() {
+    private void init() {
+        this.binding = DataBindingUtil.setContentView(this, R.layout.activity_edit_profile);
+    }
+
+    public ActivityEditProfileBinding getBinding() {
         return this.binding;
     }
 

@@ -1,4 +1,4 @@
-package com.tokenbrowser.view.fragment.children;
+package com.tokenbrowser.view.fragment.toplevel;
 
 
 import android.databinding.DataBindingUtil;
