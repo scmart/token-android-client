@@ -15,6 +15,7 @@ import com.tokenbrowser.presenter.factory.ViewUserPresenterFactory;
 
 public class ViewUserActivity extends BasePresenterActivity<ViewUserPresenter, ViewUserActivity> {
     public static final String EXTRA__USER_ADDRESS = "extra_user_address";
+    public static final String EXTRA__PLAY_SCAN_SOUNDS = "play_scan_sounds";
 
     private ActivityScanResultBinding binding;
     private ViewUserPresenter presenter;

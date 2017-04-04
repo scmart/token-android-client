@@ -20,7 +20,8 @@ public class SoundManager {
             RECEIVE_MESSAGE,
             SEND_MESSAGE,
             SCAN,
-            SCAN_RESULT,
+            FOUND_USER,
+            SCAN_ERROR,
             TAB_BUTTON,
             BALANCE_CHANGE})
     public @interface Sound {}
@@ -28,9 +29,10 @@ public class SoundManager {
     public static final int RECEIVE_MESSAGE = 1;
     public static final int SEND_MESSAGE = 2;
     public static final int SCAN = 3;
-    public static final int SCAN_RESULT = 4;
+    public static final int FOUND_USER = 4;
     public static final int TAB_BUTTON = 5;
     public static final int BALANCE_CHANGE = 6;
+    public static final int SCAN_ERROR = 7;
 
     private static final int MAX_STREAMS = 5;
     private static SoundManager instance;
@@ -56,9 +58,10 @@ public class SoundManager {
         soundPoolMap.put(RECEIVE_MESSAGE, soundPool.load(context, R.raw.messagereceive, 1));
         soundPoolMap.put(SEND_MESSAGE, soundPool.load(context, R.raw.messagesend, 1));
         soundPoolMap.put(SCAN, soundPool.load(context, R.raw.scan, 1));
-        soundPoolMap.put(SCAN_RESULT, soundPool.load(context, R.raw.scanresult, 1));
+        soundPoolMap.put(FOUND_USER, soundPool.load(context, R.raw.founduser, 1));
         soundPoolMap.put(TAB_BUTTON, soundPool.load(context, R.raw.tabbutton, 1));
         soundPoolMap.put(BALANCE_CHANGE, soundPool.load(context, R.raw.balance, 1));
+        soundPoolMap.put(SCAN_ERROR, soundPool.load(context, R.raw.error, 1));
     }
 
     @SuppressWarnings("deprecation")

@@ -104,6 +104,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         if (this.activity != null) {
             this.activity.finish();
             Toast.makeText(this.activity, R.string.error_unknown_user, Toast.LENGTH_LONG).show();
+            if (shouldPlayScanSounds()) SoundManager.getInstance().playSound(SoundManager.SCAN_ERROR);
         }
     }
 
@@ -120,6 +121,13 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
                 .into(binding.avatar);
         addClickListeners();
         updateAddContactState();
+        if (shouldPlayScanSounds()) SoundManager.getInstance().playSound(SoundManager.SCAN_ERROR);
+    }
+
+    private boolean shouldPlayScanSounds() {
+        return this.activity != null
+                && this.activity.getIntent() != null
+                && this.activity.getIntent().getBooleanExtra(ChatActivity.EXTRA__PLAY_SCAN_SOUNDS, false);
     }
 
     private void addClickListeners() {

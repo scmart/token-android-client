@@ -168,6 +168,7 @@
                 android:scaleType="fitCenter"
                 android:background="@android:color/transparent"
                 app:srcCompat="@drawable/ic_action_content_send"
+                android:soundEffectsEnabled="false"
                 android:padding="8dp" />
 
             <android.support.v4.widget.Space

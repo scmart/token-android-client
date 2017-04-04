@@ -19,6 +19,7 @@ public final class ChatActivity extends BasePresenterActivity<ChatPresenter, Cha
     public static final String EXTRA__REMOTE_USER_ADDRESS = "remote_user_owner_address";
     public static final String EXTRA__PAYMENT_ACTION = "payment_action";
     public static final String EXTRA__ETH_AMOUNT = "eth_amount";
+    public static final String EXTRA__PLAY_SCAN_SOUNDS = "play_scan_sounds";
 
     private ActivityChatBinding binding;
     private ActivityResultHolder resultHolder;
