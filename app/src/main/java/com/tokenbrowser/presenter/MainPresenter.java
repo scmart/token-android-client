@@ -5,11 +5,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
-import com.tokenbrowser.manager.SofaMessageManager;
 import com.tokenbrowser.R;
+import com.tokenbrowser.manager.SofaMessageManager;
+import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.util.SoundManager;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.MainActivity;
@@ -53,6 +55,7 @@ public class MainPresenter implements Presenter<MainActivity> {
         initNavBar();
         trySelectTabFromIntent();
         attachUnreadMessagesSubscription();
+        showBetaWarningDialog();
     }
 
     private void manuallySelectFirstTab() {
@@ -98,6 +101,19 @@ public class MainPresenter implements Presenter<MainActivity> {
         } else {
             hideUnreadBadge();
         }
+    }
+
+    private void showBetaWarningDialog() {
+        if (SharedPrefsUtil.hasLoadedApp()) return;
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this.activity, R.style.AlertDialogCustom);
+        builder.setTitle(R.string.beta_warning_title)
+                .setMessage(R.string.beta_warning_message)
+                .setPositiveButton(R.string.continue_, (dialog, which) -> {
+                    dialog.dismiss();
+                });
+        builder.create().show();
+        SharedPrefsUtil.setHasLoadedApp();
     }
 
     private void showUnreadBadge() {
