@@ -89,4 +89,6 @@ public final class BaseApplication extends MultiDexApplication {
     public boolean isConnected() {
         return isConnectedSubject.getValue();
     }
+
+    public boolean isInBackground() { return this.inBackground; }
 }

@@ -84,7 +84,7 @@ public class ChatNotificationManager {
         // Sender will be null if the transaction came from outside of the Token platform.
         final String notificationKey = sender == null ? ChatNotification.DEFAULT_TAG : sender.getTokenId();
 
-        if (notificationKey.equals(currentlyOpenConversation)) {
+        if (notificationKey.equals(currentlyOpenConversation) && !BaseApplication.get().isInBackground()) {
             return;
         }
 
