@@ -22,6 +22,7 @@ public final class PaymentRequestViewHolder extends RecyclerView.ViewHolder {
     private @NonNull TextView ethereumAmount;
     private @Nullable ImageView statusIcon;
     private @Nullable TextView statusMessage;
+    private @NonNull TextView body;
     private @Nullable View acceptButtonContainer;
     private @Nullable View declineButtonContainer;
     private @Nullable Button acceptButton;
@@ -40,6 +41,7 @@ public final class PaymentRequestViewHolder extends RecyclerView.ViewHolder {
         this.ethereumAmount = (TextView) v.findViewById(R.id.eth_amount);
         this.statusIcon = (ImageView) v.findViewById(R.id.status_icon);
         this.statusMessage = (TextView) v.findViewById(R.id.status_message);
+        this.body = (TextView) v.findViewById(R.id.body);
         this.acceptButtonContainer = v.findViewById(R.id.container_accept_button);
         this.declineButtonContainer = v.findViewById(R.id.container_decline_button);
         this.acceptButton = (Button) v.findViewById(R.id.approve_button);
@@ -69,6 +71,7 @@ public final class PaymentRequestViewHolder extends RecyclerView.ViewHolder {
 
     public void draw() {
         renderAmounts();
+        renderBody();
         renderStatus();
         renderAvatar();
     }
@@ -79,6 +82,15 @@ public final class PaymentRequestViewHolder extends RecyclerView.ViewHolder {
                 BaseApplication.get().getResources().getString(R.string.eth_amount),
                 EthUtil.hexAmountToUserVisibleString(this.request.getValue()));
         this.ethereumAmount.setText(ethAmount);
+    }
+
+    private void renderBody() {
+        final String body = this.request.getBody();
+        this.body.setVisibility(View.GONE);
+        if (body != null && body.length() > 0) {
+            this.body.setVisibility(View.VISIBLE);
+            this.body.setText(body);
+        }
     }
 
     private void renderStatus() {
