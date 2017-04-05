@@ -7,11 +7,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.view.Menu;
 
+import com.tokenbrowser.view.fragment.children.SettingsFragment;
 import com.tokenbrowser.view.fragment.toplevel.AppsFragment;
 import com.tokenbrowser.view.fragment.toplevel.ContactsFragment;
 import com.tokenbrowser.view.fragment.toplevel.HomeFragment;
 import com.tokenbrowser.view.fragment.toplevel.RecentFragment;
-import com.tokenbrowser.view.fragment.toplevel.SettingsContainerFragment;
 
 import java.util.ArrayList;
 
@@ -31,7 +31,7 @@ public class NavigationAdapter extends FragmentPagerAdapter {
         fragments.add(RecentFragment.newInstance());
         fragments.add(AppsFragment.newInstance());
         fragments.add(ContactsFragment.newInstance());
-        fragments.add(SettingsContainerFragment.newInstance());
+        fragments.add(SettingsFragment.newInstance());
     }
 
     @Override
