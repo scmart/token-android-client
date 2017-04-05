@@ -124,7 +124,7 @@
         </provider>
 
         <meta-data
-            android:name="com.tokenbrowser.manager.network.TokenGlideModule"
+            android:name="com.tokenbrowser.manager.network.image.GlideOkHttpStack"
             android:value="GlideModule"/>
 
     </application>

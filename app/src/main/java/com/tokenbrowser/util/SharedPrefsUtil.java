@@ -12,7 +12,6 @@ public class SharedPrefsUtil {
     private static final String HAS_SIGNED_OUT = "hasSignedIn";
     private static final String HAS_BACKED_UP_PHRASE = "hasBackedUpPhrase";
     private static final String HAS_LOADED_APP_FIRST_TIME = "hasLoadedApp";
-    private static final String CACHED_PROFILE_IMAGE = "cachedProfileImage";
 
     public static boolean hasOnboarded() {
         final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(FileNames.USER_PREFS, Context.MODE_PRIVATE);
@@ -84,15 +83,5 @@ public class SharedPrefsUtil {
                 .putBoolean(HAS_BACKED_UP_PHRASE, false)
                 .putString(STORED_QR_CODE, null)
                 .apply();
-    }
-
-    public static void setCachedAvatarKey(final String key) {
-        final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(FileNames.USER_PREFS, Context.MODE_PRIVATE);
-        prefs.edit().putString(CACHED_PROFILE_IMAGE, key).apply();
-    }
-
-    public static String getCachedAvatarKey() {
-        final SharedPreferences prefs = BaseApplication.get().getSharedPreferences(FileNames.USER_PREFS, Context.MODE_PRIVATE);
-        return prefs.getString(CACHED_PROFILE_IMAGE, null);
     }
 }

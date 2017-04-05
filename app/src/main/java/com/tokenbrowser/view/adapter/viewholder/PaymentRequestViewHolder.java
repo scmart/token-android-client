@@ -9,11 +9,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.tokenbrowser.model.sofa.PaymentRequest;
 import com.tokenbrowser.R;
+import com.tokenbrowser.model.sofa.PaymentRequest;
 import com.tokenbrowser.util.EthUtil;
+import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
 
@@ -133,11 +132,7 @@ public final class PaymentRequestViewHolder extends RecyclerView.ViewHolder {
             return;
         }
 
-        Glide
-                .with(this.avatar.getContext())
-                .load(this.avatarUri)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(this.avatar);
+        ImageUtil.loadFromNetwork(this.avatarUri, this.avatar);
     }
 
     private final View.OnClickListener handleOnApprovePressed = new View.OnClickListener() {

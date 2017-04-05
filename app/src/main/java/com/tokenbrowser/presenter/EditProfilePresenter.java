@@ -15,9 +15,6 @@ import android.support.v4.content.FileProvider;
 import android.view.View;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.signature.StringSignature;
 import com.tokenbrowser.BuildConfig;
 import com.tokenbrowser.R;
 import com.tokenbrowser.model.local.ActivityResultHolder;
@@ -25,9 +22,9 @@ import com.tokenbrowser.model.local.PermissionResultHolder;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.network.UserDetails;
 import com.tokenbrowser.util.FileUtil;
+import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
-import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.EditProfileActivity;
 import com.tokenbrowser.view.fragment.DialogFragment.ChooserDialog;
@@ -58,6 +55,7 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
     private String locationFieldContents;
     private String avatarUrl;
     private String capturedImagePath;
+    private boolean isUploading;
 
     @Override
     public void onViewAttached(final EditProfileActivity view) {
@@ -96,17 +94,13 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
     }
 
     private void loadAvatar() {
-        if (this.avatarUrl == null) return;
-        final String cachedAvatarKey = SharedPrefsUtil.getCachedAvatarKey();
-        final String avatarKey = cachedAvatarKey != null
-                ? cachedAvatarKey
-                : this.avatarUrl;
-
-        Glide.with(this.activity)
-                .load(this.avatarUrl)
-                .signature(new StringSignature(avatarKey))
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(this.activity.getBinding().avatar);
+        if (this.avatarUrl == null || this.isUploading) {
+            this.activity.getBinding().avatar.setImageDrawable(null);
+            this.activity.getBinding().avatar.setImageResource(R.color.textColorHint);
+            return;
+        }
+        this.activity.getBinding().avatar.setImageResource(0);
+        ImageUtil.loadFromNetwork(this.avatarUrl, this.activity.getBinding().avatar);
     }
 
     private void initClickListeners() {
@@ -330,6 +324,7 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
         if (file == null) return;
         if (!file.exists()) return;
 
+        this.isUploading = true;
         final Subscription sub = BaseApplication.get()
                 .getTokenManager()
                 .getUserManager()
@@ -347,15 +342,9 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
 
     private void handleUploadSuccess(final User user) {
         if (this.activity == null) return;
-        storeAvatarKey(user);
+        this.isUploading = false;
         handleUserLoaded(user);
         Toast.makeText(this.activity, this.activity.getString(R.string.profile_image_success), Toast.LENGTH_SHORT).show();
-    }
-
-    private void storeAvatarKey(final User user) {
-        final String currentTime = String.valueOf(System.currentTimeMillis());
-        final String key = String.format("%s%s", currentTime, user.getAvatar());
-        SharedPrefsUtil.setCachedAvatarKey(key);
     }
 
     private boolean tryDeleteCachedFile(final File file) {
@@ -365,6 +354,7 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
 
     private void showFailureMessage() {
         if (this.activity == null) return;
+        this.isUploading = false;
         Toast.makeText(this.activity, this.activity.getString(R.string.profile_image_error), Toast.LENGTH_SHORT).show();
     }
 

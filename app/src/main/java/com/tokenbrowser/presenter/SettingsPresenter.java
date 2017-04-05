@@ -7,12 +7,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.signature.StringSignature;
-import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.R;
+import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.network.Balance;
+import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
@@ -20,10 +18,10 @@ import com.tokenbrowser.view.activity.AboutActivity;
 import com.tokenbrowser.view.activity.BackupPhraseInfoActivity;
 import com.tokenbrowser.view.activity.SignOutActivity;
 import com.tokenbrowser.view.activity.TrustedFriendsActivity;
+import com.tokenbrowser.view.activity.ViewProfileActivity;
 import com.tokenbrowser.view.adapter.SettingsAdapter;
 import com.tokenbrowser.view.custom.RecyclerViewDivider;
 import com.tokenbrowser.view.fragment.toplevel.SettingsFragment;
-import com.tokenbrowser.view.activity.ViewProfileActivity;
 
 import java.math.BigInteger;
 
@@ -216,16 +214,7 @@ public final class SettingsPresenter implements
     }
 
     private void loadAvatar() {
-        final String cachedAvatarKey = SharedPrefsUtil.getCachedAvatarKey();
-        final String avatarKey = cachedAvatarKey != null
-                ? cachedAvatarKey
-                : this.localUser.getAvatar();
-
-        Glide.with(this.fragment)
-                .load(this.localUser.getAvatar())
-                .signature(new StringSignature(avatarKey))
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(this.fragment.getBinding().avatar);
+        ImageUtil.loadFromNetwork(this.localUser.getAvatar(), this.fragment.getBinding().avatar);
     }
 
     private void setSecurityState() {

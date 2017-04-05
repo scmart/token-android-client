@@ -10,10 +10,9 @@ import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.tokenbrowser.model.local.SendState;
 import com.tokenbrowser.R;
+import com.tokenbrowser.model.local.SendState;
+import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
 
 import java.util.ArrayList;
@@ -71,11 +70,7 @@ public final class TextViewHolder extends RecyclerView.ViewHolder {
             return;
         }
 
-        Glide
-            .with(this.avatar.getContext())
-            .load(this.avatarUri)
-            .diskCacheStrategy(DiskCacheStrategy.NONE)
-            .into(this.avatar);
+        ImageUtil.loadFromNetwork(this.avatarUri, this.avatar);
     }
 
     private void setSendState() {

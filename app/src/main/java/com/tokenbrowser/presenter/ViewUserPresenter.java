@@ -10,13 +10,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tokenbrowser.R;
 import com.tokenbrowser.databinding.ActivityScanResultBinding;
 import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.network.ReputationScore;
+import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.util.PaymentType;
@@ -137,10 +136,7 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         binding.username.setText(scannedUser.getUsername());
         binding.about.setText(scannedUser.getAbout());
         binding.location.setText(scannedUser.getLocation());
-        Glide.with(this.activity)
-                .load(scannedUser.getAvatar())
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(binding.avatar);
+        ImageUtil.loadFromNetwork(scannedUser.getAvatar(), binding.avatar);
         addClickListeners();
         updateAddContactState();
         if (shouldPlayScanSounds()) SoundManager.getInstance().playSound(SoundManager.SCAN_ERROR);

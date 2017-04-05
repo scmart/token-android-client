@@ -2,14 +2,11 @@ package com.tokenbrowser.presenter;
 
 import android.content.Intent;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.signature.StringSignature;
 import com.tokenbrowser.R;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.network.ReputationScore;
+import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.util.LogUtil;
-import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.EditProfileActivity;
 import com.tokenbrowser.view.activity.ViewProfileActivity;
@@ -82,16 +79,7 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileActivity
     }
 
     private void loadAvatar() {
-        final String cachedAvatarKey = SharedPrefsUtil.getCachedAvatarKey();
-        final String avatarKey = cachedAvatarKey != null
-                ? cachedAvatarKey
-                : this.localUser.getAvatar();
-
-        Glide.with(this.activity)
-                .load(this.localUser.getAvatar())
-                .signature(new StringSignature(avatarKey))
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(this.activity.getBinding().avatar);
+        ImageUtil.loadFromNetwork(this.localUser.getAvatar(), this.activity.getBinding().avatar);
     }
 
     private void fetchUser() {
