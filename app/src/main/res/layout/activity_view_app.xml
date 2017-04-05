@@ -98,7 +98,7 @@
 
                 <android.support.v4.widget.Space
                     android:layout_width="0dp"
-                    android:layout_height="6dp" />
+                    android:layout_height="4dp" />
 
                 <TextView
                     android:id="@+id/location"
@@ -140,6 +140,7 @@
                         android:layout_height="wrap_content"
                         android:background="@null"
                         android:drawableTop="@drawable/ic_message"
+                        android:drawablePadding="7dp"
                         android:textAllCaps="false"
                         android:textSize="14sp"
                         android:textColor="@color/profile_icon_text_color"
@@ -152,6 +153,7 @@
                         android:layout_height="wrap_content"
                         android:background="@null"
                         android:drawableTop="@drawable/ic_star_unselected"
+                        android:drawablePadding="7dp"
                         android:textAllCaps="false"
                         android:textSize="14sp"
                         android:textColor="@color/profile_icon_text_color"
@@ -164,6 +166,7 @@
                         android:layout_height="wrap_content"
                         android:background="@null"
                         android:drawableTop="@drawable/ic_money"
+                        android:drawablePadding="7dp"
                         android:textAllCaps="false"
                         android:textSize="14sp"
                         android:textColor="@color/profile_icon_text_color"
