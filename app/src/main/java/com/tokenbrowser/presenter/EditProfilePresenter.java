@@ -343,7 +343,7 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
     private void handleUploadSuccess(final User user) {
         if (this.activity == null) return;
         this.isUploading = false;
-        handleUserLoaded(user);
+        ImageUtil.forceLoadFromNetwork(user.getAvatar(), this.activity.getBinding().avatar);
         Toast.makeText(this.activity, this.activity.getString(R.string.profile_image_success), Toast.LENGTH_SHORT).show();
     }
 

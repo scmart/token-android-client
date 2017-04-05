@@ -28,18 +28,29 @@ public class ImageUtil {
 
     public static void loadFromNetwork(final String url, final ImageView imageView) {
         if (url == null || imageView == null) return;
-        Glide.with(imageView.getContext())
-                .load(new ForceLoadGlideUrl(url))
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .skipMemoryCache(true)
-                .thumbnail(
-                        Glide
-                        .with(imageView.getContext())
-                        .load(new CachedGlideUrl(url))
-                        .diskCacheStrategy(DiskCacheStrategy.NONE)
-                        .skipMemoryCache(true)
-                )
-                .into(imageView);
+        Glide
+            .with(imageView.getContext())
+            .load(new ForceLoadGlideUrl(url))
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .skipMemoryCache(true)
+            .thumbnail(
+                    Glide
+                    .with(imageView.getContext())
+                    .load(new CachedGlideUrl(url))
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+            )
+            .into(imageView);
+    }
+
+    public static void forceLoadFromNetwork(final String url, final ImageView imageView) {
+        if (url == null || imageView == null) return;
+        Glide
+            .with(imageView.getContext())
+            .load(new ForceLoadGlideUrl(url))
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .skipMemoryCache(true)
+            .into(imageView);
     }
 
     public static Bitmap decodeByteArray(final byte[] bytes){
