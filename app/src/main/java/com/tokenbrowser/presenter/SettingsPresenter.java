@@ -8,20 +8,20 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.R;
+import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.network.Balance;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.AboutActivity;
 import com.tokenbrowser.view.activity.BackupPhraseInfoActivity;
-import com.tokenbrowser.view.activity.ProfileActivity;
 import com.tokenbrowser.view.activity.SignOutActivity;
 import com.tokenbrowser.view.activity.TrustedFriendsActivity;
 import com.tokenbrowser.view.adapter.SettingsAdapter;
 import com.tokenbrowser.view.custom.RecyclerViewDivider;
-import com.tokenbrowser.view.fragment.children.SettingsFragment;
+import com.tokenbrowser.view.fragment.toplevel.SettingsFragment;
+import com.tokenbrowser.view.activity.ViewProfileActivity;
 
 import java.math.BigInteger;
 
@@ -228,7 +228,7 @@ public final class SettingsPresenter implements
     private final OnSingleClickListener handleMyProfileClicked = new OnSingleClickListener() {
         @Override
         public void onSingleClick(final View v) {
-            final Intent intent = new Intent(fragment.getActivity(), ProfileActivity.class);
+            final Intent intent = new Intent(fragment.getActivity(), ViewProfileActivity.class);
             fragment.startActivity(intent);
         }
     };

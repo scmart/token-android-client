@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            style="@style/ToolbarTheme">
+
+            <ImageButton
+                android:id="@+id/close_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="fitCenter"
+                android:background="@android:color/transparent"
+                app:srcCompat="@drawable/ic_arrow_back"
+                android:tint="@color/textColorContrast"
+                android:padding="16dp" />
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                style="@style/Toolbar.TitleText"
+                android:text="@string/profile"/>
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <android.support.v4.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"/>
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/avatar"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center_horizontal"/>
+
+                <android.support.v4.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="16dp"/>
+
+                <TextView
+                    android:id="@+id/name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:textColor="@color/textColorPrimary"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    tools:text="Damn Daniel!"/>
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="4dp" />
+
+                <TextView
+                    android:id="@+id/username"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:textColor="@color/textColorSecondary"
+                    tools:text="\@username" />
+
+                <android.support.v4.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="17dp" />
+
+                <TextView
+                    android:id="@+id/about"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:textSize="16sp"
+                    android:textColor="@color/textColorPrimary" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="4dp" />
+
+                <TextView
+                    android:id="@+id/location"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:textSize="16sp"
+                    android:textColor="@color/textColorSecondary" />
+
+                <android.support.v4.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="24dp" />
+
+                <Button
+                    android:id="@+id/edit_profile_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    style="@style/Button"
+                    android:text="@string/edit_profile"/>
+
+                <android.support.v4.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    android:background="@color/divider"/>
+
+                <android.support.v4.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="20dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/textColorSecondary"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:text="@string/reputation"/>
+
+                <android.support.v4.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="20dp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                        android:gravity="center">
+
+                        <TextView
+                            android:id="@+id/reputation_score"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:includeFontPadding="false"
+                            android:textSize="49sp"
+                            android:textColor="@color/ratingPrimary" />
+
+                        <com.tokenbrowser.view.custom.StarRatingView
+                            android:id="@+id/rating_view"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                        <android.support.v4.widget.Space
+                            android:layout_width="0dp"
+                            android:layout_height="8dp" />
+
+                        <TextView
+                            android:id="@+id/review_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13sp"
+                            android:textColor="@color/textColorSecondary" />
+
+                    </LinearLayout>
+
+                    <com.tokenbrowser.view.custom.RatingInfo
+                        android:id="@+id/rating_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="110dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="40dp"
+                        android:layout_marginRight="@dimen/activity_horizontal_margin"/>
+
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+</layout>

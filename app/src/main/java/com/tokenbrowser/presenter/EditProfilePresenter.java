@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.view.View;
@@ -15,19 +17,18 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.tokenbrowser.BuildConfig;
+import com.tokenbrowser.R;
 import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.model.local.PermissionResultHolder;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.network.UserDetails;
-import com.tokenbrowser.BuildConfig;
-import com.tokenbrowser.R;
 import com.tokenbrowser.util.FileUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.view.BaseApplication;
-import com.tokenbrowser.view.activity.ProfileActivity;
+import com.tokenbrowser.view.activity.EditProfileActivity;
 import com.tokenbrowser.view.fragment.DialogFragment.ChooserDialog;
-import com.tokenbrowser.view.fragment.children.EditProfileFragment;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,15 +38,16 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
-public class EditProfilePresenter implements Presenter<EditProfileFragment> {
+public class EditProfilePresenter implements Presenter<EditProfileActivity> {
 
     private static final int PICK_IMAGE = 1;
     private static final int CAPTURE_IMAGE = 2;
     private static final int CAMERA_PERMISSION = 5;
     private static final int READ_EXTERNAL_STORAGE_PERMISSION = 6;
     private static final String INTENT_TYPE = "image/*";
+    private static final String CAPTURED_IMAGE_PATH = "capturedImagePath";
 
-    private EditProfileFragment fragment;
+    private EditProfileActivity activity;
     private CompositeSubscription subscriptions;
     private boolean firstTimeAttaching = true;
     private String displayNameFieldContents;
@@ -53,11 +55,11 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     private String aboutFieldContents;
     private String locationFieldContents;
     private String avatarUrl;
-    private String cameraImagePath;
+    private String capturedImagePath;
 
     @Override
-    public void onViewAttached(final EditProfileFragment fragment) {
-        this.fragment = fragment;
+    public void onViewAttached(final EditProfileActivity view) {
+        this.activity = view;
         if (this.firstTimeAttaching) {
             this.firstTimeAttaching = false;
             this.subscriptions = new CompositeSubscription();
@@ -68,43 +70,54 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     private void initShortLivingObjects() {
         initToolbar();
         updateView();
+        initClickListeners();
         attachListeners();
     }
 
     private void initToolbar() {
-        final ProfileActivity parentActivity = (ProfileActivity) this.fragment.getActivity();
-        parentActivity.getBinding().title.setText(R.string.edit_profile);
-        parentActivity.getBinding().closeButton.setImageResource(R.drawable.ic_arrow_back);
-        parentActivity.getBinding().saveButton.setVisibility(View.VISIBLE);
-        parentActivity.getBinding().saveButton.setOnClickListener(this.handleSaveClicked);
-        this.fragment.getBinding().avatar.setOnClickListener(this::handleAvatarClicked);
-        this.fragment.getBinding().editProfilePhoto.setOnClickListener(this::handleAvatarClicked);
+        this.activity.getBinding().title.setText(R.string.edit_profile);
+        this.activity.getBinding().saveButton.setOnClickListener(this.handleSaveClicked);
+        this.activity.getBinding().avatar.setOnClickListener(this::handleAvatarClicked);
+        this.activity.getBinding().editProfilePhoto.setOnClickListener(this::handleAvatarClicked);
     }
 
     private void updateView() {
-        this.fragment.getBinding().inputName.setText(this.displayNameFieldContents);
-        this.fragment.getBinding().inputUsername.setText(this.userNameFieldContents);
-        this.fragment.getBinding().inputAbout.setText(this.aboutFieldContents);
-        this.fragment.getBinding().inputLocation.setText(this.locationFieldContents);
-        Glide.with(this.fragment.getContext())
+        this.activity.getBinding().inputName.setText(this.displayNameFieldContents);
+        this.activity.getBinding().inputUsername.setText(this.userNameFieldContents);
+        this.activity.getBinding().inputAbout.setText(this.aboutFieldContents);
+        this.activity.getBinding().inputLocation.setText(this.locationFieldContents);
+        Glide.with(this.activity)
                 .load(this.avatarUrl)
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(this.fragment.getBinding().avatar);
+                .into(this.activity.getBinding().avatar);
+    }
+
+    private void initClickListeners() {
+        this.activity.getBinding().closeButton.setOnClickListener(__ -> this.activity.finish());
+    }
+
+    private void attachListeners() {
+        this.subscriptions.add(BaseApplication.get()
+                .getTokenManager()
+                .getUserManager()
+                .getUserObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleUserLoaded));
     }
 
     private final OnSingleClickListener handleSaveClicked = new OnSingleClickListener() {
         @Override
         public void onSingleClick(final View v) {
-            if (!validate()) {
-                return;
-            }
+            if (!validate()) return;
+
             final UserDetails userDetails =
                     new UserDetails()
-                    .setDisplayName(fragment.getBinding().inputName.getText().toString().trim())
-                    .setUsername(fragment.getBinding().inputUsername.getText().toString().trim())
-                    .setAbout(fragment.getBinding().inputAbout.getText().toString().trim())
-                    .setLocation(fragment.getBinding().inputLocation.getText().toString().trim());
+                    .setDisplayName(activity.getBinding().inputName.getText().toString().trim())
+                    .setUsername(activity.getBinding().inputUsername.getText().toString().trim())
+                    .setAbout(activity.getBinding().inputAbout.getText().toString().trim())
+                    .setLocation(activity.getBinding().inputLocation.getText().toString().trim());
 
             subscriptions.add(BaseApplication.get()
                     .getTokenManager()
@@ -112,29 +125,29 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
                     .updateUser(userDetails)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
-                            user -> handleUserUpdated(user),
+                            __ -> handleUserUpdated(),
                             error -> handleUserUpdateFailed(error)));
         }
 
         private boolean validate() {
-            final String displayName = fragment.getBinding().inputName.getText().toString().trim();
-            final String username = fragment.getBinding().inputUsername.getText().toString().trim();
+            final String displayName = activity.getBinding().inputName.getText().toString().trim();
+            final String username = activity.getBinding().inputUsername.getText().toString().trim();
 
             if (displayName.trim().length() == 0) {
-                fragment.getBinding().inputName.setError(fragment.getResources().getString(R.string.error__required));
-                fragment.getBinding().inputName.requestFocus();
+                activity.getBinding().inputName.setError(activity.getResources().getString(R.string.error__required));
+                activity.getBinding().inputName.requestFocus();
                 return false;
             }
 
             if (username.trim().length() == 0) {
-                fragment.getBinding().inputUsername.setError(fragment.getResources().getString(R.string.error__required));
-                fragment.getBinding().inputUsername.requestFocus();
+                activity.getBinding().inputUsername.setError(activity.getResources().getString(R.string.error__required));
+                activity.getBinding().inputUsername.requestFocus();
                 return false;
             }
 
             if (username.contains(" ")) {
-                fragment.getBinding().inputUsername.setError(fragment.getResources().getString(R.string.error__invalid_characters));
-                fragment.getBinding().inputUsername.requestFocus();
+                activity.getBinding().inputUsername.setError(activity.getResources().getString(R.string.error__invalid_characters));
+                activity.getBinding().inputUsername.requestFocus();
                 return false;
             }
             return true;
@@ -154,15 +167,15 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
                 checkExternalStoragePermission();
             }
         });
-        dialog.show(this.fragment.getChildFragmentManager(), ChooserDialog.TAG);
+        dialog.show(this.activity.getSupportFragmentManager(), ChooserDialog.TAG);
     }
 
     private void checkCameraPermission() {
-        if (ContextCompat.checkSelfPermission(
-                this.fragment.getContext(),
-                Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this.activity,
+                Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
 
-            this.fragment.requestPermissions(
+            ActivityCompat.requestPermissions(this.activity,
                     new String[]{Manifest.permission.CAMERA},
                     CAMERA_PERMISSION);
         } else {
@@ -172,11 +185,11 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
 
     private void startCameraActivity() {
         final Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (cameraIntent.resolveActivity(this.fragment.getContext().getPackageManager()) != null) {
+        if (cameraIntent.resolveActivity(this.activity.getPackageManager()) != null) {
             File photoFile = null;
             try {
-                photoFile = new FileUtil().createImageFileWithRandomName(this.fragment.getContext());
-                this.cameraImagePath = photoFile.getAbsolutePath();
+                photoFile = new FileUtil().createImageFileWithRandomName(this.activity);
+                this.capturedImagePath = photoFile.getAbsolutePath();
             } catch (IOException e) {
                 LogUtil.e(getClass(), "Error during creating image file " + e.getMessage());
             }
@@ -187,16 +200,16 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
                         photoFile);
                 grantUriPermission(cameraIntent, photoURI);
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                this.fragment.startActivityForResult(cameraIntent, CAPTURE_IMAGE);
+                this.activity.startActivityForResult(cameraIntent, CAPTURE_IMAGE);
             }
         }
     }
 
     private void grantUriPermission(final Intent intent, final Uri uri) {
         if (Build.VERSION.SDK_INT >= 21) return;
-        final PackageManager pm = this.fragment.getContext().getPackageManager();
+        final PackageManager pm = this.activity.getPackageManager();
         final String packageName = intent.resolveActivity(pm).getPackageName();
-        this.fragment.getContext().grantUriPermission(
+        this.activity.grantUriPermission(
                 packageName,
                 uri,
                 Intent.FLAG_GRANT_WRITE_URI_PERMISSION
@@ -205,11 +218,11 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     }
 
     private void checkExternalStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this.fragment.getContext(),
+        if (ContextCompat.checkSelfPermission(this.activity,
                 Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            this.fragment.requestPermissions(
+            ActivityCompat.requestPermissions(this.activity,
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                     READ_EXTERNAL_STORAGE_PERMISSION);
         } else {
@@ -222,22 +235,12 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
                 .setType(INTENT_TYPE)
                 .setAction(Intent.ACTION_GET_CONTENT);
 
-        if (pickPictureIntent.resolveActivity(this.fragment.getContext().getPackageManager()) != null) {
+        if (pickPictureIntent.resolveActivity(this.activity.getPackageManager()) != null) {
             final Intent chooser = Intent.createChooser(
                     pickPictureIntent,
                     BaseApplication.get().getString(R.string.select_picture));
-            this.fragment.startActivityForResult(chooser, PICK_IMAGE);
+            this.activity.startActivityForResult(chooser, PICK_IMAGE);
         }
-    }
-
-    private void attachListeners() {
-        this.subscriptions.add(BaseApplication.get()
-                .getTokenManager()
-                .getUserManager()
-                .getUserObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::handleUserLoaded));
     }
 
     private void handleUserLoaded(final User user) {
@@ -253,9 +256,9 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
         this.avatarUrl = user.getAvatar();
     }
 
-    private void handleUserUpdated(final User updatedUser) {
+    private void handleUserUpdated() {
         showToast("Saved successfully!");
-        fragment.getActivity().onBackPressed();
+        this.activity.onBackPressed();
     }
 
     private void handleUserUpdateFailed(final Throwable error) {
@@ -264,26 +267,19 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     }
 
     private void showToast(final String message) {
-        Toast.makeText(fragment.getContext(), message, Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onViewDetached() {
-        saveFields();
-        this.subscriptions.clear();
-        this.fragment = null;
+        Toast.makeText(this.activity, message, Toast.LENGTH_LONG).show();
     }
 
     private void saveFields() {
-        this.displayNameFieldContents = this.fragment.getBinding().inputName.getText().toString();
-        this.userNameFieldContents = this.fragment.getBinding().inputUsername.getText().toString();
-        this.aboutFieldContents = this.fragment.getBinding().inputAbout.getText().toString();
-        this.locationFieldContents = this.fragment.getBinding().inputLocation.getText().toString();
+        this.displayNameFieldContents = this.activity.getBinding().inputName.getText().toString();
+        this.userNameFieldContents = this.activity.getBinding().inputUsername.getText().toString();
+        this.aboutFieldContents = this.activity.getBinding().inputAbout.getText().toString();
+        this.locationFieldContents = this.activity.getBinding().inputLocation.getText().toString();
     }
 
     public boolean handleActivityResult(final ActivityResultHolder resultHolder) {
         if (resultHolder.getResultCode() != Activity.RESULT_OK
-                || this.fragment == null) {
+                || this.activity == null) {
             return false;
         }
 
@@ -305,12 +301,12 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     private void handleGalleryImage(final ActivityResultHolder resultHolder) throws IOException {
         final Uri uri = resultHolder.getIntent().getData();
         final FileUtil fileUtil = new FileUtil();
-        final File file = fileUtil.saveFileFromUri(this.fragment.getContext(), uri);
+        final File file = fileUtil.saveFileFromUri(this.activity, uri);
         uploadAvatar(file);
     }
 
     private void handleCameraImage() {
-        final File cameraImage = new File(this.cameraImagePath);
+        final File cameraImage = new File(this.capturedImagePath);
         uploadAvatar(cameraImage);
     }
 
@@ -334,9 +330,9 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     }
 
     private void handleUploadSuccess(final User user) {
-        if (this.fragment == null) return;
+        if (this.activity == null) return;
         handleUserLoaded(user);
-        Toast.makeText(this.fragment.getContext(), this.fragment.getString(R.string.profile_image_success), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this.activity, this.activity.getString(R.string.profile_image_success), Toast.LENGTH_SHORT).show();
     }
 
     private boolean tryDeleteCachedFile(final File file) {
@@ -345,12 +341,12 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
     }
 
     private void showFailureMessage() {
-        if (this.fragment == null) return;
-        Toast.makeText(this.fragment.getContext(), this.fragment.getString(R.string.profile_image_error), Toast.LENGTH_SHORT).show();
+        if (this.activity == null) return;
+        Toast.makeText(this.activity, this.activity.getString(R.string.profile_image_error), Toast.LENGTH_SHORT).show();
     }
 
     public boolean handlePermissionResult(final PermissionResultHolder permissionResultHolder) {
-        if (permissionResultHolder == null || this.fragment == null) return false;
+        if (permissionResultHolder == null || this.activity == null) return false;
         final int[] grantResults = permissionResultHolder.getGrantResults();
         if (grantResults.length == 0) return true;
 
@@ -369,8 +365,23 @@ public class EditProfilePresenter implements Presenter<EditProfileFragment> {
         return false;
     }
 
+    public void onSaveInstanceState(final Bundle outState) {
+        outState.putString(CAPTURED_IMAGE_PATH, this.capturedImagePath);
+    }
+
+    public void onRestoreInstanceState(final Bundle inState) {
+        this.capturedImagePath = inState.getString(CAPTURED_IMAGE_PATH);
+    }
+
+    @Override
+    public void onViewDetached() {
+        saveFields();
+        this.subscriptions.clear();
+        this.activity = null;
+    }
+
     @Override
     public void onDestroyed() {
-        this.fragment = null;
+        this.activity = null;
     }
 }
