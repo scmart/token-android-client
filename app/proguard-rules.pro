@@ -83,4 +83,4 @@
 -keepattributes SourceFile,LineNumberTable
 -keep public class * extends java.lang.Exception
 
--keepnames com.tokenbrowser.manager.network.TokenGlideModule
+-keepnames com.tokenbrowser.manager.network.image.GlideOkHttpStack

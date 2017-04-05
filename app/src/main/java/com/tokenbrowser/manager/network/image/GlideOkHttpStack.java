@@ -8,8 +8,6 @@ import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
 import com.bumptech.glide.load.model.ModelLoaderFactory;
 import com.bumptech.glide.module.GlideModule;
 import com.tokenbrowser.manager.network.interceptor.LoggingInterceptor;
-import com.tokenbrowser.manager.network.interceptor.OfflineCacheInterceptor;
-import com.tokenbrowser.manager.network.interceptor.ReadFromCacheInterceptor;
 import com.tokenbrowser.manager.network.interceptor.UserAgentInterceptor;
 import com.tokenbrowser.view.BaseApplication;
 
@@ -35,9 +33,7 @@ public class GlideOkHttpStack implements GlideModule {
         final OkHttpClient client =
                 new OkHttpClient().newBuilder()
                 .cache(cache)
-                .addNetworkInterceptor(new ReadFromCacheInterceptor())
                 .addInterceptor(new UserAgentInterceptor())
-                .addInterceptor(new OfflineCacheInterceptor())
                 .addInterceptor(new HttpLoggingInterceptor(new LoggingInterceptor()).setLevel(HttpLoggingInterceptor.Level.BODY))
                 .build();
 

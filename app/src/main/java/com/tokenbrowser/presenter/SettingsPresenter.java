@@ -210,10 +210,6 @@ public final class SettingsPresenter implements
         this.fragment.getBinding().ratingView.setStars(reputationScore);
         final String reviewCount = this.fragment.getString(R.string.parentheses, this.localUser.getReviewCount());
         this.fragment.getBinding().numberOfRatings.setText(reviewCount);
-        loadAvatar();
-    }
-
-    private void loadAvatar() {
         ImageUtil.loadFromNetwork(this.localUser.getAvatar(), this.fragment.getBinding().avatar);
     }
 
