@@ -3,6 +3,7 @@ package com.tokenbrowser.util;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -13,6 +14,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.tokenbrowser.R;
+import com.tokenbrowser.exception.QrCodeException;
 import com.tokenbrowser.manager.network.image.CachedGlideUrl;
 import com.tokenbrowser.manager.network.image.ForceLoadGlideUrl;
 import com.tokenbrowser.view.BaseApplication;
@@ -20,7 +22,6 @@ import com.tokenbrowser.view.BaseApplication;
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import rx.Single;
 
@@ -63,34 +64,28 @@ public class ImageUtil {
         return stream.toByteArray();
     }
 
-    public static Single<Bitmap> generateQrCodeForWalletAddress(final String walletAddress) {
-        return Single.fromCallable(new Callable<Bitmap>() {
-            @Override
-            public Bitmap call() throws Exception {
-                try {
-                    return generateQrCodeBitmap(walletAddress);
-                } catch (final WriterException e) {
-                    LogUtil.e(getClass(), "Error creating QR code bitmap");
-                }
-                return null;
+    public static Single<Bitmap> generateQrCode(final String value) {
+        return Single.fromCallable(() -> {
+            try {
+                return generateQrCodeBitmap(value);
+            } catch (final WriterException e) {
+                throw new QrCodeException(e);
             }
         });
     }
 
-    private static Bitmap generateQrCodeBitmap(final String walletAddress) throws WriterException {
-        if (walletAddress == null) {
-            return null;
-        }
+    private static Bitmap generateQrCodeBitmap(final String value) throws WriterException {
+        if (value == null) return null;
         
         final QRCodeWriter writer = new QRCodeWriter();
         final int size = BaseApplication.get().getResources().getDimensionPixelSize(R.dimen.qr_code_size);
         final Map<EncodeHintType, Integer> map = new HashMap<>();
         map.put(EncodeHintType.MARGIN, 0);
-        final BitMatrix bitMatrix = writer.encode(walletAddress, BarcodeFormat.QR_CODE, size, size, map);
+        final BitMatrix bitMatrix = writer.encode(value, BarcodeFormat.QR_CODE, size, size, map);
         final int width = bitMatrix.getWidth();
         final int height = bitMatrix.getHeight();
         final Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-        final int contrastColour = BaseApplication.get().getResources().getColor(R.color.windowBackground);
+        final int contrastColour = ContextCompat.getColor(BaseApplication.get(), R.color.windowBackground);
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 bmp.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : contrastColour);

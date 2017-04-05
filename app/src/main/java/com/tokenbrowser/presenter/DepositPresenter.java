@@ -77,7 +77,7 @@ public class DepositPresenter implements Presenter<DepositActivity> {
     }
 
     private void generateQrCode() {
-        ImageUtil.generateQrCodeForWalletAddress(this.localUser.getTokenId())
+        ImageUtil.generateQrCode(this.localUser.getTokenId())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleQrCodeGenerated);

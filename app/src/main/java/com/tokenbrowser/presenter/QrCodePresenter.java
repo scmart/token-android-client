@@ -2,9 +2,10 @@ package com.tokenbrowser.presenter;
 
 import android.graphics.Bitmap;
 
+import com.crashlytics.android.Crashlytics;
 import com.tokenbrowser.model.local.User;
-import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.util.LogUtil;
+import com.tokenbrowser.util.QrCodeUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.QrCodeActivity;
 
@@ -46,7 +47,7 @@ public class QrCodePresenter implements Presenter<QrCodeActivity> {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        this::handleUser,
+                        this::showQrCode,
                         this::handleUserError
                 );
 
@@ -65,17 +66,14 @@ public class QrCodePresenter implements Presenter<QrCodeActivity> {
         this.activity.getBinding().closeButton.setOnClickListener(v -> this.activity.finish());
     }
 
-    private void handleUser(final User user) {
-        showQrCode(user);
-    }
-
     private void handleUserError(final Throwable throwable) {
         LogUtil.e(getClass(), throwable.toString());
     }
 
     private void showQrCode(final User user) {
         final Subscription sub =
-                ImageUtil.generateQrCodeForWalletAddress(user.getPaymentAddress())
+                new QrCodeUtil()
+                .generateAddQrCode(user.getUsername())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -95,6 +93,7 @@ public class QrCodePresenter implements Presenter<QrCodeActivity> {
 
     private void handleQrCodeError(final Throwable throwable) {
         LogUtil.e(getClass(), throwable.toString());
+        Crashlytics.logException(throwable);
     }
 
     @Override
