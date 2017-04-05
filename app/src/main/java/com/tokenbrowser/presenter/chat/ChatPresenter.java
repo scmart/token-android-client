@@ -430,6 +430,7 @@ public final class ChatPresenter implements
     }
 
     private void setPadding(final int height) {
+        if (this.activity == null) return;
         final int paddingRight = this.activity.getBinding().messagesList.getPaddingRight();
         final int paddingLeft = this.activity.getBinding().messagesList.getPaddingLeft();
         this.activity.getBinding().messagesList.setPadding(paddingLeft, 0 , paddingRight, height);
