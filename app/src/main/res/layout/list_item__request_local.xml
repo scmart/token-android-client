@@ -69,6 +69,21 @@
             android:textSize="@dimen/defaultTextSize"
             tools:text="0.4534 ETH"/>
 
+        <!-- Row 3 -->
+        <TextView
+            android:id="@+id/body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="200dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="@dimen/bubbleMargin"
+            android:lineSpacingExtra="2dp"
+            tools:text="This is what the money is for. It should wrap over to several lines."
+            android:textColor="@color/textColorPrimary"
+            android:textSize="@dimen/defaultTextSize"
+            app:layout_columnSpan="3"/>
+
     </android.support.v7.widget.GridLayout>
 </FrameLayout>
 

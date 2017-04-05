@@ -33,22 +33,9 @@ public class PaymentRequest {
     public static final int REJECTED = 1;
     public static final int ACCEPTED = 2;
 
-    /**
-     * Value
-     * <p>
-     * Value of transaction in wei JSON-RPC encoded
-     * (Required)
-     *
-     */
     private String value;
-    /**
-     * Destination Address
-     * <p>
-     * Ethereum address of recipient
-     * (Required)
-     *
-     */
     private String destinationAddress;
+    private String body;
 
     @Json(name = SofaType.LOCAL_ONLY_PAYLOAD)
     private ClientSideCustomData androidClientSideCustomData;
@@ -80,6 +67,10 @@ public class PaymentRequest {
 
     public String getValue() {
         return this.value;
+    }
+
+    public String getBody() {
+        return this.body;
     }
 
     private PaymentRequest setLocalPrice(final String localPrice) {
