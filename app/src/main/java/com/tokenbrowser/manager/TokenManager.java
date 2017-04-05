@@ -14,7 +14,7 @@ import rx.schedulers.Schedulers;
 
 public class TokenManager {
 
-    public static final long CACHE_TIMEOUT = 1000 * 60 * 60 * 24;
+    public static final long CACHE_TIMEOUT = 1000 * 60 * 5;
 
     private AppsManager appsManager;
     private BalanceManager balanceManager;
