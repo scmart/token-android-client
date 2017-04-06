@@ -47,6 +47,7 @@
             android:textSize="16sp"
             android:textColor="@color/textColorInput"
             android:textColorHint="@color/textColorSecondary"
+            android:inputType="textNoSuggestions"
             android:hint="@string/password"/>
 
         <LinearLayout
