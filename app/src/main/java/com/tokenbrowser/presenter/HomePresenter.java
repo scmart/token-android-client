@@ -147,6 +147,7 @@ public class HomePresenter implements Presenter<HomeFragment> {
     private OnSingleClickListener payClickListener = new OnSingleClickListener() {
         @Override
         public void onSingleClick(View v) {
+            if (fragment == null) return;
             final Intent intent = new Intent(fragment.getContext(), AmountActivity.class)
                     .putExtra(AmountActivity.VIEW_TYPE, PaymentType.TYPE_SEND);
             fragment.startActivityForResult(intent, ETH_SEND_CODE);
@@ -156,6 +157,7 @@ public class HomePresenter implements Presenter<HomeFragment> {
     private OnSingleClickListener requestClickListener = new OnSingleClickListener() {
         @Override
         public void onSingleClick(View v) {
+            if (fragment == null) return;
             final Intent intent = new Intent(fragment.getContext(), AmountActivity.class)
                     .putExtra(AmountActivity.VIEW_TYPE, PaymentType.TYPE_REQUEST);
             fragment.startActivityForResult(intent, ETH_REQUEST_CODE);
@@ -165,6 +167,7 @@ public class HomePresenter implements Presenter<HomeFragment> {
     private OnSingleClickListener addMoneyClickListener = new OnSingleClickListener() {
         @Override
         public void onSingleClick(View v) {
+            if (fragment == null) return;
             final Intent intent = new Intent(fragment.getActivity(), DepositActivity.class);
             fragment.getActivity().startActivity(intent);
         }
@@ -173,6 +176,7 @@ public class HomePresenter implements Presenter<HomeFragment> {
     private OnSingleClickListener scanQrClickListener = new OnSingleClickListener() {
         @Override
         public void onSingleClick(View v) {
+            if (fragment == null) return;
             final Intent intent = new Intent(fragment.getActivity(), ScannerActivity.class);
             intent.putExtra(ScannerActivity.RESULT_TYPE, ScannerActivity.REDIRECT);
             fragment.getActivity().startActivity(intent);
@@ -182,6 +186,7 @@ public class HomePresenter implements Presenter<HomeFragment> {
     private OnItemClickListener<App> appItemClickListener = this::handleClickEvent;
 
     private void handleClickEvent(final App app) {
+        if (fragment == null) return;
         final Intent intent = new Intent(this.fragment.getContext(), ChatActivity.class)
                 .putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, app.getTokenId());
         this.fragment.getContext().startActivity(intent);

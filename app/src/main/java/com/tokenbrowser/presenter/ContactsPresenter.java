@@ -150,13 +150,15 @@ public final class ContactsPresenter implements
     }
 
     private void startUserSearchActivity() {
-        final Intent intent = new Intent(fragment.getActivity(), UserSearchActivity.class);
+        if (this.fragment == null) return;
+        final Intent intent = new Intent(this.fragment.getActivity(), UserSearchActivity.class);
         fragment.startActivity(intent);
     }
 
     private void startScanQrActivity() {
-        final Intent intent = new Intent(fragment.getActivity(), ScannerActivity.class);
+        if (this.fragment == null) return;
+        final Intent intent = new Intent(this.fragment.getActivity(), ScannerActivity.class);
         intent.putExtra(ScannerActivity.RESULT_TYPE, ScannerActivity.REDIRECT);
-        fragment.getActivity().startActivity(intent);
+        this.fragment.getActivity().startActivity(intent);
     }
 }
