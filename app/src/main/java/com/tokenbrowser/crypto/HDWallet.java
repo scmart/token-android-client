@@ -87,8 +87,8 @@ public class HDWallet {
     private Wallet generateNewWallet() {
         final Wallet wallet = new Wallet(NetworkParameters.fromID(NetworkParameters.ID_MAINNET));
         final DeterministicSeed seed = wallet.getKeyChainSeed();
-        this.masterSeed = seedToString(seed);
-        saveMasterSeedToStorage(this.masterSeed);
+        final String masterSeed = seedToString(seed);
+        saveMasterSeedToStorage(masterSeed);
 
         return wallet;
     }
@@ -112,7 +112,6 @@ public class HDWallet {
                 final Wallet wallet = Wallet.fromSeed(getNetworkParameters(), seed);
                 deriveKeysFromWallet(wallet);
                 saveMasterSeedToStorage(masterSeed);
-
                 return this;
             } catch (final UnreadableWalletException | MnemonicException e) {
                 throw new InvalidMasterSeedException(e);
@@ -216,6 +215,7 @@ public class HDWallet {
         this.prefs.edit()
                 .putString(MASTER_SEED, masterSeed)
                 .apply();
+        this.masterSeed = masterSeed;
     }
 
     private String readMasterSeedFromStorage() {
