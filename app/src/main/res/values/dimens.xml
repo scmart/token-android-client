@@ -27,6 +27,7 @@
     <dimen name="rating_bar_width">160dp</dimen>
 
     <dimen name="backup_phrase_spacing">10dp</dimen>
+    <dimen name="backup_phrase_corner_radius">3dp</dimen>
 
     <dimen name="image_frame_padding">16dp</dimen>
     <dimen name="round_corners_image_view__default_size">250dp</dimen>

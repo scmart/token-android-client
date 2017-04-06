@@ -5,9 +5,11 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.DragEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.google.android.flexbox.FlexboxLayout;
@@ -55,7 +57,60 @@ public class DragAndDropView extends LinearLayout {
 
     private void init() {
         inflate(getContext(), R.layout.view_drag_and_drop, this);
+    }
+
+    public void setBackupPhrase(final List<String> backupPhrase) {
+        this.correctBackupPhrase = new ArrayList<>(backupPhrase);
+        this.userInputtedBackupPhrase = createEmptyArray(backupPhrase.size());
+        this.remainingInputBackupPhrase = new ArrayList<>(backupPhrase);
+        Collections.shuffle(this.remainingInputBackupPhrase);
+
+        initChildViews();
         initListeners();
+
+        renderPhraseSegments();
+    }
+
+    private void initChildViews() {
+        final FlexboxLayout sourceLayout = (FlexboxLayout) findViewById(R.id.remaining_phrases);
+        final FlexboxLayout targetLayout = (FlexboxLayout) findViewById(R.id.user_inputted_phrases);
+        final FlexboxLayout.LayoutParams phraseParams = generateLayoutParams();
+        for (final String phrase : this.remainingInputBackupPhrase) {
+            final ShadowTextView userInputtedTextView = generateTargetTextView();
+            final ShadowTextView remainingTextView = generateSourceTextView(phrase);
+            sourceLayout.addView(remainingTextView, phraseParams);
+            targetLayout.addView(userInputtedTextView, phraseParams);
+        }
+        sourceLayout.requestLayout();
+        targetLayout.requestLayout();
+    }
+
+    @NonNull
+    private FlexboxLayout.LayoutParams generateLayoutParams() {
+        final FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        final int margin = getResources().getDimensionPixelOffset(R.dimen.backup_phrase_spacing);
+        params.setMargins(0, 0, margin, margin);
+        return params;
+    }
+
+    @NonNull
+    private ShadowTextView generateTargetTextView() {
+        final ShadowTextView textView = new ShadowTextView(getContext());
+        textView
+                .setShadowEnabled(false)
+                .setCornerRadius(getResources().getDimensionPixelSize(R.dimen.backup_phrase_corner_radius))
+                .setBackground(null);
+        return textView;
+    }
+
+    @NonNull
+    private ShadowTextView generateSourceTextView(final String phrase) {
+        final ShadowTextView textView = new ShadowTextView(getContext());
+        textView
+                .setShadowEnabled(true)
+                .setCornerRadius(getResources().getDimensionPixelSize(R.dimen.backup_phrase_corner_radius))
+                .setText(phrase);
+        return textView;
     }
 
     private void initListeners() {
@@ -165,15 +220,6 @@ public class DragAndDropView extends LinearLayout {
                 return;
             }
         }
-    }
-
-    public void setBackupPhrase(final List<String> backupPhrase) {
-        this.correctBackupPhrase = new ArrayList<>(backupPhrase);
-        this.userInputtedBackupPhrase = createEmptyArray(backupPhrase.size());
-        this.remainingInputBackupPhrase = new ArrayList<>(backupPhrase);
-        Collections.shuffle(this.remainingInputBackupPhrase);
-
-        renderPhraseSegments();
     }
 
     private ArrayList<String> createEmptyArray(final int size) {

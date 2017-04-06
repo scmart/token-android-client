@@ -14,7 +14,6 @@ import com.tokenbrowser.R;
 public class ShadowTextView extends CardView {
 
     private boolean shadowEnabled;
-    private boolean visibleBackground;
     private String text;
     private int cornerRadius;
     private float touchDownX;
@@ -41,7 +40,6 @@ public class ShadowTextView extends CardView {
     private void parseAttributeSet(final Context context, final @Nullable AttributeSet attrs) {
         final TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.ShadowTextView, 0, 0);
         this.shadowEnabled = a.getBoolean(R.styleable.ShadowTextView_shadow, true);
-        this.visibleBackground = a.getBoolean(R.styleable.ShadowTextView_visibleBackground, true);
         this.text = a.getString(R.styleable.ShadowTextView_text);
         this.cornerRadius = a.getDimensionPixelSize(R.styleable.ShadowTextView_cornerRadius, 0);
         a.recycle();
@@ -56,13 +54,19 @@ public class ShadowTextView extends CardView {
         setText(this.text);
         setMaxCardElevation(this.cornerRadius);
         setRadius(this.cornerRadius);
+        setShadowEnabled(this.shadowEnabled);
+    }
 
-        if (!this.visibleBackground) {
-            setBackground(null);
-        }
-        if (!this.shadowEnabled) {
-            disableShadow();
-        }
+    public ShadowTextView setShadowEnabled(final boolean shadowEnabled) {
+        this.shadowEnabled = shadowEnabled;
+        if (this.shadowEnabled) enableShadow();
+        else disableShadow();
+        return this;
+    }
+
+    public ShadowTextView setCornerRadius(final float radius) {
+        setRadius(radius);
+        return this;
     }
 
     public void setListener(final ClickAndDragListener listener) {
