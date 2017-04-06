@@ -6,4 +6,7 @@
     <string name="id_url">https://token-id-service.herokuapp.com</string>
     <string name="rep_url">https://token-rep-service.herokuapp.com</string>
     <string name="currency_url">https://api.coinbase.com</string>
+    <string name="qr_code_base_url">https://app.tokenbrowser.com/</string>
+    <string name="qr_code_add_url">%1$s/&lt;%2$s&gt;</string>
+    <string name="qr_code_pay_url">%1$s/&lt;%2$s&gt;\?value=%3$s&amp;memo=%4$s</string>
 </resources>

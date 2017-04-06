@@ -20,7 +20,7 @@ public class QrCodeUtil {
                 BaseApplication
                 .get()
                 .getString(
-                    R.string.qr_code_url_pay,
+                    R.string.qr_code_pay_url,
                     PAY_TYPE,
                     username,
                     value,
@@ -36,7 +36,7 @@ public class QrCodeUtil {
         final String addParams = BaseApplication
                 .get()
                 .getString(
-                    R.string.qr_code_url_add,
+                    R.string.qr_code_add_url,
                     ADD_TYPE,
                     username
                 );
