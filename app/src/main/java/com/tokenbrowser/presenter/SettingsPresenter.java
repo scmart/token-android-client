@@ -231,22 +231,26 @@ public final class SettingsPresenter implements
     private final OnSingleClickListener handleMyProfileClicked = new OnSingleClickListener() {
         @Override
         public void onSingleClick(final View v) {
+            if (fragment == null) return;
             final Intent intent = new Intent(fragment.getActivity(), ViewProfileActivity.class);
             fragment.startActivity(intent);
         }
     };
 
     private void handleTrustedFriendsClicked(final View view) {
+        if (this.fragment == null) return;
         final Intent intent = new Intent(this.fragment.getContext(), TrustedFriendsActivity.class);
         this.fragment.getContext().startActivity(intent);
     }
 
     private void handleBackupPhraseClicked(final View view) {
+        if (this.fragment == null) return;
         final Intent intent = new Intent(this.fragment.getContext(), BackupPhraseInfoActivity.class);
         this.fragment.getContext().startActivity(intent);
     }
 
     private void handleMyQrCodeClicked(final View view) {
+        if (this.fragment == null) return;
         final Intent intent = new Intent(this.fragment.getContext(), QrCodeActivity.class);
         this.fragment.getContext().startActivity(intent);
     }
