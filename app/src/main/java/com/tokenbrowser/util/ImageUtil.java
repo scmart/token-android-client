@@ -3,14 +3,19 @@ package com.tokenbrowser.util;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.widget.ImageView;
 
-import com.tokenbrowser.R;
-import com.tokenbrowser.view.BaseApplication;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import com.tokenbrowser.R;
+import com.tokenbrowser.manager.network.image.CachedGlideUrl;
+import com.tokenbrowser.manager.network.image.ForceLoadGlideUrl;
+import com.tokenbrowser.view.BaseApplication;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
@@ -20,6 +25,33 @@ import java.util.concurrent.Callable;
 import rx.Single;
 
 public class ImageUtil {
+
+    public static void loadFromNetwork(final String url, final ImageView imageView) {
+        if (url == null || imageView == null) return;
+        Glide
+            .with(imageView.getContext())
+            .load(new ForceLoadGlideUrl(url))
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .skipMemoryCache(true)
+            .thumbnail(
+                    Glide
+                    .with(imageView.getContext())
+                    .load(new CachedGlideUrl(url))
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+            )
+            .into(imageView);
+    }
+
+    public static void forceLoadFromNetwork(final String url, final ImageView imageView) {
+        if (url == null || imageView == null) return;
+        Glide
+            .with(imageView.getContext())
+            .load(new ForceLoadGlideUrl(url))
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .skipMemoryCache(true)
+            .into(imageView);
+    }
 
     public static Bitmap decodeByteArray(final byte[] bytes){
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);

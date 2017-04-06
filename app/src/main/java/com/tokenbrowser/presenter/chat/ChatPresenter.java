@@ -26,7 +26,6 @@ import android.view.animation.PathInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.tokenbrowser.BuildConfig;
 import com.tokenbrowser.R;
 import com.tokenbrowser.crypto.HDWallet;
@@ -43,6 +42,7 @@ import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.presenter.AmountPresenter;
 import com.tokenbrowser.presenter.Presenter;
 import com.tokenbrowser.util.FileUtil;
+import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.util.KeyboardUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
@@ -565,9 +565,7 @@ public final class ChatPresenter implements
         this.activity.setSupportActionBar(this.activity.getBinding().toolbar);
         final ActionBar actionBar = this.activity.getSupportActionBar();
         if (actionBar != null) actionBar.setDisplayShowTitleEnabled(false);
-        Glide.with(this.activity.getBinding().avatar.getContext())
-                .load(remoteUser.getAvatar())
-                .into(this.activity.getBinding().avatar);
+        ImageUtil.loadFromNetwork(remoteUser.getAvatar(), this.activity.getBinding().avatar);
     }
 
     private void handleBackButtonClicked(final View v) {

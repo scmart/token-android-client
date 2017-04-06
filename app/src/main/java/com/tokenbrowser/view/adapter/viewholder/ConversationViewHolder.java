@@ -7,8 +7,8 @@ import android.widget.TextView;
 import com.tokenbrowser.R;
 import com.tokenbrowser.model.local.Conversation;
 import com.tokenbrowser.model.local.User;
+import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.util.LocaleUtil;
-import com.bumptech.glide.Glide;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -44,9 +44,7 @@ public class ConversationViewHolder extends ClickableViewHolder {
         final int visibility = conversation.getNumberOfUnread() > 0 ? VISIBLE : GONE;
         this.unreadCounter.setVisibility(visibility);
 
-        Glide.with(this.avatar.getContext())
-                .load(conversation.getMember().getAvatar())
-                .into(this.avatar);
+        ImageUtil.loadFromNetwork(conversation.getMember().getAvatar(), this.avatar);
     }
 
     public void setLatestMessage(final String latestMessage) {

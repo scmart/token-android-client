@@ -5,12 +5,12 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.tokenbrowser.R;
 import com.tokenbrowser.databinding.ActivityViewAppBinding;
 import com.tokenbrowser.model.local.ActivityResultHolder;
 import com.tokenbrowser.model.network.App;
 import com.tokenbrowser.model.network.ReputationScore;
+import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.PaymentType;
 import com.tokenbrowser.view.BaseApplication;
@@ -129,9 +129,7 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
         binding.title.setText(this.app.getCustom().getName());
         binding.name.setText(this.app.getCustom().getName());
         binding.username.setText(this.app.getCustom().getName());
-        Glide.with(this.activity)
-                .load(this.app.getCustom().getAvatar())
-                .into(binding.avatar);
+        ImageUtil.loadFromNetwork(this.app.getCustom().getAvatar(), binding.avatar);
     }
 
     private void initClickListeners() {

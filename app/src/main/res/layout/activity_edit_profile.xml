@@ -72,7 +72,7 @@
                     android:layout_width="104dp"
                     android:layout_height="104dp"
                     android:layout_gravity="center_horizontal"
-                    android:src="@mipmap/ic_launcher"/>
+                    android:src="@color/textColorHint"/>
 
                 <android.support.v4.widget.Space
                     android:layout_width="0dp"

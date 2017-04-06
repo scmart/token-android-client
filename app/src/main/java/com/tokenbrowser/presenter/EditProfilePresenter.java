@@ -15,8 +15,6 @@ import android.support.v4.content.FileProvider;
 import android.view.View;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tokenbrowser.BuildConfig;
 import com.tokenbrowser.R;
 import com.tokenbrowser.model.local.ActivityResultHolder;
@@ -24,6 +22,7 @@ import com.tokenbrowser.model.local.PermissionResultHolder;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.network.UserDetails;
 import com.tokenbrowser.util.FileUtil;
+import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.view.BaseApplication;
@@ -56,6 +55,7 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
     private String locationFieldContents;
     private String avatarUrl;
     private String capturedImagePath;
+    private boolean isUploading;
 
     @Override
     public void onViewAttached(final EditProfileActivity view) {
@@ -82,15 +82,25 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
     }
 
     private void updateView() {
+        populateFields();
+        loadAvatar();
+    }
+
+    private void populateFields() {
         this.activity.getBinding().inputName.setText(this.displayNameFieldContents);
         this.activity.getBinding().inputUsername.setText(this.userNameFieldContents);
         this.activity.getBinding().inputAbout.setText(this.aboutFieldContents);
         this.activity.getBinding().inputLocation.setText(this.locationFieldContents);
-        Glide.with(this.activity)
-                .load(this.avatarUrl)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(this.activity.getBinding().avatar);
+    }
+
+    private void loadAvatar() {
+        if (this.avatarUrl == null || this.isUploading) {
+            this.activity.getBinding().avatar.setImageDrawable(null);
+            this.activity.getBinding().avatar.setImageResource(R.color.textColorHint);
+            return;
+        }
+        this.activity.getBinding().avatar.setImageResource(0);
+        ImageUtil.loadFromNetwork(this.avatarUrl, this.activity.getBinding().avatar);
     }
 
     private void initClickListeners() {
@@ -314,6 +324,7 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
         if (file == null) return;
         if (!file.exists()) return;
 
+        this.isUploading = true;
         final Subscription sub = BaseApplication.get()
                 .getTokenManager()
                 .getUserManager()
@@ -331,7 +342,8 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
 
     private void handleUploadSuccess(final User user) {
         if (this.activity == null) return;
-        handleUserLoaded(user);
+        this.isUploading = false;
+        ImageUtil.forceLoadFromNetwork(user.getAvatar(), this.activity.getBinding().avatar);
         Toast.makeText(this.activity, this.activity.getString(R.string.profile_image_success), Toast.LENGTH_SHORT).show();
     }
 
@@ -342,6 +354,7 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
 
     private void showFailureMessage() {
         if (this.activity == null) return;
+        this.isUploading = false;
         Toast.makeText(this.activity, this.activity.getString(R.string.profile_image_error), Toast.LENGTH_SHORT).show();
     }
 

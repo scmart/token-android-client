@@ -7,9 +7,9 @@ import android.widget.TextView;
 
 import com.tokenbrowser.R;
 import com.tokenbrowser.model.local.User;
+import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.custom.StarRatingView;
-import com.bumptech.glide.Glide;
 
 public class ContactViewHolder extends ClickableViewHolder {
 
@@ -31,10 +31,7 @@ public class ContactViewHolder extends ClickableViewHolder {
     public void setUser(final User user) {
         this.name.setText(user.getDisplayName());
         this.username.setText(user.getUsername());
-
-        Glide.with(this.avatar.getContext())
-                .load(user.getAvatar())
-                .into(this.avatar);
+        ImageUtil.loadFromNetwork(user.getAvatar(), this.avatar);
 
         final double reputationScore = user.getReputationScore() != null
                 ? user.getReputationScore()

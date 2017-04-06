@@ -7,8 +7,8 @@ import android.widget.TextView;
 
 import com.tokenbrowser.R;
 import com.tokenbrowser.model.network.App;
+import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
-import com.bumptech.glide.Glide;
 
 public class AppListViewHolder extends RecyclerView.ViewHolder {
     private ImageView appImage;
@@ -23,9 +23,7 @@ public class AppListViewHolder extends RecyclerView.ViewHolder {
 
     public void setApp(final App app) {
         this.appName.setText(app.getCustom().getName());
-        Glide.with(this.appImage.getContext())
-                .load(app.getCustom().getAvatar())
-                .into(this.appImage);
+        ImageUtil.loadFromNetwork(app.getCustom().getAvatar(), this.appImage);
     }
 
     public void bind(final App app, final OnItemClickListener<App> listener) {

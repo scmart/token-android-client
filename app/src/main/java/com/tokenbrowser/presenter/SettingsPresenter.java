@@ -7,10 +7,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.tokenbrowser.R;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.network.Balance;
+import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
@@ -18,10 +18,10 @@ import com.tokenbrowser.view.activity.AboutActivity;
 import com.tokenbrowser.view.activity.BackupPhraseInfoActivity;
 import com.tokenbrowser.view.activity.SignOutActivity;
 import com.tokenbrowser.view.activity.TrustedFriendsActivity;
+import com.tokenbrowser.view.activity.ViewProfileActivity;
 import com.tokenbrowser.view.adapter.SettingsAdapter;
 import com.tokenbrowser.view.custom.RecyclerViewDivider;
 import com.tokenbrowser.view.fragment.toplevel.SettingsFragment;
-import com.tokenbrowser.view.activity.ViewProfileActivity;
 
 import java.math.BigInteger;
 
@@ -210,10 +210,7 @@ public final class SettingsPresenter implements
         this.fragment.getBinding().ratingView.setStars(reputationScore);
         final String reviewCount = this.fragment.getString(R.string.parentheses, this.localUser.getReviewCount());
         this.fragment.getBinding().numberOfRatings.setText(reviewCount);
-
-        Glide.with(this.fragment.getBinding().avatar.getContext())
-                .load(this.localUser.getAvatar())
-                .into(this.fragment.getBinding().avatar);
+        ImageUtil.loadFromNetwork(this.localUser.getAvatar(), this.fragment.getBinding().avatar);
     }
 
     private void setSecurityState() {

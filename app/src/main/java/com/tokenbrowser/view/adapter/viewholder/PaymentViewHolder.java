@@ -7,13 +7,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.tokenbrowser.R;
 import com.tokenbrowser.crypto.util.TypeConverter;
 import com.tokenbrowser.model.local.SendState;
 import com.tokenbrowser.model.sofa.Payment;
 import com.tokenbrowser.model.sofa.SofaType;
-import com.tokenbrowser.R;
 import com.tokenbrowser.util.EthUtil;
+import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.view.BaseApplication;
 
 import java.math.BigInteger;
@@ -73,10 +73,7 @@ public final class PaymentViewHolder extends RecyclerView.ViewHolder {
             return;
         }
 
-        Glide
-                .with(this.avatar.getContext())
-                .load(this.avatarUri)
-                .into(this.avatar);
+        ImageUtil.loadFromNetwork(this.avatarUri, this.avatar);
     }
 
     private void renderPaymentStatus() {

@@ -5,9 +5,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.tokenbrowser.model.network.App;
 import com.tokenbrowser.R;
+import com.tokenbrowser.model.network.App;
+import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.view.adapter.listeners.OnItemClickListener;
 import com.tokenbrowser.view.custom.StarRatingView;
 
@@ -40,9 +40,7 @@ public class RecommendedAppsViewHolder extends RecyclerView.ViewHolder {
                 : 0;
         this.ratingView.setStars(reputationScore);
 
-        Glide.with(this.appImage.getContext())
-                .load(app.getCustom().getAvatar())
-                .into(this.appImage);
+        ImageUtil.loadFromNetwork(app.getCustom().getAvatar(), this.appImage);
     }
 
     public void bind(final App app, OnItemClickListener<App> listener) {
