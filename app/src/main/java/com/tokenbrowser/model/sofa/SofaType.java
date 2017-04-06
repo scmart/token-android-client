@@ -53,6 +53,7 @@ public class SofaType {
     }
 
     public static @Type int getType(final String header) {
+        if (header == null) return UNKNOWN;
         switch (header) {
             case plain_text: return PLAIN_TEXT;
             case payment_request: return PAYMENT_REQUEST;
