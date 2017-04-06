@@ -133,6 +133,24 @@
 
                 <View
                     android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:background="@color/divider" />
+
+                <TextView
+                    android:id="@+id/my_qr_code"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:paddingLeft="@dimen/activity_horizontal_margin"
+                    android:paddingRight="@dimen/activity_horizontal_margin"
+                    android:gravity="center_vertical"
+                    android:textSize="16sp"
+                    android:textColor="@color/textColorPrimary"
+                    android:text="@string/my_qr_code"/>
+
+                <View
+                    android:layout_width="match_parent"
                     android:layout_height="10dp"
                     android:background="@color/windowBackgroundContrast"/>
 

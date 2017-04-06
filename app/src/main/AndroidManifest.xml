@@ -62,6 +62,7 @@
         <activity android:name="com.tokenbrowser.view.activity.SignInActivity" />
         <activity android:name="com.tokenbrowser.view.activity.SignOutActivity"
                   android:theme="@style/SplashTheme" />
+        <activity android:name="com.tokenbrowser.view.activity.QrCodeActivity"/>
 
         <meta-data
             android:name="io.fabric.ApiKey"

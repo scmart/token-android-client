@@ -152,4 +152,6 @@
     <string name="unable_to_restore_wallet">Unable to restore wallet</string>
     <string name="sign_in_length_error_message">Please insert 12 words</string>
     <string name="favorite">Favorite</string>
+    <string name="my_qr_code">My QR Code</string>
+    <string name="qr_code">QR Code</string>
 </resources>

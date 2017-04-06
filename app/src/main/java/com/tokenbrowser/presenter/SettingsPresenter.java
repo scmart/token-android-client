@@ -16,6 +16,7 @@ import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.AboutActivity;
 import com.tokenbrowser.view.activity.BackupPhraseInfoActivity;
+import com.tokenbrowser.view.activity.QrCodeActivity;
 import com.tokenbrowser.view.activity.SignOutActivity;
 import com.tokenbrowser.view.activity.TrustedFriendsActivity;
 import com.tokenbrowser.view.activity.ViewProfileActivity;
@@ -224,6 +225,7 @@ public final class SettingsPresenter implements
         this.fragment.getBinding().myProfileCard.setOnClickListener(this.handleMyProfileClicked);
         this.fragment.getBinding().trustedFriends.setOnClickListener(this::handleTrustedFriendsClicked);
         this.fragment.getBinding().backupPhrase.setOnClickListener(this::handleBackupPhraseClicked);
+        this.fragment.getBinding().myQrCode.setOnClickListener(this::handleMyQrCodeClicked);
     }
 
     private final OnSingleClickListener handleMyProfileClicked = new OnSingleClickListener() {
@@ -241,6 +243,11 @@ public final class SettingsPresenter implements
 
     private void handleBackupPhraseClicked(final View view) {
         final Intent intent = new Intent(this.fragment.getContext(), BackupPhraseInfoActivity.class);
+        this.fragment.getContext().startActivity(intent);
+    }
+
+    private void handleMyQrCodeClicked(final View view) {
+        final Intent intent = new Intent(this.fragment.getContext(), QrCodeActivity.class);
         this.fragment.getContext().startActivity(intent);
     }
 
