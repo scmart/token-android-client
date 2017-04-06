@@ -92,6 +92,8 @@ public final class SettingsPresenter implements
         this.fragment.getBinding().name.setText(this.fragment.getString(R.string.profile__unknown_name));
         this.fragment.getBinding().username.setText("");
         this.fragment.getBinding().ratingView.setStars(0);
+        final String reviewCount = this.fragment.getString(R.string.parentheses, 0);
+        this.fragment.getBinding().numberOfRatings.setText(reviewCount);
         this.fragment.getBinding().avatar.setImageResource(R.drawable.ic_unknown_user_24dp);
     }
 
@@ -206,6 +208,8 @@ public final class SettingsPresenter implements
                 ? this.localUser.getReputationScore()
                 : 0;
         this.fragment.getBinding().ratingView.setStars(reputationScore);
+        final String reviewCount = this.fragment.getString(R.string.parentheses, this.localUser.getReviewCount());
+        this.fragment.getBinding().numberOfRatings.setText(reviewCount);
 
         Glide.with(this.fragment.getBinding().avatar.getContext())
                 .load(this.localUser.getAvatar())
