@@ -7,15 +7,19 @@ import com.tokenbrowser.util.SharedPrefsUtil;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
 import rx.Completable;
 import rx.Single;
 import rx.schedulers.Schedulers;
+import rx.subjects.BehaviorSubject;
 
 public class TokenManager {
 
     public static final long CACHE_TIMEOUT = 1000 * 60 * 5;
+
+    private final BehaviorSubject<HDWallet> walletSubject = BehaviorSubject.create();
 
     private AppsManager appsManager;
     private BalanceManager balanceManager;
@@ -34,6 +38,7 @@ public class TokenManager {
         this.userManager = new UserManager();
         this.sofaMessageManager = new SofaMessageManager();
         this.transactionManager = new TransactionManager();
+        this.walletSubject.onNext(null);
     }
 
     public Single<TokenManager> init() {
@@ -42,13 +47,13 @@ public class TokenManager {
         }
         return new HDWallet()
                 .getOrCreateWallet()
-                .doOnSuccess(wallet -> this.wallet = wallet)
+                .doOnSuccess(this::setWallet)
                 .flatMap(__ -> initManagers())
                 .subscribeOn(Schedulers.from(this.singleExecutor));
     }
 
     public Single<TokenManager> init(final HDWallet wallet) {
-        this.wallet = wallet;
+        this.setWallet(wallet);
         return initManagers()
                 .subscribeOn(Schedulers.from(this.singleExecutor));
     }
@@ -59,9 +64,14 @@ public class TokenManager {
         }
         return new HDWallet()
                 .getExistingWallet()
-                .doOnSuccess(wallet -> this.wallet = wallet)
+                .doOnSuccess(this::setWallet)
                 .flatMap(__ -> initManagers())
                 .subscribeOn(Schedulers.from(this.singleExecutor));
+    }
+
+    private void setWallet(final HDWallet wallet) {
+        this.wallet = wallet;
+        this.walletSubject.onNext(wallet);
     }
 
     private Single<TokenManager> initManagers() {
@@ -102,12 +112,13 @@ public class TokenManager {
     }
 
     public Single<HDWallet> getWallet() {
-        return Single.fromCallable(() -> {
-            while (wallet == null) {
-                Thread.sleep(200);
-            }
-            return wallet;
-        });
+        return
+                this.walletSubject
+                .filter(wallet -> wallet != null)
+                .timeout(3, TimeUnit.SECONDS)
+                .onErrorReturn(__ -> null)
+                .first()
+                .toSingle();
     }
 
     public Completable clearUserData() {
@@ -117,12 +128,12 @@ public class TokenManager {
             this.balanceManager.clear();
             this.transactionManager.clear();
             this.wallet.clear();
-            this.wallet = null;
             this.areManagersInitialised = false;
             clearDatabase();
             SignalPreferences.clear();
             SharedPrefsUtil.setSignedOut();
             SharedPrefsUtil.clear();
+            setWallet(null);
         });
     }
 
