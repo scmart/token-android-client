@@ -62,10 +62,14 @@ public class TransactionManager {
     }
 
     public final void sendPayment(final User receiver, final String amount) {
+        sendPayment(receiver, receiver.getPaymentAddress(), amount);
+    }
+
+    private void sendPayment(final User receiver, final String paymentAddress, final String amount) {
         new Payment()
             .setValue(amount)
             .setFromAddress(this.wallet.getPaymentAddress())
-            .setToAddress(receiver.getPaymentAddress())
+            .setToAddress(paymentAddress)
             .generateLocalPrice()
             .subscribe((payment -> {
                 final PaymentTask task = new PaymentTask(receiver, payment, OUTGOING);
@@ -94,7 +98,7 @@ public class TransactionManager {
                     .updateMessage(remoteUser, sofaMessage);
 
             if (newState == PaymentRequest.ACCEPTED) {
-                sendPayment(remoteUser, paymentRequest.getValue());
+                sendPayment(remoteUser, paymentRequest.getDestinationAddresss(), paymentRequest.getValue());
             }
 
         } catch (final IOException ex) {
