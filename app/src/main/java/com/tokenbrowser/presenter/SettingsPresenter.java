@@ -80,6 +80,10 @@ public final class SettingsPresenter implements
     }
 
     private void handleUserLoaded(final User user) {
+        if (user == null) {
+            handleNoUser();
+            return;
+        }
         this.localUser = user;
         updateUi();
     }

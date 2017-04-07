@@ -5,7 +5,6 @@ import android.util.Base64;
 
 import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.crypto.util.HashUtil;
-import com.tokenbrowser.util.SingleSuccessSubscriber;
 import com.tokenbrowser.view.BaseApplication;
 
 import java.io.IOException;
@@ -18,31 +17,22 @@ import okio.Buffer;
 
 public class SigningInterceptor implements Interceptor {
 
-    private HDWallet wallet;
-
     private final String TIMESTAMP_QUERY_PARAMETER = "timestamp";
     private final String ADDRESS_HEADER = "Token-ID-Address";
     private final String SIGNATURE_HEADER = "Token-Signature";
     private final String TIMESTAMP_HEADER = "Token-Timestamp";
 
-    public SigningInterceptor() {
-        BaseApplication
-                .get()
-                .getTokenManager()
-                .getWallet()
-                .subscribe(new SingleSuccessSubscriber<HDWallet>() {
-                    @Override
-                    public void onSuccess(final HDWallet wallet) {
-                        SigningInterceptor.this.wallet = wallet;
-                    }
-                });
-    }
-
     @Override
     public Response intercept(final Chain chain) throws IOException {
         final Request original = chain.request();
         final String timestamp = original.url().queryParameter(TIMESTAMP_QUERY_PARAMETER);
-        if (this.wallet == null || timestamp == null) {
+        if (timestamp == null) {
+            // Only signing outgoing requests that have a timestamp argument
+            return chain.proceed(original);
+        }
+
+        final HDWallet wallet = getWallet();
+        if (wallet == null) {
             // Only signing outgoing requests that have a timestamp argument
             return chain.proceed(original);
         }
@@ -59,7 +49,7 @@ public class SigningInterceptor implements Interceptor {
         }
 
         final String forSigning = method + "\n" + path + "\n" + timestamp + "\n" + encodedBody;
-        final String signature = this.wallet.signIdentity(forSigning);
+        final String signature = wallet.signIdentity(forSigning);
 
         final HttpUrl url = chain.request().url()
                 .newBuilder()
@@ -71,10 +61,19 @@ public class SigningInterceptor implements Interceptor {
                 .method(original.method(), original.body())
                 .addHeader(TIMESTAMP_HEADER, timestamp)
                 .addHeader(SIGNATURE_HEADER, signature)
-                .addHeader(ADDRESS_HEADER, this.wallet.getOwnerAddress())
+                .addHeader(ADDRESS_HEADER, wallet.getOwnerAddress())
                 .url(url)
                 .build();
 
         return chain.proceed(request);
+    }
+
+    public HDWallet getWallet() {
+            return BaseApplication
+                    .get()
+                    .getTokenManager()
+                    .getWallet()
+                    .toBlocking()
+                    .value();
     }
 }

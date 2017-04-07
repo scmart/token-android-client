@@ -10,7 +10,6 @@ import android.widget.Toast;
 import com.tokenbrowser.R;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.util.ImageUtil;
-import com.tokenbrowser.util.OnNextSubscriber;
 import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.DepositActivity;
@@ -51,19 +50,15 @@ public class DepositPresenter implements Presenter<DepositActivity> {
         BaseApplication.get()
                 .getTokenManager()
                 .getUserManager()
-                .getUserObservable()
+                .getCurrentUser()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this.handleUserCallback);
+                .subscribe(this::handleUserCallback);
     }
 
-    private OnNextSubscriber<User> handleUserCallback = new OnNextSubscriber<User>() {
-        @Override
-        public void onNext(User user) {
-            localUser = user;
-            updateView();
-            this.unsubscribe();
-        }
+    private void handleUserCallback(final User user) {
+        this.localUser = user;
+        updateView();
     };
 
     private void updateView() {
