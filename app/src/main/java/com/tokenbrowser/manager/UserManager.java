@@ -270,7 +270,6 @@ public class UserManager {
     public void clear() {
         clearCache();
         clearUserId();
-        this.userStore.clearRealm();
     }
 
     private void clearUserId() {

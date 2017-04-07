@@ -8,6 +8,7 @@ import com.tokenbrowser.util.SharedPrefsUtil;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import io.realm.Realm;
 import rx.Completable;
 import rx.Single;
 import rx.schedulers.Schedulers;
@@ -118,9 +119,23 @@ public class TokenManager {
             this.wallet.clear();
             this.wallet = null;
             this.areManagersInitialised = false;
+            clearDatabase();
             SignalPreferences.clear();
             SharedPrefsUtil.setSignedOut();
             SharedPrefsUtil.clear();
         });
+    }
+
+    private void clearDatabase() {
+        final Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        realm.deleteAll();
+        realm.commitTransaction();
+        realm.close();
+        try {
+            Realm.deleteRealm(realm.getConfiguration());
+        } catch (final IllegalStateException ex) {
+            // Do nothing, the database has been cleared anyway
+        }
     }
 }
