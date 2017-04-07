@@ -30,7 +30,7 @@ import rx.subscriptions.CompositeSubscription;
 public class PaymentRequestConfirmationDialog extends DialogFragment {
 
     public static final String TAG = "PaymentRequestConfirmationDialog";
-    public static final String SCAN_RESULT = "scan_result";
+    public static final String TOKEN_ID = "scan_result";
     public static final String ETH_AMOUNT = "eth_amount";
     public static final String PAYMENT_TYPE = "payment_type";
 
@@ -43,17 +43,17 @@ public class PaymentRequestConfirmationDialog extends DialogFragment {
     private @PaymentType.Type int paymentType;
 
     public interface OnActionClickListener {
-        void onApproved(final String userAddress);
-        void onRejected();
+        void onPaymentApproved(final String userAddress);
+        void onPaymentRejected();
     }
 
     public void setOnActionClickedListener(final OnActionClickListener listener) {
         this.listener = listener;
     }
 
-    public static PaymentRequestConfirmationDialog newInstance(final String scanResult, final String value, final @PaymentType.Type int paymentType) {
+    public static PaymentRequestConfirmationDialog newInstance(final String tokenId, final String value, final @PaymentType.Type int paymentType) {
         final Bundle bundle = new Bundle();
-        bundle.putString(SCAN_RESULT, scanResult);
+        bundle.putString(TOKEN_ID, tokenId);
         bundle.putString(ETH_AMOUNT, value);
         bundle.putInt(PAYMENT_TYPE, paymentType);
         final PaymentRequestConfirmationDialog fragment = new PaymentRequestConfirmationDialog();
@@ -84,7 +84,7 @@ public class PaymentRequestConfirmationDialog extends DialogFragment {
 
     @SuppressWarnings("WrongConstant")
     private void getBundleData() {
-        this.userAddress = this.getArguments().getString(SCAN_RESULT);
+        this.userAddress = this.getArguments().getString(TOKEN_ID);
         this.encodedEthAmount = this.getArguments().getString(ETH_AMOUNT);
         this.paymentType = this.getArguments().getInt(PAYMENT_TYPE);
     }
@@ -153,12 +153,12 @@ public class PaymentRequestConfirmationDialog extends DialogFragment {
     }
 
     private void handleApprovedClicked(final View v) {
-        this.listener.onApproved(this.userAddress);
+        this.listener.onPaymentApproved(this.userAddress);
         this.dismiss();
     }
 
     private void handleRejectClicked(final View v) {
-        this.listener.onRejected();
+        this.listener.onPaymentRejected();
         this.dismiss();
     }
 

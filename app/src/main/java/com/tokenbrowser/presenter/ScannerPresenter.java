@@ -1,28 +1,33 @@
 package com.tokenbrowser.presenter;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.view.View;
 import android.widget.Toast;
 
+import com.google.zxing.ResultPoint;
+import com.journeyapps.barcodescanner.BarcodeCallback;
+import com.journeyapps.barcodescanner.BarcodeResult;
+import com.journeyapps.barcodescanner.CaptureManager;
 import com.tokenbrowser.R;
+import com.tokenbrowser.exception.InvalidQrCodePayment;
+import com.tokenbrowser.exception.InvalidQrCode;
 import com.tokenbrowser.model.local.PermissionResultHolder;
+import com.tokenbrowser.model.local.QrCodePayment;
 import com.tokenbrowser.model.local.ScanResult;
+import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.PaymentType;
+import com.tokenbrowser.util.QrCodeType;
+import com.tokenbrowser.util.QrCode;
 import com.tokenbrowser.util.SoundManager;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ChatActivity;
 import com.tokenbrowser.view.activity.ScannerActivity;
 import com.tokenbrowser.view.activity.ViewUserActivity;
 import com.tokenbrowser.view.fragment.DialogFragment.PaymentRequestConfirmationDialog;
-import com.google.zxing.ResultPoint;
-import com.journeyapps.barcodescanner.BarcodeCallback;
-import com.journeyapps.barcodescanner.BarcodeResult;
-import com.journeyapps.barcodescanner.CaptureManager;
 
 import java.util.List;
 
+import rx.Single;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -38,6 +43,7 @@ public final class ScannerPresenter implements
     private CaptureManager capture;
     private ScannerActivity activity;
     private CompositeSubscription subscriptions;
+
     private boolean firstTimeAttaching = true;
     private int resultType;
     private String encodedEthAmount;
@@ -52,19 +58,11 @@ public final class ScannerPresenter implements
             initLongLivingObjects();
         }
 
-        getIntentData();
         init();
     }
 
     private void initLongLivingObjects() {
         this.subscriptions = new CompositeSubscription();
-    }
-
-    @SuppressWarnings("WrongConstant")
-    private void getIntentData() {
-        this.resultType = this.activity.getIntent().getIntExtra(ScannerActivity.RESULT_TYPE, 0);
-        this.encodedEthAmount = this.activity.getIntent().getStringExtra(ScannerActivity.ETH_AMOUNT);
-        this.paymentType = this.activity.getIntent().getIntExtra(ScannerActivity.PAYMENT_TYPE, PaymentType.TYPE_SEND);
     }
 
     private void init() {
@@ -73,7 +71,7 @@ public final class ScannerPresenter implements
     }
 
     private void initCloseButton() {
-        this.activity.getBinding().closeButton.setOnClickListener((View v) -> activity.finish());
+        this.activity.getBinding().closeButton.setOnClickListener(__ -> activity.finish());
     }
 
     private void initScanner() {
@@ -87,45 +85,148 @@ public final class ScannerPresenter implements
     private final BarcodeCallback onScanSuccess = new BarcodeCallback() {
         @Override
         public void barcodeResult(final BarcodeResult result) {
-            SoundManager.getInstance().playSound(SoundManager.SCAN);
-            // Right now, this assumes that the QR code is a contacts address
-            // so it is currently very naive
             final ScanResult scanResult = new ScanResult(result);
-            if (resultType == ScannerActivity.CONFIRMATION_REDIRECT) {
-                showConfirmationDialog(scanResult);
-            } else if (resultType == ScannerActivity.FOR_RESULT) {
-                final Intent intent = new Intent();
-                intent.putExtra(USER_ADDRESS, scanResult.getText());
-                activity.setResult(Activity.RESULT_OK, intent);
-                activity.finish();
-            } else {
-                if (scanResult.getText().startsWith(WEB_SIGNIN)) {
-                    final String token = scanResult.getText().substring(WEB_SIGNIN.length());
-                    webLoginWithToken(token);
-                } else {
-                    final Intent intent = new Intent(activity, ViewUserActivity.class);
-                    intent
-                            .putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, scanResult.getText())
-                            .putExtra(ViewUserActivity.EXTRA__PLAY_SCAN_SOUNDS, true);
-                    activity.startActivity(intent);
-                    activity.finish();
-                }
-            }
+            handleScanResult(scanResult.getText());
         }
 
         @Override
         public void possibleResultPoints(final List<ResultPoint> resultPoints) {}
     };
 
-    private void showConfirmationDialog(final ScanResult scanResult) {
+    private void handleScanResult(final String result) {
+        final QrCode qrCode = new QrCode(result);
+        final @QrCodeType.Type int qrCodeType = qrCode.getQrCodeType();
+
+        if (qrCodeType == QrCodeType.EXTERNAL) {
+            handleExternalQrCode(qrCode);
+        } else if (qrCodeType == QrCodeType.ADD) {
+            handleAddQrCode(qrCode);
+        } else if (qrCodeType == QrCodeType.PAY) {
+            handlePaymentQrCode(qrCode);
+        } else if (result.startsWith(WEB_SIGNIN)) {
+            handleWebLogin(result);
+        } else {
+            handleInvalidQrCode();
+        }
+    }
+
+    private void handleExternalQrCode(final QrCode qrCode) {
+        if (this.activity == null) return;
+        Toast.makeText(this.activity, this.activity.getString(R.string.not_implemented), Toast.LENGTH_SHORT).show();
+    }
+
+    private void handleAddQrCode(final QrCode qrCode) {
+        try {
+            final Subscription sub =
+                    getUserByUsername(qrCode.getUsername())
+                    .doOnSuccess(__ -> playScanSound())
+                    .subscribe(
+                            user -> goToProfileView(user.getTokenId()),
+                            __ -> handleInvalidQrCode()
+                    );
+
+            this.subscriptions.add(sub);
+        } catch (InvalidQrCode e) {
+            handleInvalidQrCode();
+        }
+    }
+
+    private void goToProfileView(final String tokenId) {
+        if (this.activity == null) return;
+        final Intent intent = new Intent(this.activity, ViewUserActivity.class)
+                .putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, tokenId)
+                .putExtra(ViewUserActivity.EXTRA__PLAY_SCAN_SOUNDS, true);
+        this.activity.startActivity(intent);
+        this.activity.finish();
+    }
+
+    private void handlePaymentQrCode(final QrCode qrCode) {
+        try {
+            final QrCodePayment payment = qrCode.getPayment();
+            this.paymentType = PaymentType.TYPE_SEND;
+            this.encodedEthAmount = payment.getValue();
+
+            final Subscription sub =
+                    getUserByUsername(payment.getUsername())
+                    .doOnSuccess(__ -> playScanSound())
+                    .subscribe(
+                            user -> showPaymentConfirmationDialog(user.getTokenId()),
+                            __ -> handleInvalidQrCode()
+                    );
+
+            this.subscriptions.add(sub);
+        } catch (InvalidQrCodePayment e) {
+            handleInvalidQrCode();
+        }
+    }
+
+    private Single<User> getUserByUsername(final String username) {
+        return BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .getUserByUsername(username)
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    private void showPaymentConfirmationDialog(final String tokenId) {
+        if (this.activity == null) return;
         final PaymentRequestConfirmationDialog dialog = PaymentRequestConfirmationDialog
-                .newInstance(scanResult.getText(), this.encodedEthAmount, this.paymentType);
+                .newInstance(tokenId, this.encodedEthAmount, this.paymentType);
         dialog.setOnActionClickedListener(this);
         dialog.show(this.activity.getSupportFragmentManager(), PaymentRequestConfirmationDialog.TAG);
     }
 
+    private void handleInvalidQrCode() {
+        if (this.activity == null) return;
+        SoundManager.getInstance().playSound(SoundManager.SCAN_ERROR);
+        Toast.makeText(
+                this.activity,
+                this.activity.getString(R.string.invalid_qr_code),
+                Toast.LENGTH_SHORT
+        ).show();
+    }
+
+    private void handleWebLogin(final String result) {
+        final String token = result.substring(WEB_SIGNIN.length());
+        final Subscription sub =
+                loginWithToken(token)
+                .doOnSuccess(__ -> playScanSound())
+                .subscribe(
+                        __ -> handleLoginSuccess(),
+                        this::handleLoginFailure
+                );
+
+        this.subscriptions.add(sub);
+    }
+
+    private Single<Void> loginWithToken(final String token) {
+        return BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .webLogin(token)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    private void playScanSound() {
+        SoundManager.getInstance().playSound(SoundManager.SCAN);
+    }
+
+    private void handleLoginSuccess() {
+        Toast.makeText(BaseApplication.get(), R.string.web_signin, Toast.LENGTH_LONG).show();
+        if (this.activity == null) return;
+        this.activity.finish();
+    }
+
+    private void handleLoginFailure(final Throwable throwable) {
+        LogUtil.e(getClass(), throwable.toString());
+        Toast.makeText(BaseApplication.get(), R.string.error__web_signin, Toast.LENGTH_LONG).show();
+    }
+
     @Override
-    public void onApproved(final String userAddress) {
+    public void onPaymentApproved(final String userAddress) {
         final Intent intent = new Intent(activity, ChatActivity.class)
                 .putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, userAddress)
                 .putExtra(ChatActivity.EXTRA__PAYMENT_ACTION, this.paymentType)
@@ -137,37 +238,12 @@ public final class ScannerPresenter implements
     }
 
     @Override
-    public void onRejected() {
+    public void onPaymentRejected() {
         this.activity.finish();
     }
 
     public void handlePermissionsResult(final PermissionResultHolder prh) {
         this.capture.onRequestPermissionsResult(prh.getRequestCode(), prh.getPermissions(), prh.getGrantResults());
-    }
-
-    private void webLoginWithToken(final String loginToken) {
-        final Subscription sub = BaseApplication
-                .get()
-                .getTokenManager()
-                .getUserManager()
-                .webLogin(loginToken)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::handleLoginSuccess, this::handleLoginFailure);
-
-        this.subscriptions.add(sub);
-    }
-
-    private void handleLoginSuccess(final Void unused) {
-        Toast.makeText(BaseApplication.get(), R.string.web_signin, Toast.LENGTH_LONG).show();
-        if (this.activity != null) {
-            this.activity.finish();
-        }
-    }
-
-    private void handleLoginFailure(final Throwable throwable) {
-        LogUtil.e(getClass(), throwable.toString());
-        Toast.makeText(BaseApplication.get(), R.string.error__web_signin, Toast.LENGTH_LONG).show();
     }
 
     @Override

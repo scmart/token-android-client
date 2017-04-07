@@ -7,6 +7,7 @@
     <string name="rep_url">https://token-rep-service-development.herokuapp.com</string>
     <string name="currency_url">https://api.coinbase.com</string>
     <string name="qr_code_base_url">https://app.tokenbrowser.com/</string>
-    <string name="qr_code_add_url">%1$s/&lt;%2$s&gt;</string>
-    <string name="qr_code_pay_url">%1$s/&lt;%2$s&gt;\?value=%3$s&amp;memo=%4$s</string>
+    <string name="qr_code_add_url">%1$s/%2$s</string>
+    <string name="qr_code_pay_url">%1$s/%2$s\?value=%3$s&amp;memo=%4$s</string>
+    <string name="qr_code_pay_url_without_memo">%1$s/%2$s\?value=%3$s</string>
 </resources>
