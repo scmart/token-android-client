@@ -277,6 +277,7 @@ public class UserManager {
                 .edit()
                 .putString(USER_ID, null)
                 .apply();
+        this.userSubject.onNext(null);
     }
 
     private void clearCache() {

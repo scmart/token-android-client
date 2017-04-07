@@ -112,6 +112,7 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
                 .getTokenManager()
                 .getUserManager()
                 .getUserObservable()
+                .filter(user -> user != null)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleUserLoaded));

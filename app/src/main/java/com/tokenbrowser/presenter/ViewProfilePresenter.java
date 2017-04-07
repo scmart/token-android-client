@@ -103,6 +103,10 @@ public final class ViewProfilePresenter implements Presenter<ViewProfileActivity
     }
 
     private void handleUserLoaded(final User user) {
+        if (user == null) {
+            handleNoUser();
+            return;
+        }
         this.localUser = user;
         updateView();
         fetchUserReputation(user.getTokenId());

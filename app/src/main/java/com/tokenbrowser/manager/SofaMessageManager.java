@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Pair;
 
+import com.tokenbrowser.BuildConfig;
+import com.tokenbrowser.R;
 import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.crypto.signal.ChatService;
 import com.tokenbrowser.crypto.signal.SignalPreferences;
@@ -29,12 +31,9 @@ import com.tokenbrowser.model.sofa.PaymentRequest;
 import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.model.sofa.SofaType;
 import com.tokenbrowser.service.RegistrationIntentService;
-import com.tokenbrowser.BuildConfig;
-import com.tokenbrowser.R;
 import com.tokenbrowser.util.FileNames;
 import com.tokenbrowser.util.FileUtil;
 import com.tokenbrowser.util.LogUtil;
-import com.tokenbrowser.util.OnNextSubscriber;
 import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.notification.ChatNotificationManager;
@@ -622,30 +621,29 @@ public final class SofaMessageManager {
         final List<User> users = results.getResults();
         for (final User user : users) {
             if (user.getUsernameForEditing().equals(ONBOARDING_BOT_NAME)) {
-                sendOnboardMessageToOnbaordingBot(user);
+                sendOnboardMessageToOnboardingBot(user);
                 break;
             }
         }
     }
 
-    private void sendOnboardMessageToOnbaordingBot(final User onboardingBot) {
+    private void sendOnboardMessageToOnboardingBot(final User onboardingBot) {
         BaseApplication
                 .get()
                 .getTokenManager()
                 .getUserManager()
-                .getUserObservable()
-                .subscribe(new OnNextSubscriber<User>() {
-                    @Override
-                    public void onNext(final User localUser) {
-                        this.unsubscribe();
-                        BaseApplication
-                                .get()
-                                .getTokenManager()
-                                .getSofaMessageManager()
-                                .sendMessage(onboardingBot, generateOnboardingMessage(localUser));
-                        SharedPrefsUtil.setHasOnboarded();
-                    }
-                });
+                .getCurrentUser()
+                .map(this::generateOnboardingMessage)
+                .doOnSuccess(__ -> SharedPrefsUtil.setHasOnboarded())
+                .subscribe(onboardingMessage -> this.sendOnboardingMessage(onboardingMessage, onboardingBot));
+    }
+
+    private void sendOnboardingMessage(final SofaMessage onboardingMessage, final User onboardingBot) {
+        BaseApplication
+            .get()
+            .getTokenManager()
+            .getSofaMessageManager()
+            .sendMessage(onboardingBot, onboardingMessage);
     }
 
     private SofaMessage generateOnboardingMessage(final User localUser) {
