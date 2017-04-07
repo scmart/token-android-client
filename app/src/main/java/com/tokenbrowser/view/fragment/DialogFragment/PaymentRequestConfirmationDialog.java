@@ -16,6 +16,7 @@ import com.tokenbrowser.databinding.FragmentPaymentRequestConfirmationBinding;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.util.EthUtil;
 import com.tokenbrowser.util.ImageUtil;
+import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.PaymentType;
 import com.tokenbrowser.view.BaseApplication;
 
@@ -97,8 +98,15 @@ public class PaymentRequestConfirmationDialog extends DialogFragment {
                 .getUserFromAddress(this.userAddress)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::updateView)
+                .subscribe(
+                        this::updateView,
+                        this::handleUserError
+                )
         );
+    }
+
+    private void handleUserError(final Throwable throwable) {
+        LogUtil.e(getClass(), throwable.toString());
     }
 
     private void updateView(final User user) {
@@ -110,6 +118,12 @@ public class PaymentRequestConfirmationDialog extends DialogFragment {
         this.binding.title.setText(title);
         this.binding.displayName.setText(user.getDisplayName());
         this.binding.username.setText(user.getDisplayName());
+        final String reviewCount = BaseApplication.get().getString(R.string.parentheses, user.getReviewCount());
+        this.binding.numberOfRatings.setText(reviewCount);
+        final double reputationScore = user.getReputationScore() != null
+                ? user.getReputationScore()
+                : 0;
+        this.binding.ratingView.setStars(reputationScore);
         renderLocalCurrency();
     }
 
