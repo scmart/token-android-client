@@ -2,17 +2,25 @@ package com.tokenbrowser.presenter;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.ColorInt;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.content.res.AppCompatResources;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.tokenbrowser.R;
 import com.tokenbrowser.databinding.ActivityViewAppBinding;
 import com.tokenbrowser.model.local.ActivityResultHolder;
+import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.model.network.App;
 import com.tokenbrowser.model.network.ReputationScore;
 import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.util.LogUtil;
+import com.tokenbrowser.util.OnSingleClickListener;
 import com.tokenbrowser.util.PaymentType;
+import com.tokenbrowser.util.SoundManager;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.AmountActivity;
 import com.tokenbrowser.view.activity.ChatActivity;
@@ -32,6 +40,7 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
     private CompositeSubscription subscriptions;
     private boolean firstTimeAttaching = true;
     private App app;
+    private User appAsUser;
     private String appTokenId;
 
     @Override
@@ -65,13 +74,27 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
     }
 
     private void loadApp() {
-        final Subscription sub =
+        final Subscription appSub =
                 getAppById(this.appTokenId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::handleAppLoaded, this::handleAppLoadingFailed);
 
-        this.subscriptions.add(sub);
+        final Subscription userSub =
+                BaseApplication
+                        .get()
+                        .getTokenManager()
+                        .getUserManager()
+                        .getUserFromAddress(this.appTokenId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnCompleted(this::updateFavoriteButtonState)
+                        .subscribe(
+                                user -> this.appAsUser = user,
+                                this::handleAppLoadingFailed);
+
+        this.subscriptions.add(appSub);
+        this.subscriptions.add(userSub);
     }
 
     private Single<App> getAppById(final String appId) {
@@ -135,7 +158,7 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
     private void initClickListeners() {
         this.activity.getBinding().closeButton.setOnClickListener(this::handleClosedClicked);
         this.activity.getBinding().messageContactButton.setOnClickListener(this::handleOnMessageClicked);
-        this.activity.getBinding().favorite.setOnClickListener(v -> handleFavoriteClicked());
+        this.activity.getBinding().favorite.setOnClickListener(this.toggleFavorite);
         this.activity.getBinding().pay.setOnClickListener(v -> handlePayClicked());
     }
 
@@ -152,8 +175,47 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
         this.activity.startActivity(intent);
     }
 
-    private void handleFavoriteClicked() {
-        Toast.makeText(this.activity, "Not implemented", Toast.LENGTH_SHORT).show();
+    private final OnSingleClickListener toggleFavorite = new OnSingleClickListener() {
+        @Override
+        public void onSingleClick(final View v) {
+            final Subscription sub = isFavorited().subscribe(this::toggleFavorite);
+            subscriptions.add(sub);
+        }
+
+        private void toggleFavorite(final boolean isCurrentlyFavorited) {
+            if (isCurrentlyFavorited) {
+                removeFromFavorites();
+            } else {
+                addToFavorites();
+                SoundManager.getInstance().playSound(SoundManager.ADD_CONTACT);
+            }
+            updateFavoriteButtonState();
+        }
+    };
+
+    private Single<Boolean> isFavorited() {
+        return BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .isUserAContact(this.appAsUser)
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    private void removeFromFavorites() {
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .deleteContact(this.appAsUser);
+    }
+
+    private void addToFavorites() {
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .saveContact(this.appAsUser);
     }
 
     private void handlePayClicked() {
@@ -181,6 +243,26 @@ public class ViewAppPresenter implements Presenter<ViewAppActivity> {
                 .putExtra(ChatActivity.EXTRA__PAYMENT_ACTION, PaymentType.TYPE_SEND);
         this.activity.startActivity(intent);
         this.activity.finish();
+    }
+
+    private void updateFavoriteButtonState() {
+        final Subscription sub = isFavorited().subscribe(this::updateFavoriteButtonState);
+        this.subscriptions.add(sub);
+    }
+
+    private void updateFavoriteButtonState(final boolean isCurrentlyFavorited) {
+        final Button favoriteButton = this.activity.getBinding().favorite;
+        favoriteButton.setSoundEffectsEnabled(isCurrentlyFavorited);
+
+        final Drawable checkMark = isCurrentlyFavorited
+                ? AppCompatResources.getDrawable(this.activity, R.drawable.ic_star_selected)
+                : AppCompatResources.getDrawable(this.activity, R.drawable.ic_star_unselected);
+        favoriteButton.setCompoundDrawablesWithIntrinsicBounds(null, checkMark, null, null);
+
+        final @ColorInt int color = isCurrentlyFavorited
+                ? ContextCompat.getColor(this.activity, R.color.colorPrimary)
+                : ContextCompat.getColor(this.activity, R.color.profile_icon_text_color);
+        favoriteButton.setTextColor(color);
     }
 
     @Override
