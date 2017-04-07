@@ -28,7 +28,13 @@ public class SignInPresenter implements Presenter<SignInActivity> {
             this.firstTimeAttaching = false;
             initLongLivingObjects();
         }
+        initMultilineWorkaround();
         initClickListeners();
+    }
+
+    private void initMultilineWorkaround() {
+        this.activity.getBinding().password.setHorizontallyScrolling(false);
+        this.activity.getBinding().password.setLines(3);
     }
 
     private void initLongLivingObjects() {
