@@ -143,6 +143,17 @@ public class SofaMessage extends RealmObject {
                 .setPayload(sofaPayload);
     }
 
+    // This will set the private key to be the txHash to ensure all
+    // payments reference the same SofaMessage.
+    public SofaMessage makeNewFromTransaction(
+            final String txHash,
+            final User sender,
+            final String messageBody) {
+        final SofaMessage message = makeNew(sender, messageBody);
+        if (txHash != null) message.privateKey = txHash;
+        return message;
+    }
+
     @Override
     public boolean equals(Object other){
         if (other == null) return false;

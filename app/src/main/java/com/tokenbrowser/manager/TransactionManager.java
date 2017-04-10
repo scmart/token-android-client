@@ -1,5 +1,9 @@
 package com.tokenbrowser.manager;
 
+import android.support.annotation.NonNull;
+import android.util.Pair;
+
+import com.tokenbrowser.R;
 import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.exception.UnknownTransactionException;
 import com.tokenbrowser.manager.model.PaymentTask;
@@ -18,7 +22,6 @@ import com.tokenbrowser.model.sofa.Payment;
 import com.tokenbrowser.model.sofa.PaymentRequest;
 import com.tokenbrowser.model.sofa.SofaAdapters;
 import com.tokenbrowser.model.sofa.SofaType;
-import com.tokenbrowser.R;
 import com.tokenbrowser.util.LocaleUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.OnNextSubscriber;
@@ -120,18 +123,26 @@ public class TransactionManager {
         final Subscription sub = this.pendingTransactionStore
                 .loadAllTransactions()
                 .filter(this::isUnconfirmed)
-                .switchMap(pendingTransaction ->
-                        BaseApplication
-                                .get()
-                                .getTokenManager()
-                                .getBalanceManager()
-                                .getTransactionStatus(pendingTransaction.getTxHash())
-                                .toObservable())
+                .flatMap(pendingTransaction -> Observable.zip(
+                        Observable.just(pendingTransaction),
+                        getTransactionStatus(pendingTransaction),
+                        Pair::new
+                ))
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .subscribe(this::updatePayment);
+                .subscribe(pair -> this.updatePendingTransaction(pair.first, pair.second));
 
         this.subscriptions.add(sub);
+    }
+
+    @NonNull
+    private Observable<Payment> getTransactionStatus(final PendingTransaction pendingTransaction) {
+        return BaseApplication
+                .get()
+                .getTokenManager()
+                .getBalanceManager()
+                .getTransactionStatus(pendingTransaction.getTxHash())
+                .toObservable();
     }
 
     private Boolean isUnconfirmed(final PendingTransaction pendingTransaction) {
@@ -166,6 +177,15 @@ public class TransactionManager {
             .subscribe(this::processNewPayment);
 
         this.subscriptions.add(sub);
+    }
+
+    private void createNewPayment(final Payment payment) {
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getUserManager()
+                .getUserFromPaymentAddress(payment.getFromAddress())
+                .subscribe((sender) -> createNewPayment(sender, payment));
     }
 
     private void createNewPayment(final User sender, final Payment payment) {
@@ -309,7 +329,7 @@ public class TransactionManager {
 
     private SofaMessage generateMessageFromPayment(final Payment payment, final User sender) {
         final String messageBody = this.adapters.toJson(payment);
-        return new SofaMessage().makeNew(sender, messageBody);
+        return new SofaMessage().makeNewFromTransaction(payment.getTxHash(), sender, messageBody);
     }
 
 
@@ -329,7 +349,10 @@ public class TransactionManager {
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .toObservable()
-                .subscribe(pendingTransaction -> updatePendingTransaction(pendingTransaction, payment));
+                .map(pendingTransaction -> updatePendingTransaction(pendingTransaction, payment))
+                .filter(isExistingTransaction -> !isExistingTransaction)
+                // This transaction has never been seen before; create and broadcast it.
+                .subscribe(__ -> createNewPayment(payment));
     }
 
     private void storeMessage(final User receiver, final SofaMessage message) {
@@ -348,17 +371,11 @@ public class TransactionManager {
         this.pendingTransactionStore.save(pendingTransaction);
     }
 
-    private void updatePendingTransaction(final PendingTransaction pendingTransaction, final Payment updatedPayment) {
-
+    // Returns false if this is a new transaction that the app is unaware of.
+    // Returns true if the transaction was correctly updated.
+    private boolean updatePendingTransaction(final PendingTransaction pendingTransaction, final Payment updatedPayment) {
         if (pendingTransaction == null) {
-            // Never seen this transaction before so process it as a new transaction
-            BaseApplication
-            .get()
-            .getTokenManager()
-            .getUserManager()
-            .getUserFromPaymentAddress(updatedPayment.getFromAddress())
-            .subscribe((sender) -> createNewPayment(sender, updatedPayment));
-            return;
+            return false;
         }
 
         final SofaMessage updatedMessage;
@@ -366,7 +383,7 @@ public class TransactionManager {
             updatedMessage = updateStatusFromPendingTransaction(pendingTransaction, updatedPayment);
         } catch (final IOException | UnknownTransactionException ex) {
             LogUtil.e(getClass(), "Unable to update pending transaction. " + ex.getMessage());
-            return;
+            return false;
         }
 
         final PendingTransaction updatedPendingTransaction = new PendingTransaction()
@@ -374,6 +391,7 @@ public class TransactionManager {
                 .setSofaMessage(updatedMessage);
 
         this.pendingTransactionStore.save(updatedPendingTransaction);
+        return true;
     }
 
     private SofaMessage updateStatusFromPendingTransaction(final PendingTransaction pendingTransaction, final Payment updatedPayment) throws IOException, UnknownTransactionException {
