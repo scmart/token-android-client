@@ -5,14 +5,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.jakewharton.rxbinding.widget.RxTextView;
 import com.tokenbrowser.model.network.App;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.BaseApplication;
-import com.tokenbrowser.view.activity.ViewAppActivity;
+import com.tokenbrowser.view.activity.ViewUserActivity;
 import com.tokenbrowser.view.adapter.RecommendedAppsAdapter;
 import com.tokenbrowser.view.adapter.SearchAppAdapter;
 import com.tokenbrowser.view.fragment.toplevel.AppsFragment;
-import com.jakewharton.rxbinding.widget.RxTextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,8 +76,8 @@ public class AppsPresenter implements Presenter<AppsFragment>{
     }
 
     private void handleAppClicked(final App app) {
-        final Intent intent = new Intent(this.fragment.getContext(), ViewAppActivity.class)
-                .putExtra(ViewAppActivity.APP_OWNER_ADDRESS, app.getTokenId());
+        final Intent intent = new Intent(this.fragment.getContext(), ViewUserActivity.class)
+                .putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, app.getTokenId());
         this.fragment.getContext().startActivity(intent);
     }
 

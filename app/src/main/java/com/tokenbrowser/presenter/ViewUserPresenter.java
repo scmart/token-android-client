@@ -136,6 +136,8 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
         binding.username.setText(scannedUser.getUsername());
         binding.about.setText(scannedUser.getAbout());
         binding.location.setText(scannedUser.getLocation());
+        binding.about.setVisibility(scannedUser.getAbout() == null ? View.GONE : View.VISIBLE);
+        binding.location.setVisibility(scannedUser.getLocation() == null ? View.GONE : View.VISIBLE);
         ImageUtil.loadFromNetwork(scannedUser.getAvatar(), binding.avatar);
         addClickListeners();
         updateAddContactState();
