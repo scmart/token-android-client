@@ -106,10 +106,12 @@ public final class ViewUserPresenter implements Presenter<ViewUserActivity> {
     }
 
     private void handleReputationResponse(final ReputationScore reputationScore) {
-        final String reviewCount = String.valueOf(reputationScore.getCount());
+        final String ratingText = this.activity.getResources().getQuantityString(R.plurals.ratings, reputationScore.getCount());
+        final String rating = String.format("%s %s", reputationScore.getCount(), ratingText);
+        this.activity.getBinding().reviewCount.setText(rating);
+
         final double score = reputationScore.getScore() != null ? reputationScore.getScore() : 0;
         final String stringScore = String.valueOf(score);
-        this.activity.getBinding().reviewCount.setText(reviewCount);
         this.activity.getBinding().ratingView.setStars(score);
         this.activity.getBinding().reputationScore.setText(stringScore);
         this.activity.getBinding().ratingInfo.setRatingInfo(reputationScore);

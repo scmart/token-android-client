@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="ratings">
+        <item quantity="one">rating</item>
+        <item quantity="other">ratings</item>
+    </plurals>
+</resources>
