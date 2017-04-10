@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <plurals name="ratings">
-        <item quantity="one">rating</item>
-        <item quantity="other">ratings</item>
+        <item quantity="one">%d rating</item>
+        <item quantity="other">%d ratings</item>
     </plurals>
 </resources>
