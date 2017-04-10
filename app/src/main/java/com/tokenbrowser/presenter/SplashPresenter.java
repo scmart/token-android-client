@@ -1,7 +1,9 @@
 package com.tokenbrowser.presenter;
 
+import android.app.PendingIntent;
 import android.content.Intent;
 
+import com.crashlytics.android.Crashlytics;
 import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.MainActivity;
@@ -38,33 +40,51 @@ public class SplashPresenter implements Presenter<SplashActivity> {
         final boolean hasSignedOut = SharedPrefsUtil.hasSignedOut();
 
         if (!hasSignedOut) {
-            initManagersAndGoToMainActivity();
+            initManagersAndGoToAnotherActivity();
         } else {
             goToSignInActivity();
         }
     }
 
-    private void initManagersAndGoToMainActivity() {
+    private void initManagersAndGoToAnotherActivity() {
         final Subscription sub = BaseApplication
                 .get()
                 .getTokenManager()
                 .init()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(tokenManager -> goToMainActivity());
+                .subscribe(tokenManager -> goToAnotherActivity());
 
         this.subscriptions.add(sub);
     }
 
-    private void goToMainActivity() {
+    private void goToAnotherActivity() {
         SharedPrefsUtil.setSignedIn();
+
+        final PendingIntent nextIntent = this.activity.getIntent().getParcelableExtra(SplashActivity.EXTRA__NEXT_INTENT);
+        if (nextIntent != null) {
+            try {
+                nextIntent.send();
+            } catch (final PendingIntent.CanceledException ex) {
+                Crashlytics.logException(ex);
+            }
+            this.activity.finish();
+        } else {
+            goToMainActivity();
+        }
+    }
+
+    private void goToMainActivity() {
         final Intent intent = new Intent(this.activity, MainActivity.class);
-        this.activity.startActivity(intent);
-        this.activity.finish();
+        goToActivity(intent);
     }
 
     private void goToSignInActivity() {
         final Intent intent = new Intent(this.activity, SignInActivity.class);
+        goToActivity(intent);
+    }
+
+    private void goToActivity(final Intent intent) {
         this.activity.startActivity(intent);
         this.activity.finish();
     }
