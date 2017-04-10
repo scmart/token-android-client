@@ -335,7 +335,7 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
                 .doOnError(unused -> tryDeleteCachedFile(file))
                 .subscribe(
                         this::handleUploadSuccess,
-                        unused -> showFailureMessage()
+                        unused -> handleUploadError()
                 );
 
         this.subscriptions.add(sub);
@@ -353,9 +353,14 @@ public class EditProfilePresenter implements Presenter<EditProfileActivity> {
         return file.delete();
     }
 
-    private void showFailureMessage() {
+    private void handleUploadError() {
         if (this.activity == null) return;
         this.isUploading = false;
+        ImageUtil.loadFromNetwork(this.avatarUrl, this.activity.getBinding().avatar);
+        showFailureMessage();
+    }
+
+    private void showFailureMessage() {
         Toast.makeText(this.activity, this.activity.getString(R.string.profile_image_error), Toast.LENGTH_SHORT).show();
     }
 
