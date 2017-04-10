@@ -13,6 +13,8 @@ import io.fabric.sdk.android.Fabric;
 
 public class SplashActivity extends BasePresenterActivity<SplashPresenter, SplashActivity> {
 
+    public static final String EXTRA__NEXT_INTENT = "next_intent";
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

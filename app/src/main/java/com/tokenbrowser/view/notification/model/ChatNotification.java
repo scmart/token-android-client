@@ -8,12 +8,13 @@ import android.graphics.BitmapFactory;
 import android.support.v4.app.TaskStackBuilder;
 
 import com.bumptech.glide.Glide;
+import com.tokenbrowser.R;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.service.NotificationDismissedReceiver;
-import com.tokenbrowser.R;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ChatActivity;
 import com.tokenbrowser.view.activity.MainActivity;
+import com.tokenbrowser.view.activity.SplashActivity;
 import com.tokenbrowser.view.custom.CropCircleTransformation;
 
 import java.util.ArrayList;
@@ -79,11 +80,20 @@ public class ChatNotification {
         final Intent chatIntent = new Intent(BaseApplication.get(), ChatActivity.class);
         chatIntent.putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, this.sender.getTokenId());
 
-        return TaskStackBuilder.create(BaseApplication.get())
+        final PendingIntent nextIntent = TaskStackBuilder.create(BaseApplication.get())
                 .addParentStack(MainActivity.class)
                 .addNextIntent(mainIntent)
                 .addNextIntent(chatIntent)
                 .getPendingIntent(getTitle().hashCode(), PendingIntent.FLAG_ONE_SHOT);
+
+        final Intent splashIntent = new Intent(BaseApplication.get(), SplashActivity.class);
+        splashIntent.putExtra(SplashActivity.EXTRA__NEXT_INTENT, nextIntent);
+
+        return PendingIntent.getActivity(
+                BaseApplication.get(),
+                getTitle().hashCode(),
+                splashIntent,
+                PendingIntent.FLAG_ONE_SHOT);
     }
 
     public PendingIntent getDeleteIntent() {
