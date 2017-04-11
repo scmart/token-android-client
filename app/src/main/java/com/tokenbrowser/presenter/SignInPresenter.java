@@ -1,6 +1,7 @@
 package com.tokenbrowser.presenter;
 
 import android.content.Intent;
+import android.view.View;
 import android.widget.Toast;
 
 import com.tokenbrowser.R;
@@ -12,6 +13,7 @@ import com.tokenbrowser.view.activity.SignInActivity;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 public class SignInPresenter implements Presenter<SignInActivity> {
@@ -64,12 +66,14 @@ public class SignInPresenter implements Presenter<SignInActivity> {
     private void tryCreateWallet(final String masterSeed) {
         if (this.onGoingTask) return;
         this.onGoingTask = true;
+        this.activity.getBinding().loadingSpinner.setVisibility(View.VISIBLE);
 
         final Subscription sub = new HDWallet().createFromMasterSeed(masterSeed)
                 .flatMap(wallet -> BaseApplication
                         .get()
                         .getTokenManager()
                         .init(wallet))
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSuccess(__ -> SharedPrefsUtil.setHasBackedUpPhrase())
                 .subscribe(
@@ -86,6 +90,7 @@ public class SignInPresenter implements Presenter<SignInActivity> {
 
     private void handleError() {
         this.onGoingTask = false;
+        this.activity.getBinding().loadingSpinner.setVisibility(View.GONE);
         Toast.makeText(
                 this.activity,
                 this.activity.getString(R.string.unable_to_restore_wallet),
@@ -103,12 +108,14 @@ public class SignInPresenter implements Presenter<SignInActivity> {
     private void handleCreateNewAccountClicked() {
         if (this.onGoingTask) return;
         this.onGoingTask = true;
+        this.activity.getBinding().loadingSpinner.setVisibility(View.VISIBLE);
 
         final Subscription sub =
                 BaseApplication
                 .get()
                 .getTokenManager()
                 .init()
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(unused -> handleSuccess());
 
