@@ -48,6 +48,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/contacts"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="@dimen/activity_horizontal_margin"
+            android:clipToPadding="false"
+            android:background="@color/windowBackground"/>
+
         <LinearLayout
             android:id="@+id/empty_state"
             android:layout_width="wrap_content"
@@ -75,13 +83,6 @@
                 android:drawablePadding="8dp"
                 />
         </LinearLayout>
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/contacts"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="@dimen/activity_horizontal_margin"
-            android:clipToPadding="false"
-            android:background="@color/windowBackground"/>
 
     </ViewSwitcher>
 

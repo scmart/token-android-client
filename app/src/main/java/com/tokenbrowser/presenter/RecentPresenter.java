@@ -51,7 +51,6 @@ public final class RecentPresenter implements
     private void initShortLivingObjects() {
         initRecentsAdapter();
         populateRecentsAdapter();
-        updateEmptyState();
         attachSubscriber();
     }
 
