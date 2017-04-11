@@ -41,6 +41,9 @@ public interface IdInterface {
     @GET("/v1/search/user")
     Single<UserSearchResults> searchByUsername(@Query("query") String username);
 
+    @GET("/v1/search/user")
+    Single<UserSearchResults> searchByPaymentAddress(@Query("payment_address") String paymentAddress);
+
     @Headers("Cache-control: no-store")
     @GET("/v1/login/{id}")
     Single<Void> webLogin(@Path("id") String loginToken,
