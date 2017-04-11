@@ -146,7 +146,7 @@ public class TokenManager {
             this.transactionManager.clear();
             this.wallet.clear();
             this.areManagersInitialised = false;
-            clearDatabase();
+            closeDatabase();
             SignalPreferences.clear();
             SharedPrefsUtil.setSignedOut();
             SharedPrefsUtil.clear();
@@ -154,16 +154,7 @@ public class TokenManager {
         });
     }
 
-    private void clearDatabase() {
-        final Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        realm.deleteAll();
-        realm.commitTransaction();
-        realm.close();
-        try {
-            Realm.deleteRealm(realm.getConfiguration());
-        } catch (final IllegalStateException ex) {
-            // Do nothing, the database has been cleared anyway
-        }
+    private void closeDatabase() {
+        Realm.removeDefaultConfiguration();
     }
 }
