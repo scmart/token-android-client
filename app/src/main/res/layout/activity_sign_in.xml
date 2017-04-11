@@ -1,123 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
-        android:orientation="vertical"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:gravity="center_vertical"
-            style="@style/ToolbarTheme">
+            android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/title"
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:gravity="center_vertical"
+                style="@style/ToolbarTheme">
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    style="@style/Toolbar.TitleText"
+                    android:text="@string/sign_in"/>
+
+            </android.support.v7.widget.Toolbar>
+
+            <EditText
+                android:id="@+id/username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="33dp"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:textSize="16sp"
+                android:textColor="@color/textColorInput"
+                android:textColorHint="@color/textColorSecondary"
+                android:hint="@string/username" />
+
+            <EditText
+                android:id="@+id/password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:textSize="16sp"
+                android:textColor="@color/textColorInput"
+                android:textColorHint="@color/textColorSecondary"
+                android:inputType="textNoSuggestions"
+                android:imeOptions="actionDone"
+                android:hint="@string/password"/>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                style="@style/Toolbar.TitleText"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    app:srcCompat="@drawable/ic_alert_grey"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:textSize="12sp"
+                    android:textColor="@color/textColorSecondary"
+                    android:text="@string/sign_in_alert_message"/>
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/sign_in"
+                android:layout_width="match_parent"
+                android:layout_height="42dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:background="@drawable/background_with_radius_primary_color"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
+                android:textAllCaps="false"
                 android:text="@string/sign_in"/>
 
-        </android.support.v7.widget.Toolbar>
+            <Button
+                android:id="@+id/scan_qr_code"
+                android:layout_width="match_parent"
+                android:layout_height="42dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                style="?android:attr/borderlessButtonStyle"
+                android:background="@drawable/background_with_radius_border"
+                android:textColor="@color/textColorLightButton"
+                android:textSize="15sp"
+                android:textAllCaps="false"
+                android:text="@string/scan_qr_to_sign_in"/>
 
-        <EditText
-            android:id="@+id/username"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="33dp"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:textSize="16sp"
-            android:textColor="@color/textColorInput"
-            android:textColorHint="@color/textColorSecondary"
-            android:hint="@string/username" />
+            <android.support.v4.widget.Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
 
-        <EditText
-            android:id="@+id/password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:textSize="16sp"
-            android:textColor="@color/textColorInput"
-            android:textColorHint="@color/textColorSecondary"
-            android:inputType="textNoSuggestions"
-            android:imeOptions="actionDone"
-            android:hint="@string/password"/>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="12dp"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin">
-
-            <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                app:srcCompat="@drawable/ic_alert_grey"/>
-            
             <TextView
+                android:id="@+id/create_new_account"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:textSize="12sp"
-                android:textColor="@color/textColorSecondary"
-                android:text="@string/sign_in_alert_message"/>
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="34dp"
+                android:textColor="@color/colorPrimary"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:text="@string/create_new_account"/>
 
         </LinearLayout>
 
-        <Button
-            android:id="@+id/sign_in"
+        <FrameLayout
+            android:id="@+id/loading_spinner"
+            android:visibility="gone"
             android:layout_width="match_parent"
-            android:layout_height="42dp"
-            android:layout_marginTop="30dp"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:background="@drawable/background_with_radius_primary_color"
-            android:textColor="#FFFFFF"
-            android:textSize="15sp"
-            android:textAllCaps="false"
-            android:text="@string/sign_in"/>
-
-        <Button
-            android:id="@+id/scan_qr_code"
-            android:layout_width="match_parent"
-            android:layout_height="42dp"
-            android:layout_marginTop="15dp"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:layout_marginBottom="@dimen/activity_horizontal_margin"
-            style="?android:attr/borderlessButtonStyle"
-            android:background="@drawable/background_with_radius_border"
-            android:textColor="@color/textColorLightButton"
-            android:textSize="15sp"
-            android:textAllCaps="false"
-            android:text="@string/scan_qr_to_sign_in"/>
-
-        <android.support.v4.widget.Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
-
-        <TextView
-            android:id="@+id/create_new_account"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="34dp"
-            android:textColor="@color/colorPrimary"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:text="@string/create_new_account"/>
-
-    </LinearLayout>
+            android:layout_height="match_parent"
+            android:background="#000000"
+            android:alpha="0.7">
+            <ProgressBar
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"/>
+        </FrameLayout>
+    </FrameLayout>
 
 </layout>
