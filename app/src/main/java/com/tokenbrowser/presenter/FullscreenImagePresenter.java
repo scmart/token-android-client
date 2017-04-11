@@ -2,7 +2,7 @@ package com.tokenbrowser.presenter;
 
 import android.view.WindowManager;
 
-import com.bumptech.glide.Glide;
+import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.view.activity.FullscreenImageActivity;
 
 import java.io.File;
@@ -30,9 +30,7 @@ public class FullscreenImagePresenter implements Presenter<FullscreenImageActivi
 
     private void initView() {
         final File file = new File(this.filePath);
-        Glide.with(this.activity)
-                .load(file)
-                .into(this.activity.getBinding().image);
+        ImageUtil.renderFileIntoTarget(file, this.activity.getBinding().image);
     }
 
     @Override

@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 
-import com.bumptech.glide.Glide;
 import com.tokenbrowser.util.FileUtil;
+import com.tokenbrowser.util.ImageUtil;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.activity.ImageConfirmationActivity;
 
@@ -78,9 +78,7 @@ public class ImageConfirmationPresenter implements Presenter<ImageConfirmationAc
     }
 
     private void showImage() {
-        Glide.with(this.activity)
-                .load(this.imageFile)
-                .into(this.activity.getBinding().image);
+        ImageUtil.renderFileIntoTarget(this.imageFile, this.activity.getBinding().image);
     }
 
     @Override

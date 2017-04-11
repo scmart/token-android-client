@@ -143,6 +143,7 @@ public class AppsPresenter implements Presenter<AppsFragment>{
     }
 
     private void addAppsData(final List<App> apps) {
+        this.apps = apps;
         final RecommendedAppsAdapter adapter = (RecommendedAppsAdapter) this.fragment.getBinding().recyclerViewRecommendedApps.getAdapter();
         adapter.setItems(apps);
     }
