@@ -5,14 +5,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 import com.tokenbrowser.R;
-import com.tokenbrowser.databinding.ActivityAboutBinding;
+import com.tokenbrowser.databinding.ActivityTransactionOverviewBinding;
 import com.tokenbrowser.presenter.TransactionOverviewPresenter;
 import com.tokenbrowser.presenter.factory.PresenterFactory;
 import com.tokenbrowser.presenter.factory.TransactionOverviewPresenterFactory;
 
 public class TransactionOverviewActivity extends BasePresenterActivity<TransactionOverviewPresenter, TransactionOverviewActivity> {
 
-    private ActivityAboutBinding binding;
+    private ActivityTransactionOverviewBinding binding;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -24,7 +24,7 @@ public class TransactionOverviewActivity extends BasePresenterActivity<Transacti
         binding = DataBindingUtil.setContentView(this, R.layout.activity_transaction_overview);
     }
 
-    public ActivityAboutBinding getBinding() {
+    public ActivityTransactionOverviewBinding getBinding() {
         return this.binding;
     }
 

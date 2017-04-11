@@ -154,4 +154,5 @@
     <string name="favorite">Favorite</string>
     <string name="my_qr_code">My QR Code</string>
     <string name="qr_code">QR Code</string>
+    <string name="transactions">Transactions</string>
 </resources>
