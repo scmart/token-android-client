@@ -181,6 +181,21 @@ public class HDWallet {
         return this.masterSeed;
     }
 
+    public byte[] generateDatabaseEncryptionKey() {
+        final byte[] encryptionKey = new byte[64];
+        final byte[] privateKey = getPrivateKeyBytes();
+        System.arraycopy(privateKey, 0, encryptionKey, 0, 32);
+        System.arraycopy(privateKey, 0, encryptionKey, 32, 32);
+        return encryptionKey;
+    }
+
+    private byte[] getPrivateKeyBytes() {
+        if (this.identityKey != null) {
+            return this.identityKey.getPrivKeyBytes();
+        }
+        return null;
+    }
+
     private String getPrivateKey() {
         if(this.identityKey != null) {
             final byte[] privateKeyByes = this.identityKey.getPrivKeyBytes();

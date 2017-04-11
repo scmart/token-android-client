@@ -1,6 +1,10 @@
 package com.tokenbrowser.manager.store;
 
 
+import com.tokenbrowser.crypto.HDWallet;
+
+import java.io.File;
+
 import io.realm.DynamicRealm;
 import io.realm.DynamicRealmObject;
 import io.realm.FieldAttribute;
@@ -9,6 +13,13 @@ import io.realm.RealmObjectSchema;
 import io.realm.RealmSchema;
 
 public class TokenMigration implements RealmMigration {
+
+    private final HDWallet wallet;
+
+    public TokenMigration(final HDWallet wallet) {
+        this.wallet = wallet;
+    }
+
     @Override
     public void migrate(final DynamicRealm realm, long oldVersion, final long newVersion) {
 
@@ -85,6 +96,13 @@ public class TokenMigration implements RealmMigration {
             sofaMessageSchema
                     .removeField("sentByLocal")
                     .addRealmObjectField("sender", schema.get("User"));
+            oldVersion++;
+        }
+
+        // Migrate to version 8:
+        // Encrypt and shard
+        if (oldVersion == 7) {
+            realm.writeEncryptedCopyTo(new File(realm.getPath(), this.wallet.getOwnerAddress()), this.wallet.generateDatabaseEncryptionKey());
             oldVersion++;
         }
     }

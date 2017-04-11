@@ -3,13 +3,16 @@ package com.tokenbrowser.manager;
 
 import com.tokenbrowser.crypto.HDWallet;
 import com.tokenbrowser.crypto.signal.SignalPreferences;
+import com.tokenbrowser.manager.store.TokenMigration;
 import com.tokenbrowser.util.SharedPrefsUtil;
+import com.tokenbrowser.view.BaseApplication;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import rx.Completable;
 import rx.Single;
 import rx.schedulers.Schedulers;
@@ -76,6 +79,7 @@ public class TokenManager {
 
     private Single<TokenManager> initManagers() {
         return Single.fromCallable(() -> {
+            initRealm();
             this.appsManager.init();
             this.balanceManager.init(this.wallet);
             this.sofaMessageManager.init(this.wallet);
@@ -85,6 +89,19 @@ public class TokenManager {
             this.areManagersInitialised = true;
             return this;
         });
+    }
+
+    private void initRealm() {
+        final byte[] key = this.wallet.generateDatabaseEncryptionKey();
+        Realm.init(BaseApplication.get());
+        final RealmConfiguration config = new RealmConfiguration
+                .Builder()
+                .schemaVersion(8)
+                .migration(new TokenMigration(this.wallet))
+                .name(this.wallet.getOwnerAddress())
+                .encryptionKey(key)
+                .build();
+        Realm.setDefaultConfiguration(config);
     }
 
     public final SofaMessageManager getSofaMessageManager() {
