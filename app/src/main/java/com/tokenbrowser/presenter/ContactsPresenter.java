@@ -157,7 +157,6 @@ public final class ContactsPresenter implements
     private void startScanQrActivity() {
         if (this.fragment == null) return;
         final Intent intent = new Intent(this.fragment.getActivity(), ScannerActivity.class);
-        intent.putExtra(ScannerActivity.RESULT_TYPE, ScannerActivity.REDIRECT);
         this.fragment.getActivity().startActivity(intent);
     }
 }

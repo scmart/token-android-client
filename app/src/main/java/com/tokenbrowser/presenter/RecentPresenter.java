@@ -148,21 +148,20 @@ public final class RecentPresenter implements
     }
 
     private void handleInviteFriends() {
-        final Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, this.fragment.getActivity().getString(R.string.invite_friends_intent_message));
-        sendIntent.setType("text/plain");
-        this.fragment.getActivity().startActivity(sendIntent);
+        final Intent sendIntent = new Intent()
+                .setAction(Intent.ACTION_SEND)
+                .putExtra(Intent.EXTRA_TEXT, this.fragment.getActivity().getString(R.string.invite_friends_intent_message))
+                .setType("text/plain");
+        this.fragment.startActivity(sendIntent);
     }
 
     private void startUserSearchActivity() {
         final Intent intent = new Intent(fragment.getActivity(), UserSearchActivity.class);
-        fragment.startActivity(intent);
+        this.fragment.startActivity(intent);
     }
 
     private void startScanQrActivity() {
         final Intent intent = new Intent(fragment.getActivity(), ScannerActivity.class);
-        intent.putExtra(ScannerActivity.RESULT_TYPE, ScannerActivity.REDIRECT);
-        fragment.getActivity().startActivity(intent);
+        this.fragment.startActivity(intent);
     }
 }

@@ -37,7 +37,6 @@ public final class ScannerPresenter implements
         Presenter<ScannerActivity>,
         PaymentRequestConfirmationDialog.OnActionClickListener {
 
-    /*package */ static final String USER_ADDRESS = "user_address";
     private static final String WEB_SIGNIN = "web-signin:";
 
     private CaptureManager capture;
@@ -45,7 +44,6 @@ public final class ScannerPresenter implements
     private CompositeSubscription subscriptions;
 
     private boolean firstTimeAttaching = true;
-    private int resultType;
     private String encodedEthAmount;
     private @PaymentType.Type int paymentType;
 

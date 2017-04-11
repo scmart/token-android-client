@@ -17,13 +17,6 @@ public class ScannerActivity
         extends OfflineViewBasePresenterActivity<ScannerPresenter, ScannerActivity>
         implements OfflineViewRenderer {
 
-    public static final int FOR_RESULT = 1;
-    public static final int REDIRECT = 2;
-    public static final int CONFIRMATION_REDIRECT = 3;
-    public static final String RESULT_TYPE = "result_type";
-    public static final String ETH_AMOUNT = "eth_amount";
-    public static final String PAYMENT_TYPE = "payment_type";
-
     private ScannerPresenter presenter;
     private ActivityScannerBinding binding;
     private PermissionResultHolder resultHolder;
@@ -61,14 +54,7 @@ public class ScannerActivity
     }
 
     private void tryHandlePermissionResultHolder() {
-        if (this.resultHolder == null) {
-            return;
-        }
-
-        if (this.presenter == null) {
-            return;
-        }
-
+        if (this.resultHolder == null || this.presenter == null) return;
         this.presenter.handlePermissionsResult(this.resultHolder);
         this.resultHolder = null;
     }

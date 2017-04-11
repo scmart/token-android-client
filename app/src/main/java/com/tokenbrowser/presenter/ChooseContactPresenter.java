@@ -1,6 +1,5 @@
 package com.tokenbrowser.presenter;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -8,17 +7,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.jakewharton.rxbinding.widget.RxTextView;
-import com.tokenbrowser.crypto.util.TypeConverter;
-import com.tokenbrowser.model.local.ActivityResultHolder;
-import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.R;
+import com.tokenbrowser.crypto.util.TypeConverter;
+import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.util.EthUtil;
-import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.PaymentType;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ChatActivity;
 import com.tokenbrowser.view.activity.ChooseContactsActivity;
-import com.tokenbrowser.view.activity.ScannerActivity;
 import com.tokenbrowser.view.adapter.ContactsAdapter;
 import com.tokenbrowser.view.custom.HorizontalLineDivider;
 
@@ -30,12 +26,9 @@ import java.util.concurrent.TimeUnit;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 public class ChooseContactPresenter implements Presenter<ChooseContactsActivity> {
-
-    private static final int REQUEST_CODE = 1;
 
     private @PaymentType.Type
     int paymentType;
@@ -100,9 +93,7 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
         updateConfirmationButtonState();
         setSendButtonText();
         initSearch();
-
-        this.activity.getBinding().qrScan.setOnClickListener(view -> handleQrScanClicked());
-        this.activity.getBinding().btnContinue.setOnClickListener(view -> handleSendClicked());
+        initClickListeners();
     }
 
     private void loadContacts() {
@@ -184,6 +175,10 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
         this.subscriptions.add(sub);
     }
 
+    private void initClickListeners() {
+        this.activity.getBinding().btnContinue.setOnClickListener(view -> handleSendClicked());
+    }
+
     private Observable<List<User>> searchOfflineUsers(final String searchString) {
         return BaseApplication
                 .get()
@@ -199,14 +194,6 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
         updateConfirmationButtonState();
     }
 
-    private void handleQrScanClicked() {
-        final Intent intent = new Intent(this.activity, ScannerActivity.class)
-                .putExtra(ScannerActivity.RESULT_TYPE, ScannerActivity.CONFIRMATION_REDIRECT)
-                .putExtra(ScannerActivity.ETH_AMOUNT, this.encodedEthAmount)
-                .putExtra(ScannerActivity.PAYMENT_TYPE, this.paymentType);
-        this.activity.startActivityForResult(intent, REQUEST_CODE);
-    }
-
     private void handleSendClicked() {
         final Intent intent = new Intent(activity, ChatActivity.class)
                 .putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, recipientUser.getTokenId())
@@ -215,40 +202,6 @@ public class ChooseContactPresenter implements Presenter<ChooseContactsActivity>
 
         this.activity.startActivity(intent);
         this.activity.finish();
-    }
-
-    public void handleActivityResult(final ActivityResultHolder resultHolder) {
-        if (resultHolder.getResultCode() != Activity.RESULT_OK) {
-            return;
-        }
-
-        if (resultHolder.getRequestCode() == REQUEST_CODE) {
-            final String userAddress = resultHolder.getIntent().getStringExtra(ScannerPresenter.USER_ADDRESS);
-            fetchUser(userAddress);
-        }
-    }
-
-    private void fetchUser(final String userAddress) {
-       final Subscription sub = BaseApplication
-                .get()
-                .getTokenManager()
-                .getUserManager()
-                .getUserFromAddress(userAddress)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::handleUserLoaded, this::handleErrorResponse);
-
-        subscriptions.add(sub);
-    }
-
-    private void handleUserLoaded(final User user) {
-        this.recipientUser = user;
-        this.activity.getBinding().recipientUser.setText(user.getDisplayName());
-        updateConfirmationButtonState();
-    }
-
-    private void handleErrorResponse(final Throwable throwable) {
-        LogUtil.e(getClass(), "handleErrorResponse " + throwable.getMessage());
     }
 
     @Override
