@@ -11,7 +11,7 @@ import java.io.InputStream;
 public class SignalTrustStore implements TrustStore {
     @Override
     public InputStream getKeyStoreInputStream() {
-        return BaseApplication.get().getResources().openRawResource(R.raw.heroku);
+        return BaseApplication.get().getResources().openRawResource(R.raw.chatkey);
     }
 
     @Override

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="chat_url">https://token-chat-service.herokuapp.com</string>
-    <string name="directory_url">https://token-dir-service.herokuapp.com</string>
-    <string name="balance_url">https://token-eth-service.herokuapp.com</string>
-    <string name="id_url">https://token-id-service.herokuapp.com</string>
-    <string name="rep_url">https://token-rep-service.herokuapp.com</string>
+    <string name="chat_url">https://chat.service.tokenbrowser.com</string>
+    <string name="directory_url">https://directory.service.tokenbrowser.com</string>
+    <string name="balance_url">https://ethereum.service.tokenbrowser.com</string>
+    <string name="id_url">https://identity.service.tokenbrowser.com</string>
+    <string name="rep_url">https://reputation.service.tokenbrowser.com</string>
     <string name="currency_url">https://api.coinbase.com</string>
     <string name="qr_code_base_url">https://app.tokenbrowser.com/</string>
     <string name="qr_code_add_url">%1$s/&lt;%2$s&gt;</string>
