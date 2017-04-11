@@ -6,18 +6,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.crashlytics.android.Crashlytics;
 import com.tokenbrowser.R;
 import com.tokenbrowser.model.local.PendingTransaction;
+import com.tokenbrowser.model.sofa.Payment;
+import com.tokenbrowser.model.sofa.SofaAdapters;
+import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.view.adapter.viewholder.TransactionViewHolder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TransactionsAdapter extends RecyclerView.Adapter<TransactionViewHolder> {
 
-    private List<PendingTransaction> transactions;
+    private final SofaAdapters adapters;
+    private final List<PendingTransaction> transactions;
 
     public TransactionsAdapter() {
+        this.adapters = new SofaAdapters();
         this.transactions = new ArrayList<>();
     }
 
@@ -35,8 +42,15 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionViewHol
 
     @Override
     public void onBindViewHolder(final TransactionViewHolder holder, final int position) {
-        final PendingTransaction transaction = this.transactions.get(position);
-        holder.setTransaction(transaction);
+        try {
+            final PendingTransaction transaction = this.transactions.get(position);
+            final String sofaMessage = transaction.getSofaMessage().getPayload();
+            final Payment payment = this.adapters.paymentFrom(sofaMessage);
+            holder.setPayment(payment);
+        } catch (final IOException ex) {
+            LogUtil.e(getClass(), ex.toString());
+            Crashlytics.logException(ex);
+        }
     }
 
     @Override
