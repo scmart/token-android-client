@@ -16,7 +16,8 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.ViewHo
 
     public static final int LOCAL_CURRENCY = 0;
     public static final int ABOUT = 1;
-    public static final int SIGN_OUT = 2;
+    public static final int TRANSACTIONS = 2;
+    public static final int SIGN_OUT = 3;
 
     private final String[] settings;
     private OnItemClickListener<Integer> listener;

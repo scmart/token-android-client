@@ -18,6 +18,7 @@ import com.tokenbrowser.view.activity.AboutActivity;
 import com.tokenbrowser.view.activity.BackupPhraseInfoActivity;
 import com.tokenbrowser.view.activity.QrCodeActivity;
 import com.tokenbrowser.view.activity.SignOutActivity;
+import com.tokenbrowser.view.activity.TransactionOverviewActivity;
 import com.tokenbrowser.view.activity.TrustedFriendsActivity;
 import com.tokenbrowser.view.activity.ViewProfileActivity;
 import com.tokenbrowser.view.adapter.SettingsAdapter;
@@ -116,6 +117,11 @@ public final class SettingsPresenter implements
         switch (option) {
             case SettingsAdapter.ABOUT: {
                 final Intent intent = new Intent(this.fragment.getContext(), AboutActivity.class);
+                this.fragment.getContext().startActivity(intent);
+                break;
+            }
+            case SettingsAdapter.TRANSACTIONS: {
+                final Intent intent = new Intent(this.fragment.getContext(), TransactionOverviewActivity.class);
                 this.fragment.getContext().startActivity(intent);
                 break;
             }
