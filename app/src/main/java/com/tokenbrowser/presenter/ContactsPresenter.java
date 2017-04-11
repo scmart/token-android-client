@@ -48,7 +48,6 @@ public final class ContactsPresenter implements
         initRecyclerView();
         loadContacts();
         this.fragment.getBinding().userSearch.setOnClickListener(this.handleUserSearchClicked);
-        updateEmptyState();
     }
 
     private void initRecyclerView() {
