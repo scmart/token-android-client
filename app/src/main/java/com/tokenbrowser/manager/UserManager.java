@@ -157,7 +157,7 @@ public class UserManager {
         return Observable
                 .concat(
                         this.userStore.loadForAddress(userAddress),
-                        this.fetchAndCacheFromNetwork(userAddress))
+                        this.fetchAndCacheFromNetworkByTokenId(userAddress))
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .first(user -> user != null && !user.needsRefresh());
@@ -165,17 +165,34 @@ public class UserManager {
 
     public Single<User> getUserFromPaymentAddress(final String paymentAddress) {
         return Single
-                .fromCallable(() -> userStore.loadForPaymentAddress(paymentAddress))
+                .concat(
+                        Single.just(userStore.loadForPaymentAddress(paymentAddress)),
+                        this.fetchAndCacheFromNetworkByPaymentAddress(paymentAddress).toSingle()
+                )
                 .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io());
+                .observeOn(Schedulers.io())
+                .first(user -> user != null && !user.needsRefresh())
+                .toSingle();
 
     }
 
-    private Observable<User> fetchAndCacheFromNetwork(final String userAddress) {
+    private Observable<User> fetchAndCacheFromNetworkByTokenId(final String userAddress) {
         return IdService
                 .getApi()
                 .getUser(userAddress)
                 .toObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .doOnNext(this::cacheUser);
+    }
+
+    private Observable<User> fetchAndCacheFromNetworkByPaymentAddress(final String paymentAddress) {
+        return IdService
+                .getApi()
+                .searchByPaymentAddress(paymentAddress)
+                .toObservable()
+                .filter(userSearchResults -> userSearchResults.getResults().size() > 0)
+                .map(userSearchResults -> userSearchResults.getResults().get(0))
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .doOnNext(this::cacheUser);
