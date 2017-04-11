@@ -71,6 +71,7 @@ public class SignInPresenter implements Presenter<SignInActivity> {
                         .getTokenManager()
                         .init(wallet))
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnSuccess(__ -> SharedPrefsUtil.setHasBackedUpPhrase())
                 .subscribe(
                         unused -> handleSuccess(),
                         throwable -> handleError());
@@ -94,8 +95,6 @@ public class SignInPresenter implements Presenter<SignInActivity> {
 
     private void goToMainActivity() {
         SharedPrefsUtil.setSignedIn();
-        // We just assume they have backed up their phrase since they just managed to log in with a phrase
-        SharedPrefsUtil.setHasBackedUpPhrase();
         final Intent intent = new Intent(this.activity, MainActivity.class);
         this.activity.startActivity(intent);
         this.activity.finish();
