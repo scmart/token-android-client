@@ -3,6 +3,7 @@
     <string-array name="settings_options">
         <item>Local currency</item>
         <item>About</item>
+        <item>Transactions</item>
         <item>Sign out</item>
     </string-array>
 </resources>

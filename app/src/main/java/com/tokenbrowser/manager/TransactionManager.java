@@ -64,6 +64,10 @@ public class TransactionManager {
         return this.pendingTransactionStore.getPendingTransactionObservable();
     }
 
+    public Observable<PendingTransaction> getAllTransactions() {
+        return this.pendingTransactionStore.loadAllTransactions();
+    }
+
     public final void sendPayment(final User receiver, final String amount) {
         sendPayment(receiver, receiver.getPaymentAddress(), amount);
     }
