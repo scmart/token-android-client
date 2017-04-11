@@ -7,11 +7,8 @@ import android.os.Build;
 import android.support.multidex.MultiDexApplication;
 
 import com.tokenbrowser.manager.TokenManager;
-import com.tokenbrowser.manager.store.TokenMigration;
 import com.tokenbrowser.service.NetworkChangeReceiver;
 
-import io.realm.Realm;
-import io.realm.RealmConfiguration;
 import rx.subjects.BehaviorSubject;
 
 public final class BaseApplication extends MultiDexApplication {
@@ -36,7 +33,6 @@ public final class BaseApplication extends MultiDexApplication {
 
     private void init() {
         initTokenManager();
-        initRealm();
         initConnectivityMonitor();
     }
 
@@ -51,16 +47,6 @@ public final class BaseApplication extends MultiDexApplication {
 
     private void initTokenManager() {
         this.tokenManager = new TokenManager();
-    }
-
-    private void initRealm() {
-        Realm.init(this);
-        final RealmConfiguration config = new RealmConfiguration
-                .Builder()
-                .schemaVersion(7)
-                .migration(new TokenMigration())
-                .build();
-        Realm.setDefaultConfiguration(config);
     }
 
 
