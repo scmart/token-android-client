@@ -300,7 +300,7 @@ public final class SettingsPresenter implements
     private void handleAddMoneyClicked(final View view) {
         if (fragment == null) return;
         final Intent intent = new Intent(fragment.getActivity(), DepositActivity.class);
-        fragment.getActivity().startActivity(intent);
+        fragment.getContext().startActivity(intent);
     }
 
     @Override
