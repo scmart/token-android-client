@@ -46,6 +46,7 @@ public final class ScannerPresenter implements
     private boolean firstTimeAttaching = true;
     private String encodedEthAmount;
     private @PaymentType.Type int paymentType;
+    private String memo;
 
     @Override
     public void onViewAttached(final ScannerActivity activity) {
@@ -143,6 +144,7 @@ public final class ScannerPresenter implements
             final QrCodePayment payment = qrCode.getPayment();
             this.paymentType = PaymentType.TYPE_SEND;
             this.encodedEthAmount = payment.getValue();
+            this.memo = payment.getMemo();
 
             final Subscription sub =
                     getUserByUsername(payment.getUsername())
@@ -170,7 +172,7 @@ public final class ScannerPresenter implements
     private void showPaymentConfirmationDialog(final String tokenId) {
         if (this.activity == null) return;
         final PaymentRequestConfirmationDialog dialog = PaymentRequestConfirmationDialog
-                .newInstance(tokenId, this.encodedEthAmount, this.paymentType);
+                .newInstance(tokenId, this.encodedEthAmount, this.paymentType, this.memo);
         dialog.setOnActionClickedListener(this);
         dialog.show(this.activity.getSupportFragmentManager(), PaymentRequestConfirmationDialog.TAG);
     }
