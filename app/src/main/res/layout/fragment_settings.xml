@@ -207,6 +207,7 @@
                     android:background="@color/divider" />
 
                 <Button
+                    android:id="@+id/add_money"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/activity_horizontal_margin"
