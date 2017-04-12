@@ -4,7 +4,7 @@
     <!-- Dialog errors -->
     <string name="dollar">$</string>
     <string name="tab_1">Home</string>
-    <string name="tab_2">Apps</string>
+    <string name="tab_browse">Browse</string>
     <string name="tab_4">Favorites</string>
     <string name="tab_5">Me</string>
     <string name="send_message">Message…</string>
