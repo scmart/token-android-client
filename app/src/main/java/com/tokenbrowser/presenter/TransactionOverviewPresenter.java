@@ -4,6 +4,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import com.tokenbrowser.R;
 import com.tokenbrowser.model.local.PendingTransaction;
@@ -38,8 +39,17 @@ public class TransactionOverviewPresenter implements Presenter<TransactionOvervi
     }
 
     private void initShortLivingObjects() {
+        initClickListener();
         initRecyclerView();
         loadAllTransactions();
+    }
+
+    private void initClickListener() {
+        this.activity.getBinding().closeButton.setOnClickListener(this::handleCloseButtonClicked);
+    }
+
+    private void handleCloseButtonClicked(final View v) {
+        this.activity.finish();
     }
 
     private void initRecyclerView() {
@@ -65,6 +75,7 @@ public class TransactionOverviewPresenter implements Presenter<TransactionOvervi
                 .getTransactionManager()
                 .getAllTransactions()
                 .doOnSubscribe(() -> this.adapter.clear())
+                .doOnCompleted(this::updateEmptyState)
                 .subscribe(this::handleTransactionLoaded);
 
         this.subscriptions.add(sub);
@@ -72,6 +83,18 @@ public class TransactionOverviewPresenter implements Presenter<TransactionOvervi
 
     private void handleTransactionLoaded(final PendingTransaction transaction) {
         this.adapter.addTransaction(transaction);
+    }
+
+    private void updateEmptyState() {
+        // Hide empty state if we have some content
+        final boolean showingEmptyState = this.activity.getBinding().emptyStateSwitcher.getCurrentView().getId() == this.activity.getBinding().emptyState.getId();
+        final boolean shouldShowEmptyState = this.adapter.getItemCount() == 0;
+
+        if (shouldShowEmptyState && !showingEmptyState) {
+            this.activity.getBinding().emptyStateSwitcher.showPrevious();
+        } else if (!shouldShowEmptyState && showingEmptyState) {
+            this.activity.getBinding().emptyStateSwitcher.showNext();
+        }
     }
 
     @Override

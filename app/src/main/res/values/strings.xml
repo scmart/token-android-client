@@ -156,4 +156,5 @@
     <string name="payment_from">from</string>
     <string name="invalid_qr_code">Invalid QR code</string>
     <string name="not_implemented">Not implemented</string>
+    <string name="transaction__empty_state">No transactions, yet!</string>
 </resources>
