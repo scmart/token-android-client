@@ -10,8 +10,6 @@
     <string name="send_message">Message…</string>
     <string name="message">Message</string>
     <string name="chat__empty_state">There are no messages, yet!</string>
-    <string name="add_contact">Add Contact</string>
-    <string name="remove_contact">Added</string>
     <string name="my_profile">My Profile</string>
     <string name="settings">Settings</string>
     <string name="profile">Profile</string>
@@ -50,7 +48,6 @@
     <string name="tab_recent">Recent</string>
     <string name="send_amount">%1$s %2$s</string>
     <string name="recents_list__empty_state">You have no recent activity, yet!</string>
-    <string name="btn_message">Message</string>
     <string name="button_send_amount">%1$s</string>
     <string name="to">To:</string>
     <string name="reputation">Reputation</string>
