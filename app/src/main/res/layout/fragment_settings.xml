@@ -154,6 +154,82 @@
                     android:layout_height="10dp"
                     android:background="@color/windowBackgroundContrast"/>
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/activity_horizontal_margin"
+                    android:textColor="@color/textColorSecondary"
+                    android:text="@string/balance"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Space
+                        android:layout_width="@dimen/activity_horizontal_margin"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/local_currency_balance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/subTitleSize"
+                        tools:text="$0.00 USD"/>
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"/>
+
+                    <TextView
+                        android:id="@+id/eth_balance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/textColorSecondary"
+                        android:textSize="@dimen/balance_bar_text_size"
+                        tools:text="0.0000"/>
+
+                    <Space
+                        android:layout_width="4dp"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/textColorSecondary"
+                        android:textSize="@dimen/balance_bar_text_size"
+                        android:text="@string/eth_currency_code"/>
+
+                    <Space
+                        android:layout_width="@dimen/activity_horizontal_margin"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/activity_horizontal_margin"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:background="@color/divider" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    style="@style/FlatButton"
+                    android:text="@string/add_money"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    android:background="@color/windowBackgroundContrast"/>
+
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
