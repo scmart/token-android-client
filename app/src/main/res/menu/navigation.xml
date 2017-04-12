@@ -19,5 +19,5 @@
 
     <item
         android:title="@string/tab_5"
-        android:icon="@drawable/ic_action_settings" />
+        android:icon="@drawable/ic_action_me" />
 </menu>

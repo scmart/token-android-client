@@ -16,6 +16,7 @@ import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.AboutActivity;
 import com.tokenbrowser.view.activity.BackupPhraseInfoActivity;
+import com.tokenbrowser.view.activity.DepositActivity;
 import com.tokenbrowser.view.activity.QrCodeActivity;
 import com.tokenbrowser.view.activity.SignOutActivity;
 import com.tokenbrowser.view.activity.TransactionOverviewActivity;
@@ -49,10 +50,15 @@ public final class SettingsPresenter implements
             initLongLivingObjects();
         }
 
+        initShortLivingObjects();
+    }
+
+    private void initShortLivingObjects() {
         fetchUser();
         initRecyclerView();
         updateUi();
         setSecurityState();
+        attachBalanceSubscriber();
         initClickListeners();
     }
 
@@ -231,11 +237,37 @@ public final class SettingsPresenter implements
         }
     }
 
+    private void attachBalanceSubscriber() {
+        final Subscription sub = BaseApplication
+                .get()
+                .getTokenManager()
+                .getBalanceManager()
+                .getBalanceObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .filter(balance -> balance != null)
+                .subscribe(this::renderBalance);
+
+        this.subscriptions.add(sub);
+    }
+
+    private void renderBalance(final Balance balance) {
+        if (this.fragment == null) return;
+
+        this.fragment.getBinding().ethBalance.setText(balance.getFormattedUnconfirmedBalance());
+        final Subscription getLocalBalanceSub =
+                balance
+                        .getFormattedLocalBalance()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(localBalance -> this.fragment.getBinding().localCurrencyBalance.setText(localBalance));
+        this.subscriptions.add(getLocalBalanceSub);
+    }
+
     private void initClickListeners() {
         this.fragment.getBinding().myProfileCard.setOnClickListener(this.handleMyProfileClicked);
         this.fragment.getBinding().trustedFriends.setOnClickListener(this::handleTrustedFriendsClicked);
         this.fragment.getBinding().backupPhrase.setOnClickListener(this::handleBackupPhraseClicked);
         this.fragment.getBinding().myQrCode.setOnClickListener(this::handleMyQrCodeClicked);
+        this.fragment.getBinding().addMoney.setOnClickListener(this::handleAddMoneyClicked);
     }
 
     private final OnSingleClickListener handleMyProfileClicked = new OnSingleClickListener() {
@@ -263,6 +295,12 @@ public final class SettingsPresenter implements
         if (this.fragment == null) return;
         final Intent intent = new Intent(this.fragment.getContext(), QrCodeActivity.class);
         this.fragment.getContext().startActivity(intent);
+    }
+
+    private void handleAddMoneyClicked(final View view) {
+        if (fragment == null) return;
+        final Intent intent = new Intent(fragment.getActivity(), DepositActivity.class);
+        fragment.getContext().startActivity(intent);
     }
 
     @Override
