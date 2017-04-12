@@ -2,16 +2,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:title="@string/tab_1"
-        android:icon="@drawable/ic_action_home" />
+        android:title="@string/tab_browse"
+        android:icon="@drawable/ic_action_apps" />
 
     <item
         android:title="@string/tab_recent"
         android:icon="@drawable/ic_action_recent" />
 
     <item
-        android:title="@string/tab_2"
-        android:icon="@drawable/ic_action_apps" />
+        android:title="@string/tab_1"
+        android:icon="@drawable/ic_action_home" />
 
     <item
         android:title="@string/tab_4"

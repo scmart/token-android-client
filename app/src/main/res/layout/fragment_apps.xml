@@ -22,7 +22,7 @@
                 android:textSize="18sp"
                 android:textStyle="bold"
                 style="@style/Toolbar.TitleText"
-                android:text="@string/tab_2"/>
+                android:text="@string/tab_browse"/>
 
         </android.support.v7.widget.Toolbar>
 
