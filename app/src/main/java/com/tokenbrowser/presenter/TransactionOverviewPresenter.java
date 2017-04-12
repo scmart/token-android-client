@@ -75,6 +75,7 @@ public class TransactionOverviewPresenter implements Presenter<TransactionOvervi
                 .getTransactionManager()
                 .getAllTransactions()
                 .doOnSubscribe(() -> this.adapter.clear())
+                .doOnCompleted(this::updateEmptyState)
                 .subscribe(this::handleTransactionLoaded);
 
         this.subscriptions.add(sub);
@@ -82,6 +83,18 @@ public class TransactionOverviewPresenter implements Presenter<TransactionOvervi
 
     private void handleTransactionLoaded(final PendingTransaction transaction) {
         this.adapter.addTransaction(transaction);
+    }
+
+    private void updateEmptyState() {
+        // Hide empty state if we have some content
+        final boolean showingEmptyState = this.activity.getBinding().emptyStateSwitcher.getCurrentView().getId() == this.activity.getBinding().emptyState.getId();
+        final boolean shouldShowEmptyState = this.adapter.getItemCount() == 0;
+
+        if (shouldShowEmptyState && !showingEmptyState) {
+            this.activity.getBinding().emptyStateSwitcher.showPrevious();
+        } else if (!shouldShowEmptyState && showingEmptyState) {
+            this.activity.getBinding().emptyStateSwitcher.showNext();
+        }
     }
 
     @Override
