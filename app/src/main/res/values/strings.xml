@@ -157,4 +157,6 @@
     <string name="transactions">Transactions</string>
     <string name="payment_to">to</string>
     <string name="payment_from">from</string>
+    <string name="invalid_qr_code">Invalid QR code</string>
+    <string name="not_implemented">Not implemented</string>
 </resources>

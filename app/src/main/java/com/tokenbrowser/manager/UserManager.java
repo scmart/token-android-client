@@ -228,6 +228,19 @@ public class UserManager {
                 .map(UserSearchResults::getResults);
     }
 
+    public Single<User> getUserByUsername(final String username) {
+        return Single
+                .concat(
+                        searchOfflineUsers(username),
+                        searchOnlineUsers(username)
+                )
+                .subscribeOn(Schedulers.io())
+                .flatMapIterable(users -> users)
+                .filter(user -> user != null && user.getUsernameForEditing().equals(username))
+                .first(user -> !user.needsRefresh())
+                .toSingle();
+    }
+
     public Single<Void> webLogin(final String loginToken) {
         return IdService
             .getApi()

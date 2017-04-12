@@ -41,4 +41,8 @@ public class EthUtil {
     public static BigInteger ethToWei(final BigDecimal amountInEth) {
         return amountInEth.multiply(weiToEthRatio).toBigInteger();
     }
+
+    public static String encodeToHex(final String value) throws NumberFormatException, NullPointerException {
+        return String.format("%s%s", "0x", new BigInteger(value).toString(16));
+    }
 }

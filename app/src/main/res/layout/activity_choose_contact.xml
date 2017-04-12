@@ -68,13 +68,6 @@
                 android:imeOptions="actionDone"
                 android:background="@null"/>
 
-            <ImageView
-                android:id="@+id/qr_scan"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|right"
-                app:srcCompat="@drawable/ic_scan"/>
-
         </LinearLayout>
 
         <android.support.v4.widget.Space

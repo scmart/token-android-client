@@ -93,6 +93,17 @@
             android:textColor="@color/textColorPrimary"
             tools:text="$20 USD - 0.00456 ETH"/>
 
+        <TextView
+            android:id="@+id/memo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textSize="14sp"
+            android:textColor="@color/textColorSecondary"
+            android:visibility="gone"
+            tools:visibility="gone"
+            tools:text="2x Berlin - Amsterdam"/>
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

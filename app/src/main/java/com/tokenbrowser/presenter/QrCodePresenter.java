@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import com.crashlytics.android.Crashlytics;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.util.LogUtil;
-import com.tokenbrowser.util.QrCodeUtil;
+import com.tokenbrowser.util.QrCode;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.QrCodeActivity;
 
@@ -72,8 +72,7 @@ public class QrCodePresenter implements Presenter<QrCodeActivity> {
 
     private void showQrCode(final User user) {
         final Subscription sub =
-                new QrCodeUtil()
-                .generateAddQrCode(user.getUsername())
+                QrCode.generateAddQrCode(user.getUsername())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
