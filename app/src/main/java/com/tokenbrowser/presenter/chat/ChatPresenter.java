@@ -253,7 +253,6 @@ public final class ChatPresenter implements
         });
 
         this.activity.getBinding().messagesList.getLayoutManager().scrollToPosition(this.lastVisibleMessagePosition);
-        updateEmptyState();
     }
 
     private void updateEmptyState() {
