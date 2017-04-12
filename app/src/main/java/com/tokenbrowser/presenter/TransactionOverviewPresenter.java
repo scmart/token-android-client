@@ -4,6 +4,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import com.tokenbrowser.R;
 import com.tokenbrowser.model.local.PendingTransaction;
@@ -38,8 +39,17 @@ public class TransactionOverviewPresenter implements Presenter<TransactionOvervi
     }
 
     private void initShortLivingObjects() {
+        initClickListener();
         initRecyclerView();
         loadAllTransactions();
+    }
+
+    private void initClickListener() {
+        this.activity.getBinding().closeButton.setOnClickListener(this::handleCloseButtonClicked);
+    }
+
+    private void handleCloseButtonClicked(final View v) {
+        this.activity.finish();
     }
 
     private void initRecyclerView() {
