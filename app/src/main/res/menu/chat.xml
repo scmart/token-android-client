@@ -3,7 +3,7 @@
 
     <item android:id="@+id/rate"
         android:title="@string/rate"
-        android:icon="@drawable/ic_action_home" />
+        android:icon="@drawable/ic_action_contacts" />
 
     <item android:id="@+id/view_profile"
         android:title="@string/view_profile"

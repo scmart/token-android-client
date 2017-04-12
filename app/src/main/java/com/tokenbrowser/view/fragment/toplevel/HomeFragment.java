@@ -31,7 +31,7 @@ public class HomeFragment extends BasePresenterFragment<HomePresenter, HomeFragm
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, final @Nullable Bundle inState) {
         this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false);
-        this.binding.title.setText(getString(R.string.tab_1));
+        this.binding.title.setText(getString(R.string.tab_scan));
         return binding.getRoot();
     }
 
