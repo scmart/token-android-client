@@ -49,10 +49,15 @@ public final class SettingsPresenter implements
             initLongLivingObjects();
         }
 
+        initShortLivingObjects();
+    }
+
+    private void initShortLivingObjects() {
         fetchUser();
         initRecyclerView();
         updateUi();
         setSecurityState();
+        attachBalanceSubscriber();
         initClickListeners();
     }
 
@@ -229,6 +234,31 @@ public final class SettingsPresenter implements
             this.fragment.getBinding().checkboxBackupPhrase.setChecked(true);
             this.fragment.getBinding().securityStatus.setVisibility(View.GONE);
         }
+    }
+
+    private void attachBalanceSubscriber() {
+        final Subscription sub = BaseApplication
+                .get()
+                .getTokenManager()
+                .getBalanceManager()
+                .getBalanceObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .filter(balance -> balance != null)
+                .subscribe(this::renderBalance);
+
+        this.subscriptions.add(sub);
+    }
+
+    private void renderBalance(final Balance balance) {
+        if (this.fragment == null) return;
+
+        this.fragment.getBinding().ethBalance.setText(balance.getFormattedUnconfirmedBalance());
+        final Subscription getLocalBalanceSub =
+                balance
+                        .getFormattedLocalBalance()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(localBalance -> this.fragment.getBinding().localCurrencyBalance.setText(localBalance));
+        this.subscriptions.add(getLocalBalanceSub);
     }
 
     private void initClickListeners() {

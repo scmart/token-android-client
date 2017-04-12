@@ -188,18 +188,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/textColorSecondary"
                         android:textSize="@dimen/balance_bar_text_size"
-                        tools:text="0.0000"/>
-
-                    <Space
-                        android:layout_width="4dp"
-                        android:layout_height="wrap_content"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/textColorSecondary"
-                        android:textSize="@dimen/balance_bar_text_size"
-                        android:text="@string/eth_currency_code"/>
+                        tools:text="0.0000 ETH"/>
 
                     <Space
                         android:layout_width="@dimen/activity_horizontal_margin"
