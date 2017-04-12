@@ -9,7 +9,6 @@ import android.view.Menu;
 
 import com.tokenbrowser.view.fragment.toplevel.AppsFragment;
 import com.tokenbrowser.view.fragment.toplevel.ContactsFragment;
-import com.tokenbrowser.view.fragment.toplevel.HomeFragment;
 import com.tokenbrowser.view.fragment.toplevel.RecentFragment;
 import com.tokenbrowser.view.fragment.toplevel.SettingsFragment;
 
@@ -29,7 +28,7 @@ public class NavigationAdapter extends FragmentPagerAdapter {
         fragments.clear();
         fragments.add(AppsFragment.newInstance());
         fragments.add(RecentFragment.newInstance());
-        fragments.add(HomeFragment.newInstance());
+        fragments.add(RecentFragment.newInstance()); // <-- This can be anything. In reality it is the Scan functionality
         fragments.add(ContactsFragment.newInstance());
         fragments.add(SettingsFragment.newInstance());
     }

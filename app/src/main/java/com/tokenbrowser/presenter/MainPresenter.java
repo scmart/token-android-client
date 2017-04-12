@@ -15,6 +15,7 @@ import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.util.SoundManager;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.MainActivity;
+import com.tokenbrowser.view.activity.ScannerActivity;
 import com.tokenbrowser.view.adapter.NavigationAdapter;
 
 import rx.Subscription;
@@ -23,6 +24,7 @@ import rx.subscriptions.CompositeSubscription;
 
 public class MainPresenter implements Presenter<MainActivity> {
     private static final int DEFAULT_TAB = 0;
+    private static final int SCAN_POSITION = 2;
 
     private MainActivity activity;
     private boolean firstTimeAttached = true;
@@ -32,6 +34,10 @@ public class MainPresenter implements Presenter<MainActivity> {
     private final AHBottomNavigation.OnTabSelectedListener tabListener = new AHBottomNavigation.OnTabSelectedListener() {
         @Override
         public boolean onTabSelected(final int position, final boolean wasSelected) {
+            if (position == SCAN_POSITION) {
+                openScanActivity();
+                return false;
+            }
             final FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
             transaction.replace(activity.getBinding().fragmentContainer.getId(), adapter.getItem(position)).commit();
 
@@ -144,5 +150,10 @@ public class MainPresenter implements Presenter<MainActivity> {
         final int activeTab = intent.getIntExtra(MainActivity.EXTRA__ACTIVE_TAB, this.activity.getBinding().navBar.getCurrentItem());
         this.activity.getIntent().removeExtra(MainActivity.EXTRA__ACTIVE_TAB);
         this.activity.getBinding().navBar.setCurrentItem(activeTab);
+    }
+
+    private void openScanActivity() {
+        final Intent intent = new Intent(this.activity, ScannerActivity.class);
+        this.activity.startActivity(intent);
     }
 }
