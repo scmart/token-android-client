@@ -19,6 +19,7 @@ package com.tokenbrowser.presenter;
 
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
@@ -79,6 +80,7 @@ public class MainPresenter implements Presenter<MainActivity> {
         trySelectTabFromIntent();
         attachUnreadMessagesSubscription();
         showBetaWarningDialog();
+        processIntentData();
     }
 
     private void manuallySelectFirstTab() {
@@ -137,6 +139,22 @@ public class MainPresenter implements Presenter<MainActivity> {
                 });
         builder.create().show();
         SharedPrefsUtil.setHasLoadedApp();
+    }
+
+    private void processIntentData() {
+        final Uri data = this.activity.getIntent().getData();
+        handleIntentUri(data);
+    }
+
+    private void handleIntentUri(final Uri uri) {
+        if (uri != null && uri.toString().startsWith(this.activity.getString(R.string.external_payment_prefix))) {
+            handleExternalPayment(uri.toString());
+        }
+    }
+
+    private void handleExternalPayment(final String uri) {
+        this.activity.getIntent().setData(null);
+        //Show confirmation dialog
     }
 
     private void showUnreadBadge() {

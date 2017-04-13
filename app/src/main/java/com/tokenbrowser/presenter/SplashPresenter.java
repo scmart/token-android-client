@@ -19,6 +19,7 @@ package com.tokenbrowser.presenter;
 
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.net.Uri;
 
 import com.crashlytics.android.Crashlytics;
 import com.tokenbrowser.util.SharedPrefsUtil;
@@ -93,7 +94,15 @@ public class SplashPresenter implements Presenter<SplashActivity> {
 
     private void goToMainActivity() {
         final Intent intent = new Intent(this.activity, MainActivity.class);
+        redirectIntentData(intent);
         goToActivity(intent);
+    }
+
+    private void redirectIntentData(final Intent intent) {
+        final Uri data = this.activity.getIntent().getData();
+        if (data == null) return;
+        intent.setData(data);
+        this.activity.getIntent().setData(null);
     }
 
     private void goToSignInActivity() {

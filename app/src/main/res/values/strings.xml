@@ -174,4 +174,5 @@
     <string name="invalid_qr_code">Invalid QR code</string>
     <string name="not_implemented">Not implemented</string>
     <string name="transaction__empty_state">No transactions, yet!</string>
+    <string name="external_payment_prefix">ethereum</string>
 </resources>
