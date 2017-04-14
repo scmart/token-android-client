@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="chat_url">https://chat.service.tokenbrowser.com</string>
-    <string name="directory_url">https://directory.service.tokenbrowser.com</string>
+    <string name="directory_url">https://identity.service.tokenbrowser.com</string>
     <string name="balance_url">https://ethereum.service.tokenbrowser.com</string>
     <string name="id_url">https://identity.service.tokenbrowser.com</string>
     <string name="rep_url">https://reputation.service.tokenbrowser.com</string>
