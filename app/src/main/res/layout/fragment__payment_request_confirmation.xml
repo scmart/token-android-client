@@ -38,10 +38,13 @@
             tools:text="@string/confirm_payment_to"/>
 
         <LinearLayout
+            android:id="@+id/user_info_wrapper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="18sp">
+            android:layout_marginTop="18sp"
+            android:visibility="gone"
+            tools:visibility="gone">
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/avatar"
@@ -98,8 +101,17 @@
                     tools:text="(44)"/>
 
             </LinearLayout>
-
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/payment_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18sp"
+            android:textSize="16sp"
+            android:textColor="@color/textColorSecondary"
+            android:visibility="gone"
+            tools:visibility="gone"/>
 
         <TextView
             android:id="@+id/eth_usd"

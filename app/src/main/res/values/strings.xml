@@ -175,4 +175,6 @@
     <string name="not_implemented">Not implemented</string>
     <string name="transaction__empty_state">No transactions, yet!</string>
     <string name="external_payment_prefix">ethereum</string>
+    <string name="invalid_payment">Invalid payment</string>
+    <string name="payment_address">Payment address: %1$s</string>
 </resources>

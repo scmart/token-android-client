@@ -24,30 +24,41 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.widget.Toast;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
 import com.tokenbrowser.R;
+import com.tokenbrowser.exception.InvalidQrCodePayment;
 import com.tokenbrowser.manager.SofaMessageManager;
+import com.tokenbrowser.model.local.QrCodePayment;
+import com.tokenbrowser.model.sofa.Payment;
+import com.tokenbrowser.util.PaymentType;
+import com.tokenbrowser.util.QrCode;
 import com.tokenbrowser.util.SharedPrefsUtil;
 import com.tokenbrowser.util.SoundManager;
 import com.tokenbrowser.view.BaseApplication;
+import com.tokenbrowser.view.activity.ChatActivity;
 import com.tokenbrowser.view.activity.MainActivity;
 import com.tokenbrowser.view.activity.ScannerActivity;
 import com.tokenbrowser.view.adapter.NavigationAdapter;
+import com.tokenbrowser.view.fragment.DialogFragment.PaymentConfirmationDialog;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
-public class MainPresenter implements Presenter<MainActivity> {
+public class MainPresenter implements
+        Presenter<MainActivity>,
+        PaymentConfirmationDialog.OnPaymentConfirmationListener {
+
     private static final int DEFAULT_TAB = 0;
     private static final int SCAN_POSITION = 2;
 
     private MainActivity activity;
-    private boolean firstTimeAttached = true;
     private NavigationAdapter adapter;
     private CompositeSubscription subscriptions;
+    private boolean firstTimeAttached = true;
 
     private final AHBottomNavigation.OnTabSelectedListener tabListener = new AHBottomNavigation.OnTabSelectedListener() {
         @Override
@@ -154,8 +165,88 @@ public class MainPresenter implements Presenter<MainActivity> {
 
     private void handleExternalPayment(final String uri) {
         this.activity.getIntent().setData(null);
-        //Show confirmation dialog
+        try {
+            final QrCodePayment payment = new QrCode(uri).getExternalPayment();
+            final Subscription sub =
+                    BaseApplication
+                    .get()
+                    .getTokenManager()
+                    .getUserManager()
+                    .getUserFromPaymentAddress(payment.getAddress())
+                    .subscribe(
+                            user -> showTokenPaymentConfirmationDialog(user.getTokenId(), payment),
+                            __ -> showExternalPaymentConfirmationDialog(payment)
+                    );
+
+            this.subscriptions.add(sub);
+        } catch (InvalidQrCodePayment e) {
+            handleInvalidQrCodePayment();
+        }
     }
+
+    private void showTokenPaymentConfirmationDialog(final String tokenId, final QrCodePayment payment) {
+        try {
+            final PaymentConfirmationDialog dialog =
+                    PaymentConfirmationDialog
+                    .newInstanceTokenPayment(
+                            tokenId,
+                            payment.getValue(),
+                            payment.getMemo()
+                    );
+            dialog.show(this.activity.getSupportFragmentManager(), PaymentConfirmationDialog.TAG);
+            dialog.setOnPaymentConfirmationListener(this);
+        } catch (InvalidQrCodePayment e) {
+            handleInvalidQrCodePayment();
+        }
+    }
+
+    private void showExternalPaymentConfirmationDialog(final QrCodePayment payment) {
+        try {
+            final PaymentConfirmationDialog dialog =
+                    PaymentConfirmationDialog
+                    .newInstanceExternalPayment(
+                            payment.getAddress(),
+                            payment.getValue(),
+                            payment.getMemo()
+                    );
+            dialog.show(this.activity.getSupportFragmentManager(), PaymentConfirmationDialog.TAG);
+            dialog.setOnPaymentConfirmationListener(this);
+        } catch (InvalidQrCodePayment e) {
+            handleInvalidQrCodePayment();
+        }
+    }
+
+    @Override
+    public void onPaymentRejected() {
+        this.activity.finish();
+    }
+
+    @Override
+    public void onTokenPaymentApproved(final String tokenId, final Payment payment) {
+        try {
+            goToChatActivityWithPayment(tokenId, payment);
+        } catch (InvalidQrCodePayment e) {
+            handleInvalidQrCodePayment();
+        }
+    }
+
+    private void goToChatActivityWithPayment(final String tokenId, final Payment payment) throws InvalidQrCodePayment {
+        final Intent intent = new Intent(activity, ChatActivity.class)
+                .putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, tokenId)
+                .putExtra(ChatActivity.EXTRA__PAYMENT_ACTION, PaymentType.TYPE_SEND)
+                .putExtra(ChatActivity.EXTRA__ETH_AMOUNT, payment.getValue())
+                .putExtra(ChatActivity.EXTRA__PLAY_SCAN_SOUNDS, true);
+
+        this.activity.startActivity(intent);
+        this.activity.finish();
+    }
+
+    private void handleInvalidQrCodePayment() {
+        Toast.makeText(this.activity, this.activity.getString(R.string.invalid_payment), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onExternalPaymentApproved(final Payment payment) {}
 
     private void showUnreadBadge() {
         this.activity.getBinding().navBar.setNotification(" ", 1);

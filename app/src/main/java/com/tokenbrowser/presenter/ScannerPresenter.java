@@ -25,22 +25,23 @@ import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.CaptureManager;
 import com.tokenbrowser.R;
-import com.tokenbrowser.exception.InvalidQrCodePayment;
 import com.tokenbrowser.exception.InvalidQrCode;
+import com.tokenbrowser.exception.InvalidQrCodePayment;
 import com.tokenbrowser.model.local.PermissionResultHolder;
 import com.tokenbrowser.model.local.QrCodePayment;
 import com.tokenbrowser.model.local.ScanResult;
 import com.tokenbrowser.model.local.User;
+import com.tokenbrowser.model.sofa.Payment;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.PaymentType;
-import com.tokenbrowser.util.QrCodeType;
 import com.tokenbrowser.util.QrCode;
+import com.tokenbrowser.util.QrCodeType;
 import com.tokenbrowser.util.SoundManager;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ChatActivity;
 import com.tokenbrowser.view.activity.ScannerActivity;
 import com.tokenbrowser.view.activity.ViewUserActivity;
-import com.tokenbrowser.view.fragment.DialogFragment.PaymentRequestConfirmationDialog;
+import com.tokenbrowser.view.fragment.DialogFragment.PaymentConfirmationDialog;
 
 import java.util.List;
 
@@ -52,7 +53,7 @@ import rx.subscriptions.CompositeSubscription;
 
 public final class ScannerPresenter implements
         Presenter<ScannerActivity>,
-        PaymentRequestConfirmationDialog.OnActionClickListener {
+        PaymentConfirmationDialog.OnPaymentConfirmationListener {
 
     private static final String WEB_SIGNIN = "web-signin:";
 
@@ -61,9 +62,7 @@ public final class ScannerPresenter implements
     private CompositeSubscription subscriptions;
 
     private boolean firstTimeAttaching = true;
-    private String encodedEthAmount;
     private @PaymentType.Type int paymentType;
-    private String memo;
 
     @Override
     public void onViewAttached(final ScannerActivity activity) {
@@ -128,7 +127,60 @@ public final class ScannerPresenter implements
 
     private void handleExternalQrCode(final QrCode qrCode) {
         if (this.activity == null) return;
-        Toast.makeText(this.activity, this.activity.getString(R.string.not_implemented), Toast.LENGTH_SHORT).show();
+        try {
+            final QrCodePayment payment = qrCode.getExternalPayment();
+            this.paymentType = PaymentType.TYPE_SEND;
+
+            final Subscription sub =
+                    BaseApplication
+                    .get()
+                    .getTokenManager()
+                    .getUserManager()
+                    .getUserFromPaymentAddress(payment.getAddress())
+                    .doOnSuccess(__ -> playScanSound())
+                    .doOnError(__ -> playScanSound())
+                    .subscribe(
+                            user -> showTokenPaymentConfirmationDialog(user.getTokenId(), payment),
+                            __ -> showExternalPaymentConfirmationDialog(payment));
+
+            this.subscriptions.add(sub);
+        } catch (InvalidQrCodePayment e) {
+            handleInvalidQrCode();
+        }
+    }
+
+    private void showTokenPaymentConfirmationDialog(final String tokenId, final QrCodePayment payment) {
+        if (this.activity == null) return;
+        try {
+            final PaymentConfirmationDialog dialog =
+                    PaymentConfirmationDialog
+                    .newInstanceTokenPayment(
+                            tokenId,
+                            payment.getValue(),
+                            payment.getMemo()
+                    );
+            dialog.show(this.activity.getSupportFragmentManager(), PaymentConfirmationDialog.TAG);
+            dialog.setOnPaymentConfirmationListener(this);
+        } catch (InvalidQrCodePayment e) {
+            handleInvalidQrCode();
+        }
+    }
+
+    private void showExternalPaymentConfirmationDialog(final QrCodePayment payment) {
+        if (this.activity == null) return;
+        try {
+            final PaymentConfirmationDialog dialog =
+                    PaymentConfirmationDialog
+                    .newInstanceExternalPayment(
+                            payment.getAddress(),
+                            payment.getValue(),
+                            payment.getMemo()
+                    );
+            dialog.show(this.activity.getSupportFragmentManager(), PaymentConfirmationDialog.TAG);
+            dialog.setOnPaymentConfirmationListener(this);
+        } catch (InvalidQrCodePayment invalidQrCodePayment) {
+            handleInvalidQrCode();
+        }
     }
 
     private void handleAddQrCode(final QrCode qrCode) {
@@ -160,14 +212,12 @@ public final class ScannerPresenter implements
         try {
             final QrCodePayment payment = qrCode.getPayment();
             this.paymentType = PaymentType.TYPE_SEND;
-            this.encodedEthAmount = payment.getValue();
-            this.memo = payment.getMemo();
 
             final Subscription sub =
                     getUserByUsername(payment.getUsername())
                     .doOnSuccess(__ -> playScanSound())
                     .subscribe(
-                            user -> showPaymentConfirmationDialog(user.getTokenId()),
+                            user -> showTokenPaymentConfirmationDialog(user.getTokenId(), payment),
                             __ -> handleInvalidQrCode()
                     );
 
@@ -184,14 +234,6 @@ public final class ScannerPresenter implements
                 .getUserManager()
                 .getUserByUsername(username)
                 .observeOn(AndroidSchedulers.mainThread());
-    }
-
-    private void showPaymentConfirmationDialog(final String tokenId) {
-        if (this.activity == null) return;
-        final PaymentRequestConfirmationDialog dialog = PaymentRequestConfirmationDialog
-                .newInstance(tokenId, this.encodedEthAmount, this.paymentType, this.memo);
-        dialog.setOnActionClickedListener(this);
-        dialog.show(this.activity.getSupportFragmentManager(), PaymentRequestConfirmationDialog.TAG);
     }
 
     private void handleInvalidQrCode() {
@@ -242,16 +284,8 @@ public final class ScannerPresenter implements
         Toast.makeText(BaseApplication.get(), R.string.error__web_signin, Toast.LENGTH_LONG).show();
     }
 
-    @Override
-    public void onPaymentApproved(final String userAddress) {
-        final Intent intent = new Intent(activity, ChatActivity.class)
-                .putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, userAddress)
-                .putExtra(ChatActivity.EXTRA__PAYMENT_ACTION, this.paymentType)
-                .putExtra(ChatActivity.EXTRA__ETH_AMOUNT, this.encodedEthAmount)
-                .putExtra(ChatActivity.EXTRA__PLAY_SCAN_SOUNDS, true);
-
-        this.activity.startActivity(intent);
-        this.activity.finish();
+    public void handlePermissionsResult(final PermissionResultHolder prh) {
+        this.capture.onRequestPermissionsResult(prh.getRequestCode(), prh.getPermissions(), prh.getGrantResults());
     }
 
     @Override
@@ -259,9 +293,28 @@ public final class ScannerPresenter implements
         this.activity.finish();
     }
 
-    public void handlePermissionsResult(final PermissionResultHolder prh) {
-        this.capture.onRequestPermissionsResult(prh.getRequestCode(), prh.getPermissions(), prh.getGrantResults());
+    @Override
+    public void onTokenPaymentApproved(final String tokenId, final Payment payment) {
+        try {
+            goToChatActivityWithPayment(tokenId, payment);
+        } catch (InvalidQrCodePayment e) {
+            handleInvalidQrCode();
+        }
     }
+
+    private void goToChatActivityWithPayment(final String tokenId, final Payment payment) throws InvalidQrCodePayment {
+        final Intent intent = new Intent(activity, ChatActivity.class)
+                .putExtra(ChatActivity.EXTRA__REMOTE_USER_ADDRESS, tokenId)
+                .putExtra(ChatActivity.EXTRA__PAYMENT_ACTION, this.paymentType)
+                .putExtra(ChatActivity.EXTRA__ETH_AMOUNT, payment.getValue())
+                .putExtra(ChatActivity.EXTRA__PLAY_SCAN_SOUNDS, true);
+
+        this.activity.startActivity(intent);
+        this.activity.finish();
+    }
+
+    @Override
+    public void onExternalPaymentApproved(final Payment payment) {}
 
     @Override
     public void onViewDetached() {
