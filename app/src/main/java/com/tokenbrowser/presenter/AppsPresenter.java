@@ -148,7 +148,7 @@ public class AppsPresenter implements Presenter<AppsFragment>{
                 .get()
                 .getTokenManager()
                 .getAppsManager()
-                .getRecommendedApps()
+                .getFeaturedApps()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::addAppsData, this::handleRecommendedAppsErrorResponse);
 
