@@ -51,6 +51,15 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="@string/external_payment_prefix" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="app.tokenbrowser.com"/>
+                <data android:pathPattern="/add/@.*"/>
+                <data android:pathPattern="/pay/@.*"/>
+            </intent-filter>
         </activity>
 
         <activity android:name="com.tokenbrowser.view.activity.MainActivity"
