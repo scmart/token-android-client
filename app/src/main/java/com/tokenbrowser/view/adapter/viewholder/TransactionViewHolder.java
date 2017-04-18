@@ -11,6 +11,8 @@ import com.tokenbrowser.model.sofa.Payment;
 import com.tokenbrowser.util.EthUtil;
 import com.tokenbrowser.view.BaseApplication;
 
+import rx.android.schedulers.AndroidSchedulers;
+
 public class TransactionViewHolder extends RecyclerView.ViewHolder {
 
     private TextView local_currency_amount;
@@ -33,6 +35,7 @@ public class TransactionViewHolder extends RecyclerView.ViewHolder {
         setDrawable(payment);
         payment
                 .getPaymentDirection()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(direction -> this.handlePaymentDirection(payment, direction));
     }
 
