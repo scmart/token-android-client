@@ -117,6 +117,30 @@ public class SignalSessionStore implements SessionStore {
         }
     }
 
+    public void deleteAllSessions() {
+        final List<String> sessionNames = getAllSessions();
+        for (final String sessionName : sessionNames) {
+            deleteAllSessions(sessionName);
+        }
+    }
+
+    private List<String> getAllSessions() {
+        final List<String> results = new LinkedList<>();
+        final File parent = getSessionDirectory();
+        final String[] children = parent.list();
+
+        if (children == null) {
+            return results;
+        }
+
+        for (final String child : children) {
+            final String[] parts = child.split("[.]", 2);
+            results.add(parts[0]);
+        }
+
+        return results;
+    }
+
     @Override
     public List<Integer> getSubDeviceSessions(final String name) {
         final String recipientId = name.split(":")[0];
@@ -140,6 +164,8 @@ public class SignalSessionStore implements SessionStore {
 
         return results;
     }
+
+
 
     public void migrateSessions() {
         synchronized (FILE_LOCK) {

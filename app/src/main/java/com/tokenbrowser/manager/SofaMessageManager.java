@@ -654,6 +654,7 @@ public final class SofaMessageManager {
 
     public void clear() {
         disconnect();
+        this.protocolStore.deleteAllSessions();
         clearSubscriptions();
         this.sharedPreferences
                 .edit()
