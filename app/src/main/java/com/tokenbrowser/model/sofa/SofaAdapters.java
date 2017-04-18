@@ -19,6 +19,7 @@ package com.tokenbrowser.model.sofa;
 
 
 import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.JsonDataException;
 import com.squareup.moshi.Moshi;
 
 import java.io.IOException;
@@ -63,18 +64,34 @@ public class SofaAdapters {
     }
 
     public Message messageFrom(final String payload) throws IOException {
-        return messageAdapter.fromJson(payload);
+        try {
+            return messageAdapter.fromJson(payload);
+        } catch (final JsonDataException ex) {
+            throw new IOException(ex);
+        }
     }
 
     public PaymentRequest txRequestFrom(final String payload) throws IOException {
-        return paymentRequestAdapter.fromJson(payload);
+        try {
+            return paymentRequestAdapter.fromJson(payload);
+        } catch (final JsonDataException ex) {
+            throw new IOException(ex);
+        }
     }
 
     public Payment paymentFrom(final String payload) throws IOException {
-        return paymentAdapter.fromJson(payload);
+        try {
+            return paymentAdapter.fromJson(payload);
+        } catch (final JsonDataException ex) {
+            throw new IOException(ex);
+        }
     }
 
     public InitRequest initRequestFrom(final String payload) throws IOException {
-        return initRequestJsonAdapter.fromJson(payload);
+        try {
+            return initRequestJsonAdapter.fromJson(payload);
+        } catch (final JsonDataException ex) {
+            throw new IOException(ex);
+        }
     }
 }
