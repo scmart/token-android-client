@@ -6,9 +6,9 @@ public class Apps {
     private int offset;
     private String query;
     private int limit;
-    private List<App> apps;
+    private List<App> results;
 
     public List<App> getApps() {
-        return apps;
+        return results;
     }
 }
