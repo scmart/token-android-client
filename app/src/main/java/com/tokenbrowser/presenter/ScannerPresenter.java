@@ -313,8 +313,21 @@ public final class ScannerPresenter implements
         this.activity.finish();
     }
 
-    @Override
-    public void onExternalPaymentApproved(final Payment payment) {}
+    public void onExternalPaymentApproved(final Payment payment) {
+        try {
+            sendExternalPayment(payment);
+        } catch (InvalidQrCodePayment invalidQrCodePayment) {
+            handleInvalidQrCode();
+        }
+    }
+
+    private void sendExternalPayment(final Payment payment) throws InvalidQrCodePayment {
+        BaseApplication
+                .get()
+                .getTokenManager()
+                .getTransactionManager()
+                .sendExternalPayment(payment.getToAddress(), payment.getValue());
+    }
 
     @Override
     public void onViewDetached() {

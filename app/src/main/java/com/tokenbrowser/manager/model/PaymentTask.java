@@ -26,10 +26,11 @@ import com.tokenbrowser.model.sofa.Payment;
 public class PaymentTask {
 
 
-    @IntDef({INCOMING, OUTGOING})
+    @IntDef({INCOMING, OUTGOING, OUTGOING_EXTERNAL})
     public @interface Action {}
     public static final int INCOMING = 0;
     public static final int OUTGOING = 1;
+    public static final int OUTGOING_EXTERNAL = 2;
 
     private final User user;
     private final Payment payment;
@@ -40,6 +41,14 @@ public class PaymentTask {
             final Payment payment,
             final @Action int action) {
         this.user = user;
+        this.payment = payment;
+        this.action = action;
+    }
+
+    public PaymentTask(
+            final Payment payment,
+            final @Action int action) {
+        this.user = null;
         this.payment = payment;
         this.action = action;
     }

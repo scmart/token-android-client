@@ -55,6 +55,7 @@ import rx.subscriptions.CompositeSubscription;
 
 import static com.tokenbrowser.manager.model.PaymentTask.INCOMING;
 import static com.tokenbrowser.manager.model.PaymentTask.OUTGOING;
+import static com.tokenbrowser.manager.model.PaymentTask.OUTGOING_EXTERNAL;
 
 public class TransactionManager {
 
@@ -99,6 +100,18 @@ public class TransactionManager {
                 final PaymentTask task = new PaymentTask(receiver, payment, OUTGOING);
                 this.newPaymentQueue.onNext(task);
             }));
+    }
+
+    public void sendExternalPayment(final String paymentAddress, final String amount) {
+        new Payment()
+                .setToAddress(paymentAddress)
+                .setFromAddress(this.wallet.getPaymentAddress())
+                .setValue(amount)
+                .generateLocalPrice()
+                .subscribe(payment -> {
+                    final PaymentTask task = new PaymentTask(payment, OUTGOING_EXTERNAL);
+                    this.newPaymentQueue.onNext(task);
+                });
     }
 
     public final void updatePayment(final Payment payment) {
@@ -194,7 +207,6 @@ public class TransactionManager {
         final Subscription sub = this.newPaymentQueue
             .observeOn(Schedulers.io())
             .subscribeOn(Schedulers.io())
-            .filter(paymentTask -> paymentTask.getUser() != null)
             .subscribe(this::processNewPayment);
 
         this.subscriptions.add(sub);
@@ -227,16 +239,22 @@ public class TransactionManager {
         .subscribe((updatedPayment) -> {
             switch (task.getAction()) {
                 case INCOMING: {
+                    if (user == null) return;
                     final User sender = task.getUser();
                     final SofaMessage storedSofaMessage = storePayment(sender, updatedPayment, sender);
                     handleIncomingPayment(updatedPayment, storedSofaMessage);
                     break;
                 }
                 case OUTGOING: {
+                    if (user == null) return;
                     final User receiver = task.getUser();
                     final User sender = getCurrentLocalUser();
                     final SofaMessage storedSofaMessage = storePayment(receiver, updatedPayment, sender);
                     handleOutgoingPayment(user, updatedPayment, storedSofaMessage);
+                    break;
+                }
+                case OUTGOING_EXTERNAL: {
+                    handleOutgoingExternalPayment(task.getPayment());
                     break;
                 }
             }
@@ -257,6 +275,25 @@ public class TransactionManager {
         this.pendingTransactionStore.save(pendingTransaction);
     }
 
+    private void handleOutgoingExternalPayment(final Payment payment) {
+        sendNewTransaction(payment)
+                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
+                .toSingle()
+                .subscribe(
+                        __ -> {},
+                        __ -> showExternalPaymentFailedNotification(payment.getToAddress())
+                );
+    }
+
+    private void showExternalPaymentFailedNotification(final String paymentAddress) {
+        final String content = String.format(
+                LocaleUtil.getLocale(),
+                BaseApplication.get().getString(R.string.payment_failed_message),
+                paymentAddress);
+        ChatNotificationManager.showChatNotification(null, content);
+    }
+
     private void handleOutgoingPayment(final User receiver, final Payment payment, final SofaMessage storedSofaMessage) {
         sendNewTransaction(payment)
                 .observeOn(Schedulers.io())
@@ -266,11 +303,11 @@ public class TransactionManager {
                     public void onError(final Throwable error) {
                         LogUtil.e(getClass(), "Error creating transaction: " + error);
                         updateMessageState(receiver, storedSofaMessage, SendState.STATE_FAILED);
-                        showPaymentFailedNotification(receiver);
+                        showTokenPaymentFailedNotification(receiver);
                         unsubscribe();
                     }
 
-                    private void showPaymentFailedNotification(final User receiver) {
+                    private void showTokenPaymentFailedNotification(final User receiver) {
                         final String content = String.format(
                                 LocaleUtil.getLocale(),
                                 BaseApplication.get().getString(R.string.payment_failed_message),
