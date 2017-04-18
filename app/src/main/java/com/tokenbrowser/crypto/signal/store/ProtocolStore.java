@@ -32,7 +32,6 @@ import org.whispersystems.libsignal.state.IdentityKeyStore;
 import org.whispersystems.libsignal.state.PreKeyRecord;
 import org.whispersystems.libsignal.state.PreKeyStore;
 import org.whispersystems.libsignal.state.SessionRecord;
-import org.whispersystems.libsignal.state.SessionStore;
 import org.whispersystems.libsignal.state.SignalProtocolStore;
 import org.whispersystems.libsignal.state.SignedPreKeyRecord;
 import org.whispersystems.libsignal.state.SignedPreKeyStore;
@@ -50,7 +49,7 @@ public class ProtocolStore implements SignalProtocolStore {
     private final PreKeyStore preKeyStore;
     private final SignedPreKeyStore signedPreKeyStore;
     private final IdentityKeyStore identityKeyStore;
-    private final SessionStore sessionStore;
+    private final SignalSessionStore sessionStore;
     private List<PreKeyRecord> preKeyRecords;
 
     public ProtocolStore() {
@@ -229,6 +228,10 @@ public class ProtocolStore implements SignalProtocolStore {
     @Override
     public void deleteAllSessions(String number) {
         sessionStore.deleteAllSessions(number);
+    }
+
+    public void deleteAllSessions() {
+        sessionStore.deleteAllSessions();
     }
 
     @Override
