@@ -600,11 +600,12 @@ public final class ChatPresenter implements
         if (messages.size() > 0) {
             this.messageAdapter.addMessages(messages);
             forceScrollToBottom();
-            updateEmptyState();
 
             final SofaMessage lastSofaMessage = messages.get(messages.size() - 1);
             setControlView(lastSofaMessage);
         }
+
+        updateEmptyState();
 
         final Subscription subNewMessage = chatObservables.first
                 .subscribeOn(Schedulers.io())
