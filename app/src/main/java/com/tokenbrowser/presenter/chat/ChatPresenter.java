@@ -265,7 +265,7 @@ public final class ChatPresenter implements
         // Hack to scroll to bottom when keyboard rendered
         this.activity.getBinding().messagesList.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
             if (bottom < oldBottom) {
-                activity.getBinding().messagesList.postDelayed(() -> activity.getBinding().messagesList.smoothScrollToPosition(messageAdapter.getItemCount() - 1), 100);
+                activity.getBinding().messagesList.postDelayed(this::smoothScrollToBottom, 100);
             }
         });
 
@@ -616,7 +616,7 @@ public final class ChatPresenter implements
                                          : conversation.getAllMessages();
         if (messages.size() > 0) {
             this.messageAdapter.addMessages(messages);
-            forceScrollToBottom();
+            scrollToBottom();
 
             final SofaMessage lastSofaMessage = messages.get(messages.size() - 1);
             setControlView(lastSofaMessage);
@@ -657,9 +657,9 @@ public final class ChatPresenter implements
         }
 
         if (animate) {
-            this.activity.getBinding().messagesList.smoothScrollToPosition(this.messageAdapter.getItemCount() - 1);
+            smoothScrollToBottom();
         } else {
-            forceScrollToBottom();
+            scrollToBottom();
         }
     }
 
@@ -712,7 +712,13 @@ public final class ChatPresenter implements
         }
     }
 
-    private void forceScrollToBottom() {
+    private void smoothScrollToBottom() {
+        if (this.activity == null) return;
+        this.activity.getBinding().messagesList.smoothScrollToPosition(this.messageAdapter.getItemCount() - 1);
+    }
+
+    private void scrollToBottom() {
+        if (this.activity == null) return;
         this.activity.getBinding().messagesList.scrollToPosition(this.messageAdapter.getItemCount() - 1);
     }
 
