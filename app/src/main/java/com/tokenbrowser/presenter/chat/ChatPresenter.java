@@ -826,11 +826,21 @@ public final class ChatPresenter implements
     public void handleActionMenuClicked(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.rate: {
-                rateUser();
+                this.subscriptions.add(
+                    getRemoteUser()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(this::rateUser)
+                );
                 break;
             }
             case R.id.view_profile: {
-                viewProfile(this.remoteUser.getTokenId());
+                this.subscriptions.add(
+                    getRemoteUser()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(remoteUser -> viewProfile(remoteUser.getTokenId()))
+                );
                 break;
             }
             default: {
@@ -840,22 +850,14 @@ public final class ChatPresenter implements
     }
 
     private void viewProfile(final String ownerAddress) {
-        if (this.remoteUser == null) {
-            return;
-        }
-
         final Intent intent = new Intent(this.activity, ViewUserActivity.class)
                 .putExtra(ViewUserActivity.EXTRA__USER_ADDRESS, ownerAddress);
         this.activity.startActivity(intent);
     }
 
-    private void rateUser() {
-        if (this.remoteUser == null) {
-            return;
-        }
-
+    private void rateUser(final User user) {
         final RateDialog dialog = RateDialog
-                .newInstance(this.remoteUser.getUsername());
+                .newInstance(user.getUsername());
         dialog.setOnRateDialogClickListener(this);
         dialog.show(this.activity.getSupportFragmentManager(), RateDialog.TAG);
     }
