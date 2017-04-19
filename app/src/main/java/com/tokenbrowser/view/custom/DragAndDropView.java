@@ -82,9 +82,12 @@ public class DragAndDropView extends LinearLayout {
         this.remainingInputBackupPhrase = new ArrayList<>(backupPhrase);
         Collections.shuffle(this.remainingInputBackupPhrase);
 
+        initView();
+    }
+
+    private void initView() {
         initChildViews();
         initListeners();
-
         renderPhraseSegments();
     }
 
@@ -92,6 +95,10 @@ public class DragAndDropView extends LinearLayout {
         final FlexboxLayout sourceLayout = (FlexboxLayout) findViewById(R.id.remaining_phrases);
         final FlexboxLayout targetLayout = (FlexboxLayout) findViewById(R.id.user_inputted_phrases);
         final FlexboxLayout.LayoutParams phraseParams = generateLayoutParams();
+
+        sourceLayout.removeAllViews();
+        targetLayout.removeAllViews();
+
         for (final String phrase : this.remainingInputBackupPhrase) {
             final ShadowTextView userInputtedTextView = generateTargetTextView();
             final ShadowTextView remainingTextView = generateSourceTextView(phrase);
@@ -277,6 +284,8 @@ public class DragAndDropView extends LinearLayout {
     }
 
     private void setText(final ShadowTextView v, final String text) {
+        if (v == null) return;
+
         v.setText(text);
         final int background = text != null ? R.drawable.background_with_radius : 0;
         v.setBackgroundResource(background);
@@ -313,6 +322,6 @@ public class DragAndDropView extends LinearLayout {
             state = bundle.getParcelable(BUNDLE__SUPER_STATE);
         }
         super.onRestoreInstanceState(state);
-        renderPhraseSegments();
+        initView();
     }
 }
