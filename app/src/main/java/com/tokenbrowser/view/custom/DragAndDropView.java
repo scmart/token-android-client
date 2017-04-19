@@ -243,8 +243,10 @@ public class DragAndDropView extends LinearLayout {
             final String phraseAtPosition = to.get(i);
             if (phraseAtPosition == null) {
                 final int index = from.indexOf(phrase);
-                from.set(index, null);
-                to.set(i, phrase);
+                if (index != -1) {
+                    from.set(index, null);
+                    to.set(i, phrase);
+                }
                 renderPhraseSegments();
                 checkBackupPhrase();
                 return;
