@@ -36,7 +36,6 @@ import com.tokenbrowser.util.PaymentType;
 import com.tokenbrowser.util.QrCode;
 import com.tokenbrowser.util.QrCodeType;
 import com.tokenbrowser.util.SoundManager;
-import com.tokenbrowser.util.TimedToast;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ChatActivity;
 import com.tokenbrowser.view.activity.ScannerActivity;
@@ -44,7 +43,9 @@ import com.tokenbrowser.view.activity.ViewUserActivity;
 import com.tokenbrowser.view.fragment.DialogFragment.PaymentRequestConfirmationDialog;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import rx.Completable;
 import rx.Single;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -65,7 +66,6 @@ public final class ScannerPresenter implements
     private String encodedEthAmount;
     private @PaymentType.Type int paymentType;
     private String memo;
-    private TimedToast timedToast;
 
     @Override
     public void onViewAttached(final ScannerActivity activity) {
@@ -86,7 +86,6 @@ public final class ScannerPresenter implements
     private void initShortLivingObjects() {
         initCloseButton();
         initScanner();
-        initToast();
     }
 
     private void initCloseButton() {
@@ -97,12 +96,9 @@ public final class ScannerPresenter implements
         if (this.capture == null) {
             this.capture = new CaptureManager(this.activity, this.activity.getBinding().scanner);
         }
+
         this.activity.getBinding().scanner.decodeSingle(this.onScanSuccess);
         this.capture.onResume();
-    }
-
-    private void initToast() {
-        this.timedToast = new TimedToast();
     }
 
     private final BarcodeCallback onScanSuccess = new BarcodeCallback() {
@@ -204,12 +200,26 @@ public final class ScannerPresenter implements
     private void handleInvalidQrCode() {
         if (this.activity == null) return;
         SoundManager.getInstance().playSound(SoundManager.SCAN_ERROR);
-        this.activity.getBinding().scanner.decodeSingle(this.onScanSuccess);
+        decodeQrCodeDelayed();
 
-        this.timedToast.makeText(
+        Toast.makeText(
                 this.activity,
-                this.activity.getString(R.string.invalid_qr_code)
+                this.activity.getString(R.string.invalid_qr_code),
+                Toast.LENGTH_SHORT
         ).show();
+    }
+
+    private void decodeQrCodeDelayed() {
+        final Subscription sub =
+                Completable
+                .timer(2000, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> {
+                    if (this.activity == null) return;
+                    this.activity.getBinding().scanner.decodeSingle(this.onScanSuccess);
+                });
+
+        this.subscriptions.add(sub);
     }
 
     private void handleWebLogin(final String result) {
