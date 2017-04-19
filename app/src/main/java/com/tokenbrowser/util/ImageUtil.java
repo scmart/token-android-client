@@ -17,15 +17,22 @@
 
 package com.tokenbrowser.util;
 
+import android.app.Activity;
+import android.app.Application;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.Target;
+import com.crashlytics.android.Crashlytics;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
@@ -60,7 +67,10 @@ public class ImageUtil {
             .filter(result -> result != null)
             .toSingle()
             .doOnSubscribe(() -> renderFromCache(url, imageView))
-            .subscribe(result -> renderFileIntoTarget(result, imageView));
+            .subscribe(
+                    result -> renderFileIntoTarget(result, imageView),
+                    Crashlytics::logException
+            );
 
     }
 
@@ -87,10 +97,34 @@ public class ImageUtil {
     }
 
     public static void renderFileIntoTarget(final File result, final ImageView imageView) {
+        if (hasDetached(imageView)) return;
+
         Glide
             .with(imageView.getContext())
             .load(result)
             .into(imageView);
+    }
+
+    private static boolean hasDetached(final ImageView imageView) {
+        final Context context = imageView.getContext();
+        if (context instanceof Application) {
+            return false;
+        }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            return false;
+        }
+
+        if (context instanceof FragmentActivity) {
+            return ((Activity) context).isDestroyed();
+        } else if (context instanceof Activity) {
+            return ((Activity) context).isDestroyed();
+        } else if (context instanceof ContextWrapper) {
+            final Context baseContext = (((ContextWrapper) context).getBaseContext());
+            return ((Activity) baseContext).isDestroyed();
+        }
+
+        return false;
     }
 
     public static void forceLoadFromNetwork(final String url, final ImageView imageView) {
