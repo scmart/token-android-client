@@ -79,7 +79,7 @@ public class DepositPresenter implements Presenter<DepositActivity> {
     };
 
     private void updateView() {
-        if (this.localUser == null) {
+        if (this.localUser == null || this.activity == null) {
             return;
         }
 
