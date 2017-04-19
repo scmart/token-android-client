@@ -117,7 +117,7 @@ dependencies {
             // Images
             'de.hdodenhof:circleimageview:2.1.0',
             // Reading barcodes
-            'com.journeyapps:zxing-android-embedded:3.3.0',
+            'com.journeyapps:zxing-android-embedded:3.5.0',
             // Crypto
             'org.bitcoinj:bitcoinj-core:0.14.3',
             'com.github.WhisperSystems:libsignal-service-java:05a516705d',
@@ -159,7 +159,7 @@ dependencyVerification {
             'io.reactivex:rxandroid:78dd5de7459c3438c09cd1435baeb8b09665019b24054ffba21ec84d068f954e',
             'com.jakewharton.rxbinding:rxbinding:a0c6b79106edcdfa878d089722ba62081789c8f7d768dfddd52f2f3c16bbf4bc',
             'de.hdodenhof:circleimageview:bcbc588e19e6dcf8c120b1957776bfe229efba5d2fbe5da7156372eeacf65503',
-            'com.journeyapps:zxing-android-embedded:09bac1ddac8785debce296c534c9b62da16f8fc7da1c5d88d314f5d1565ec541',
+            'com.journeyapps:zxing-android-embedded:bbece895a6367b638722f5b5fdc1ce8b62f27b0ab4b67ba94eb0854ff474159d',
             'org.bitcoinj:bitcoinj-core:4f3ee60916b677a94d3bd1f0983c32720c3bcc7ffc3b5622562cb05a158171ae',
             'com.github.WhisperSystems:libsignal-service-java:08cc6d35fb5435bbe100821cb5e16715828f9b29b630aeb0b17f37fc53e54604',
             'com.madgag.spongycastle:core:1e7fa4b19ccccd1011364ab838d0b4702470c178bbbdd94c5c90b2d4d749ea1e',
@@ -179,7 +179,7 @@ dependencyVerification {
             'com.google.android.gms:play-services-basement:061cd433950b380db407782c2a254752c78209900f5eb19fb07ec1ff7dd32557',
             'com.google.android.gms:play-services-iid:9cf55a8f316bcee4f0b7f0db651ef3100f5bf69246c07ef6cdafe145fee08877',
             'com.squareup.moshi:moshi:70960944f72380a9669adbf3245430597022b0da9a0a73d2c28404baa0261323',
-            'com.google.zxing:core:b4d82452e7a6bf6ec2698904b332431717ed8f9a850224f295aec89de80f2259',
+            'com.google.zxing:core:bba7724e02a997cec38213af77133ee8e24b0d5cf5fa7ecbc16a4fa93f11ee0d',
             'com.google.protobuf:protobuf-java:55aa554843983f431df5616112cf688d38aa17c132357afd1c109435bfdac4e6',
             'com.google.guava:guava:d664fbfc03d2e5ce9cab2a44fb01f1d0bf9dfebeccc1a473b1f9ea31f79f6f99',
             'com.google.code.findbugs:jsr305:1e7f53fa5b8b5c807e986ba335665da03f18d660802d8bf061823089d1bee468',

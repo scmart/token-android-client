@@ -25,17 +25,18 @@ import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.CaptureManager;
 import com.tokenbrowser.R;
-import com.tokenbrowser.exception.InvalidQrCodePayment;
 import com.tokenbrowser.exception.InvalidQrCode;
+import com.tokenbrowser.exception.InvalidQrCodePayment;
 import com.tokenbrowser.model.local.PermissionResultHolder;
 import com.tokenbrowser.model.local.QrCodePayment;
 import com.tokenbrowser.model.local.ScanResult;
 import com.tokenbrowser.model.local.User;
 import com.tokenbrowser.util.LogUtil;
 import com.tokenbrowser.util.PaymentType;
-import com.tokenbrowser.util.QrCodeType;
 import com.tokenbrowser.util.QrCode;
+import com.tokenbrowser.util.QrCodeType;
 import com.tokenbrowser.util.SoundManager;
+import com.tokenbrowser.util.TimedToast;
 import com.tokenbrowser.view.BaseApplication;
 import com.tokenbrowser.view.activity.ChatActivity;
 import com.tokenbrowser.view.activity.ScannerActivity;
@@ -64,6 +65,7 @@ public final class ScannerPresenter implements
     private String encodedEthAmount;
     private @PaymentType.Type int paymentType;
     private String memo;
+    private TimedToast timedToast;
 
     @Override
     public void onViewAttached(final ScannerActivity activity) {
@@ -74,16 +76,17 @@ public final class ScannerPresenter implements
             initLongLivingObjects();
         }
 
-        init();
+        initShortLivingObjects();
     }
 
     private void initLongLivingObjects() {
         this.subscriptions = new CompositeSubscription();
     }
 
-    private void init() {
+    private void initShortLivingObjects() {
         initCloseButton();
         initScanner();
+        initToast();
     }
 
     private void initCloseButton() {
@@ -96,6 +99,10 @@ public final class ScannerPresenter implements
         }
         this.activity.getBinding().scanner.decodeSingle(this.onScanSuccess);
         this.capture.onResume();
+    }
+
+    private void initToast() {
+        this.timedToast = new TimedToast();
     }
 
     private final BarcodeCallback onScanSuccess = new BarcodeCallback() {
@@ -197,10 +204,11 @@ public final class ScannerPresenter implements
     private void handleInvalidQrCode() {
         if (this.activity == null) return;
         SoundManager.getInstance().playSound(SoundManager.SCAN_ERROR);
-        Toast.makeText(
+        this.activity.getBinding().scanner.decodeSingle(this.onScanSuccess);
+
+        this.timedToast.makeText(
                 this.activity,
-                this.activity.getString(R.string.invalid_qr_code),
-                Toast.LENGTH_SHORT
+                this.activity.getString(R.string.invalid_qr_code)
         ).show();
     }
 
