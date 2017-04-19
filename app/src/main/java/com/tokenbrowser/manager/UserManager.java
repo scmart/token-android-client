@@ -300,6 +300,9 @@ public class UserManager {
     public Single<User> uploadAvatar(final File file) {
         final FileUtil fileUtil = new FileUtil();
         final String mimeType = fileUtil.getMimeTypeFromFilename(file.getName());
+        if (mimeType == null) {
+            return Single.error(new IllegalArgumentException("Unable to determine file type from file."));
+        }
         final MediaType mediaType = MediaType.parse(mimeType);
         final RequestBody requestFile = RequestBody.create(mediaType, file);
         final MultipartBody.Part body = MultipartBody.Part.createFormData(FORM_DATA_NAME, file.getName(), requestFile);
