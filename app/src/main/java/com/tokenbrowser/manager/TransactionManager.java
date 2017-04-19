@@ -151,6 +151,7 @@ public class TransactionManager {
                 ))
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
+                .onErrorReturn(__ -> new Pair<>(null, null))
                 .subscribe(pair -> this.updatePendingTransaction(pair.first, pair.second));
 
         this.subscriptions.add(sub);
