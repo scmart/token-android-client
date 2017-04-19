@@ -12,6 +12,12 @@ Getting Started
 3. Open this code in Android Studio (Choosing the containing directory in Android Studio `Open` dialog works)
 4. Click the `Play` button (`[Ctrl]` + `[Alt]` + `R`)
 
+Adding a dependency
+===================
+
+The plugin [gradle-witness](https://github.com/WhisperSystems/gradle-witness) to verify dependencies. You will
+need to add the relevant checksums to build.gradle. More information can be found on the gradle-witness project.
+
 Making a new build for Play store (Dev only)
 ============================================
 
