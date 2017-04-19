@@ -60,8 +60,10 @@ public class ImageUtil {
             .filter(result -> result != null)
             .toSingle()
             .doOnSubscribe(() -> renderFromCache(url, imageView))
-            .subscribe(result -> renderFileIntoTarget(result, imageView));
-
+            .subscribe(
+                    result -> renderFileIntoTarget(result, imageView),
+                    ImageUtil::handleImageLoadingError
+            );
     }
 
     private static void renderFromCache(final String url, final ImageView imageView) {
@@ -87,14 +89,19 @@ public class ImageUtil {
     }
 
     public static void renderFileIntoTarget(final File result, final ImageView imageView) {
+        if (result == null || imageView == null || imageView.getContext() == null) return;
         Glide
             .with(imageView.getContext())
             .load(result)
             .into(imageView);
     }
 
+    private static void handleImageLoadingError(final Throwable throwable) {
+        LogUtil.e("ImageUtil", throwable.toString());
+    }
+
     public static void forceLoadFromNetwork(final String url, final ImageView imageView) {
-        if (url == null || imageView == null) return;
+        if (url == null || imageView == null || imageView.getContext() == null) return;
         Glide
             .with(imageView.getContext())
             .load(new ForceLoadGlideUrl(url))
