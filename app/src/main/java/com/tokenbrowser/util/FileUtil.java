@@ -22,8 +22,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.webkit.MimeTypeMap;
 
+import com.crashlytics.android.Crashlytics;
 import com.tokenbrowser.view.BaseApplication;
 
 import org.whispersystems.libsignal.InvalidMessageException;
@@ -66,8 +68,9 @@ public class FileUtil {
         return file;
     }
 
-    public File writeAttachmentToFileFromMessageReceiver(final SignalServiceAttachmentPointer attachment,
-                                                         final SignalServiceMessageReceiver messageReceiver) {
+    public @Nullable File writeAttachmentToFileFromMessageReceiver(
+            final SignalServiceAttachmentPointer attachment,
+            final SignalServiceMessageReceiver messageReceiver) {
         File file = null;
         try {
             @SuppressLint("DefaultLocale")
@@ -77,6 +80,7 @@ public class FileUtil {
             final File destFile = new File(BaseApplication.get().getFilesDir(), fileName);
             return writeToFileFromInputStream(destFile, stream);
         } catch (IOException | InvalidMessageException e) {
+            Crashlytics.logException(e);
             LogUtil.e(getClass(), "Error during writing attachment to file " + e.getMessage());
             return null;
         } finally {

@@ -20,6 +20,7 @@ package com.tokenbrowser.manager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 
 import com.tokenbrowser.BuildConfig;
@@ -550,10 +551,10 @@ public final class SofaMessageManager {
         }
     }
 
-    private String saveAttachmentToFile(final SignalServiceAttachmentPointer attachment) {
+    private @Nullable String saveAttachmentToFile(final SignalServiceAttachmentPointer attachment) {
         final FileUtil fileUtil = new FileUtil();
         final File attachmentFile = fileUtil.writeAttachmentToFileFromMessageReceiver(attachment, this.messageReceiver);
-        return attachmentFile.getAbsolutePath();
+        return attachmentFile != null ? attachmentFile.getAbsolutePath() : null;
     }
 
     private void saveIncomingMessageFromUserToDatabase(final User user, final DecryptedSignalMessage signalMessage) {
